@@ -300,16 +300,11 @@ const RetailerLiquidation: React.FC = () => {
                 <div className="text-center p-3 bg-yellow-50 rounded-lg">
                   <p className="text-xs text-yellow-600 font-medium">Current Stock</p>
                   <div>
-                    <input
-                      type="number"
-                      value={stockUpdateData[stock.skuCode]?.current ?? stock.currentStock}
-                      onChange={(e) => handleStockUpdate(stock.skuCode, 'current', parseInt(e.target.value) || 0)}
-                      className="w-16 text-center text-lg font-bold text-yellow-800 bg-transparent border-none focus:outline-none"
-                      min="0"
-                      max={stock.assignedQuantity}
-                    />
-                    <span className="text-lg font-bold text-yellow-800"> {stock.unit}</span>
+                    <span className="text-lg font-bold text-yellow-800">
+                      {stockUpdateData[stock.skuCode]?.current ?? stock.currentStock} {stock.unit}
+                    </span>
                   </div>
+                  <p className="text-xs text-yellow-600 mt-1">(Non-editable)</p>
                 </div>
 
                 <div className="text-center p-3 bg-green-50 rounded-lg">

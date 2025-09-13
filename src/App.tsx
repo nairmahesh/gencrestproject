@@ -10,7 +10,7 @@ import { Planning } from './pages/Planning';
 import TravelReimbursement from './pages/TravelReimbursement';
 import Performance from './pages/Performance';
 import RetailerLiquidation from './pages/RetailerLiquidation';
-import MobileAppPage from './pages/MobileAppPage';
+import MobileAppDesign from './pages/MobileAppDesign';
 
 function App() {
   return (
@@ -25,7 +25,7 @@ function App() {
         <Route path="/travel" element={<TravelReimbursement />} />
         <Route path="/performance" element={<Performance />} />
         <Route path="/retailer-liquidation/:id" element={<RetailerLiquidation />} />
-        <Route path="/mobile" element={<MobileAppPage />} />
+        <Route path="/mobile-design" element={<MobileAppDesign />} />
       </Routes>
     </Layout>
   );

@@ -23,7 +23,7 @@ const navigation = [
   { name: 'Sales Orders', href: '/sales-orders', icon: ShoppingCart },
   { name: 'Liquidation', href: '/liquidation', icon: Droplets },
   { name: 'Contacts', href: '/contacts', icon: Users },
-  { name: 'Mobile App', href: '/mobile', icon: Smartphone },
+  { name: 'Mobile App Design', href: '/mobile-design', icon: Smartphone },
 ];
 
 const planningNavigation = [
