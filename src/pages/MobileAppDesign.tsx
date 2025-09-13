@@ -32,9 +32,11 @@ import {
   Activity,
   Wifi,
   Battery,
-  Signal
+  Signal,
   Droplets,
-  Calendar
+  Calendar,
+  CheckCircle
+} from 'lucide-react';
 
 const MobileAppDesign: React.FC = () => {
   const [activeTab, setActiveTab] = useState('home');
