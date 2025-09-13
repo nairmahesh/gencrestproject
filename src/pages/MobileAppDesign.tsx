@@ -175,7 +175,7 @@ const MobileAppDesign: React.FC = () => {
   const renderHomeContent = () => (
     <div className="space-y-6">
       {/* Header with Greeting */}
-      <div className="bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl p-6 text-white">
+      <div className="bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl p-6 text-white shadow-lg">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-xl font-bold">Good Morning!</h2>
@@ -198,13 +198,13 @@ const MobileAppDesign: React.FC = () => {
       {/* Quick Actions */}
       <div>
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
-        <div className="grid grid-cols-4 gap-3">
+        <div className="grid grid-cols-4 gap-4">
           {quickActions.map((action) => (
             <button
               key={action.id}
-              className={`${action.color} text-white p-3 rounded-2xl flex flex-col items-center space-y-2 active:scale-95 transition-transform shadow-sm`}
+              className={`${action.color} text-white p-4 rounded-xl flex flex-col items-center space-y-2 active:scale-95 transition-all duration-200 shadow-lg hover:shadow-xl`}
             >
-              <action.icon className="w-5 h-5" />
+              <action.icon className="w-6 h-6" />
               <span className="text-xs font-medium text-center leading-tight">{action.label}</span>
             </button>
           ))}
@@ -216,7 +216,7 @@ const MobileAppDesign: React.FC = () => {
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Today's Progress</h3>
         <div className="grid grid-cols-2 gap-4">
           {todayStats.map((stat, index) => (
-            <div key={index} className={`${stat.bgColor} rounded-2xl p-4 border border-gray-100`}>
+            <div key={index} className="bg-white rounded-xl p-4 shadow-lg border border-gray-100 hover:shadow-xl transition-shadow">
               <div className="flex items-center justify-between mb-2">
                 <stat.icon className={`w-5 h-5 ${stat.color}`} />
                 <span className="text-xs text-gray-500">Target: {stat.target}</span>
@@ -241,7 +241,7 @@ const MobileAppDesign: React.FC = () => {
         </div>
         <div className="space-y-3">
           {upcomingVisits.slice(0, 2).map((visit) => (
-            <div key={visit.id} className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+            <div key={visit.id} className="bg-white rounded-xl p-4 shadow-lg border border-gray-100 hover:shadow-xl transition-shadow">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center space-x-2">
                   <div className={`w-3 h-3 rounded-full ${
@@ -277,25 +277,25 @@ const MobileAppDesign: React.FC = () => {
           <input
             type="text"
             placeholder="Search visits..."
-            className="w-full pl-10 pr-4 py-3 bg-white rounded-2xl border border-gray-200 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            className="w-full pl-10 pr-4 py-3 bg-white rounded-xl border border-gray-200 focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm"
           />
         </div>
-        <button className="bg-white p-3 rounded-2xl border border-gray-200 shadow-sm">
+        <button className="bg-white p-3 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
           <Filter className="w-5 h-5 text-gray-600" />
         </button>
       </div>
 
       {/* Visit Status Cards */}
       <div className="grid grid-cols-3 gap-4">
-        <div className="bg-blue-50 rounded-2xl p-4 text-center">
+        <div className="bg-white rounded-xl p-4 text-center shadow-lg border-l-4 border-blue-500">
           <div className="text-2xl font-bold text-blue-600">5</div>
           <div className="text-sm text-blue-700">Scheduled</div>
         </div>
-        <div className="bg-green-50 rounded-2xl p-4 text-center">
+        <div className="bg-white rounded-xl p-4 text-center shadow-lg border-l-4 border-green-500">
           <div className="text-2xl font-bold text-green-600">3</div>
           <div className="text-sm text-green-700">Completed</div>
         </div>
-        <div className="bg-yellow-50 rounded-2xl p-4 text-center">
+        <div className="bg-white rounded-xl p-4 text-center shadow-lg border-l-4 border-yellow-500">
           <div className="text-2xl font-bold text-yellow-600">1</div>
           <div className="text-sm text-yellow-700">In Progress</div>
         </div>
@@ -304,7 +304,7 @@ const MobileAppDesign: React.FC = () => {
       {/* Visit List */}
       <div className="space-y-4">
         {upcomingVisits.map((visit) => (
-          <div key={visit.id} className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+          <div key={visit.id} className="bg-white rounded-xl p-4 shadow-lg border border-gray-100 hover:shadow-xl transition-shadow">
             <div className="flex items-start justify-between mb-3">
               <div className="flex-1">
                 <h4 className="font-semibold text-gray-900 mb-1">{visit.customer}</h4>
@@ -343,10 +343,10 @@ const MobileAppDesign: React.FC = () => {
                   Complete Visit
                 </button>
               )}
-              <button className="p-2 border border-gray-200 rounded-xl">
+              <button className="p-2 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">
                 <Phone className="w-4 h-4 text-gray-600" />
               </button>
-              <button className="p-2 border border-gray-200 rounded-xl">
+              <button className="p-2 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">
                 <Navigation className="w-4 h-4 text-gray-600" />
               </button>
             </div>
@@ -360,7 +360,7 @@ const MobileAppDesign: React.FC = () => {
     <div className="space-y-6">
       {/* Order Summary */}
       <div className="grid grid-cols-2 gap-4">
-        <div className="bg-green-50 rounded-2xl p-4">
+        <div className="bg-white rounded-xl p-4 shadow-lg border-l-4 border-green-500">
           <div className="flex items-center justify-between mb-2">
             <ShoppingCart className="w-5 h-5 text-green-600" />
             <span className="text-xs text-green-600">This Month</span>
@@ -368,7 +368,7 @@ const MobileAppDesign: React.FC = () => {
           <div className="text-xl font-bold text-green-800">₹4.2L</div>
           <div className="text-sm text-green-700">Total Orders</div>
         </div>
-        <div className="bg-blue-50 rounded-2xl p-4">
+        <div className="bg-white rounded-xl p-4 shadow-lg border-l-4 border-blue-500">
           <div className="flex items-center justify-between mb-2">
             <Clock className="w-5 h-5 text-blue-600" />
             <span className="text-xs text-blue-600">Pending</span>
@@ -383,7 +383,7 @@ const MobileAppDesign: React.FC = () => {
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Orders</h3>
         <div className="space-y-4">
           {recentOrders.map((order) => (
-            <div key={order.id} className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+            <div key={order.id} className="bg-white rounded-xl p-4 shadow-lg border border-gray-100 hover:shadow-xl transition-shadow">
               <div className="flex items-center justify-between mb-2">
                 <div>
                   <h4 className="font-semibold text-gray-900">{order.customer}</h4>
@@ -415,7 +415,7 @@ const MobileAppDesign: React.FC = () => {
     <div className="space-y-6">
       {/* Liquidation Summary */}
       <div className="grid grid-cols-2 gap-4">
-        <div className="bg-orange-50 rounded-2xl p-4">
+        <div className="bg-white rounded-xl p-4 shadow-lg border-l-4 border-orange-500">
           <div className="flex items-center justify-between mb-2">
             <Package className="w-5 h-5 text-orange-600" />
             <span className="text-xs text-orange-600">Opening</span>
@@ -423,7 +423,7 @@ const MobileAppDesign: React.FC = () => {
           <div className="text-xl font-bold text-orange-800">32.6K</div>
           <div className="text-sm text-orange-700">Kg/Litre</div>
         </div>
-        <div className="bg-green-50 rounded-2xl p-4">
+        <div className="bg-white rounded-xl p-4 shadow-lg border-l-4 border-green-500">
           <div className="flex items-center justify-between mb-2">
             <Droplets className="w-5 h-5 text-green-600" />
             <span className="text-xs text-green-600">Liquidated</span>
@@ -434,7 +434,7 @@ const MobileAppDesign: React.FC = () => {
       </div>
 
       {/* Liquidation Progress */}
-      <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+      <div className="bg-white rounded-xl p-4 shadow-lg border border-gray-100">
         <h3 className="font-semibold text-gray-900 mb-4">Overall Progress</h3>
         <div className="space-y-3">
           <div className="flex justify-between text-sm">
@@ -452,7 +452,7 @@ const MobileAppDesign: React.FC = () => {
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Dealer Liquidation</h3>
         <div className="space-y-4">
           {liquidationData.map((item, index) => (
-            <div key={index} className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+            <div key={index} className="bg-white rounded-xl p-4 shadow-lg border border-gray-100 hover:shadow-xl transition-shadow">
               <div className="flex items-center justify-between mb-3">
                 <div>
                   <h4 className="font-semibold text-gray-900">{item.dealer}</h4>
@@ -494,7 +494,7 @@ const MobileAppDesign: React.FC = () => {
   const renderReportsContent = () => (
     <div className="space-y-6">
       {/* Performance Overview */}
-      <div className="bg-gradient-to-r from-green-500 to-blue-500 rounded-2xl p-6 text-white">
+      <div className="bg-gradient-to-r from-green-500 to-blue-500 rounded-xl p-6 text-white shadow-lg">
         <h3 className="text-lg font-semibold mb-4">Performance Overview</h3>
         <div className="grid grid-cols-2 gap-4">
           <div>
@@ -511,12 +511,12 @@ const MobileAppDesign: React.FC = () => {
       {/* Key Metrics */}
       <div className="grid grid-cols-2 gap-4">
         {[
-          { label: 'Visit Target', value: '85%', icon: Target, color: 'text-blue-600', bgColor: 'bg-blue-50' },
-          { label: 'Sales Target', value: '92%', icon: TrendingUp, color: 'text-green-600', bgColor: 'bg-green-50' },
-          { label: 'Collection', value: '78%', icon: DollarSign, color: 'text-purple-600', bgColor: 'bg-purple-50' },
-          { label: 'Liquidation', value: '65%', icon: Droplets, color: 'text-orange-600', bgColor: 'bg-orange-50' }
+          { label: 'Visit Target', value: '85%', icon: Target, color: 'text-blue-600', borderColor: 'border-blue-500' },
+          { label: 'Sales Target', value: '92%', icon: TrendingUp, color: 'text-green-600', borderColor: 'border-green-500' },
+          { label: 'Collection', value: '78%', icon: DollarSign, color: 'text-purple-600', borderColor: 'border-purple-500' },
+          { label: 'Liquidation', value: '65%', icon: Droplets, color: 'text-orange-600', borderColor: 'border-orange-500' }
         ].map((metric, index) => (
-          <div key={index} className={`${metric.bgColor} rounded-2xl p-4 border border-gray-100`}>
+          <div key={index} className={`bg-white rounded-xl p-4 shadow-lg border-l-4 ${metric.borderColor}`}>
             <div className="flex items-center justify-between mb-2">
               <metric.icon className={`w-5 h-5 ${metric.color}`} />
               <span className="text-lg font-bold text-gray-900">{metric.value}</span>
@@ -535,7 +535,7 @@ const MobileAppDesign: React.FC = () => {
             { title: 'Visit Summary', date: 'This Week', type: 'Visits', status: 'pending', icon: MapPin },
             { title: 'Liquidation Analysis', date: 'Q4 2023', type: 'Stock', status: 'completed', icon: Package }
           ].map((report, index) => (
-            <div key={index} className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+            <div key={index} className="bg-white rounded-xl p-4 shadow-lg border border-gray-100 hover:shadow-xl transition-shadow">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
@@ -550,7 +550,7 @@ const MobileAppDesign: React.FC = () => {
                   <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
                     {report.type}
                   </span>
-                  <button className="p-2 bg-gray-100 rounded-full">
+                  <button className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
                     <Download className="w-4 h-4 text-gray-600" />
                   </button>
                 </div>
@@ -565,7 +565,7 @@ const MobileAppDesign: React.FC = () => {
   const renderMoreContent = () => (
     <div className="space-y-6">
       {/* User Profile */}
-      <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+      <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
         <div className="flex items-center space-x-4 mb-4">
           <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
             <span className="text-white font-bold text-xl">RK</span>
@@ -600,7 +600,7 @@ const MobileAppDesign: React.FC = () => {
           {moreOptions.map((option) => (
             <button
               key={option.id}
-              className="w-full flex items-center space-x-4 p-4 bg-white rounded-2xl shadow-sm border border-gray-100 hover:bg-gray-50 transition-colors"
+              className="w-full flex items-center space-x-4 p-4 bg-white rounded-xl shadow-lg border border-gray-100 hover:shadow-xl hover:bg-gray-50 transition-all"
             >
               <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
                 <option.icon className={`w-5 h-5 ${option.color}`} />
@@ -617,7 +617,7 @@ const MobileAppDesign: React.FC = () => {
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Contacts</h3>
         <div className="space-y-3">
           {contacts.slice(0, 3).map((contact, index) => (
-            <div key={index} className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+            <div key={index} className="bg-white rounded-xl p-4 shadow-lg border border-gray-100 hover:shadow-xl transition-shadow">
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
                   <span className="text-purple-600 font-semibold text-sm">{contact.name.charAt(0)}</span>
@@ -627,10 +627,10 @@ const MobileAppDesign: React.FC = () => {
                   <p className="text-sm text-gray-600">{contact.company}</p>
                 </div>
                 <div className="flex space-x-2">
-                  <button className="p-2 bg-green-100 rounded-full">
+                  <button className="p-2 bg-green-100 rounded-full hover:bg-green-200 transition-colors">
                     <Phone className="w-4 h-4 text-green-600" />
                   </button>
-                  <button className="p-2 bg-blue-100 rounded-full">
+                  <button className="p-2 bg-blue-100 rounded-full hover:bg-blue-200 transition-colors">
                     <MessageCircle className="w-4 h-4 text-blue-600" />
                   </button>
                 </div>
