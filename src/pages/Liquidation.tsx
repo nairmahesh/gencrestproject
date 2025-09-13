@@ -849,7 +849,17 @@ const Liquidation: React.FC = () => {
                           <label className="block text-sm font-medium text-red-800 mb-2">
                             Stock Increase Detected - Explanation Required:
                           </label>
-                          <select className="w-full px-3 py-2 border border-red-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                          <select 
+                            className="w-full px-3 py-2 border border-red-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              if (value === 'return_from_retailer') {
+                                // Show retailer selection modal
+                                setSelectedSku(stock.id);
+                                setShowRetailerModal(true);
+                              }
+                            }}
+                          >
                             <option value="">Select explanation...</option>
                             <option value="return_from_retailer">Return from Retailer</option>
                             <option value="return_from_farmer">Return from Farmer</option>
@@ -857,6 +867,30 @@ const Liquidation: React.FC = () => {
                             <option value="counting_error_previous">Previous Counting Error</option>
                             <option value="other">Other (Specify in notes)</option>
                           </select>
+                          
+                          {/* Show retailer details if return from retailer is selected */}
+                          {stockData[stock.id]?.returnFromRetailer && (
+                            <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                              <h5 className="font-medium text-blue-800 mb-2">Return Details:</h5>
+                              <div className="text-sm text-blue-700 space-y-1">
+                                <p><strong>Retailer:</strong> {stockData[stock.id].returnFromRetailer.name}</p>
+                                <p><strong>Code:</strong> {stockData[stock.id].returnFromRetailer.code}</p>
+                                <p><strong>Phone:</strong> {stockData[stock.id].returnFromRetailer.phone}</p>
+                                <p><strong>Return Quantity:</strong> {variance} {stock.unit}</p>
+                                <p><strong>Reason:</strong> {stockData[stock.id].returnFromRetailer.reason}</p>
+                              </div>
+                              <button
+                                onClick={() => {
+                                  setSelectedSku(stock.id);
+                                  setShowRetailerModal(true);
+                                }}
+                                className="mt-2 text-blue-600 hover:text-blue-800 text-sm underline"
+                              >
+                                Edit Return Details
+                              </button>
+                            </div>
+                          )}
+                          
                           <p className="text-xs text-red-600 mt-1">
                             This increase will require verification and documentation
                           </p>
@@ -982,7 +1016,7 @@ const Liquidation: React.FC = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl w-full max-w-2xl">
             <div className="flex items-center justify-between p-6 border-b">
-              <h3 className="text-xl font-semibold text-gray-900">Add Retailer Details</h3>
+              <h3 className="text-xl font-semibold text-gray-900">Return from Retailer - Details Required</h3>
               <button
                 onClick={() => setShowRetailerModal(false)}
                 className="p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -992,10 +1026,16 @@ const Liquidation: React.FC = () => {
             </div>
             
             <div className="p-6">
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
+                <p className="text-sm text-yellow-800">
+                  <strong>Stock Increase Detected:</strong> Please specify which retailer returned the stock and provide details for verification.
+                </p>
+              </div>
+              
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Retailer Name *
+                    Which Retailer Returned Stock? *
                   </label>
                   <input
                     type="text"
@@ -1007,7 +1047,7 @@ const Liquidation: React.FC = () => {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Retailer Code
+                      Retailer Code *
                     </label>
                     <input
                       type="text"
@@ -1017,7 +1057,7 @@ const Liquidation: React.FC = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Phone Number
+                      Phone Number *
                     </label>
                     <input
                       type="tel"
@@ -1029,7 +1069,7 @@ const Liquidation: React.FC = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Address
+                    Retailer Address
                   </label>
                   <textarea
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -1038,10 +1078,10 @@ const Liquidation: React.FC = () => {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-3 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Quantity Sold *
+                      Return Quantity *
                     </label>
                     <input
                       type="number"
@@ -1051,7 +1091,7 @@ const Liquidation: React.FC = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Unit Price
+                      Original Unit Price
                     </label>
                     <input
                       type="number"
@@ -1059,17 +1099,31 @@ const Liquidation: React.FC = () => {
                       placeholder="Enter unit price"
                     />
                   </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Return Date *
+                    </label>
+                    <input
+                      type="date"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      defaultValue={new Date().toISOString().split('T')[0]}
+                    />
+                  </div>
                 </div>
 
-                <div className="flex items-center space-x-4">
-                  <label className="flex items-center">
-                    <input type="checkbox" className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
-                    <span className="ml-2 text-sm text-gray-700">New Retailer</span>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Reason for Return *
                   </label>
-                  <label className="flex items-center">
-                    <input type="checkbox" className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
-                    <span className="ml-2 text-sm text-gray-700">Requires Liquidation Tracking</span>
-                  </label>
+                  <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <option value="">Select reason...</option>
+                    <option value="quality_issue">Quality Issue</option>
+                    <option value="wrong_product">Wrong Product Delivered</option>
+                    <option value="excess_stock">Excess Stock</option>
+                    <option value="expiry_concern">Near Expiry</option>
+                    <option value="customer_complaint">Customer Complaint</option>
+                    <option value="other">Other</option>
+                  </select>
                 </div>
               </div>
 
@@ -1082,13 +1136,13 @@ const Liquidation: React.FC = () => {
                 </button>
                 <button
                   onClick={() => {
-                    // Add retailer logic here
+                    // Add return from retailer logic here
                     setShowRetailerModal(false);
                   }}
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center"
+                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center"
                 >
-                  <UserPlus className="w-4 h-4 mr-2" />
-                  Add Retailer
+                  <Package className="w-4 h-4 mr-2" />
+                  Record Return
                 </button>
               </div>
             </div>
