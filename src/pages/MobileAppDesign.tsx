@@ -413,23 +413,63 @@ const MobileAppDesign: React.FC = () => {
 
   const renderLiquidationContent = () => (
     <div className="space-y-6">
-      {/* Liquidation Summary */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="bg-white rounded-xl p-4 shadow-lg border-l-4 border-orange-500">
+      {/* Stock Liquidation Overview Cards */}
+      <div className="grid grid-cols-2 gap-3">
+        <div className="bg-orange-50 rounded-xl p-4 shadow-lg border border-orange-200">
           <div className="flex items-center justify-between mb-2">
-            <Package className="w-5 h-5 text-orange-600" />
-            <span className="text-xs text-orange-600">Opening</span>
+            <h4 className="text-sm font-bold text-gray-900">Opening Stock</h4>
           </div>
-          <div className="text-xl font-bold text-orange-800">32.6K</div>
-          <div className="text-sm text-orange-700">Kg/Litre</div>
+          <p className="text-xs text-gray-600 mb-3">As of 1st April 2025</p>
+          <div className="space-y-1">
+            <div className="text-sm font-semibold text-gray-900">Vol (Kg/Litre) 32660</div>
+            <div className="text-sm font-semibold text-gray-900 border-t border-gray-300 pt-1">Value (Rs.Lakhs) 20.00</div>
+          </div>
         </div>
-        <div className="bg-white rounded-xl p-4 shadow-lg border-l-4 border-green-500">
+        
+        <div className="bg-blue-50 rounded-xl p-4 shadow-lg border border-blue-200">
           <div className="flex items-center justify-between mb-2">
-            <Droplets className="w-5 h-5 text-green-600" />
-            <span className="text-xs text-green-600">Liquidated</span>
+            <h4 className="text-sm font-bold text-gray-900">YTD Net Sales</h4>
           </div>
-          <div className="text-xl font-bold text-green-800">12.7K</div>
-          <div className="text-sm text-green-700">Kg/Litre</div>
+          <p className="text-xs text-gray-600 mb-3">April - Aug,2025</p>
+          <div className="space-y-1">
+            <div className="text-sm font-semibold text-gray-900">Vol (Kg/Litre) 45963</div>
+            <div className="text-sm font-semibold text-gray-900 border-t border-gray-300 pt-1">Value (Rs.Lakhs) 14.45</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div className="bg-green-50 rounded-xl p-4 shadow-lg border border-green-200">
+          <div className="flex items-center justify-between mb-2">
+            <h4 className="text-sm font-bold text-gray-900">Liquidation</h4>
+          </div>
+          <p className="text-xs text-gray-600 mb-3">As of Aug (YTD)</p>
+          <div className="space-y-1">
+            <div className="text-sm font-semibold text-gray-900">Vol (Kg/Litre) 12720</div>
+            <div className="text-sm font-semibold text-gray-900 border-t border-gray-300 pt-1">Value (Rs.Lakhs) 7.00</div>
+          </div>
+        </div>
+        
+        <div className="bg-purple-50 rounded-xl p-4 shadow-lg border border-purple-200">
+          <div className="flex items-center justify-between mb-2">
+            <h4 className="text-sm font-bold text-gray-900">Balance Stock</h4>
+          </div>
+          <p className="text-xs text-gray-600 mb-3">&nbsp;</p>
+          <div className="space-y-1">
+            <div className="text-sm font-semibold text-gray-900">Vol (Kg/Litre) 65903</div>
+            <div className="text-sm font-semibold text-gray-900 border-t border-gray-300 pt-1">Value (Rs.Lakhs) 40.00</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Liquidation Percentage Card */}
+      <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
+        <div className="text-center">
+          <h4 className="text-lg font-bold text-gray-900 mb-2">% Liquidation</h4>
+          <div className="text-4xl font-bold text-purple-600 mb-4">16%</div>
+          <div className="w-full bg-gray-200 rounded-full h-3">
+            <div className="bg-gradient-to-r from-purple-500 to-pink-500 h-3 rounded-full" style={{ width: '16%' }}></div>
+          </div>
         </div>
       </div>
 
