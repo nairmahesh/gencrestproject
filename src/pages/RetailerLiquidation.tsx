@@ -248,13 +248,13 @@ const RetailerLiquidation: React.FC = () => {
         <div className="bg-white rounded-xl p-6 card-shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Missing/Sold</p>
+              <p className="text-sm text-gray-600">Balance Stock</p>
               <p className="text-2xl font-bold text-orange-600">
                 {retailerData.stockDetails.reduce((sum, item) => sum + (item.assignedQuantity - item.currentStock - item.liquidatedToFarmer), 0)} units
               </p>
             </div>
             <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
-              <AlertTriangle className="w-6 h-6 text-orange-600" />
+              <Package className="w-6 h-6 text-orange-600" />
             </div>
           </div>
         </div>
