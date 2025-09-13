@@ -615,7 +615,7 @@ const Liquidation: React.FC = () => {
               </div>
 
               {/* Key Metrics */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-4">
                 <div className="text-center p-3 bg-orange-50 rounded-lg">
                   <div className="text-2xl font-bold text-orange-600">{entry.openingStock}</div>
                   <div className="text-xs text-orange-700">Opening Stock</div>
@@ -630,6 +630,11 @@ const Liquidation: React.FC = () => {
                   <div className="text-2xl font-bold text-green-600">{entry.liquidation}</div>
                   <div className="text-xs text-green-700">Liquidation</div>
                   <div className="text-xs text-green-600">Kg/Litre</div>
+                </div>
+                <div className="text-center p-3 bg-purple-50 rounded-lg">
+                  <div className="text-2xl font-bold text-purple-600">{entry.balanceStock}</div>
+                  <div className="text-xs text-purple-700">Balance Stock</div>
+                  <div className="text-xs text-purple-600">Kg/Litre</div>
                 </div>
                 <div className="text-center p-3 bg-purple-50 rounded-lg">
                   <div className="text-2xl font-bold text-purple-600">{entry.liquidationRate}%</div>
