@@ -862,7 +862,6 @@ const Liquidation: React.FC = () => {
                           >
                             <option value="">Select explanation...</option>
                             <option value="return_from_retailer">Return from Retailer</option>
-                            <option value="return_from_farmer">Return from Farmer</option>
                             <option value="new_stock_received">New Stock Received</option>
                             <option value="counting_error_previous">Previous Counting Error</option>
                             <option value="other">Other (Specify in notes)</option>
@@ -921,6 +920,7 @@ const Liquidation: React.FC = () => {
                   <button
                     onClick={processStockEntry}
                     className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center"
+                    disabled={false}
                   >
                     <Save className="w-4 h-4 mr-2" />
                     Process Entry
@@ -932,6 +932,7 @@ const Liquidation: React.FC = () => {
         </div>
       )}
 
+
       {/* Variance Processing Modal */}
       {showVarianceModal && selectedDistributorData && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -939,7 +940,7 @@ const Liquidation: React.FC = () => {
             <div className="flex items-center justify-between p-6 border-b">
               <div>
                 <h3 className="text-xl font-semibold text-gray-900">Process Stock Variances</h3>
-                <p className="text-sm text-gray-600 mt-1">Classify each variance type</p>
+                <p className="text-sm text-gray-600 mt-1">Classify each variance type for {selectedDistributorData.distributorName}</p>
               </div>
               <button
                 onClick={() => setShowVarianceModal(false)}
@@ -947,6 +948,15 @@ const Liquidation: React.FC = () => {
               >
                 <X className="w-5 h-5" />
               </button>
+            </div>
+            
+            <div className="p-4 bg-blue-50 border-b">
+              <div className="flex items-center text-blue-800">
+                <Info className="w-4 h-4 mr-2" />
+                <span className="text-sm">
+                  For each stock variance, select how the stock was liquidated or returned
+                </span>
+              </div>
             </div>
             
             <div className="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
@@ -971,7 +981,7 @@ const Liquidation: React.FC = () => {
                           </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <button
                             onClick={() => handleVarianceType(stock.id, 'Sold to Retailer')}
                             className="p-4 border-2 border-blue-200 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-colors"
@@ -980,16 +990,6 @@ const Liquidation: React.FC = () => {
                             <p className="font-medium text-blue-800">Sold to Retailer</p>
                             <p className="text-xs text-blue-600">Add retailer details</p>
                             <p className="text-xs text-blue-600">E-SIGN needed</p>
-                          </button>
-
-                          <button
-                            onClick={() => handleVarianceType(stock.id, 'Sold to Farmer')}
-                            className="p-4 border-2 border-green-200 rounded-lg hover:border-green-400 hover:bg-green-50 transition-colors"
-                          >
-                            <User className="w-6 h-6 text-green-600 mx-auto mb-2" />
-                            <p className="font-medium text-green-800">Sold to Farmer</p>
-                            <p className="text-xs text-green-600">No details needed</p>
-                            <p className="text-xs text-green-600">No verification</p>
                           </button>
 
                           <button
@@ -1005,6 +1005,17 @@ const Liquidation: React.FC = () => {
                       </div>
                     );
                   })}
+                
+                {selectedDistributorData.stockDetails.filter(stock => {
+                  const current = stockData[stock.id]?.current ?? stock.currentStock;
+                  return current !== stock.erpLastBalance;
+                }).length === 0 && (
+                  <div className="text-center py-8">
+                    <CheckCircle className="w-12 h-12 text-green-600 mx-auto mb-4" />
+                    <p className="text-gray-600">No variances detected</p>
+                    <p className="text-sm text-gray-500">All stock entries match ERP balance</p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
