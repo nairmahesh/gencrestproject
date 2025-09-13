@@ -44,6 +44,7 @@ const RetailerLiquidation: React.FC = () => {
   const [showSignatureModal, setShowSignatureModal] = useState(false);
   const [selectedRetailer, setSelectedRetailer] = useState<string | null>(null);
   const [stockUpdateData, setStockUpdateData] = useState<{[key: string]: {current: number, liquidated: number}}>({});
+  const [stockUpdateData, setStockUpdateData] = useState<{[key: string]: {current: number, liquidated: number, returned: number}}>({});
 
   // Sample data for retailer liquidation
   const retailerData: RetailerLiquidationData = {
@@ -94,11 +95,14 @@ const RetailerLiquidation: React.FC = () => {
     liquidationPercentage: 0
   };
 
-  const handleStockUpdate = (skuCode: string, field: 'current' | 'liquidated', value: number) => {
+  const handleStockUpdate = (skuCode: string, field: 'current' | 'liquidated' | 'returned', value: number) => {
     setStockUpdateData(prev => ({
       ...prev,
       [skuCode]: {
         ...prev[skuCode],
+        current: prev[skuCode]?.current ?? retailerData.stockDetails.find(s => s.skuCode === skuCode)?.currentStock ?? 0,
+        liquidated: prev[skuCode]?.liquidated ?? retailerData.stockDetails.find(s => s.skuCode === skuCode)?.liquidatedToFarmer ?? 0,
+        returned: prev[skuCode]?.returned ?? retailerData.stockDetails.find(s => s.skuCode === skuCode)?.returnToDistributor ?? 0,
         [field]: value
       }
     }));
@@ -287,7 +291,7 @@ const RetailerLiquidation: React.FC = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4">
                 <div className="text-center p-3 bg-blue-50 rounded-lg">
                   <p className="text-xs text-blue-600 font-medium">Assigned by Distributor</p>
                   <p className="text-lg font-bold text-blue-800">{stock.assignedQuantity} {stock.unit}</p>
@@ -324,12 +328,31 @@ const RetailerLiquidation: React.FC = () => {
                   </div>
                 </div>
 
+                <div className="text-center p-3 bg-purple-50 rounded-lg">
+                  <p className="text-xs text-purple-600 font-medium">Return to Distributor</p>
+                  <div>
+                    <input
+                      type="number"
+                      value={stockUpdateData[stock.skuCode]?.returned ?? stock.returnToDistributor}
+                      onChange={(e) => handleStockUpdate(stock.skuCode, 'returned', parseInt(e.target.value) || 0)}
+                      className="w-16 text-center text-lg font-bold text-purple-800 bg-transparent border-none focus:outline-none"
+                      min="0"
+                      max={stock.assignedQuantity - (stockUpdateData[stock.skuCode]?.current ?? stock.currentStock) - (stockUpdateData[stock.skuCode]?.liquidated ?? stock.liquidatedToFarmer)}
+                    />
+                    <span className="text-lg font-bold text-purple-800"> {stock.unit}</span>
+                  </div>
+                  <p className="text-xs text-purple-600">Available: {stock.assignedQuantity - (stockUpdateData[stock.skuCode]?.current ?? stock.currentStock) - (stockUpdateData[stock.skuCode]?.liquidated ?? stock.liquidatedToFarmer)} {stock.unit}</p>
+                </div>
+
                 <div className="text-center p-3 bg-gray-50 rounded-lg">
                   <p className="text-xs text-gray-600 font-medium">Status</p>
                   <div className="mt-1">
-                    {(stockUpdateData[stock.skuCode]?.liquidated ?? stock.liquidatedToFarmer) === stock.assignedQuantity ? (
+                    {((stockUpdateData[stock.skuCode]?.current ?? stock.currentStock) + 
+                      (stockUpdateData[stock.skuCode]?.liquidated ?? stock.liquidatedToFarmer) + 
+                      (stockUpdateData[stock.skuCode]?.returned ?? stock.returnToDistributor)) === stock.assignedQuantity ? (
                       <CheckCircle className="w-6 h-6 text-green-600 mx-auto" />
-                    ) : (stockUpdateData[stock.skuCode]?.liquidated ?? stock.liquidatedToFarmer) > 0 ? (
+                    ) : ((stockUpdateData[stock.skuCode]?.liquidated ?? stock.liquidatedToFarmer) + 
+                         (stockUpdateData[stock.skuCode]?.returned ?? stock.returnToDistributor)) > 0 ? (
                       <Clock className="w-6 h-6 text-yellow-600 mx-auto" />
                     ) : (
                       <Package className="w-6 h-6 text-blue-600 mx-auto" />
@@ -343,21 +366,23 @@ const RetailerLiquidation: React.FC = () => {
                 <div className="flex justify-between text-xs text-gray-500 mb-1">
                   <span>Liquidation Progress</span>
                   <span>
-                    {Math.round(((stockUpdateData[stock.skuCode]?.liquidated ?? stock.liquidatedToFarmer) / stock.assignedQuantity) * 100)}%
+                    {Math.round((((stockUpdateData[stock.skuCode]?.liquidated ?? stock.liquidatedToFarmer) + 
+                                 (stockUpdateData[stock.skuCode]?.returned ?? stock.returnToDistributor)) / stock.assignedQuantity) * 100)}%
                   </span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div
-                    className="bg-green-600 h-2 rounded-full transition-all duration-300"
+                    className="bg-gradient-to-r from-green-600 to-purple-600 h-2 rounded-full transition-all duration-300"
                     style={{ 
-                      width: `${((stockUpdateData[stock.skuCode]?.liquidated ?? stock.liquidatedToFarmer) / stock.assignedQuantity) * 100}%` 
+                      width: `${(((stockUpdateData[stock.skuCode]?.liquidated ?? stock.liquidatedToFarmer) + 
+                                 (stockUpdateData[stock.skuCode]?.returned ?? stock.returnToDistributor)) / stock.assignedQuantity) * 100}%` 
                     }}
                   ></div>
                 </div>
               </div>
 
               <div className="text-xs text-gray-500 text-center">
-                True liquidation for distributor will be shown only after complete farmer liquidation
+                Balance must be either liquidated to farmer or returned to distributor
               </div>
             </div>
           ))}
