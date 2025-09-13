@@ -12,12 +12,10 @@ import {
   Camera,
   Navigation,
   Phone,
-  CheckCircle,
   Clock,
   Target,
   DollarSign,
   Package,
-  Calendar,
   User,
   Settings,
   LogOut,
@@ -35,7 +33,7 @@ import {
   Wifi,
   Battery,
   Signal,
-  Droplets
+  MapPin
 } from 'lucide-react';
 
 const MobileAppDesign: React.FC = () => {
@@ -342,52 +340,55 @@ const MobileAppDesign: React.FC = () => {
     </div>
   );
 
-  const renderLiquidationContent = () => (
+  const renderContactsContent = () => (
     <div className="space-y-6">
-      {/* Liquidation Stats */}
+      {/* Contact Stats */}
       <div className="grid grid-cols-3 gap-4">
         <div className="bg-purple-50 rounded-2xl p-4 text-center">
-          <div className="text-2xl font-bold text-purple-600">85%</div>
-          <div className="text-sm text-purple-700">Target</div>
+          <div className="text-2xl font-bold text-purple-600">45</div>
+          <div className="text-sm text-purple-700">Total</div>
         </div>
         <div className="bg-green-50 rounded-2xl p-4 text-center">
-          <div className="text-2xl font-bold text-green-600">68%</div>
-          <div className="text-sm text-green-700">Achieved</div>
+          <div className="text-2xl font-bold text-green-600">12</div>
+          <div className="text-sm text-green-700">Distributors</div>
         </div>
         <div className="bg-blue-50 rounded-2xl p-4 text-center">
-          <div className="text-2xl font-bold text-blue-600">12</div>
-          <div className="text-sm text-blue-700">Pending</div>
+          <div className="text-2xl font-bold text-blue-600">33</div>
+          <div className="text-sm text-blue-700">Retailers</div>
         </div>
       </div>
 
-      {/* Liquidation List */}
+      {/* Contact List */}
       <div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Liquidations</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Contacts</h3>
         <div className="space-y-4">
           {[
-            { name: 'SRI RAMA SEEDS', product: 'DAP 50kg', percentage: '75%', status: 'In Progress' },
-            { name: 'Green Agro Store', product: 'NPK 25kg', percentage: '90%', status: 'Completed' },
-            { name: 'Suresh Traders', product: 'Urea 50kg', percentage: '45%', status: 'Pending' }
-          ].map((item, index) => (
+            { name: 'Ram Kumar', company: 'Ram Kumar Distributors', phone: '+91 98765 43210', type: 'Distributor' },
+            { name: 'Suresh Sharma', company: 'Suresh Traders', phone: '+91 87654 32109', type: 'Dealer' },
+            { name: 'Amit Patel', company: 'Green Agro Store', phone: '+91 76543 21098', type: 'Retailer' }
+          ].map((contact, index) => (
             <div key={index} className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
               <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                  <Droplets className="w-6 h-6 text-blue-600" />
+                <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                  <span className="text-purple-600 font-semibold">{contact.name.charAt(0)}</span>
                 </div>
                 <div className="flex-1">
-                  <h4 className="font-semibold text-gray-900">{item.name}</h4>
-                  <p className="text-sm text-gray-600">{item.product}</p>
-                  <p className="text-xs text-gray-500">Liquidation: {item.percentage}</p>
+                  <h4 className="font-semibold text-gray-900">{contact.name}</h4>
+                  <p className="text-sm text-gray-600">{contact.company}</p>
+                  <p className="text-xs text-gray-500">{contact.phone}</p>
                 </div>
                 <div className="flex flex-col items-end space-y-2">
-                  <span className={`text-xs px-2 py-1 rounded-full ${
-                    item.status === 'Completed' ? 'bg-green-100 text-green-800' :
-                    item.status === 'In Progress' ? 'bg-yellow-100 text-yellow-800' :
-                    'bg-red-100 text-red-800'
-                  }`}>
-                    {item.status}
+                  <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                    {contact.type}
                   </span>
-                  <button className="text-blue-600 text-sm font-medium">View Details</button>
+                  <div className="flex space-x-2">
+                    <button className="p-2 bg-green-100 rounded-full">
+                      <Phone className="w-4 h-4 text-green-600" />
+                    </button>
+                    <button className="p-2 bg-blue-100 rounded-full">
+                      <MessageCircle className="w-4 h-4 text-blue-600" />
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
