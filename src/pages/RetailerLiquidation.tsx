@@ -43,7 +43,6 @@ const RetailerLiquidation: React.FC = () => {
   const navigate = useNavigate();
   const [showSignatureModal, setShowSignatureModal] = useState(false);
   const [selectedRetailer, setSelectedRetailer] = useState<string | null>(null);
-  const [stockUpdateData, setStockUpdateData] = useState<{[key: string]: {current: number, liquidated: number}}>({});
   const [stockUpdateData, setStockUpdateData] = useState<{[key: string]: {current: number, liquidated: number, returned: number}}>({});
 
   // Sample data for retailer liquidation
