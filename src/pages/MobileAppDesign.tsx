@@ -32,8 +32,7 @@ import {
   Activity,
   Wifi,
   Battery,
-  Signal,
-  MapPin
+  Signal
 } from 'lucide-react';
 
 const MobileAppDesign: React.FC = () => {
