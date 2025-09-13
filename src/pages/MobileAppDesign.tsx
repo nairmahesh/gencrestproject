@@ -179,7 +179,7 @@ const MobileAppDesign: React.FC = () => {
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-xl font-bold">Good Morning!</h2>
-            <p className="text-purple-100">Rajesh Kumar</p>
+            <p className="text-purple-100">MDO - North Delhi</p>
           </div>
           <div className="text-right">
             <div className="text-3xl font-bold">8</div>
@@ -214,15 +214,19 @@ const MobileAppDesign: React.FC = () => {
       {/* Today's Stats */}
       <div>
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Today's Progress</h3>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-3">
           {todayStats.map((stat, index) => (
-            <div key={index} className="bg-white rounded-xl p-4 shadow-lg border border-gray-100 hover:shadow-xl transition-shadow">
-              <div className="flex items-center justify-between mb-2">
+            <div key={index} className="bg-white rounded-lg p-3 shadow-md border border-gray-200">
+              <div className="flex items-center justify-between mb-3">
                 <stat.icon className={`w-5 h-5 ${stat.color}`} />
-                <span className="text-xs text-gray-500">Target: {stat.target}</span>
+                <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                  Target: {stat.target}
+                </span>
               </div>
-              <div className="text-xl font-bold text-gray-900">{stat.value}</div>
-              <div className="text-sm text-gray-600">{stat.label}</div>
+              <div className="text-center">
+                <div className="text-xl font-bold text-gray-900 mb-1">{stat.value}</div>
+                <div className="text-sm text-gray-600">{stat.label}</div>
+              </div>
             </div>
           ))}
         </div>
@@ -241,7 +245,7 @@ const MobileAppDesign: React.FC = () => {
         </div>
         <div className="space-y-3">
           {upcomingVisits.slice(0, 2).map((visit) => (
-            <div key={visit.id} className="bg-white rounded-xl p-4 shadow-lg border border-gray-100 hover:shadow-xl transition-shadow">
+            <div key={visit.id} className="bg-white rounded-lg p-4 shadow-md border border-gray-200">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center space-x-2">
                   <div className={`w-3 h-3 rounded-full ${
