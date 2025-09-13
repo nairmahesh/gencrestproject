@@ -9,7 +9,8 @@ import {
   Calendar,
   CreditCard,
   TrendingUp,
-  X
+  X,
+  Smartphone
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -22,6 +23,7 @@ const navigation = [
   { name: 'Sales Orders', href: '/sales-orders', icon: ShoppingCart },
   { name: 'Liquidation', href: '/liquidation', icon: Droplets },
   { name: 'Contacts', href: '/contacts', icon: Users },
+  { name: 'Mobile App', href: '/mobile', icon: Smartphone },
 ];
 
 const planningNavigation = [

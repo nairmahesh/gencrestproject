@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Home, Calendar, CheckSquare, Droplets, BarChart3, MoreHorizontal } from 'lucide-react';
+import { Home, Calendar, CheckSquare, Droplets, BarChart3, Smartphone } from 'lucide-react';
 
 const navigation = [
   { name: 'Home', href: '/', icon: Home },
@@ -8,7 +8,7 @@ const navigation = [
   { name: 'Tasks', href: '/sales-orders', icon: CheckSquare },
   { name: 'Liquidation', href: '/liquidation', icon: Droplets },
   { name: 'Reports', href: '/performance', icon: BarChart3 },
-  { name: 'More', href: '/planning', icon: MoreHorizontal },
+  { name: 'Mobile', href: '/mobile', icon: Smartphone },
 ];
 
 const MobileNavigation: React.FC = () => {
