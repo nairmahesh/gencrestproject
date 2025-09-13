@@ -33,7 +33,8 @@ import {
   Wifi,
   Battery,
   Signal
-} from 'lucide-react';
+  Droplets,
+  Calendar
 
 const MobileAppDesign: React.FC = () => {
   const [activeTab, setActiveTab] = useState('home');
