@@ -287,7 +287,7 @@ const RetailerLiquidation: React.FC = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                 <div className="text-center p-3 bg-blue-50 rounded-lg">
                   <p className="text-xs text-blue-600 font-medium">Assigned by Distributor</p>
                   <p className="text-lg font-bold text-blue-800">{stock.assignedQuantity} {stock.unit}</p>
@@ -322,14 +322,6 @@ const RetailerLiquidation: React.FC = () => {
                     />
                     <span className="text-lg font-bold text-green-800"> {stock.unit}</span>
                   </div>
-                </div>
-
-                <div className="text-center p-3 bg-purple-50 rounded-lg">
-                  <p className="text-xs text-purple-600 font-medium">Return Option</p>
-                  <p className="text-lg font-bold text-purple-800">
-                    {(stockUpdateData[stock.skuCode]?.current ?? stock.currentStock)} {stock.unit}
-                  </p>
-                  <p className="text-xs text-purple-600">Available</p>
                 </div>
 
                 <div className="text-center p-3 bg-gray-50 rounded-lg">
