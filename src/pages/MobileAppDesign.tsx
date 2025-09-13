@@ -34,7 +34,8 @@ import {
   Activity,
   Wifi,
   Battery,
-  Signal
+  Signal,
+  Droplets
 } from 'lucide-react';
 
 const MobileAppDesign: React.FC = () => {
