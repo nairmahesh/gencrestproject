@@ -35,7 +35,13 @@ import {
   Signal,
   Droplets,
   Calendar,
-  CheckCircle
+  CheckCircle,
+  Building,
+  CreditCard,
+  Award,
+  FileText,
+  Truck,
+  PieChart
 } from 'lucide-react';
 
 const MobileAppDesign: React.FC = () => {
@@ -62,44 +68,72 @@ const MobileAppDesign: React.FC = () => {
     { id: 'new-visit', label: 'New Visit', icon: Plus, color: 'bg-blue-500' },
     { id: 'check-in', label: 'Check In', icon: Navigation, color: 'bg-green-500' },
     { id: 'camera', label: 'Camera', icon: Camera, color: 'bg-purple-500' },
-    { id: 'call', label: 'Call', icon: Phone, color: 'bg-orange-500' },
+    { id: 'order', label: 'Order', icon: ShoppingCart, color: 'bg-orange-500' },
+    { id: 'payment', label: 'Payment', icon: DollarSign, color: 'bg-indigo-500' },
+    { id: 'report', label: 'Report', icon: FileText, color: 'bg-teal-500' },
+    { id: 'contact', label: 'Contact', icon: Users, color: 'bg-pink-500' },
+    { id: 'plan', label: 'Plan', icon: Calendar, color: 'bg-yellow-500' },
   ];
 
   const todayStats = [
-    { label: 'Visits', value: '8', target: '10', icon: MapPin, color: 'text-blue-600' },
-    { label: 'Orders', value: '₹45K', target: '₹50K', icon: ShoppingCart, color: 'text-green-600' },
-    { label: 'Calls', value: '12', target: '15', icon: Phone, color: 'text-purple-600' },
-    { label: 'Tasks', value: '6/8', target: '8', icon: CheckCircle, color: 'text-orange-600' },
+    { label: 'Visits', value: '8', target: '10', icon: MapPin, color: 'text-blue-600', bgColor: 'bg-blue-50' },
+    { label: 'Orders', value: '₹45K', target: '₹50K', icon: ShoppingCart, color: 'text-green-600', bgColor: 'bg-green-50' },
+    { label: 'Calls', value: '12', target: '15', icon: Phone, color: 'text-purple-600', bgColor: 'bg-purple-50' },
+    { label: 'Tasks', value: '6/8', target: '8', icon: CheckCircle, color: 'text-orange-600', bgColor: 'bg-orange-50' },
   ];
 
   const upcomingVisits = [
     {
       id: '1',
       customer: 'Ram Kumar Distributors',
+      customerCode: 'DLR001',
       time: '10:30 AM',
       location: 'Green Valley, Sector 12',
       type: 'Product Demo',
       status: 'scheduled',
-      priority: 'high'
+      priority: 'high',
+      phone: '+91 98765 43210'
     },
     {
       id: '2',
       customer: 'Suresh Traders',
+      customerCode: 'DLR002',
       time: '2:00 PM',
       location: 'Market Area, Sector 8',
       type: 'Stock Review',
       status: 'in-progress',
-      priority: 'medium'
+      priority: 'medium',
+      phone: '+91 87654 32109'
     },
     {
       id: '3',
       customer: 'Amit Agro Solutions',
+      customerCode: 'DLR003',
       time: '4:30 PM',
       location: 'Industrial Area',
       type: 'Payment Collection',
       status: 'scheduled',
-      priority: 'high'
+      priority: 'high',
+      phone: '+91 76543 21098'
     }
+  ];
+
+  const recentOrders = [
+    { id: 'SO-001', customer: 'Ram Kumar', amount: '₹45,000', status: 'pending', date: 'Today', items: 5 },
+    { id: 'SO-002', customer: 'Suresh Traders', amount: '₹32,000', status: 'approved', date: 'Yesterday', items: 3 },
+    { id: 'SO-003', customer: 'Green Agro', amount: '₹28,000', status: 'delivered', date: '2 days ago', items: 7 }
+  ];
+
+  const liquidationData = [
+    { dealer: 'Ram Kumar', product: 'NPK Fertilizer', opening: 100, current: 75, liquidated: 15, percentage: 25 },
+    { dealer: 'Suresh Traders', product: 'Urea', opening: 80, current: 60, liquidated: 10, percentage: 25 },
+    { dealer: 'Green Agro', product: 'DAP', opening: 120, current: 90, liquidated: 20, percentage: 25 }
+  ];
+
+  const contacts = [
+    { name: 'Ram Kumar', company: 'Ram Kumar Distributors', phone: '+91 98765 43210', type: 'Distributor', status: 'active' },
+    { name: 'Suresh Sharma', company: 'Suresh Traders', phone: '+91 87654 32109', type: 'Dealer', status: 'active' },
+    { name: 'Amit Patel', company: 'Green Agro Store', phone: '+91 76543 21098', type: 'Retailer', status: 'active' }
   ];
 
   const notifications = [
@@ -129,6 +163,15 @@ const MobileAppDesign: React.FC = () => {
     }
   ];
 
+  const moreOptions = [
+    { id: 'travel', label: 'Travel Claims', icon: Truck, color: 'text-blue-600' },
+    { id: 'performance', label: 'Performance', icon: Award, color: 'text-green-600' },
+    { id: 'planning', label: 'Planning', icon: Calendar, color: 'text-purple-600' },
+    { id: 'settings', label: 'Settings', icon: Settings, color: 'text-gray-600' },
+    { id: 'help', label: 'Help & Support', icon: MessageCircle, color: 'text-orange-600' },
+    { id: 'logout', label: 'Logout', icon: LogOut, color: 'text-red-600' }
+  ];
+
   const renderHomeContent = () => (
     <div className="space-y-6">
       {/* Header with Greeting */}
@@ -136,67 +179,96 @@ const MobileAppDesign: React.FC = () => {
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-xl font-bold">Good Morning!</h2>
-            <p className="text-purple-100">Ready for today?</p>
+            <p className="text-purple-100">Rajesh Kumar</p>
           </div>
           <div className="text-right">
-            <div className="text-3xl font-bold">3</div>
+            <div className="text-3xl font-bold">8</div>
             <div className="text-purple-100 text-sm">visits planned</div>
           </div>
         </div>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 text-center">
-          <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
-            <CheckCircle className="w-6 h-6 text-green-600" />
-          </div>
-          <div className="text-2xl font-bold text-gray-900">3</div>
-          <div className="text-sm text-gray-600">Completed</div>
-          <div className="text-xs text-gray-500">visits today</div>
-        </div>
-
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 text-center">
-          <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-2">
-            <Target className="w-6 h-6 text-red-600" />
-          </div>
-          <div className="text-2xl font-bold text-gray-900">2</div>
-          <div className="text-sm text-gray-600">Pending</div>
-          <div className="text-xs text-gray-500">tasks left</div>
+        <div className="text-purple-100 text-sm">
+          {currentTime.toLocaleDateString('en-IN', { 
+            weekday: 'long', 
+            month: 'long', 
+            day: 'numeric' 
+          })}
         </div>
       </div>
 
-      {/* Next Visit */}
+      {/* Quick Actions */}
+      <div>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+        <div className="grid grid-cols-4 gap-3">
+          {quickActions.map((action) => (
+            <button
+              key={action.id}
+              className={`${action.color} text-white p-3 rounded-2xl flex flex-col items-center space-y-2 active:scale-95 transition-transform shadow-sm`}
+            >
+              <action.icon className="w-5 h-5" />
+              <span className="text-xs font-medium text-center leading-tight">{action.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Today's Stats */}
+      <div>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Today's Progress</h3>
+        <div className="grid grid-cols-2 gap-4">
+          {todayStats.map((stat, index) => (
+            <div key={index} className={`${stat.bgColor} rounded-2xl p-4 border border-gray-100`}>
+              <div className="flex items-center justify-between mb-2">
+                <stat.icon className={`w-5 h-5 ${stat.color}`} />
+                <span className="text-xs text-gray-500">Target: {stat.target}</span>
+              </div>
+              <div className="text-xl font-bold text-gray-900">{stat.value}</div>
+              <div className="text-sm text-gray-600">{stat.label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Upcoming Visits */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center space-x-2">
-            <Calendar className="w-5 h-5 text-purple-600" />
-            <h3 className="text-lg font-semibold text-gray-900">Next Visit</h3>
-          </div>
-          <button className="text-purple-600 text-sm font-medium">View All</button>
+          <h3 className="text-lg font-semibold text-gray-900">Next Visits</h3>
+          <button 
+            onClick={() => setActiveTab('schedule')}
+            className="text-purple-600 text-sm font-medium"
+          >
+            View All
+          </button>
         </div>
-        
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-          <div className="flex items-start justify-between mb-3">
-            <div className="flex-1">
-              <h4 className="font-semibold text-gray-900 mb-1">Ram Kumar</h4>
-              <div className="flex items-center space-x-2 text-sm text-gray-600 mb-2">
-                <Clock className="w-4 h-4" />
-                <span>11:00 AM</span>
-                <span>•</span>
-                <span>Green Valley, Sector 12</span>
+        <div className="space-y-3">
+          {upcomingVisits.slice(0, 2).map((visit) => (
+            <div key={visit.id} className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center space-x-2">
+                  <div className={`w-3 h-3 rounded-full ${
+                    visit.status === 'in-progress' ? 'bg-green-500' : 
+                    visit.priority === 'high' ? 'bg-red-500' : 'bg-yellow-500'
+                  }`}></div>
+                  <span className="text-sm font-medium text-gray-900">{visit.customer}</span>
+                </div>
+                <span className="text-xs text-gray-500">{visit.time}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2 text-sm text-gray-600">
+                  <MapPin className="w-4 h-4" />
+                  <span className="truncate">{visit.location}</span>
+                </div>
+                <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                  {visit.type}
+                </span>
               </div>
             </div>
-            <button className="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium">
-              View
-            </button>
-          </div>
+          ))}
         </div>
       </div>
     </div>
   );
 
-  const renderVisitsContent = () => (
+  const renderScheduleContent = () => (
     <div className="space-y-6">
       {/* Search and Filter */}
       <div className="flex space-x-3">
@@ -216,11 +288,11 @@ const MobileAppDesign: React.FC = () => {
       {/* Visit Status Cards */}
       <div className="grid grid-cols-3 gap-4">
         <div className="bg-blue-50 rounded-2xl p-4 text-center">
-          <div className="text-2xl font-bold text-blue-600">3</div>
+          <div className="text-2xl font-bold text-blue-600">5</div>
           <div className="text-sm text-blue-700">Scheduled</div>
         </div>
         <div className="bg-green-50 rounded-2xl p-4 text-center">
-          <div className="text-2xl font-bold text-green-600">2</div>
+          <div className="text-2xl font-bold text-green-600">3</div>
           <div className="text-sm text-green-700">Completed</div>
         </div>
         <div className="bg-yellow-50 rounded-2xl p-4 text-center">
@@ -236,6 +308,7 @@ const MobileAppDesign: React.FC = () => {
             <div className="flex items-start justify-between mb-3">
               <div className="flex-1">
                 <h4 className="font-semibold text-gray-900 mb-1">{visit.customer}</h4>
+                <p className="text-xs text-gray-500 mb-2">{visit.customerCode}</p>
                 <div className="flex items-center space-x-2 text-sm text-gray-600 mb-2">
                   <Clock className="w-4 h-4" />
                   <span>{visit.time}</span>
@@ -283,7 +356,7 @@ const MobileAppDesign: React.FC = () => {
     </div>
   );
 
-  const renderOrdersContent = () => (
+  const renderTasksContent = () => (
     <div className="space-y-6">
       {/* Order Summary */}
       <div className="grid grid-cols-2 gap-4">
@@ -309,16 +382,12 @@ const MobileAppDesign: React.FC = () => {
       <div>
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Orders</h3>
         <div className="space-y-4">
-          {[
-            { id: 'SO-001', customer: 'Ram Kumar', amount: '₹45,000', status: 'pending', date: 'Today' },
-            { id: 'SO-002', customer: 'Suresh Traders', amount: '₹32,000', status: 'approved', date: 'Yesterday' },
-            { id: 'SO-003', customer: 'Green Agro', amount: '₹28,000', status: 'delivered', date: '2 days ago' }
-          ].map((order) => (
+          {recentOrders.map((order) => (
             <div key={order.id} className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
               <div className="flex items-center justify-between mb-2">
                 <div>
                   <h4 className="font-semibold text-gray-900">{order.customer}</h4>
-                  <p className="text-sm text-gray-600">{order.id}</p>
+                  <p className="text-sm text-gray-600">{order.id} • {order.items} items</p>
                 </div>
                 <div className="text-right">
                   <div className="font-semibold text-gray-900">{order.amount}</div>
@@ -342,55 +411,77 @@ const MobileAppDesign: React.FC = () => {
     </div>
   );
 
-  const renderContactsContent = () => (
+  const renderLiquidationContent = () => (
     <div className="space-y-6">
-      {/* Contact Stats */}
-      <div className="grid grid-cols-3 gap-4">
-        <div className="bg-purple-50 rounded-2xl p-4 text-center">
-          <div className="text-2xl font-bold text-purple-600">45</div>
-          <div className="text-sm text-purple-700">Total</div>
+      {/* Liquidation Summary */}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="bg-orange-50 rounded-2xl p-4">
+          <div className="flex items-center justify-between mb-2">
+            <Package className="w-5 h-5 text-orange-600" />
+            <span className="text-xs text-orange-600">Opening</span>
+          </div>
+          <div className="text-xl font-bold text-orange-800">32.6K</div>
+          <div className="text-sm text-orange-700">Kg/Litre</div>
         </div>
-        <div className="bg-green-50 rounded-2xl p-4 text-center">
-          <div className="text-2xl font-bold text-green-600">12</div>
-          <div className="text-sm text-green-700">Distributors</div>
-        </div>
-        <div className="bg-blue-50 rounded-2xl p-4 text-center">
-          <div className="text-2xl font-bold text-blue-600">33</div>
-          <div className="text-sm text-blue-700">Retailers</div>
+        <div className="bg-green-50 rounded-2xl p-4">
+          <div className="flex items-center justify-between mb-2">
+            <Droplets className="w-5 h-5 text-green-600" />
+            <span className="text-xs text-green-600">Liquidated</span>
+          </div>
+          <div className="text-xl font-bold text-green-800">12.7K</div>
+          <div className="text-sm text-green-700">Kg/Litre</div>
         </div>
       </div>
 
-      {/* Contact List */}
+      {/* Liquidation Progress */}
+      <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+        <h3 className="font-semibold text-gray-900 mb-4">Overall Progress</h3>
+        <div className="space-y-3">
+          <div className="flex justify-between text-sm">
+            <span>Liquidation Rate</span>
+            <span className="font-semibold">39%</span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-3">
+            <div className="bg-gradient-to-r from-green-500 to-blue-500 h-3 rounded-full" style={{ width: '39%' }}></div>
+          </div>
+        </div>
+      </div>
+
+      {/* Dealer Liquidation List */}
       <div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Contacts</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Dealer Liquidation</h3>
         <div className="space-y-4">
-          {[
-            { name: 'Ram Kumar', company: 'Ram Kumar Distributors', phone: '+91 98765 43210', type: 'Distributor' },
-            { name: 'Suresh Sharma', company: 'Suresh Traders', phone: '+91 87654 32109', type: 'Dealer' },
-            { name: 'Amit Patel', company: 'Green Agro Store', phone: '+91 76543 21098', type: 'Retailer' }
-          ].map((contact, index) => (
+          {liquidationData.map((item, index) => (
             <div key={index} className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-              <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-                  <span className="text-purple-600 font-semibold">{contact.name.charAt(0)}</span>
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <h4 className="font-semibold text-gray-900">{item.dealer}</h4>
+                  <p className="text-sm text-gray-600">{item.product}</p>
                 </div>
-                <div className="flex-1">
-                  <h4 className="font-semibold text-gray-900">{contact.name}</h4>
-                  <p className="text-sm text-gray-600">{contact.company}</p>
-                  <p className="text-xs text-gray-500">{contact.phone}</p>
+                <span className="text-sm font-semibold text-purple-600">{item.percentage}%</span>
+              </div>
+              
+              <div className="grid grid-cols-3 gap-3 text-center text-sm">
+                <div>
+                  <div className="text-gray-600">Opening</div>
+                  <div className="font-semibold">{item.opening}</div>
                 </div>
-                <div className="flex flex-col items-end space-y-2">
-                  <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-                    {contact.type}
-                  </span>
-                  <div className="flex space-x-2">
-                    <button className="p-2 bg-green-100 rounded-full">
-                      <Phone className="w-4 h-4 text-green-600" />
-                    </button>
-                    <button className="p-2 bg-blue-100 rounded-full">
-                      <MessageCircle className="w-4 h-4 text-blue-600" />
-                    </button>
-                  </div>
+                <div>
+                  <div className="text-gray-600">Current</div>
+                  <div className="font-semibold">{item.current}</div>
+                </div>
+                <div>
+                  <div className="text-gray-600">Liquidated</div>
+                  <div className="font-semibold text-green-600">{item.liquidated}</div>
+                </div>
+              </div>
+              
+              <div className="mt-3">
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div 
+                    className="bg-green-500 h-2 rounded-full" 
+                    style={{ width: `${item.percentage}%` }}
+                  ></div>
                 </div>
               </div>
             </div>
@@ -420,12 +511,12 @@ const MobileAppDesign: React.FC = () => {
       {/* Key Metrics */}
       <div className="grid grid-cols-2 gap-4">
         {[
-          { label: 'Visit Target', value: '85%', icon: Target, color: 'text-blue-600' },
-          { label: 'Sales Target', value: '92%', icon: TrendingUp, color: 'text-green-600' },
-          { label: 'Collection', value: '78%', icon: DollarSign, color: 'text-purple-600' },
-          { label: 'Liquidation', value: '65%', icon: Package, color: 'text-orange-600' }
+          { label: 'Visit Target', value: '85%', icon: Target, color: 'text-blue-600', bgColor: 'bg-blue-50' },
+          { label: 'Sales Target', value: '92%', icon: TrendingUp, color: 'text-green-600', bgColor: 'bg-green-50' },
+          { label: 'Collection', value: '78%', icon: DollarSign, color: 'text-purple-600', bgColor: 'bg-purple-50' },
+          { label: 'Liquidation', value: '65%', icon: Droplets, color: 'text-orange-600', bgColor: 'bg-orange-50' }
         ].map((metric, index) => (
-          <div key={index} className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+          <div key={index} className={`${metric.bgColor} rounded-2xl p-4 border border-gray-100`}>
             <div className="flex items-center justify-between mb-2">
               <metric.icon className={`w-5 h-5 ${metric.color}`} />
               <span className="text-lg font-bold text-gray-900">{metric.value}</span>
@@ -440,15 +531,20 @@ const MobileAppDesign: React.FC = () => {
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Reports</h3>
         <div className="space-y-4">
           {[
-            { title: 'Monthly Sales Report', date: 'Jan 2024', type: 'Sales', status: 'completed' },
-            { title: 'Visit Summary', date: 'This Week', type: 'Visits', status: 'pending' },
-            { title: 'Liquidation Analysis', date: 'Q4 2023', type: 'Stock', status: 'completed' }
+            { title: 'Monthly Sales Report', date: 'Jan 2024', type: 'Sales', status: 'completed', icon: BarChart3 },
+            { title: 'Visit Summary', date: 'This Week', type: 'Visits', status: 'pending', icon: MapPin },
+            { title: 'Liquidation Analysis', date: 'Q4 2023', type: 'Stock', status: 'completed', icon: Package }
           ].map((report, index) => (
             <div key={index} className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
               <div className="flex items-center justify-between">
-                <div>
-                  <h4 className="font-semibold text-gray-900">{report.title}</h4>
-                  <p className="text-sm text-gray-600">{report.date}</p>
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+                    <report.icon className="w-5 h-5 text-gray-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900">{report.title}</h4>
+                    <p className="text-sm text-gray-600">{report.date}</p>
+                  </div>
                 </div>
                 <div className="flex items-center space-x-2">
                   <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
@@ -466,13 +562,94 @@ const MobileAppDesign: React.FC = () => {
     </div>
   );
 
+  const renderMoreContent = () => (
+    <div className="space-y-6">
+      {/* User Profile */}
+      <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+        <div className="flex items-center space-x-4 mb-4">
+          <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+            <span className="text-white font-bold text-xl">RK</span>
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900">Rajesh Kumar</h3>
+            <p className="text-sm text-gray-600">MDO - North Delhi</p>
+            <p className="text-xs text-gray-500">Employee ID: EMP001</p>
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-3 gap-4 pt-4 border-t border-gray-200">
+          <div className="text-center">
+            <div className="text-lg font-bold text-gray-900">88%</div>
+            <div className="text-xs text-gray-600">Performance</div>
+          </div>
+          <div className="text-center">
+            <div className="text-lg font-bold text-gray-900">156</div>
+            <div className="text-xs text-gray-600">Visits MTD</div>
+          </div>
+          <div className="text-center">
+            <div className="text-lg font-bold text-gray-900">₹4.2L</div>
+            <div className="text-xs text-gray-600">Sales MTD</div>
+          </div>
+        </div>
+      </div>
+
+      {/* More Options */}
+      <div>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">More Options</h3>
+        <div className="space-y-3">
+          {moreOptions.map((option) => (
+            <button
+              key={option.id}
+              className="w-full flex items-center space-x-4 p-4 bg-white rounded-2xl shadow-sm border border-gray-100 hover:bg-gray-50 transition-colors"
+            >
+              <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+                <option.icon className={`w-5 h-5 ${option.color}`} />
+              </div>
+              <span className="flex-1 text-left font-medium text-gray-900">{option.label}</span>
+              <ChevronRight className="w-5 h-5 text-gray-400" />
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Contacts Quick Access */}
+      <div>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Contacts</h3>
+        <div className="space-y-3">
+          {contacts.slice(0, 3).map((contact, index) => (
+            <div key={index} className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                  <span className="text-purple-600 font-semibold text-sm">{contact.name.charAt(0)}</span>
+                </div>
+                <div className="flex-1">
+                  <h4 className="font-medium text-gray-900">{contact.name}</h4>
+                  <p className="text-sm text-gray-600">{contact.company}</p>
+                </div>
+                <div className="flex space-x-2">
+                  <button className="p-2 bg-green-100 rounded-full">
+                    <Phone className="w-4 h-4 text-green-600" />
+                  </button>
+                  <button className="p-2 bg-blue-100 rounded-full">
+                    <MessageCircle className="w-4 h-4 text-blue-600" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
   const renderContent = () => {
     switch (activeTab) {
       case 'home': return renderHomeContent();
-      case 'visits': return renderVisitsContent();
-      case 'orders': return renderOrdersContent();
-      case 'contacts': return renderContactsContent();
+      case 'schedule': return renderScheduleContent();
+      case 'tasks': return renderTasksContent();
+      case 'liquidation': return renderLiquidationContent();
       case 'reports': return renderReportsContent();
+      case 'more': return renderMoreContent();
       default: return renderHomeContent();
     }
   };
@@ -486,7 +663,7 @@ const MobileAppDesign: React.FC = () => {
           {/* Status Bar */}
           <div className="bg-gradient-to-r from-purple-600 to-pink-600 px-4 py-2 flex items-center justify-between text-white text-sm">
             <div className="flex items-center space-x-1">
-              <span className="font-medium">2:40</span>
+              <span className="font-medium">{currentTime.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</span>
             </div>
             <div className="flex items-center space-x-1">
               <Signal className="w-4 h-4" />
@@ -509,7 +686,6 @@ const MobileAppDesign: React.FC = () => {
                 </div>
               </div>
               <div className="flex items-center space-x-2">
-                <DollarSign className="w-5 h-5" />
                 <button className="relative">
                   <Bell className="w-5 h-5" />
                   <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full text-xs flex items-center justify-center text-white">3</span>
@@ -523,7 +699,7 @@ const MobileAppDesign: React.FC = () => {
             {renderContent()}
           </div>
 
-          {/* Bottom Navigation - Matching the screenshot icons */}
+          {/* Bottom Navigation */}
           <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2">
             <div className="flex justify-around">
               {navigationTabs.map((tab) => (
@@ -542,6 +718,11 @@ const MobileAppDesign: React.FC = () => {
               ))}
             </div>
           </div>
+
+          {/* Floating Action Button */}
+          <button className="absolute bottom-20 right-4 w-12 h-12 bg-purple-600 text-white rounded-full shadow-lg flex items-center justify-center z-40 active:scale-95 transition-transform">
+            <Plus className="w-6 h-6" />
+          </button>
         </div>
       </div>
     </div>
