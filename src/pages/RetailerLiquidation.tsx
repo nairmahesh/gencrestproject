@@ -199,7 +199,7 @@ const RetailerLiquidation: React.FC = () => {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
         <div className="bg-white rounded-xl p-6 card-shadow">
           <div className="flex items-center justify-between">
             <div>
@@ -238,6 +238,20 @@ const RetailerLiquidation: React.FC = () => {
             </div>
             <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
               <CheckCircle className="w-6 h-6 text-green-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl p-6 card-shadow">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-600">Missing/Sold</p>
+              <p className="text-2xl font-bold text-orange-600">
+                {retailerData.stockDetails.reduce((sum, item) => sum + (item.assignedQuantity - item.currentStock - item.liquidatedToFarmer), 0)} units
+              </p>
+            </div>
+            <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+              <AlertTriangle className="w-6 h-6 text-orange-600" />
             </div>
           </div>
         </div>
