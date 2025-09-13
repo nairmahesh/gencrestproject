@@ -136,6 +136,8 @@ const Liquidation: React.FC = () => {
   const [showVarianceModal, setShowVarianceModal] = useState(false);
   const [showSignatureModal, setShowSignatureModal] = useState(false);
   const [showRetailerModal, setShowRetailerModal] = useState(false);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [showSalesModal, setShowSalesModal] = useState(false);
   const [selectedDistributor, setSelectedDistributor] = useState<string | null>(null);
   const [selectedSku, setSelectedSku] = useState<string | null>(null);
   const [stockData, setStockData] = useState<{[key: string]: {current: number}}>({});
@@ -345,6 +347,16 @@ const Liquidation: React.FC = () => {
   const openStockModal = (distributorId: string) => {
     setSelectedDistributor(distributorId);
     setShowStockModal(true);
+  };
+
+  const openDetailsModal = (distributorId: string) => {
+    setSelectedDistributor(distributorId);
+    setShowDetailsModal(true);
+  };
+
+  const openSalesModal = (distributorId: string) => {
+    setSelectedDistributor(distributorId);
+    setShowSalesModal(true);
   };
 
   const checkPendingEntries = () => {
@@ -668,11 +680,17 @@ const Liquidation: React.FC = () => {
                   <Package className="w-4 h-4 mr-2" />
                   Enter Current Stock
                 </button>
-                <button className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors flex items-center">
+                <button 
+                  onClick={() => openDetailsModal(entry.id)}
+                  className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors flex items-center"
+                >
                   <Eye className="w-4 h-4 mr-2" />
                   View Details
                 </button>
-                <button className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors flex items-center">
+                <button 
+                  onClick={() => openSalesModal(entry.id)}
+                  className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors flex items-center"
+                >
                   <TrendingUp className="w-4 h-4 mr-2" />
                   Sales Breakdown
                 </button>
@@ -1172,6 +1190,281 @@ const Liquidation: React.FC = () => {
         }}
         title="Distributor Signature Verification"
       />
+
+      {/* View Details Modal */}
+      {showDetailsModal && selectedDistributorData && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
+            <div className="flex items-center justify-between p-6 border-b">
+              <div>
+                <h3 className="text-xl font-semibold text-gray-900">Distributor Details</h3>
+                <p className="text-sm text-gray-600 mt-1">{selectedDistributorData.distributorName}</p>
+              </div>
+              <button
+                onClick={() => setShowDetailsModal(false)}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+              {/* Distributor Information */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div className="space-y-4">
+                  <h4 className="font-semibold text-gray-900">Contact Information</h4>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-center">
+                      <Building className="w-4 h-4 mr-2 text-gray-500" />
+                      <span className="font-medium">Name:</span>
+                      <span className="ml-2">{selectedDistributorData.distributorName}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <User className="w-4 h-4 mr-2 text-gray-500" />
+                      <span className="font-medium">Code:</span>
+                      <span className="ml-2">{selectedDistributorData.distributorCode}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <Phone className="w-4 h-4 mr-2 text-gray-500" />
+                      <span className="font-medium">Phone:</span>
+                      <span className="ml-2">{selectedDistributorData.distributorPhone}</span>
+                    </div>
+                    <div className="flex items-start">
+                      <MapPin className="w-4 h-4 mr-2 mt-0.5 text-gray-500" />
+                      <span className="font-medium">Address:</span>
+                      <span className="ml-2">{selectedDistributorData.distributorAddress}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="space-y-4">
+                  <h4 className="font-semibold text-gray-900">Territory Information</h4>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-center">
+                      <MapPin className="w-4 h-4 mr-2 text-gray-500" />
+                      <span className="font-medium">Territory:</span>
+                      <span className="ml-2">{selectedDistributorData.territory}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <MapPin className="w-4 h-4 mr-2 text-gray-500" />
+                      <span className="font-medium">Region:</span>
+                      <span className="ml-2">{selectedDistributorData.region}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <MapPin className="w-4 h-4 mr-2 text-gray-500" />
+                      <span className="font-medium">Zone:</span>
+                      <span className="ml-2">{selectedDistributorData.zone}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <Calendar className="w-4 h-4 mr-2 text-gray-500" />
+                      <span className="font-medium">Last Updated:</span>
+                      <span className="ml-2">{new Date(selectedDistributorData.lastUpdated).toLocaleDateString()}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Stock Summary */}
+              <div className="mb-6">
+                <h4 className="font-semibold text-gray-900 mb-4">Stock Summary</h4>
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                  <div className="text-center p-4 bg-orange-50 rounded-lg">
+                    <div className="text-2xl font-bold text-orange-600">{selectedDistributorData.openingStock}</div>
+                    <div className="text-sm text-orange-700">Opening Stock</div>
+                  </div>
+                  <div className="text-center p-4 bg-blue-50 rounded-lg">
+                    <div className="text-2xl font-bold text-blue-600">{selectedDistributorData.ytdSales}</div>
+                    <div className="text-sm text-blue-700">YTD Sales</div>
+                  </div>
+                  <div className="text-center p-4 bg-green-50 rounded-lg">
+                    <div className="text-2xl font-bold text-green-600">{selectedDistributorData.liquidation}</div>
+                    <div className="text-sm text-green-700">Liquidation</div>
+                  </div>
+                  <div className="text-center p-4 bg-purple-50 rounded-lg">
+                    <div className="text-2xl font-bold text-purple-600">{selectedDistributorData.balanceStock}</div>
+                    <div className="text-sm text-purple-700">Balance Stock</div>
+                  </div>
+                  <div className="text-center p-4 bg-indigo-50 rounded-lg">
+                    <div className="text-2xl font-bold text-indigo-600">{selectedDistributorData.liquidationRate}%</div>
+                    <div className="text-sm text-indigo-700">Liquidation Rate</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Product Details */}
+              <div>
+                <h4 className="font-semibold text-gray-900 mb-4">Product & SKU Details</h4>
+                <div className="space-y-4">
+                  {selectedDistributorData.stockDetails.map((stock) => (
+                    <div key={stock.id} className="border border-gray-200 rounded-lg p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <div>
+                          <h5 className="font-medium text-gray-900">{stock.productName}</h5>
+                          <p className="text-sm text-gray-600">SKU: {stock.skuCode} | {stock.skuName}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm text-gray-600">Unit Price</p>
+                          <p className="font-medium">₹{stock.unitPrice}</p>
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div className="text-center p-3 bg-blue-50 rounded-lg">
+                          <p className="text-sm text-blue-600">ERP Balance</p>
+                          <p className="font-bold text-blue-800">{stock.erpLastBalance} {stock.unit}</p>
+                        </div>
+                        <div className="text-center p-3 bg-yellow-50 rounded-lg">
+                          <p className="text-sm text-yellow-600">Current Stock</p>
+                          <p className="font-bold text-yellow-800">{stock.currentStock} {stock.unit}</p>
+                        </div>
+                        <div className="text-center p-3 bg-green-50 rounded-lg">
+                          <p className="text-sm text-green-600">Variance</p>
+                          <p className={`font-bold ${stock.variance > 0 ? 'text-red-600' : stock.variance < 0 ? 'text-green-600' : 'text-gray-600'}`}>
+                            {stock.variance > 0 ? '+' : ''}{stock.variance} {stock.unit}
+                          </p>
+                        </div>
+                        <div className="text-center p-3 bg-purple-50 rounded-lg">
+                          <p className="text-sm text-purple-600">Status</p>
+                          <div className="flex justify-center">
+                            {stock.isVerified ? (
+                              <CheckCircle className="w-5 h-5 text-green-600" />
+                            ) : (
+                              <Clock className="w-5 h-5 text-yellow-600" />
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Sales Breakdown Modal */}
+      {showSalesModal && selectedDistributorData && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl w-full max-w-6xl max-h-[90vh] overflow-hidden">
+            <div className="flex items-center justify-between p-6 border-b">
+              <div>
+                <h3 className="text-xl font-semibold text-gray-900">Sales Breakdown</h3>
+                <p className="text-sm text-gray-600 mt-1">{selectedDistributorData.distributorName}</p>
+              </div>
+              <button
+                onClick={() => setShowSalesModal(false)}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+              {/* Sales Summary Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                <div className="bg-blue-50 rounded-xl p-6 text-center">
+                  <div className="text-3xl font-bold text-blue-600">₹{(selectedDistributorData.ytdSales * 1000).toLocaleString()}</div>
+                  <div className="text-sm text-blue-700">Total Sales Value</div>
+                </div>
+                <div className="bg-green-50 rounded-xl p-6 text-center">
+                  <div className="text-3xl font-bold text-green-600">{selectedDistributorData.ytdSales}</div>
+                  <div className="text-sm text-green-700">Total Volume</div>
+                </div>
+                <div className="bg-purple-50 rounded-xl p-6 text-center">
+                  <div className="text-3xl font-bold text-purple-600">8</div>
+                  <div className="text-sm text-purple-700">Product Lines</div>
+                </div>
+                <div className="bg-orange-50 rounded-xl p-6 text-center">
+                  <div className="text-3xl font-bold text-orange-600">{selectedDistributorData.liquidationRate}%</div>
+                  <div className="text-sm text-orange-700">Liquidation Rate</div>
+                </div>
+              </div>
+
+              {/* Product-wise Sales Breakdown */}
+              <div className="mb-6">
+                <h4 className="font-semibold text-gray-900 mb-4">Product-wise Sales Performance</h4>
+                <div className="space-y-4">
+                  {selectedDistributorData.stockDetails.map((stock, index) => {
+                    const salesVolume = Math.abs(stock.variance) > 0 ? Math.abs(stock.variance) : Math.floor(stock.erpLastBalance * 0.3);
+                    const salesValue = salesVolume * stock.unitPrice;
+                    const liquidationRate = stock.erpLastBalance > 0 ? Math.round((salesVolume / stock.erpLastBalance) * 100) : 0;
+                    
+                    return (
+                      <div key={stock.id} className="border border-gray-200 rounded-lg p-4">
+                        <div className="flex items-center justify-between mb-4">
+                          <div>
+                            <h5 className="font-medium text-gray-900">{stock.productName}</h5>
+                            <p className="text-sm text-gray-600">SKU: {stock.skuCode}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-lg font-bold text-green-600">₹{salesValue.toLocaleString()}</p>
+                            <p className="text-sm text-gray-600">Sales Value</p>
+                          </div>
+                        </div>
+                        
+                        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-4">
+                          <div className="text-center p-3 bg-blue-50 rounded-lg">
+                            <p className="text-sm text-blue-600">Opening Stock</p>
+                            <p className="font-bold text-blue-800">{stock.erpLastBalance} {stock.unit}</p>
+                          </div>
+                          <div className="text-center p-3 bg-green-50 rounded-lg">
+                            <p className="text-sm text-green-600">Sales Volume</p>
+                            <p className="font-bold text-green-800">{salesVolume} {stock.unit}</p>
+                          </div>
+                          <div className="text-center p-3 bg-yellow-50 rounded-lg">
+                            <p className="text-sm text-yellow-600">Current Stock</p>
+                            <p className="font-bold text-yellow-800">{stock.currentStock} {stock.unit}</p>
+                          </div>
+                          <div className="text-center p-3 bg-purple-50 rounded-lg">
+                            <p className="text-sm text-purple-600">Unit Price</p>
+                            <p className="font-bold text-purple-800">₹{stock.unitPrice}</p>
+                          </div>
+                          <div className="text-center p-3 bg-indigo-50 rounded-lg">
+                            <p className="text-sm text-indigo-600">Liquidation %</p>
+                            <p className="font-bold text-indigo-800">{liquidationRate}%</p>
+                          </div>
+                        </div>
+                        
+                        {/* Progress Bar */}
+                        <div className="mb-2">
+                          <div className="flex justify-between text-xs text-gray-500 mb-1">
+                            <span>Liquidation Progress</span>
+                            <span>{liquidationRate}%</span>
+                          </div>
+                          <div className="w-full bg-gray-200 rounded-full h-2">
+                            <div
+                              className="bg-gradient-to-r from-green-600 to-blue-600 h-2 rounded-full transition-all duration-300"
+                              style={{ width: `${Math.min(liquidationRate, 100)}%` }}
+                            ></div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Monthly Trend (Sample Data) */}
+              <div>
+                <h4 className="font-semibold text-gray-900 mb-4">Monthly Sales Trend</h4>
+                <div className="bg-gray-50 rounded-xl p-6">
+                  <div className="grid grid-cols-3 md:grid-cols-6 gap-4 text-center">
+                    {['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'].map((month, index) => (
+                      <div key={month} className="p-3 bg-white rounded-lg">
+                        <p className="text-sm text-gray-600">{month}</p>
+                        <p className="text-lg font-bold text-blue-600">
+                          ₹{((selectedDistributorData.ytdSales * 1000) / 6 * (0.8 + Math.random() * 0.4)).toFixed(0)}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
