@@ -11,6 +11,7 @@ import TravelReimbursement from './pages/TravelReimbursement';
 import Performance from './pages/Performance';
 import RetailerLiquidation from './pages/RetailerLiquidation';
 import MobileAppDesign from './pages/MobileAppDesign';
+import MobileAppPage from './pages/MobileAppPage';
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
         <Route path="/performance" element={<Performance />} />
         <Route path="/retailer-liquidation/:id" element={<RetailerLiquidation />} />
         <Route path="/mobile-design" element={<MobileAppDesign />} />
+        <Route path="/mobile" element={<MobileAppPage />} />
       </Routes>
     </Layout>
   );

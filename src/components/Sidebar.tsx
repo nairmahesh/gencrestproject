@@ -24,6 +24,7 @@ const navigation = [
   { name: 'Liquidation', href: '/liquidation', icon: Droplets },
   { name: 'Contacts', href: '/contacts', icon: Users },
   { name: 'Mobile App Design', href: '/mobile-design', icon: Smartphone },
+  { name: 'Mobile App', href: '/mobile', icon: Smartphone },
 ];
 
 const planningNavigation = [
