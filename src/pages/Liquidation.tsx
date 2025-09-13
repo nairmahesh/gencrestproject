@@ -791,7 +791,7 @@ const Liquidation: React.FC = () => {
                               type="number"
                               value={currentStock}
                               onChange={(e) => handleStockUpdate(stock.id, parseInt(e.target.value) || 0)}
-                              className="w-full text-center text-lg font-bold bg-yellow-50 border-none focus:outline-none focus:ring-2 focus:ring-yellow-400 rounded"
+                              className="w-full text-center text-lg font-bold bg-yellow-50 border border-yellow-300 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-500 rounded px-2 py-1"
                               min="0"
                               placeholder="Enter count"
                             />
