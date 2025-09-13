@@ -1,0 +1,1037 @@
+import React, { useState } from 'react';
+import { 
+  Building, 
+  Package, 
+  TrendingUp, 
+  Droplets, 
+  AlertTriangle, 
+  CheckCircle, 
+  Clock, 
+  MapPin, 
+  Phone, 
+  User, 
+  Eye, 
+  Edit, 
+  FileText, 
+  Plus, 
+  Minus,
+  X,
+  Save,
+  Search,
+  Filter,
+  Download,
+  Upload,
+  Camera,
+  Target,
+  DollarSign,
+  Calendar,
+  Users,
+  ShoppingCart,
+  ArrowRight,
+  Info,
+  Bell,
+  UserPlus,
+  FileSignature,
+  AlertCircle
+} from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { SignatureCapture } from '../components/SignatureCapture';
+
+interface ProductStock {
+  id: string;
+  productCode: string;
+  productName: string;
+  skuCode: string;
+  skuName: string;
+  unit: string;
+  erpLastBalance: number;
+  currentStock: number;
+  variance: number;
+  variancePercentage: number;
+  unitPrice: number;
+  hasBalance: boolean;
+  isVerified: boolean;
+}
+
+interface RetailerSale {
+  id: string;
+  retailerId?: string;
+  retailerCode?: string;
+  retailerName: string;
+  retailerPhone?: string;
+  retailerAddress?: string;
+  isNewRetailer: boolean;
+  quantity: number;
+  unitPrice: number;
+  totalValue: number;
+  saleDate: string;
+  paymentStatus: 'Paid' | 'Pending' | 'Partial';
+  paymentMode: 'Cash' | 'Credit' | 'UPI' | 'Cheque';
+  needsLiquidationTracking: boolean;
+}
+
+interface FarmerSale {
+  id: string;
+  farmerName: string;
+  farmerPhone?: string;
+  village: string;
+  quantity: number;
+  unitPrice: number;
+  totalValue: number;
+  saleDate: string;
+  paymentMode: 'Cash' | 'UPI' | 'Credit';
+}
+
+interface ReturnDetails {
+  id: string;
+  returnFromType: 'Retailer' | 'Damage' | 'Other';
+  returnFromName: string;
+  quantity: number;
+  reason: string;
+  returnDate: string;
+  requiresDeclaration: boolean;
+  hasDeclaration: boolean;
+}
+
+interface StockVariance {
+  skuId: string;
+  varianceType: 'Sold to Retailer' | 'Sold to Farmer' | 'Return';
+  retailerSales?: RetailerSale[];
+  farmerSales?: FarmerSale[];
+  returns?: ReturnDetails[];
+}
+
+interface LiquidationEntry {
+  id: string;
+  distributorId: string;
+  distributorName: string;
+  distributorCode: string;
+  distributorAddress: string;
+  distributorPhone: string;
+  territory: string;
+  region: string;
+  zone: string;
+  
+  openingStock: number;
+  ytdSales: number;
+  liquidation: number;
+  balanceStock: number;
+  liquidationRate: number;
+  
+  status: 'Pending' | 'In Progress' | 'Completed' | 'Verified';
+  lastUpdated: string;
+  updatedBy: string;
+  hasSignature: boolean;
+  
+  stockDetails: ProductStock[];
+  salesBreakdown: any[];
+}
+
+const Liquidation: React.FC = () => {
+  const navigate = useNavigate();
+  const [viewMode, setViewMode] = useState<'distributor' | 'product'>('distributor');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('All');
+  const [showStockModal, setShowStockModal] = useState(false);
+  const [showVarianceModal, setShowVarianceModal] = useState(false);
+  const [showSignatureModal, setShowSignatureModal] = useState(false);
+  const [showRetailerModal, setShowRetailerModal] = useState(false);
+  const [selectedDistributor, setSelectedDistributor] = useState<string | null>(null);
+  const [selectedSku, setSelectedSku] = useState<string | null>(null);
+  const [stockData, setStockData] = useState<{[key: string]: {current: number}}>({});
+  const [varianceData, setVarianceData] = useState<{[key: string]: StockVariance}>({});
+  const [pendingNotifications, setPendingNotifications] = useState<string[]>([]);
+
+  // Sample liquidation data with more products
+  const liquidationData: LiquidationEntry[] = [
+    {
+      id: 'L001',
+      distributorId: 'DIST001',
+      distributorName: 'SRI RAMA SEEDS AND PESTICIDES',
+      distributorCode: '1325',
+      distributorAddress: 'Main Market, Agricultural Zone, Sector 15',
+      distributorPhone: '+91 98765 43210',
+      territory: 'North Delhi',
+      region: 'Delhi NCR',
+      zone: 'North Zone',
+      
+      openingStock: 40,
+      ytdSales: 350,
+      liquidation: 140,
+      balanceStock: 250,
+      liquidationRate: 36,
+      
+      status: 'Pending',
+      lastUpdated: '2024-01-20',
+      updatedBy: 'MDO001',
+      hasSignature: false,
+      
+      stockDetails: [
+        {
+          id: 'S001',
+          productCode: 'DAP001',
+          productName: 'DAP (Di-Ammonium Phosphate)',
+          skuCode: 'DAP-25KG',
+          skuName: 'DAP 25kg Bag',
+          unit: 'Kg',
+          erpLastBalance: 100,
+          currentStock: 85,
+          variance: -15,
+          variancePercentage: -15,
+          unitPrice: 1350,
+          hasBalance: true,
+          isVerified: false
+        },
+        {
+          id: 'S002',
+          productCode: 'DAP001',
+          productName: 'DAP (Di-Ammonium Phosphate)',
+          skuCode: 'DAP-50KG',
+          skuName: 'DAP 50kg Bag',
+          unit: 'Kg',
+          erpLastBalance: 50,
+          currentStock: 45,
+          variance: -5,
+          variancePercentage: -10,
+          unitPrice: 2700,
+          hasBalance: true,
+          isVerified: false
+        },
+        {
+          id: 'S003',
+          productCode: 'UREA001',
+          productName: 'Urea',
+          skuCode: 'UREA-25KG',
+          skuName: 'Urea 25kg Bag',
+          unit: 'Kg',
+          erpLastBalance: 80,
+          currentStock: 90,
+          variance: 10,
+          variancePercentage: 12.5,
+          unitPrice: 600,
+          hasBalance: true,
+          isVerified: false
+        },
+        {
+          id: 'S004',
+          productCode: 'NPK001',
+          productName: 'NPK Complex',
+          skuCode: 'NPK-25KG',
+          skuName: 'NPK Complex 25kg Bag',
+          unit: 'Kg',
+          erpLastBalance: 60,
+          currentStock: 55,
+          variance: -5,
+          variancePercentage: -8.3,
+          unitPrice: 800,
+          hasBalance: true,
+          isVerified: false
+        },
+        {
+          id: 'S005',
+          productCode: 'PEST001',
+          productName: 'Insecticide',
+          skuCode: 'PEST-1L',
+          skuName: 'Insecticide 1L Bottle',
+          unit: 'Litre',
+          erpLastBalance: 30,
+          currentStock: 25,
+          variance: -5,
+          variancePercentage: -16.7,
+          unitPrice: 400,
+          hasBalance: true,
+          isVerified: false
+        },
+        // Additional products with balance stock (not verified)
+        {
+          id: 'S006',
+          productCode: 'MOP001',
+          productName: 'MOP (Muriate of Potash)',
+          skuCode: 'MOP-25KG',
+          skuName: 'MOP 25kg Bag',
+          unit: 'Kg',
+          erpLastBalance: 40,
+          currentStock: 40,
+          variance: 0,
+          variancePercentage: 0,
+          unitPrice: 800,
+          hasBalance: true,
+          isVerified: false
+        },
+        {
+          id: 'S007',
+          productCode: 'SSP001',
+          productName: 'SSP (Single Super Phosphate)',
+          skuCode: 'SSP-50KG',
+          skuName: 'SSP 50kg Bag',
+          unit: 'Kg',
+          erpLastBalance: 35,
+          currentStock: 35,
+          variance: 0,
+          variancePercentage: 0,
+          unitPrice: 800,
+          hasBalance: true,
+          isVerified: false
+        },
+        {
+          id: 'S008',
+          productCode: 'SEED001',
+          productName: 'Hybrid Seeds',
+          skuCode: 'SEED-1KG',
+          skuName: 'Hybrid Seeds 1kg Pack',
+          unit: 'Kg',
+          erpLastBalance: 25,
+          currentStock: 25,
+          variance: 0,
+          variancePercentage: 0,
+          unitPrice: 750,
+          hasBalance: true,
+          isVerified: false
+        }
+      ],
+      salesBreakdown: []
+    }
+  ];
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'Pending':
+        return 'text-yellow-700 bg-yellow-100';
+      case 'In Progress':
+        return 'text-blue-700 bg-blue-100';
+      case 'Completed':
+        return 'text-green-700 bg-green-100';
+      case 'Verified':
+        return 'text-purple-700 bg-purple-100';
+      default:
+        return 'text-gray-700 bg-gray-100';
+    }
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'Pending':
+        return <Clock className="w-4 h-4" />;
+      case 'In Progress':
+        return <Package className="w-4 h-4" />;
+      case 'Completed':
+        return <CheckCircle className="w-4 h-4" />;
+      case 'Verified':
+        return <CheckCircle className="w-4 h-4" />;
+      default:
+        return <AlertTriangle className="w-4 h-4" />;
+    }
+  };
+
+  const handleStockUpdate = (skuId: string, value: number) => {
+    setStockData(prev => ({
+      ...prev,
+      [skuId]: { current: value }
+    }));
+  };
+
+  const calculateVariance = (erpBalance: number, current: number) => {
+    const variance = current - erpBalance;
+    const percentage = erpBalance > 0 ? (variance / erpBalance) * 100 : 0;
+    return { variance, percentage };
+  };
+
+  const getVarianceColor = (variance: number) => {
+    if (variance > 0) return 'text-red-600 bg-red-50 border-red-200';
+    if (variance < 0) return 'text-green-600 bg-green-50 border-green-200';
+    return 'text-gray-600 bg-gray-50 border-gray-200';
+  };
+
+  const openStockModal = (distributorId: string) => {
+    setSelectedDistributor(distributorId);
+    setShowStockModal(true);
+  };
+
+  const checkPendingEntries = () => {
+    const selectedDistributorData = liquidationData.find(d => d.id === selectedDistributor);
+    if (!selectedDistributorData) return;
+
+    const unverifiedProducts = selectedDistributorData.stockDetails.filter(
+      stock => stock.hasBalance && !stock.isVerified && !(stock.id in stockData)
+    );
+
+    if (unverifiedProducts.length > 0) {
+      setPendingNotifications([
+        `There are ${unverifiedProducts.length} additional products where entries are pending (Only products with balance stock)`
+      ]);
+      return false;
+    }
+    return true;
+  };
+
+  const processStockEntry = () => {
+    const selectedDistributorData = liquidationData.find(d => d.id === selectedDistributor);
+    if (!selectedDistributorData) return;
+
+    // Check for pending entries
+    if (!checkPendingEntries()) {
+      return;
+    }
+
+    // Check if all entries have no variance (only e-sign needed)
+    const hasVariances = selectedDistributorData.stockDetails.some(stock => {
+      const current = stockData[stock.id]?.current ?? stock.currentStock;
+      return current !== stock.erpLastBalance;
+    });
+
+    if (!hasVariances) {
+      // No differences - only e-sign needed
+      setShowStockModal(false);
+      setShowSignatureModal(true);
+      return;
+    }
+
+    // Has variances - need to process each variance
+    setShowStockModal(false);
+    setShowVarianceModal(true);
+  };
+
+  const handleVarianceType = (skuId: string, type: 'Sold to Retailer' | 'Sold to Farmer' | 'Return') => {
+    setVarianceData(prev => ({
+      ...prev,
+      [skuId]: { ...prev[skuId], skuId, varianceType: type }
+    }));
+
+    if (type === 'Sold to Retailer') {
+      setSelectedSku(skuId);
+      setShowRetailerModal(true);
+    } else if (type === 'Sold to Farmer') {
+      // No details needed for farmer sales
+      processVariance(skuId, type);
+    } else if (type === 'Return') {
+      // Process return - needs e-sign or letterhead declaration
+      processVariance(skuId, type);
+    }
+  };
+
+  const processVariance = (skuId: string, type: string) => {
+    console.log(`Processing variance for SKU ${skuId} as ${type}`);
+    
+    if (type === 'Sold to Retailer') {
+      // Add notification for pending retailer liquidation tracking
+      setPendingNotifications(prev => [
+        ...prev,
+        `Pending task: Track liquidation from retailer for SKU ${skuId}`
+      ]);
+    }
+  };
+
+  const addRetailerSale = (retailerData: RetailerSale) => {
+    if (!selectedSku) return;
+    
+    setVarianceData(prev => ({
+      ...prev,
+      [selectedSku]: {
+        ...prev[selectedSku],
+        retailerSales: [...(prev[selectedSku]?.retailerSales || []), retailerData]
+      }
+    }));
+
+    // Add notification for retailer liquidation tracking
+    setPendingNotifications(prev => [
+      ...prev,
+      `New retailer added: ${retailerData.retailerName}. Liquidation tracking required.`
+    ]);
+
+    setShowRetailerModal(false);
+  };
+
+  const selectedDistributorData = liquidationData.find(d => d.id === selectedDistributor);
+
+  const filteredData = liquidationData.filter(entry => {
+    const matchesSearch = entry.distributorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         entry.distributorCode.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === 'All' || entry.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
+
+  const totalStats = {
+    totalDistributors: liquidationData.length,
+    avgLiquidationRate: Math.round(liquidationData.reduce((sum, entry) => sum + entry.liquidationRate, 0) / liquidationData.length),
+    pendingEntries: liquidationData.filter(entry => entry.status === 'Pending').length,
+    completedEntries: liquidationData.filter(entry => entry.status === 'Completed').length
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Notifications */}
+      {pendingNotifications.length > 0 && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
+          <div className="flex items-center mb-2">
+            <Bell className="w-5 h-5 text-yellow-600 mr-2" />
+            <h3 className="font-medium text-yellow-800">Pending Notifications</h3>
+          </div>
+          <ul className="space-y-1">
+            {pendingNotifications.map((notification, index) => (
+              <li key={index} className="text-sm text-yellow-700 flex items-start">
+                <AlertCircle className="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" />
+                {notification}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Stock Liquidation Tracking</h1>
+          <p className="text-gray-600 mt-1">Track and manage distributor stock liquidation</p>
+        </div>
+        <div className="mt-4 sm:mt-0 flex items-center space-x-3">
+          <div className="flex bg-gray-100 rounded-lg p-1">
+            <button
+              onClick={() => setViewMode('distributor')}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                viewMode === 'distributor'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              Distributor wise
+            </button>
+            <button
+              onClick={() => setViewMode('product')}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                viewMode === 'product'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              Product wise
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="bg-white rounded-xl p-6 card-shadow">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-600">Total Distributors</p>
+              <p className="text-2xl font-bold text-gray-900">{totalStats.totalDistributors}</p>
+            </div>
+            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+              <Building className="w-6 h-6 text-blue-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl p-6 card-shadow">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-600">Avg Liquidation Rate</p>
+              <p className="text-2xl font-bold text-gray-900">{totalStats.avgLiquidationRate}%</p>
+            </div>
+            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+              <Droplets className="w-6 h-6 text-green-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl p-6 card-shadow">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-600">Pending Entries</p>
+              <p className="text-2xl font-bold text-gray-900">{totalStats.pendingEntries}</p>
+            </div>
+            <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+              <Clock className="w-6 h-6 text-yellow-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl p-6 card-shadow">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-600">Completed</p>
+              <p className="text-2xl font-bold text-gray-900">{totalStats.completedEntries}</p>
+            </div>
+            <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+              <CheckCircle className="w-6 h-6 text-purple-600" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Filters */}
+      <div className="bg-white rounded-xl p-6 card-shadow">
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex-1">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <input
+                type="text"
+                placeholder="Search distributors..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              />
+            </div>
+          </div>
+          <div className="flex items-center space-x-4">
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            >
+              <option value="All">All Status</option>
+              <option value="Pending">Pending</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Completed">Completed</option>
+              <option value="Verified">Verified</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      {/* Distributor Cards */}
+      {viewMode === 'distributor' && (
+        <div className="space-y-4">
+          <p className="text-sm text-gray-600">Showing {filteredData.length} of {liquidationData.length} distributors</p>
+          
+          {filteredData.map((entry) => (
+            <div key={entry.id} className="bg-white rounded-xl p-6 card-shadow card-hover">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center space-x-3">
+                  <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                    <Building className="w-6 h-6 text-purple-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900">{entry.distributorName}</h3>
+                    <p className="text-sm text-gray-600">Code: {entry.distributorCode}</p>
+                  </div>
+                </div>
+                <span className={`px-3 py-1 rounded-full text-xs font-medium flex items-center ${getStatusColor(entry.status)}`}>
+                  {getStatusIcon(entry.status)}
+                  <span className="ml-1">{entry.status}</span>
+                </span>
+              </div>
+
+              {/* Key Metrics */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                <div className="text-center p-3 bg-orange-50 rounded-lg">
+                  <div className="text-2xl font-bold text-orange-600">{entry.openingStock}</div>
+                  <div className="text-xs text-orange-700">Opening Stock</div>
+                  <div className="text-xs text-orange-600">Kg/Litre</div>
+                </div>
+                <div className="text-center p-3 bg-blue-50 rounded-lg">
+                  <div className="text-2xl font-bold text-blue-600">{entry.ytdSales}</div>
+                  <div className="text-xs text-blue-700">YTD Sales</div>
+                  <div className="text-xs text-blue-600">Kg/Litre</div>
+                </div>
+                <div className="text-center p-3 bg-green-50 rounded-lg">
+                  <div className="text-2xl font-bold text-green-600">{entry.liquidation}</div>
+                  <div className="text-xs text-green-700">Liquidation</div>
+                  <div className="text-xs text-green-600">Kg/Litre</div>
+                </div>
+                <div className="text-center p-3 bg-purple-50 rounded-lg">
+                  <div className="text-2xl font-bold text-purple-600">{entry.liquidationRate}%</div>
+                  <div className="text-xs text-purple-700">Liquidation Rate</div>
+                  <div className="text-xs text-purple-600">Performance</div>
+                </div>
+              </div>
+
+              {/* Contact Info */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4 text-sm text-gray-600">
+                <div className="flex items-center">
+                  <Phone className="w-4 h-4 mr-2" />
+                  {entry.distributorPhone}
+                </div>
+                <div className="flex items-center">
+                  <MapPin className="w-4 h-4 mr-2" />
+                  {entry.distributorAddress}
+                </div>
+                <div className="flex items-center">
+                  <User className="w-4 h-4 mr-2" />
+                  Last updated: {new Date(entry.lastUpdated).toLocaleDateString()}
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => openStockModal(entry.id)}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center"
+                >
+                  <Package className="w-4 h-4 mr-2" />
+                  Enter Current Stock
+                </button>
+                <button className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors flex items-center">
+                  <Eye className="w-4 h-4 mr-2" />
+                  View Details
+                </button>
+                <button className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors flex items-center">
+                  <TrendingUp className="w-4 h-4 mr-2" />
+                  Sales Breakdown
+                </button>
+                <button
+                  onClick={() => navigate(`/retailer-liquidation/${entry.id}`)}
+                  className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors flex items-center"
+                >
+                  <ArrowRight className="w-4 h-4 mr-2" />
+                  Retailer Tracking
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Stock Entry Modal */}
+      {showStockModal && selectedDistributorData && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl w-full max-w-6xl max-h-[90vh] overflow-hidden">
+            <div className="flex items-center justify-between p-6 border-b">
+              <div>
+                <h3 className="text-xl font-semibold text-gray-900">Enter Current Stock - Product & SKU wise</h3>
+                <p className="text-sm text-gray-600 mt-1">{selectedDistributorData.distributorName}</p>
+              </div>
+              <button
+                onClick={() => setShowStockModal(false)}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
+              {/* Instructions */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                <h4 className="font-medium text-blue-800 mb-2">Instructions:</h4>
+                <ul className="text-sm text-blue-700 space-y-1">
+                  <li>• Enter the current physical stock for each product/SKU</li>
+                  <li>• System will automatically calculate variance from ERP last balance</li>
+                  <li>• All products with balance stock must be verified</li>
+                  <li>• Missing entries will generate alerts</li>
+                </ul>
+              </div>
+
+              {/* Stock Entry Form */}
+              <div className="space-y-4">
+                {selectedDistributorData.stockDetails.map((stock) => {
+                  const currentStock = stockData[stock.id]?.current ?? stock.currentStock;
+                  const { variance, percentage } = calculateVariance(stock.erpLastBalance, currentStock);
+                  
+                  return (
+                    <div key={stock.id} className={`border rounded-lg p-4 ${getVarianceColor(variance)}`}>
+                      <div className="flex items-center justify-between mb-3">
+                        <div>
+                          <h4 className="font-medium text-gray-900">{stock.productName}</h4>
+                          <p className="text-sm text-gray-600">SKU: {stock.skuCode} | {stock.skuName}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm text-gray-600">Unit Price</p>
+                          <p className="font-medium">₹{stock.unitPrice}</p>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-3">
+                        <div className="text-center p-3 bg-blue-50 rounded-lg border">
+                          <p className="text-xs text-blue-600 font-medium">ERP Last Balance</p>
+                          <p className="text-lg font-bold text-blue-800">{stock.erpLastBalance} {stock.unit}</p>
+                          <p className="text-xs text-blue-500">From ERP - Non Editable</p>
+                        </div>
+
+                        <div className="text-center p-3 bg-white rounded-lg border-2 border-yellow-300">
+                          <p className="text-xs text-gray-600 font-medium">Current Physical Stock</p>
+                          <div className="relative">
+                            <input
+                              type="number"
+                              value={currentStock}
+                              onChange={(e) => handleStockUpdate(stock.id, parseInt(e.target.value) || 0)}
+                              className="w-full text-center text-lg font-bold bg-yellow-50 border-none focus:outline-none focus:ring-2 focus:ring-yellow-400 rounded"
+                              min="0"
+                              placeholder="Enter count"
+                            />
+                            <span className="absolute top-0 right-0 bg-yellow-400 text-yellow-800 text-xs px-1 rounded">EDIT</span>
+                          </div>
+                          <p className="text-xs text-gray-500">{stock.unit}</p>
+                        </div>
+
+                        <div className="text-center p-3 bg-gray-50 rounded-lg">
+                          <p className="text-xs text-gray-600 font-medium">Variance</p>
+                          <p className={`text-lg font-bold ${variance > 0 ? 'text-red-600' : variance < 0 ? 'text-green-600' : 'text-gray-600'}`}>
+                            {variance > 0 ? '+' : ''}{variance} {stock.unit}
+                          </p>
+                          <p className={`text-xs ${variance > 0 ? 'text-red-500' : variance < 0 ? 'text-green-500' : 'text-gray-500'}`}>
+                            {percentage > 0 ? '+' : ''}{percentage.toFixed(1)}%
+                          </p>
+                        </div>
+
+                        <div className="text-center p-3 bg-gray-50 rounded-lg">
+                          <p className="text-xs text-gray-600 font-medium">Status</p>
+                          <div className="mt-1">
+                            {variance > 0 ? (
+                              <div>
+                                <AlertTriangle className="w-6 h-6 text-red-600 mx-auto" />
+                                <p className="text-xs text-red-600 font-medium">INCREASE</p>
+                              </div>
+                            ) : variance < 0 ? (
+                              <div>
+                                <CheckCircle className="w-6 h-6 text-green-600 mx-auto" />
+                                <p className="text-xs text-green-600 font-medium">DECREASE</p>
+                              </div>
+                            ) : (
+                              <div>
+                                <Minus className="w-6 h-6 text-gray-600 mx-auto" />
+                                <p className="text-xs text-gray-600 font-medium">NO CHANGE</p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="p-6 border-t bg-gray-50">
+              <div className="flex items-center justify-between">
+                <div className="text-sm text-gray-600">
+                  <Info className="w-4 h-4 inline mr-1" />
+                  All products with balance stock must be verified
+                </div>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setShowStockModal(false)}
+                    className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={processStockEntry}
+                    className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center"
+                  >
+                    <Save className="w-4 h-4 mr-2" />
+                    Process Entry
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Variance Processing Modal */}
+      {showVarianceModal && selectedDistributorData && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
+            <div className="flex items-center justify-between p-6 border-b">
+              <div>
+                <h3 className="text-xl font-semibold text-gray-900">Process Stock Variances</h3>
+                <p className="text-sm text-gray-600 mt-1">Classify each variance type</p>
+              </div>
+              <button
+                onClick={() => setShowVarianceModal(false)}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
+              <div className="space-y-4">
+                {selectedDistributorData.stockDetails
+                  .filter(stock => {
+                    const current = stockData[stock.id]?.current ?? stock.currentStock;
+                    return current !== stock.erpLastBalance;
+                  })
+                  .map((stock) => {
+                    const currentStock = stockData[stock.id]?.current ?? stock.currentStock;
+                    const { variance } = calculateVariance(stock.erpLastBalance, currentStock);
+                    
+                    return (
+                      <div key={stock.id} className="border rounded-lg p-4">
+                        <div className="flex items-center justify-between mb-4">
+                          <div>
+                            <h4 className="font-medium text-gray-900">{stock.skuName}</h4>
+                            <p className="text-sm text-gray-600">
+                              Variance: {variance > 0 ? '+' : ''}{variance} {stock.unit}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                          <button
+                            onClick={() => handleVarianceType(stock.id, 'Sold to Retailer')}
+                            className="p-4 border-2 border-blue-200 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-colors"
+                          >
+                            <Users className="w-6 h-6 text-blue-600 mx-auto mb-2" />
+                            <p className="font-medium text-blue-800">Sold to Retailer</p>
+                            <p className="text-xs text-blue-600">Add retailer details</p>
+                            <p className="text-xs text-blue-600">E-SIGN needed</p>
+                          </button>
+
+                          <button
+                            onClick={() => handleVarianceType(stock.id, 'Sold to Farmer')}
+                            className="p-4 border-2 border-green-200 rounded-lg hover:border-green-400 hover:bg-green-50 transition-colors"
+                          >
+                            <User className="w-6 h-6 text-green-600 mx-auto mb-2" />
+                            <p className="font-medium text-green-800">Sold to Farmer</p>
+                            <p className="text-xs text-green-600">No details needed</p>
+                            <p className="text-xs text-green-600">No verification</p>
+                          </button>
+
+                          <button
+                            onClick={() => handleVarianceType(stock.id, 'Return')}
+                            className="p-4 border-2 border-purple-200 rounded-lg hover:border-purple-400 hover:bg-purple-50 transition-colors"
+                          >
+                            <Package className="w-6 h-6 text-purple-600 mx-auto mb-2" />
+                            <p className="font-medium text-purple-800">Return</p>
+                            <p className="text-xs text-purple-600">E-SIGN or</p>
+                            <p className="text-xs text-purple-600">Letterhead Declaration</p>
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Retailer Details Modal */}
+      {showRetailerModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl w-full max-w-2xl">
+            <div className="flex items-center justify-between p-6 border-b">
+              <h3 className="text-xl font-semibold text-gray-900">Add Retailer Details</h3>
+              <button
+                onClick={() => setShowRetailerModal(false)}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-6">
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Retailer Name *
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Enter retailer name"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Retailer Code
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Auto-generated or enter"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Phone Number
+                    </label>
+                    <input
+                      type="tel"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Enter phone number"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Address
+                  </label>
+                  <textarea
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    rows={3}
+                    placeholder="Enter retailer address"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Quantity Sold *
+                    </label>
+                    <input
+                      type="number"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Enter quantity"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Unit Price
+                    </label>
+                    <input
+                      type="number"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Enter unit price"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-4">
+                  <label className="flex items-center">
+                    <input type="checkbox" className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                    <span className="ml-2 text-sm text-gray-700">New Retailer</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input type="checkbox" className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                    <span className="ml-2 text-sm text-gray-700">Requires Liquidation Tracking</span>
+                  </label>
+                </div>
+              </div>
+
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={() => setShowRetailerModal(false)}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    // Add retailer logic here
+                    setShowRetailerModal(false);
+                  }}
+                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center"
+                >
+                  <UserPlus className="w-4 h-4 mr-2" />
+                  Add Retailer
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Signature Modal */}
+      <SignatureCapture
+        isOpen={showSignatureModal}
+        onClose={() => setShowSignatureModal(false)}
+        onSave={(signature) => {
+          console.log('Signature saved:', signature);
+          setShowSignatureModal(false);
+          alert('Stock data saved and verified with distributor signature!');
+        }}
+        title="Distributor Signature Verification"
+      />
+    </div>
+  );
+};
+
+export default Liquidation;
