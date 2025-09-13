@@ -702,15 +702,55 @@ const Liquidation: React.FC = () => {
             </div>
             
             <div className="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
-              {/* Instructions */}
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-                <h4 className="font-medium text-blue-800 mb-2">Instructions:</h4>
-                <ul className="text-sm text-blue-700 space-y-1">
-                  <li>• Enter the current physical stock for each product/SKU</li>
-                  <li>• System will automatically calculate variance from ERP last balance</li>
-                  <li>• All products with balance stock must be verified</li>
-                  <li>• Missing entries will generate alerts</li>
-                </ul>
+              {/* Alert for missing entries */}
+              {pendingNotifications.length > 0 && (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                  <div className="flex items-center mb-2">
+                    <AlertTriangle className="w-5 h-5 text-yellow-600 mr-2" />
+                    <h4 className="font-medium text-yellow-800">Pending Entries Alert</h4>
+                  </div>
+                  <ul className="text-sm text-yellow-700 space-y-1">
+                    {pendingNotifications.map((notification, index) => (
+                      <li key={index}>• {notification}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Summary Cards */}
+              <div className="grid grid-cols-3 gap-4 mb-6">
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
+                  <div className="text-2xl font-bold text-red-600">
+                    {selectedDistributorData.stockDetails.filter(stock => {
+                      const current = stockData[stock.id]?.current ?? stock.currentStock;
+                      return current > stock.erpLastBalance;
+                    }).length}
+                  </div>
+                  <div className="text-sm text-red-700">Stock Increases</div>
+                  <div className="text-xs text-red-600">Need Explanation</div>
+                </div>
+                
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
+                  <div className="text-2xl font-bold text-green-600">
+                    {selectedDistributorData.stockDetails.filter(stock => {
+                      const current = stockData[stock.id]?.current ?? stock.currentStock;
+                      return current < stock.erpLastBalance;
+                    }).length}
+                  </div>
+                  <div className="text-sm text-green-700">Stock Decreases</div>
+                  <div className="text-xs text-green-600">Normal Liquidation</div>
+                </div>
+                
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 text-center">
+                  <div className="text-2xl font-bold text-gray-600">
+                    {selectedDistributorData.stockDetails.filter(stock => {
+                      const current = stockData[stock.id]?.current ?? stock.currentStock;
+                      return current === stock.erpLastBalance;
+                    }).length}
+                  </div>
+                  <div className="text-sm text-gray-700">No Change</div>
+                  <div className="text-xs text-gray-600">E-Sign Only</div>
+                </div>
               </div>
 
               {/* Stock Entry Form */}
@@ -720,7 +760,7 @@ const Liquidation: React.FC = () => {
                   const { variance, percentage } = calculateVariance(stock.erpLastBalance, currentStock);
                   
                   return (
-                    <div key={stock.id} className={`border rounded-lg p-4 ${getVarianceColor(variance)}`}>
+                    <div key={stock.id} className="border border-gray-200 rounded-lg p-6 mb-4">
                       <div className="flex items-center justify-between mb-3">
                         <div>
                           <h4 className="font-medium text-gray-900">{stock.productName}</h4>
@@ -732,7 +772,7 @@ const Liquidation: React.FC = () => {
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-3">
+                      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4">
                         <div className="text-center p-3 bg-blue-50 rounded-lg border">
                           <p className="text-xs text-blue-600 font-medium">ERP Last Balance</p>
                           <p className="text-lg font-bold text-blue-800">{stock.erpLastBalance} {stock.unit}</p>
@@ -750,18 +790,28 @@ const Liquidation: React.FC = () => {
                               min="0"
                               placeholder="Enter count"
                             />
-                            <span className="absolute top-0 right-0 bg-yellow-400 text-yellow-800 text-xs px-1 rounded">EDIT</span>
+                            <span className="absolute -top-1 -right-1 bg-yellow-400 text-yellow-800 text-xs px-2 py-1 rounded-full font-bold">EDIT</span>
                           </div>
                           <p className="text-xs text-gray-500">{stock.unit}</p>
                         </div>
 
-                        <div className="text-center p-3 bg-gray-50 rounded-lg">
+                        <div className={`text-center p-3 rounded-lg ${getVarianceColor(variance)}`}>
                           <p className="text-xs text-gray-600 font-medium">Variance</p>
                           <p className={`text-lg font-bold ${variance > 0 ? 'text-red-600' : variance < 0 ? 'text-green-600' : 'text-gray-600'}`}>
                             {variance > 0 ? '+' : ''}{variance} {stock.unit}
                           </p>
                           <p className={`text-xs ${variance > 0 ? 'text-red-500' : variance < 0 ? 'text-green-500' : 'text-gray-500'}`}>
                             {percentage > 0 ? '+' : ''}{percentage.toFixed(1)}%
+                          </p>
+                        </div>
+
+                        <div className="text-center p-3 bg-purple-50 rounded-lg">
+                          <p className="text-xs text-purple-600 font-medium">Total Value</p>
+                          <p className="text-lg font-bold text-purple-800">
+                            ₹{(currentStock * stock.unitPrice).toLocaleString()}
+                          </p>
+                          <p className="text-xs text-purple-600">
+                            Variance: ₹{(variance * stock.unitPrice).toLocaleString()}
                           </p>
                         </div>
 
@@ -787,6 +837,26 @@ const Liquidation: React.FC = () => {
                           </div>
                         </div>
                       </div>
+
+                      {/* Explanation dropdown for stock increases */}
+                      {variance > 0 && (
+                        <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                          <label className="block text-sm font-medium text-red-800 mb-2">
+                            Stock Increase Detected - Explanation Required:
+                          </label>
+                          <select className="w-full px-3 py-2 border border-red-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                            <option value="">Select explanation...</option>
+                            <option value="return_from_retailer">Return from Retailer</option>
+                            <option value="return_from_farmer">Return from Farmer</option>
+                            <option value="new_stock_received">New Stock Received</option>
+                            <option value="counting_error_previous">Previous Counting Error</option>
+                            <option value="other">Other (Specify in notes)</option>
+                          </select>
+                          <p className="text-xs text-red-600 mt-1">
+                            This increase will require verification and documentation
+                          </p>
+                        </div>
+                      )}
                     </div>
                   );
                 })}
@@ -797,8 +867,10 @@ const Liquidation: React.FC = () => {
             <div className="p-6 border-t bg-gray-50">
               <div className="flex items-center justify-between">
                 <div className="text-sm text-gray-600">
-                  <Info className="w-4 h-4 inline mr-1" />
-                  All products with balance stock must be verified
+                  <div className="flex items-center">
+                    <Info className="w-4 h-4 mr-2" />
+                    <span>All products with balance stock must be verified</span>
+                  </div>
                 </div>
                 <div className="flex gap-3">
                   <button
