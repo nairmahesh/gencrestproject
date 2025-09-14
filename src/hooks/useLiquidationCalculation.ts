@@ -21,7 +21,7 @@ export const useLiquidationCalculation = () => {
     ytdNetSales: { volume: 13303, value: 43.70 },
     liquidation: { volume: 12720, value: 55.52 },
     balanceStock: { volume: 33243, value: 178.23 },
-    liquidationPercentage: 0
+    liquidationPercentage: Math.round((12720 / (32660 + 13303)) * 100)
   });
 
   const [distributorMetrics, setDistributorMetrics] = useState<DistributorLiquidation[]>([
