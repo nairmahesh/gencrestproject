@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useLiquidationCalculation } from '../hooks/useLiquidationCalculation';
 import { 
   Calendar, 
   MapPin, 
@@ -60,7 +59,6 @@ const Dashboard: React.FC = () => {
   const [selectedModule, setSelectedModule] = useState('All');
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedMetric, setSelectedMetric] = useState<string>('');
-  const { overallMetrics, distributorMetrics, updateOverallMetrics } = useLiquidationCalculation();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -422,11 +420,34 @@ const Dashboard: React.FC = () => {
     
     // Liquidation Module (TABLE 1 Format)
     liquidation: {
-      openingStock: overallMetrics.openingStock,
-      ytdNetSales: overallMetrics.ytdNetSales,
-      liquidation: overallMetrics.liquidation,
-      balanceStock: overallMetrics.balanceStock,
-      liquidationPercentage: overallMetrics.liquidationPercentage
+      openingStock: {
+        volume: 32660, // Kg/Litre
+        value: 190.00 // Rs.Lakhs
+      },
+      ytdNetSales: {
+        volume: 13303, // Kg/Litre  
+        value: 43.70 // Rs.Lakhs
+      },
+      liquidation: {
+        volume: 12720, // Kg/Litre
+        value: 55.52 // Rs.Lakhs
+      },
+      balanceStock: {
+        volume: 33243, // Kg/Litre
+        value: 178.23 // Rs.Lakhs
+      },
+      get liquidationPercentage() {
+        // Liquidation % = (Liquidated Volume / Opening Stock Volume) × 100
+        return Math.round((this.liquidation.volume / this.openingStock.volume) * 100);
+      },
+      get balanceStockCalculated() {
+        // Balance Stock = Opening Stock - YTD Sales + Returns/Adjustments
+        // For now, using the provided balance stock value
+        return {
+          volume: this.openingStock.volume - this.ytdNetSales.volume + (this.balanceStock.volume - (this.openingStock.volume - this.ytdNetSales.volume)),
+          value: this.balanceStock.value
+        };
+      }
     },
     
     // Contacts Module
@@ -947,3 +968,5 @@ const Dashboard: React.FC = () => {
 };
 
 export default Dashboard;
+
+export default Dashboard
