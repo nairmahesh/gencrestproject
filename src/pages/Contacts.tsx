@@ -102,16 +102,6 @@ const Contacts: React.FC = () => {
           Add Contact
         </button>
       </div>
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Contacts</h1>
-          <p className="text-gray-600 mt-1">Manage your dealer and retailer network</p>
-        </div>
-        <button className="mt-4 sm:mt-0 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center">
-          <Plus className="w-4 h-4 mr-2" />
-          Add Contact
-        </button>
-      </div>
-
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="bg-white rounded-xl p-6 card-shadow">

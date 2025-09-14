@@ -245,21 +245,6 @@ const FieldVisits: React.FC = () => {
         >
           <Plus className="w-4 h-4 mr-2" />
           Schedule Visit
-        </button>
-      </div>
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Field Visits</h1>
-          <p className="text-gray-600 mt-1">Manage your daily visits and customer interactions</p>
-        </div>
-        <button 
-          onClick={() => setShowCreateModal(true)}
-          className="mt-4 sm:mt-0 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center"
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          Schedule Visit
-        </button>
-      </div>
-
       {/* Today's Summary */}
       <div className="bg-white rounded-xl p-6 card-shadow">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Today's Summary</h2>
