@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Calendar, Target, Users, Plus, CheckCircle, Clock, AlertCircle, MapPin } from 'lucide-react';
 import { ActivityPlan, PlannedActivity } from '../types';
 import { RouteTracker } from '../components/RouteTracker';
 
 export const Planning: React.FC = () => {
+  const navigate = useNavigate();
   const [plans, setPlans] = useState<ActivityPlan[]>([
     {
       id: '1',
@@ -86,6 +88,26 @@ export const Planning: React.FC = () => {
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center space-x-4">
+          <button 
+            onClick={() => navigate('/')}
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Planning & Targets</h1>
+            <p className="text-gray-600">Manage activity plans and track performance</p>
+          </div>
+        </div>
+        <button 
+          onClick={() => setShowCreatePlan(true)}
+          className="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700"
+        >
+          <Plus className="w-4 h-4" />
+          Create Plan
+        </button>
+      </div>
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Planning & Targets</h1>
           <p className="text-gray-600">Manage activity plans and track performance</p>

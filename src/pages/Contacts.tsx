@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Users, Plus, Search, Phone, Mail, MapPin, Building } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Users, Plus, Search, Phone, Mail, MapPin, Building, ArrowLeft } from 'lucide-react';
 
 interface Contact {
   id: string;
@@ -14,6 +15,7 @@ interface Contact {
 }
 
 const Contacts: React.FC = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [typeFilter, setTypeFilter] = useState('All');
 
@@ -82,7 +84,24 @@ const Contacts: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-4">
+          <button 
+            onClick={() => navigate('/')}
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Contacts</h1>
+            <p className="text-gray-600 mt-1">Manage your dealer and retailer network</p>
+          </div>
+        </div>
+        <button className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center">
+          <Plus className="w-4 h-4 mr-2" />
+          Add Contact
+        </button>
+      </div>
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Contacts</h1>
           <p className="text-gray-600 mt-1">Manage your dealer and retailer network</p>

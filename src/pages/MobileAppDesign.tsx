@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Home, 
   MapPin, 
@@ -41,10 +42,12 @@ import {
   Award,
   FileText,
   Truck,
-  PieChart
+  PieChart,
+  ArrowLeft
 } from 'lucide-react';
 
 const MobileAppDesign: React.FC = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('home');
   const [showSidebar, setShowSidebar] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -707,6 +710,17 @@ const MobileAppDesign: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Back Button */}
+      <div className="p-4">
+        <button 
+          onClick={() => navigate('/')}
+          className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
+        >
+          <ArrowLeft className="w-5 h-5" />
+          <span>Back to Dashboard</span>
+        </button>
+      </div>
+      
       {/* Mobile Phone Frame */}
       <div className="max-w-sm mx-auto bg-black rounded-3xl p-2 shadow-2xl">
         {/* Phone Screen */}

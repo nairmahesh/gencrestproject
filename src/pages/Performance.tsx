@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { TrendingUp, Target, Award, Calendar, Users, DollarSign } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { TrendingUp, Target, Award, Calendar, Users, DollarSign, ArrowLeft } from 'lucide-react';
 
 interface PerformanceMetric {
   id: string;
@@ -22,6 +23,7 @@ interface Incentive {
 }
 
 const Performance: React.FC = () => {
+  const navigate = useNavigate();
   const [selectedPeriod, setSelectedPeriod] = useState('Monthly');
 
   const metrics: PerformanceMetric[] = [
@@ -135,7 +137,32 @@ const Performance: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-4">
+          <button 
+            onClick={() => navigate('/')}
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Performance & Incentives</h1>
+            <p className="text-gray-600 mt-1">Track your performance metrics and earned incentives</p>
+          </div>
+        </div>
+        <div className="mt-4 sm:mt-0">
+          <select
+            value={selectedPeriod}
+            onChange={(e) => setSelectedPeriod(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          >
+            <option value="Weekly">Weekly</option>
+            <option value="Monthly">Monthly</option>
+            <option value="Quarterly">Quarterly</option>
+            <option value="Yearly">Yearly</option>
+          </select>
+        </div>
+      </div>
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Performance & Incentives</h1>
           <p className="text-gray-600 mt-1">Track your performance metrics and earned incentives</p>

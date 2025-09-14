@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Car, Plus, Calendar, MapPin, DollarSign, Clock, CheckCircle, AlertTriangle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Car, Plus, Calendar, MapPin, DollarSign, Clock, CheckCircle, AlertTriangle, ArrowLeft } from 'lucide-react';
 
 interface TravelClaim {
   id: string;
@@ -17,6 +18,7 @@ interface TravelClaim {
 }
 
 const TravelReimbursement: React.FC = () => {
+  const navigate = useNavigate();
   const [claims] = useState<TravelClaim[]>([
     {
       id: '1',
@@ -105,7 +107,24 @@ const TravelReimbursement: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-4">
+          <button 
+            onClick={() => navigate('/')}
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Travel Reimbursement</h1>
+            <p className="text-gray-600 mt-1">Track and manage your travel expenses</p>
+          </div>
+        </div>
+        <button className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center">
+          <Plus className="w-4 h-4 mr-2" />
+          Add Claim
+        </button>
+      </div>
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Travel Reimbursement</h1>
           <p className="text-gray-600 mt-1">Track and manage your travel expenses</p>
