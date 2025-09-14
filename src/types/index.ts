@@ -55,6 +55,32 @@ export interface Product {
   specifications: Record<string, string>;
 }
 
+export interface LiquidationData {
+  id: string;
+  distributorId: string;
+  distributorName: string;
+  distributorCode: string;
+  openingStock: {
+    volume: number;
+    value: number;
+  };
+  ytdNetSales: {
+    volume: number;
+    value: number;
+  };
+  liquidation: {
+    volume: number;
+    value: number;
+  };
+  balanceStock: {
+    volume: number;
+    value: number;
+  };
+  liquidationPercentage: number;
+  lastUpdated: string;
+  updatedBy: string;
+}
+
 export interface LiquidationEntry {
   id: string;
   dealerId: string;

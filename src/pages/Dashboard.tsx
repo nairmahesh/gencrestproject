@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLiquidationCalculation } from '../hooks/useLiquidationCalculation';
 import { 
   Calendar, 
   MapPin, 
@@ -59,6 +60,7 @@ const Dashboard: React.FC = () => {
   const [selectedModule, setSelectedModule] = useState('All');
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedMetric, setSelectedMetric] = useState<string>('');
+  const { overallMetrics, distributorMetrics, updateOverallMetrics } = useLiquidationCalculation();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -420,23 +422,11 @@ const Dashboard: React.FC = () => {
     
     // Liquidation Module (TABLE 1 Format)
     liquidation: {
-      openingStock: {
-        volume: 32660, // Kg/Litre
-        value: 190.00 // Rs.Lakhs
-      },
-      ytdNetSales: {
-        volume: 13303, // Kg/Litre  
-        value: 43.70 // Rs.Lakhs
-      },
-      liquidation: {
-        volume: 12720, // Kg/Litre
-        value: 55.52 // Rs.Lakhs
-      },
-      balanceStock: {
-        volume: 33243, // Kg/Litre
-        value: 178.23 // Rs.Lakhs
-      },
-      liquidationPercentage: 28
+      openingStock: overallMetrics.openingStock,
+      ytdNetSales: overallMetrics.ytdNetSales,
+      liquidation: overallMetrics.liquidation,
+      balanceStock: overallMetrics.balanceStock,
+      liquidationPercentage: overallMetrics.liquidationPercentage
     },
     
     // Contacts Module
