@@ -436,8 +436,8 @@ const MobileAppDesign: React.FC = () => {
           </div>
           <p className="text-xs text-gray-600 mb-3">April - Aug,2025</p>
           <div className="space-y-1">
-            <div className="text-sm font-semibold text-gray-900">Vol (Kg/Litre) 45963</div>
-            <div className="text-sm font-semibold text-gray-900 border-t border-gray-300 pt-1">Value (Rs.Lakhs) 14.45</div>
+            <div className="text-sm font-semibold text-gray-900">Vol (Kg/Litre) 13303</div>
+            <div className="text-sm font-semibold text-gray-900 border-t border-gray-300 pt-1">Value (Rs.Lakhs) 43.70</div>
           </div>
         </div>
       </div>
@@ -450,7 +450,7 @@ const MobileAppDesign: React.FC = () => {
           <p className="text-xs text-gray-600 mb-3">As of Aug (YTD)</p>
           <div className="space-y-1">
             <div className="text-sm font-semibold text-gray-900">Vol (Kg/Litre) 12720</div>
-            <div className="text-sm font-semibold text-gray-900 border-t border-gray-300 pt-1">Value (Rs.Lakhs) 7.00</div>
+            <div className="text-sm font-semibold text-gray-900 border-t border-gray-300 pt-1">Value (Rs.Lakhs) 55.52</div>
           </div>
         </div>
         
@@ -460,8 +460,8 @@ const MobileAppDesign: React.FC = () => {
           </div>
           <p className="text-xs text-gray-600 mb-3">&nbsp;</p>
           <div className="space-y-1">
-            <div className="text-sm font-semibold text-gray-900">Vol (Kg/Litre) 65903</div>
-            <div className="text-sm font-semibold text-gray-900 border-t border-gray-300 pt-1">Value (Rs.Lakhs) 40.00</div>
+            <div className="text-sm font-semibold text-gray-900">Vol (Kg/Litre) 33243</div>
+            <div className="text-sm font-semibold text-gray-900 border-t border-gray-300 pt-1">Value (Rs.Lakhs) 178.23</div>
           </div>
         </div>
       </div>
@@ -470,9 +470,9 @@ const MobileAppDesign: React.FC = () => {
       <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
         <div className="text-center">
           <h4 className="text-lg font-bold text-gray-900 mb-2">% Liquidation</h4>
-          <div className="text-4xl font-bold text-purple-600 mb-4">16%</div>
+          <div className="text-4xl font-bold text-purple-600 mb-4">28%</div>
           <div className="w-full bg-gray-200 rounded-full h-3">
-            <div className="bg-gradient-to-r from-purple-500 to-pink-500 h-3 rounded-full" style={{ width: '16%' }}></div>
+            <div className="bg-gradient-to-r from-purple-500 to-pink-500 h-3 rounded-full" style={{ width: '28%' }}></div>
           </div>
         </div>
       </div>
