@@ -125,6 +125,9 @@ const SalesOrders: React.FC = () => {
         <button className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center">
           <Plus className="w-4 h-4 mr-2" />
           Create Order
+        </button>
+      </div>
+
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-white rounded-xl p-6 card-shadow">
