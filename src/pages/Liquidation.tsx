@@ -381,8 +381,6 @@ const Liquidation: React.FC = () => {
             <div className="text-4xl font-bold text-purple-600 mb-4">{overallMetrics.liquidationPercentage}%</div>
           </div>
         </div>
-      </div>
-
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="bg-white rounded-xl p-6 card-shadow">
