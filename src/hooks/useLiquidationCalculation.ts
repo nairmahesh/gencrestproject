@@ -70,7 +70,8 @@ export const useLiquidationCalculation = () => {
     const liquidationPercentage = calculateLiquidationPercentage(metrics, 'opening');
     
     const denominator = metrics.openingStock.volume + metrics.ytdNetSales.volume;
-    const liquidationPercentage = denominator > 0 ? Math.round((metrics.liquidation.volume / denominator) * 100) : 0;
+    const liquidationPercentage2 = denominator > 0 ? Math.round((metrics.liquidation.volume / denominator) * 100) : 0;
+    return {
       ...metrics,
       balanceStock,
       liquidationPercentage
