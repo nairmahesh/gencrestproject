@@ -681,7 +681,7 @@ const Dashboard: React.FC = () => {
               </div>
             </div>
             <div className="mt-2 text-xs text-gray-500">
-              Value: ₹{overallMetrics.openingStock.value}L
+              Value: ₹{overallMetrics.openingStock.value.toFixed(2)}L
             </div>
             <div className="mt-3 flex items-center text-orange-600 text-sm">
               <span>View Details</span>
@@ -704,7 +704,7 @@ const Dashboard: React.FC = () => {
               </div>
             </div>
             <div className="mt-2 text-xs text-gray-500">
-              Value: ₹{overallMetrics.ytdNetSales.value}L
+              Value: ₹{overallMetrics.ytdNetSales.value.toFixed(2)}L
             </div>
             <div className="mt-3 flex items-center text-blue-600 text-sm">
               <span>View Details</span>
@@ -727,7 +727,7 @@ const Dashboard: React.FC = () => {
               </div>
             </div>
             <div className="mt-2 text-xs text-gray-500">
-              Value: ₹{overallMetrics.liquidation.value}L
+              Value: ₹{overallMetrics.liquidation.value.toFixed(2)}L
             </div>
             <div className="mt-3 flex items-center text-green-600 text-sm">
               <span>View Details</span>
@@ -750,7 +750,7 @@ const Dashboard: React.FC = () => {
               </div>
             </div>
             <div className="mt-2 text-xs text-gray-500">
-              Auto-calculated: Liquidation / (Opening + YTD Sales) × 100
+              Auto-calculated: Liquidation / (Opening Stock + YTD Sales) × 100
             </div>
             <div className="mt-3 flex items-center text-purple-600 text-sm">
               <span>View Details</span>
@@ -765,7 +765,7 @@ const Dashboard: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-blue-100">YTD Sales Value</p>
-                <p className="text-3xl font-bold">₹{overallMetrics.ytdNetSales.value}L</p>
+                <p className="text-3xl font-bold">₹{overallMetrics.ytdNetSales.value.toFixed(2)}L</p>
               </div>
               <DollarSign className="w-8 h-8 text-blue-200" />
             </div>
@@ -775,7 +775,7 @@ const Dashboard: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-green-100">Liquidation Value</p>
-                <p className="text-3xl font-bold">₹{overallMetrics.liquidation.value}L</p>
+                <p className="text-3xl font-bold">₹{overallMetrics.liquidation.value.toFixed(2)}L</p>
               </div>
               <Droplets className="w-8 h-8 text-green-200" />
             </div>
@@ -785,7 +785,7 @@ const Dashboard: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-purple-100">Balance Stock Value</p>
-                <p className="text-3xl font-bold">₹{overallMetrics.balanceStock.value}L</p>
+                <p className="text-3xl font-bold">₹{overallMetrics.balanceStock.value.toFixed(2)}L</p>
               </div>
               <Package className="w-8 h-8 text-purple-200" />
             </div>
@@ -799,12 +799,12 @@ const Dashboard: React.FC = () => {
             <div>
               <div className="flex justify-between text-sm text-gray-600 mb-2">
                 <span>Overall Liquidation Performance</span>
-                <span>{overallStats.liquidation.liquidationPercentage}%</span>
+                <span>{overallMetrics.liquidationPercentage}%</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-3">
                 <div 
                   className="bg-gradient-to-r from-green-500 to-green-600 h-3 rounded-full transition-all duration-1000"
-                  style={{ width: `${overallStats.liquidation.liquidationPercentage}%` }}
+                  style={{ width: `${overallMetrics.liquidationPercentage}%` }}
                 ></div>
               </div>
             </div>
