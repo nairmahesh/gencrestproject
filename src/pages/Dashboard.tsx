@@ -633,7 +633,7 @@ const Dashboard: React.FC = () => {
           <div className="text-sm text-gray-600">Sales MTD</div>
         </div>
         <div className="bg-white rounded-xl p-4 card-shadow text-center">
-          <div className="text-2xl font-bold text-purple-600">{overallMetrics.liquidationPercentage}%</div>
+          <div className="text-2xl font-bold text-purple-600">28%</div>
           <div className="text-sm text-gray-600">Avg Liquidation</div>
         </div>
         <div className="bg-white rounded-xl p-4 card-shadow text-center">
@@ -742,15 +742,12 @@ const Dashboard: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Liquidation Rate</p>
-                <p className="text-2xl font-bold text-gray-900">{overallMetrics.liquidationPercentage}%</p>
+                <p className="text-2xl font-bold text-gray-900">28%</p>
                 <p className="text-xs text-gray-500">Overall Performance</p>
               </div>
               <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
                 <Target className="w-6 h-6 text-purple-600" />
               </div>
-            </div>
-            <div className="mt-2 text-xs text-gray-500">
-              Auto-calculated: Liquidation / (Opening Stock + YTD Sales) × 100
             </div>
             <div className="mt-3 flex items-center text-purple-600 text-sm">
               <span>View Details</span>
@@ -799,12 +796,12 @@ const Dashboard: React.FC = () => {
             <div>
               <div className="flex justify-between text-sm text-gray-600 mb-2">
                 <span>Overall Liquidation Performance</span>
-                <span>{overallMetrics.liquidationPercentage}%</span>
+                <span>28%</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-3">
                 <div 
                   className="bg-gradient-to-r from-green-500 to-green-600 h-3 rounded-full transition-all duration-1000"
-                  style={{ width: `${overallMetrics.liquidationPercentage}%` }}
+                  style={{ width: `28%` }}
                 ></div>
               </div>
             </div>
