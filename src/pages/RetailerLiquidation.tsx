@@ -331,11 +331,16 @@ const RetailerLiquidation: React.FC = () => {
                       onChange={(e) => handleStockUpdate(stock.skuCode, 'returned', parseInt(e.target.value) || 0)}
                       className="w-16 text-center text-lg font-bold text-purple-800 bg-transparent border-none focus:outline-none"
                       min="0"
-                      max={stock.assignedQuantity - (stockUpdateData[stock.skuCode]?.current ?? stock.currentStock) - (stockUpdateData[stock.skuCode]?.liquidated ?? stock.liquidatedToFarmer)}
+                      max={Math.max(0, stock.assignedQuantity - (stockUpdateData[stock.skuCode]?.current ?? stock.currentStock) - (stockUpdateData[stock.skuCode]?.liquidated ?? stock.liquidatedToFarmer))}
                     />
                     <span className="text-lg font-bold text-purple-800"> {stock.unit}</span>
                   </div>
-                  <p className="text-xs text-purple-600">Available: {stock.assignedQuantity - (stockUpdateData[stock.skuCode]?.current ?? stock.currentStock) - (stockUpdateData[stock.skuCode]?.liquidated ?? stock.liquidatedToFarmer)} {stock.unit}</p>
+                  <p className="text-xs text-purple-600">
+                    Balance Available: {Math.max(0, stock.assignedQuantity - (stockUpdateData[stock.skuCode]?.current ?? stock.currentStock) - (stockUpdateData[stock.skuCode]?.liquidated ?? stock.liquidatedToFarmer))} {stock.unit}
+                  </p>
+                  <p className="text-xs text-purple-500 mt-1">
+                    (Only balance stock can be returned)
+                  </p>
                 </div>
 
                 <div className="text-center p-3 bg-gray-50 rounded-lg">
@@ -413,7 +418,8 @@ const RetailerLiquidation: React.FC = () => {
           <li>• MDO sees product and SKU wise list assigned by distributor</li>
           <li>• Input current stock at retailer level</li>
           <li>• Record final liquidated stock to farmers</li>
-          <li>• Return option remains open for unsold stock</li>
+          <li>• Return option available only for remaining balance stock</li>
+          <li>• No farmer returns accepted - only retailer to distributor returns</li>
           <li>• Retailer signature required for verification</li>
           <li>• True liquidation for distributor calculated only after complete farmer liquidation</li>
         </ul>

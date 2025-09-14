@@ -133,11 +133,12 @@ export interface StockVariance {
   productId: string;
   skuCode: string;
   varianceQuantity: number;
-  varianceType: 'Sold to Retailer' | 'Sold to Farmer' | 'Return' | 'Damage' | 'Transfer';
+  varianceType: 'Sold to Retailer' | 'Sold to Farmer' | 'Return from Retailer' | 'Damage' | 'Transfer' | 'Backend_Return_Farmer';
   details: RetailerSale[] | FarmerSale[] | ReturnDetails[];
   verificationRequired: boolean;
   isVerified: boolean;
   verificationDate?: string;
+  isBackendEntry?: boolean; // For extreme cases backend entries
 }
 
 export interface RetailerSale {
@@ -183,7 +184,7 @@ export interface FarmerSale {
 
 export interface ReturnDetails {
   id: string;
-  returnFromType: 'Retailer' | 'Farmer' | 'Damage';
+  returnFromType: 'Retailer' | 'Damage' | 'Backend_Farmer'; // Backend_Farmer for extreme cases only
   returnFromId?: string;
   returnFromName: string;
   skuWiseQuantity: {
@@ -196,26 +197,31 @@ export interface ReturnDetails {
   reason: string;
   requiresDeclaration: boolean;
   hasDeclaration: boolean;
+  isBackendEntry?: boolean; // Flag for backend entries
+  backendEntryBy?: string; // Who made the backend entry
+  backendEntryReason?: string; // Reason for backend entry
 }
 
 export interface PendingTask {
   id: string;
-  type: 'Stock Entry Pending' | 'Retailer Liquidation Tracking' | 'Verification Required' | 'Return Processing';
+  type: 'Stock Entry Pending' | 'Retailer Liquidation Tracking' | 'Verification Required' | 'Return Processing' | 'Backend Entry Review';
   description: string;
   priority: 'High' | 'Medium' | 'Low';
   dueDate?: string;
   relatedEntityId: string;
   relatedEntityType: 'Product' | 'Retailer' | 'Return';
+  requiresBackendApproval?: boolean; // For backend entries
 }
 
 export interface LiquidationAlert {
   id: string;
-  type: 'Stock Increase Detected' | 'Missing Product Entry' | 'Variance Detected' | 'Verification Overdue';
+  type: 'Stock Increase Detected' | 'Missing Product Entry' | 'Variance Detected' | 'Verification Overdue' | 'Backend Entry Made';
   message: string;
   severity: 'Error' | 'Warning' | 'Info';
   isRead: boolean;
   createdAt: string;
   relatedData?: any;
+  isBackendAlert?: boolean; // For backend entry alerts
 }
 
 export interface RetailerLiquidation {
