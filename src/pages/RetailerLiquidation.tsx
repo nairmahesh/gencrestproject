@@ -146,7 +146,7 @@ const RetailerLiquidation: React.FC = () => {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-4">
           <button 
             onClick={() => navigate('/liquidation')}
             className="p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -208,7 +208,7 @@ const RetailerLiquidation: React.FC = () => {
             <div>
               <p className="text-sm text-gray-600">Total Assigned</p>
               <p className="text-2xl font-bold text-gray-900">
-                {retailerData.stockDetails.reduce((sum, item) => sum + item.assignedQuantity, 0)} units
+                {retailerData.stockDetails.reduce((sum, item) => sum + item.assignedQuantity, 0)} Units
               </p>
             </div>
             <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
@@ -222,7 +222,7 @@ const RetailerLiquidation: React.FC = () => {
             <div>
               <p className="text-sm text-gray-600">Current Stock</p>
               <p className="text-2xl font-bold text-yellow-600">
-                {retailerData.stockDetails.reduce((sum, item) => sum + item.currentStock, 0)} units
+                {retailerData.stockDetails.reduce((sum, item) => sum + item.currentStock, 0)} Units
               </p>
             </div>
             <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
@@ -236,7 +236,7 @@ const RetailerLiquidation: React.FC = () => {
             <div>
               <p className="text-sm text-gray-600">Liquidated</p>
               <p className="text-2xl font-bold text-green-600">
-                {retailerData.stockDetails.reduce((sum, item) => sum + item.liquidatedToFarmer, 0)} units
+                {retailerData.stockDetails.reduce((sum, item) => sum + item.liquidatedToFarmer, 0)} Units
               </p>
             </div>
             <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
@@ -250,7 +250,7 @@ const RetailerLiquidation: React.FC = () => {
             <div>
               <p className="text-sm text-gray-600">Balance Stock</p>
               <p className="text-2xl font-bold text-orange-600">
-                {retailerData.stockDetails.reduce((sum, item) => sum + (item.assignedQuantity - item.currentStock - item.liquidatedToFarmer), 0)} units
+                {retailerData.stockDetails.reduce((sum, item) => sum + (item.assignedQuantity - item.currentStock - item.liquidatedToFarmer), 0)} Units
               </p>
             </div>
             <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
