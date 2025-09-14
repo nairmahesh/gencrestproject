@@ -163,23 +163,6 @@ const Performance: React.FC = () => {
           </select>
         </div>
       </div>
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Performance & Incentives</h1>
-          <p className="text-gray-600 mt-1">Track your performance metrics and earned incentives</p>
-        </div>
-        <div className="mt-4 sm:mt-0">
-          <select
-            value={selectedPeriod}
-            onChange={(e) => setSelectedPeriod(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-          >
-            <option value="Weekly">Weekly</option>
-            <option value="Monthly">Monthly</option>
-            <option value="Quarterly">Quarterly</option>
-            <option value="Yearly">Yearly</option>
-          </select>
-        </div>
-      </div>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
