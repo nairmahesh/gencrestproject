@@ -60,20 +60,30 @@ export const useLiquidationCalculation = () => {
     }
   };
 
+  // Helper function to recalculate all metrics
+  const recalculateMetrics = (metrics: LiquidationMetrics): LiquidationMetrics => {
+    const balanceStock = {
+      volume: metrics.openingStock.volume + metrics.ytdNetSales.volume - metrics.liquidation.volume,
+      value: metrics.openingStock.value + metrics.ytdNetSales.value - metrics.liquidation.value
+    };
+    
+    const liquidationPercentage = calculateLiquidationPercentage(metrics, 'opening');
+    
+    return {
+      ...metrics,
+      balanceStock,
+      liquidationPercentage
+    };
+  };
+
   // Update calculations when metrics change
   useEffect(() => {
-    setOverallMetrics(prev => ({
-      ...prev,
-      liquidationPercentage: calculateLiquidationPercentage(prev, 'opening')
-    }));
+    setOverallMetrics(prev => recalculateMetrics(prev));
 
     setDistributorMetrics(prev => 
       prev.map(distributor => ({
         ...distributor,
-        metrics: {
-          ...distributor.metrics,
-          liquidationPercentage: calculateLiquidationPercentage(distributor.metrics, 'opening')
-        }
+        metrics: recalculateMetrics(distributor.metrics)
       }))
     );
   }, []);
@@ -82,19 +92,7 @@ export const useLiquidationCalculation = () => {
   const updateOverallMetrics = (newMetrics: Partial<LiquidationMetrics>) => {
     setOverallMetrics(prev => {
       const updated = { ...prev, ...newMetrics };
-      
-      // Recalculate balance stock if needed
-      if (newMetrics.openingStock || newMetrics.ytdNetSales) {
-        updated.balanceStock = {
-          ...updated.balanceStock,
-          volume: updated.openingStock.volume - updated.ytdNetSales.volume + (updated.balanceStock.volume - (updated.openingStock.volume - updated.ytdNetSales.volume))
-        };
-      }
-      
-      // Recalculate liquidation percentage
-      updated.liquidationPercentage = calculateLiquidationPercentage(updated, 'opening');
-      
-      return updated;
+      return recalculateMetrics(updated);
     });
 
     // Sync changes to distributor records proportionally
@@ -107,13 +105,9 @@ export const useLiquidationCalculation = () => {
       prev.map(distributor => {
         if (distributor.id === distributorId) {
           const updated = { ...distributor.metrics, ...newMetrics };
-          
-          // Recalculate liquidation percentage
-          updated.liquidationPercentage = calculateLiquidationPercentage(updated, 'opening');
-          
           return {
             ...distributor,
-            metrics: updated
+            metrics: recalculateMetrics(updated)
           };
         }
         return distributor;
@@ -189,10 +183,6 @@ export const useLiquidationCalculation = () => {
     distributorMetrics,
     updateOverallMetrics,
     updateDistributorMetrics,
-    calculateBalanceStock,
-    calculateLiquidationPercentage: (liquidation: number, opening: number, ytdSales: number) => 
-      calculateLiquidationPercentage(liquidation, opening, ytdSales),
-    calculateValue,
     syncToOverall,
     syncToDistributors
   };
