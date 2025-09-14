@@ -614,9 +614,9 @@ const Dashboard: React.FC = () => {
           </div>
           <div className="text-right">
             <div className="text-3xl font-bold">{overallStats.fieldVisits.todayPlanned}</div>
-            <div className="text-white/90 text-sm">visits planned</div>
+            <div className="text-white/90 text-sm">Visits planned</div>
             <div className="text-white/80 text-xs mt-1">
-              {overallStats.fieldVisits.todayCompleted} completed
+              {overallStats.fieldVisits.todayCompleted} Completed
             </div>
           </div>
         </div>
@@ -830,7 +830,7 @@ const Dashboard: React.FC = () => {
                 {module.stats.map((stat, statIndex) => (
                   <div key={statIndex} className="text-center">
                     <div className="text-lg font-bold text-gray-900">
-                      {stat.value}{stat.unit}
+                      {stat.value} {stat.unit}
                     </div>
                     <div className="text-xs text-gray-600">{stat.label}</div>
                   </div>
