@@ -245,6 +245,9 @@ const FieldVisits: React.FC = () => {
         >
           <Plus className="w-4 h-4 mr-2" />
           Schedule Visit
+        </button>
+      </div>
+
       {/* Today's Summary */}
       <div className="bg-white rounded-xl p-6 card-shadow">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Today's Summary</h2>
