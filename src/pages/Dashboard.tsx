@@ -750,7 +750,7 @@ const Dashboard: React.FC = () => {
               </div>
             </div>
             <div className="mt-2 text-xs text-gray-500">
-              Auto-calculated: (Liquidation / Opening Stock) × 100
+              Auto-calculated: Liquidation / (Opening + YTD Sales) × 100
             </div>
             <div className="mt-3 flex items-center text-purple-600 text-sm">
               <span>View Details</span>
