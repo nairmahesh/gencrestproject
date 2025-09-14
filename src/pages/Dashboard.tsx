@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLiquidationCalculation } from '../hooks/useLiquidationCalculation';
 import { 
   Calendar, 
   MapPin, 
@@ -59,6 +60,15 @@ const Dashboard: React.FC = () => {
   const [selectedModule, setSelectedModule] = useState('All');
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedMetric, setSelectedMetric] = useState<string>('');
+  
+  // Use dynamic liquidation calculation hook
+  const { 
+    overallMetrics, 
+    distributorMetrics, 
+    updateOverallMetrics, 
+    updateDistributorMetrics 
+  } = useLiquidationCalculation();
+  
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -419,36 +429,7 @@ const Dashboard: React.FC = () => {
     },
     
     // Liquidation Module (TABLE 1 Format)
-    liquidation: {
-      openingStock: {
-        volume: 32660, // Kg/Litre
-        value: 190.00 // Rs.Lakhs
-      },
-      ytdNetSales: {
-        volume: 13303, // Kg/Litre  
-        value: 43.70 // Rs.Lakhs
-      },
-      liquidation: {
-        volume: 12720, // Kg/Litre
-        value: 55.52 // Rs.Lakhs
-      },
-      balanceStock: {
-        volume: 33243, // Kg/Litre
-        value: 178.23 // Rs.Lakhs
-      },
-      get liquidationPercentage() {
-        // Liquidation % = (Liquidated Volume / Opening Stock Volume) × 100
-        return Math.round((this.liquidation.volume / this.openingStock.volume) * 100);
-      },
-      get balanceStockCalculated() {
-        // Balance Stock = Opening Stock - YTD Sales + Returns/Adjustments
-        // For now, using the provided balance stock value
-        return {
-          volume: this.openingStock.volume - this.ytdNetSales.volume + (this.balanceStock.volume - (this.openingStock.volume - this.ytdNetSales.volume)),
-          value: this.balanceStock.value
-        };
-      }
-    },
+    liquidation: overallMetrics,
     
     // Contacts Module
     contacts: {
@@ -652,7 +633,7 @@ const Dashboard: React.FC = () => {
           <div className="text-sm text-gray-600">Sales MTD</div>
         </div>
         <div className="bg-white rounded-xl p-4 card-shadow text-center">
-          <div className="text-2xl font-bold text-purple-600">{overallStats.liquidation.liquidationPercentage}%</div>
+          <div className="text-2xl font-bold text-purple-600">{overallMetrics.liquidationPercentage}%</div>
           <div className="text-sm text-gray-600">Avg Liquidation</div>
         </div>
         <div className="bg-white rounded-xl p-4 card-shadow text-center">
@@ -692,12 +673,15 @@ const Dashboard: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Opening Stock</p>
-                <p className="text-2xl font-bold text-gray-900">{overallStats.liquidation.openingStock.volume.toLocaleString()}</p>
+                <p className="text-2xl font-bold text-gray-900">{overallMetrics.openingStock.volume.toLocaleString()}</p>
                 <p className="text-xs text-gray-500">Kg/Litre</p>
               </div>
               <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
                 <Package className="w-6 h-6 text-orange-600" />
               </div>
+            </div>
+            <div className="mt-2 text-xs text-gray-500">
+              Value: ₹{overallMetrics.openingStock.value}L
             </div>
             <div className="mt-3 flex items-center text-orange-600 text-sm">
               <span>View Details</span>
@@ -712,12 +696,15 @@ const Dashboard: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">YTD Net Sales</p>
-                <p className="text-2xl font-bold text-gray-900">{overallStats.liquidation.ytdNetSales.volume.toLocaleString()}</p>
+                <p className="text-2xl font-bold text-gray-900">{overallMetrics.ytdNetSales.volume.toLocaleString()}</p>
                 <p className="text-xs text-gray-500">Kg/Litre</p>
               </div>
               <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
                 <TrendingUp className="w-6 h-6 text-blue-600" />
               </div>
+            </div>
+            <div className="mt-2 text-xs text-gray-500">
+              Value: ₹{overallMetrics.ytdNetSales.value}L
             </div>
             <div className="mt-3 flex items-center text-blue-600 text-sm">
               <span>View Details</span>
@@ -732,12 +719,15 @@ const Dashboard: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Liquidation</p>
-                <p className="text-2xl font-bold text-gray-900">{overallStats.liquidation.liquidation.volume.toLocaleString()}</p>
+                <p className="text-2xl font-bold text-gray-900">{overallMetrics.liquidation.volume.toLocaleString()}</p>
                 <p className="text-xs text-gray-500">Kg/Litre</p>
               </div>
               <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
                 <Droplets className="w-6 h-6 text-green-600" />
               </div>
+            </div>
+            <div className="mt-2 text-xs text-gray-500">
+              Value: ₹{overallMetrics.liquidation.value}L
             </div>
             <div className="mt-3 flex items-center text-green-600 text-sm">
               <span>View Details</span>
@@ -752,12 +742,15 @@ const Dashboard: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Liquidation Rate</p>
-                <p className="text-2xl font-bold text-gray-900">{overallStats.liquidation.liquidationPercentage}%</p>
+                <p className="text-2xl font-bold text-gray-900">{overallMetrics.liquidationPercentage}%</p>
                 <p className="text-xs text-gray-500">Overall Performance</p>
               </div>
               <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
                 <Target className="w-6 h-6 text-purple-600" />
               </div>
+            </div>
+            <div className="mt-2 text-xs text-gray-500">
+              Auto-calculated: (Liquidation / Opening Stock) × 100
             </div>
             <div className="mt-3 flex items-center text-purple-600 text-sm">
               <span>View Details</span>
@@ -772,7 +765,7 @@ const Dashboard: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-blue-100">YTD Sales Value</p>
-                <p className="text-3xl font-bold">₹{overallStats.liquidation.ytdNetSales.value}L</p>
+                <p className="text-3xl font-bold">₹{overallMetrics.ytdNetSales.value}L</p>
               </div>
               <DollarSign className="w-8 h-8 text-blue-200" />
             </div>
@@ -782,7 +775,7 @@ const Dashboard: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-green-100">Liquidation Value</p>
-                <p className="text-3xl font-bold">₹{overallStats.liquidation.liquidation.value}L</p>
+                <p className="text-3xl font-bold">₹{overallMetrics.liquidation.value}L</p>
               </div>
               <Droplets className="w-8 h-8 text-green-200" />
             </div>
@@ -792,7 +785,7 @@ const Dashboard: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-purple-100">Balance Stock Value</p>
-                <p className="text-3xl font-bold">₹{overallStats.liquidation.balanceStock.value}L</p>
+                <p className="text-3xl font-bold">₹{overallMetrics.balanceStock.value}L</p>
               </div>
               <Package className="w-8 h-8 text-purple-200" />
             </div>

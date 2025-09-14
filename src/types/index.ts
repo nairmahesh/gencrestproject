@@ -265,7 +265,6 @@ export interface RetailerLiquidation {
     returnDate: string;
     reason: string;
   }[];
-}
   productId: string;
   productName: string;
   productCode: string;
@@ -366,8 +365,7 @@ export interface FieldVisit {
   objectives: string[];
   outcomes: string[];
   actionItems: ActionItem[];
-  c
-}ustomerFeedback?: CustomerFeedback;
+  customerFeedback?: CustomerFeedback;
   competitorInfo?: CompetitorInfo[];
   orderValue?: number;
   paymentCollected?: number;
