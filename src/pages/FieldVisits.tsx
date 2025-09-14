@@ -227,7 +227,7 @@ const FieldVisits: React.FC = () => {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-3">
           <button 
             onClick={() => navigate('/')}
             className="p-2 hover:bg-gray-100 rounded-full transition-colors"

@@ -711,14 +711,17 @@ const MobileAppDesign: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Back Button */}
-      <div className="p-4">
+      <div className="p-4 flex items-center space-x-3">
         <button 
           onClick={() => navigate('/')}
-          className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
+          className="p-2 hover:bg-gray-100 rounded-full transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
-          <span>Back to Dashboard</span>
         </button>
+        <div>
+          <h1 className="text-xl font-bold text-gray-900">Mobile App Design Preview</h1>
+          <p className="text-gray-600 text-sm">Interactive mobile interface design</p>
+        </div>
       </div>
       
       {/* Mobile Phone Frame */}

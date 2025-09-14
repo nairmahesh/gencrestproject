@@ -151,7 +151,7 @@ const MobileApp: React.FC<MobileAppProps> = ({ children }) => {
           </div>
           <div className="text-right">
             <div className="text-2xl font-bold">8</div>
-            <div className="text-blue-100 text-sm">visits today</div>
+            <div className="text-blue-100 text-sm">Visits today</div>
           </div>
         </div>
         <div className="text-blue-100 text-sm">

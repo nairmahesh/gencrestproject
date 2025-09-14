@@ -267,13 +267,17 @@ const Liquidation: React.FC = () => {
     <div className="space-y-6">
       {/* Header with Back Button */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-3">
           <button 
             onClick={() => navigate('/')}
             className="p-2 hover:bg-gray-100 rounded-full transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Stock Liquidation Management</h1>
+            <p className="text-gray-600">Track and manage distributor stock liquidation</p>
+          </div>
         </div>
         <button className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center">
           <Plus className="w-4 h-4 mr-2" />
@@ -281,12 +285,6 @@ const Liquidation: React.FC = () => {
         </button>
       </div>
 
-      {/* Stock Liquidation Overview Table */}
-      <div className="bg-white rounded-xl p-6 card-shadow">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Stock Liquidation Management</h1>
-          <p className="text-gray-600">Track and manage distributor stock liquidation</p>
-        </div>
 
         {/* Key Metrics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
