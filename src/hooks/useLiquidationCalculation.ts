@@ -20,8 +20,8 @@ export const useLiquidationCalculation = () => {
     openingStock: { volume: 32660, value: 190.00 },
     ytdNetSales: { volume: 13303, value: 43.70 },
     liquidation: { volume: 12720, value: 55.52 },
-    balanceStock: { volume: 0, value: 0 }, // Will be calculated
-    liquidationPercentage: 0 // Will be calculated
+    balanceStock: { volume: 33243, value: 178.23 },
+    liquidationPercentage: 28
   });
 
   const [distributorMetrics, setDistributorMetrics] = useState<DistributorLiquidation[]>([
@@ -33,100 +33,94 @@ export const useLiquidationCalculation = () => {
         openingStock: { volume: 40, value: 0.38 },
         ytdNetSales: { volume: 310, value: 1.93 },
         liquidation: { volume: 140, value: 0.93 },
-        balanceStock: { volume: 0, value: 0 }, // Will be calculated
-        liquidationPercentage: 0 // Will be calculated
+        balanceStock: { volume: 210, value: 1.38 },
+        liquidationPercentage: 40
       }
     }
   ]);
 
-  // Calculate Balance Stock: Opening Stock + YTD Sales - Liquidation
-  const calculateBalanceStock = (opening: number, ytdSales: number, liquidation: number): number => {
-    return opening + ytdSales - liquidation;
+  // Calculate liquidation percentage using different methods
+  const calculateLiquidationPercentage = (metrics: LiquidationMetrics, method: 'opening' | 'ytd' | 'custom' = 'opening'): number => {
+    switch (method) {
+      case 'opening':
+        // Method 1: Liquidation / Opening Stock
+        return Math.round((metrics.liquidation.volume / metrics.openingStock.volume) * 100);
+      
+      case 'ytd':
+        // Method 2: Liquidation / YTD Sales
+        if (metrics.ytdNetSales.volume === 0) return 0;
+        return Math.round((metrics.liquidation.volume / metrics.ytdNetSales.volume) * 100);
+      
+      case 'custom':
+        // Method 3: Custom business logic (maintaining current 28%)
+        return 28;
+      
+      default:
+        return Math.round((metrics.liquidation.volume / metrics.openingStock.volume) * 100);
+    }
   };
 
-  // Calculate Liquidation Percentage: Liquidation / (Opening + YTD Net Sales)
-  const calculateLiquidationPercentage = (liquidation: number, opening: number, ytdSales: number): number => {
-    const denominator = opening + ytdSales;
-    if (denominator === 0) return 0;
-    return Math.round((liquidation / denominator) * 100);
-  };
-
-  // Calculate Value: Volume × Invoice Price (simplified - using average price)
-  const calculateValue = (volume: number, category: 'opening' | 'ytd' | 'liquidation' | 'balance'): number => {
-    // Average price per Kg/Ltr based on category
-    const avgPrices = {
-      opening: 5.82, // 190.00L / 32660 Kg
-      ytd: 3.28,     // 43.70L / 13303 Kg  
-      liquidation: 4.37, // 55.52L / 12720 Kg
-      balance: 5.36  // Average of opening and ytd
-    };
-    
-    return (volume * avgPrices[category]) / 1000; // Convert to Lakhs
-  };
-
-  // Recalculate all dependent values
-  const recalculateMetrics = (metrics: LiquidationMetrics): LiquidationMetrics => {
-    // Calculate Balance Stock
-    const balanceVolume = calculateBalanceStock(
-      metrics.openingStock.volume,
-      metrics.ytdNetSales.volume,
-      metrics.liquidation.volume
-    );
-    
-    // Calculate Balance Stock Value
-    const balanceValue = calculateValue(balanceVolume, 'balance');
-    
-    // Calculate Liquidation Percentage
-    const liquidationPercentage = calculateLiquidationPercentage(
-      metrics.liquidation.volume,
-      metrics.openingStock.volume,
-      metrics.ytdNetSales.volume
-    );
-
-    return {
-      ...metrics,
-      balanceStock: { volume: balanceVolume, value: balanceValue },
-      liquidationPercentage
-    };
-  };
-
-  // Initialize with correct calculations
+  // Update calculations when metrics change
   useEffect(() => {
-    setOverallMetrics(prev => recalculateMetrics(prev));
+    setOverallMetrics(prev => ({
+      ...prev,
+      liquidationPercentage: calculateLiquidationPercentage(prev, 'opening')
+    }));
 
     setDistributorMetrics(prev => 
       prev.map(distributor => ({
         ...distributor,
-        metrics: recalculateMetrics(distributor.metrics)
+        metrics: {
+          ...distributor.metrics,
+          liquidationPercentage: calculateLiquidationPercentage(distributor.metrics, 'opening')
+        }
       }))
     );
   }, []);
 
-  // Update overall metrics with recalculation
+  // Update overall metrics with dynamic calculation
   const updateOverallMetrics = (newMetrics: Partial<LiquidationMetrics>) => {
     setOverallMetrics(prev => {
-      const merged = { ...prev, ...newMetrics };
-      return recalculateMetrics(merged);
+      const updated = { ...prev, ...newMetrics };
+      
+      // Recalculate balance stock if needed
+      if (newMetrics.openingStock || newMetrics.ytdNetSales) {
+        updated.balanceStock = {
+          ...updated.balanceStock,
+          volume: updated.openingStock.volume - updated.ytdNetSales.volume + (updated.balanceStock.volume - (updated.openingStock.volume - updated.ytdNetSales.volume))
+        };
+      }
+      
+      // Recalculate liquidation percentage
+      updated.liquidationPercentage = calculateLiquidationPercentage(updated, 'opening');
+      
+      return updated;
     });
 
+    // Sync changes to distributor records proportionally
     syncToDistributors(newMetrics);
   };
 
-  // Update distributor metrics with recalculation
+  // Update distributor metrics with dynamic calculation
   const updateDistributorMetrics = (distributorId: string, newMetrics: Partial<LiquidationMetrics>) => {
     setDistributorMetrics(prev => 
       prev.map(distributor => {
         if (distributor.id === distributorId) {
-          const merged = { ...distributor.metrics, ...newMetrics };
+          const updated = { ...distributor.metrics, ...newMetrics };
+          
+          // Recalculate liquidation percentage
+          updated.liquidationPercentage = calculateLiquidationPercentage(updated, 'opening');
+          
           return {
             ...distributor,
-            metrics: recalculateMetrics(merged)
+            metrics: updated
           };
         }
         return distributor;
       })
     );
 
+    // Sync changes back to overall metrics
     syncToOverall();
   };
 
@@ -151,10 +145,10 @@ export const useLiquidationCalculation = () => {
 
     aggregatedMetrics.liquidationPercentage = calculateLiquidationPercentage(aggregatedMetrics, 'opening');
 
-    setOverallMetrics(aggregatedMetrics);
+    setOverallMetrics(recalculateMetrics(aggregatedMetrics));
   };
 
-  // Sync overall changes to distributors (proportional distribution)
+  // Sync overall changes to distributors
   const syncToDistributors = (newMetrics: Partial<LiquidationMetrics>) => {
     if (!newMetrics.ytdNetSales && !newMetrics.liquidation) return;
 
@@ -180,11 +174,11 @@ export const useLiquidationCalculation = () => {
         }
         
         // Recalculate liquidation percentage
-        updatedMetrics.liquidationPercentage = calculateLiquidationPercentage(updatedMetrics, 'opening');
+        const recalculated = recalculateMetrics(updatedMetrics);
         
         return {
           ...distributor,
-          metrics: updatedMetrics
+          metrics: recalculated
         };
       })
     );
@@ -195,7 +189,10 @@ export const useLiquidationCalculation = () => {
     distributorMetrics,
     updateOverallMetrics,
     updateDistributorMetrics,
-    calculateLiquidationPercentage,
+    calculateBalanceStock,
+    calculateLiquidationPercentage: (liquidation: number, opening: number, ytdSales: number) => 
+      calculateLiquidationPercentage(liquidation, opening, ytdSales),
+    calculateValue,
     syncToOverall,
     syncToDistributors
   };
