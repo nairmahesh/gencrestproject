@@ -422,21 +422,21 @@ const Dashboard: React.FC = () => {
     liquidation: {
       openingStock: {
         volume: 32660, // Kg/Litre
-        value: 20.00 // Rs.Lakhs
+        value: 190.00 // Rs.Lakhs
       },
       ytdNetSales: {
-        volume: 45963, // Kg/Litre  
-        value: 14.45 // Rs.Lakhs
+        volume: 13303, // Kg/Litre  
+        value: 43.70 // Rs.Lakhs
       },
       liquidation: {
         volume: 12720, // Kg/Litre
-        value: 7.00 // Rs.Lakhs
+        value: 55.52 // Rs.Lakhs
       },
       balanceStock: {
-        volume: 65903, // Kg/Litre
-        value: 40.00 // Rs.Lakhs
+        volume: 33243, // Kg/Litre
+        value: 178.23 // Rs.Lakhs
       },
-      liquidationPercentage: 16
+      liquidationPercentage: 28
     },
     
     // Contacts Module
