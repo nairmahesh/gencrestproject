@@ -426,7 +426,7 @@ const MobileAppDesign: React.FC = () => {
           <p className="text-xs text-gray-600 mb-3">As of 1st April 2025</p>
           <div className="space-y-1">
             <div className="text-sm font-semibold text-gray-900">Vol (Kg/Litre) 32660</div>
-            <div className="text-sm font-semibold text-gray-900 border-t border-gray-300 pt-1">Value (Rs.Lakhs) 20.00</div>
+            <div className="text-sm font-semibold text-gray-900 border-t border-gray-300 pt-1">Value (Rs.Lakhs) 190.00</div>
           </div>
         </div>
         
