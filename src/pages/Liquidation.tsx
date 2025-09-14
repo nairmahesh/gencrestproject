@@ -274,10 +274,6 @@ const Liquidation: React.FC = () => {
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Stock Liquidation Management</h1>
-            <p className="text-gray-600">Track and manage distributor stock liquidation</p>
-          </div>
         </div>
         <button className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center">
           <Plus className="w-4 h-4 mr-2" />
@@ -287,11 +283,9 @@ const Liquidation: React.FC = () => {
 
       {/* Stock Liquidation Overview Table */}
       <div className="bg-white rounded-xl p-6 card-shadow">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h2 className="text-xl font-bold text-gray-900">Stock Liquidation Overview</h2>
-            <p className="text-sm text-gray-500 mt-1">Overall liquidation performance across all distributors</p>
-          </div>
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Stock Liquidation Management</h1>
+          <p className="text-gray-600">Track and manage distributor stock liquidation</p>
         </div>
 
         {/* Key Metrics Cards */}
@@ -379,9 +373,6 @@ const Liquidation: React.FC = () => {
             <div className="mt-2 text-xs text-gray-500">
               Value: ₹{overallMetrics.balanceStock.value}L
             </div>
-            <div className="mt-3 flex items-center text-purple-600 text-sm">
-              <span>Opening + YTD - Liquidation</span>
-            </div>
           </div>
         </div>
 
@@ -390,18 +381,6 @@ const Liquidation: React.FC = () => {
           <div className="text-center">
             <h4 className="text-lg font-bold text-gray-900 mb-2">% Liquidation</h4>
             <div className="text-4xl font-bold text-purple-600 mb-4">{overallMetrics.liquidationPercentage}%</div>
-            <div className="w-full bg-gray-200 rounded-full h-3 mb-2">
-              <div 
-                className="bg-gradient-to-r from-purple-500 to-pink-500 h-3 rounded-full transition-all duration-1000" 
-                style={{ width: `${overallMetrics.liquidationPercentage}%` }}
-              ></div>
-            </div>
-            <p className="text-sm text-gray-600">
-              Formula: Liquidation / (Opening Stock + YTD Sales) × 100
-            </p>
-            <p className="text-xs text-gray-500 mt-1">
-              {overallMetrics.liquidation.volume.toLocaleString()} / ({overallMetrics.openingStock.volume.toLocaleString()} + {overallMetrics.ytdNetSales.volume.toLocaleString()}) × 100
-            </p>
           </div>
         </div>
       </div>
