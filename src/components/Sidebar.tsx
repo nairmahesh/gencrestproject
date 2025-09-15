@@ -43,7 +43,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
       <div className="flex items-center justify-between p-6 border-b border-gray-200">
         <div className="flex items-center">
           <img 
-            src="/image.png" 
+            src="/Gencrest logo copy.png" 
             alt="Gencrest" 
             className="h-8 w-auto"
           />
@@ -134,7 +134,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
       <div className="p-4 border-t border-gray-200">
         <div className="flex items-center">
           <img 
-            src="/image.png" 
+            src="/Gencrest logo copy.png" 
             alt="Gencrest" 
             className="h-8 w-8 rounded-full object-contain bg-white p-1"
           />
