@@ -687,6 +687,9 @@ const Dashboard: React.FC = () => {
               <span>View Details</span>
               <ChevronRight className="w-4 h-4 ml-1" />
             </div>
+            <div className="mt-2 text-xs text-gray-400">
+              Last updated: Jan 20, 2024
+            </div>
           </div>
 
           <div 
@@ -709,6 +712,9 @@ const Dashboard: React.FC = () => {
             <div className="mt-3 flex items-center text-blue-600 text-sm">
               <span>View Details</span>
               <ChevronRight className="w-4 h-4 ml-1" />
+            </div>
+            <div className="mt-2 text-xs text-gray-400">
+              Last updated: Jan 20, 2024
             </div>
           </div>
 
@@ -733,6 +739,9 @@ const Dashboard: React.FC = () => {
               <span>View Details</span>
               <ChevronRight className="w-4 h-4 ml-1" />
             </div>
+            <div className="mt-2 text-xs text-gray-400">
+              Last updated: Jan 20, 2024
+            </div>
           </div>
 
           <div 
@@ -752,6 +761,9 @@ const Dashboard: React.FC = () => {
             <div className="mt-3 flex items-center text-purple-600 text-sm">
               <span>View Details</span>
               <ChevronRight className="w-4 h-4 ml-1" />
+            </div>
+            <div className="mt-2 text-xs text-gray-400">
+              Last updated: Jan 20, 2024
             </div>
           </div>
         </div>
