@@ -222,38 +222,6 @@ const Liquidation: React.FC = () => {
         </button>
       </div>
 
-      {/* Real-time Farmer Sales Tracking */}
-      <div className="bg-green-50 border border-green-200 rounded-xl p-6">
-        <h2 className="text-xl font-semibold text-green-800 mb-4 flex items-center">
-          <Users className="w-6 h-6 mr-2" />
-          🌾 Real-time Farmer Sales Tracking
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div className="bg-white rounded-xl p-4 text-center shadow-sm">
-            <div className="text-3xl font-bold text-green-700">{overallMetrics.liquidation.volume.toLocaleString()}</div>
-            <div className="text-sm text-green-600">Total Farmer Sales (Kg/L)</div>
-            <div className="text-xs text-green-500 mt-1">Direct + Via Retailers</div>
-          </div>
-          <div className="bg-white rounded-xl p-4 text-center shadow-sm">
-            <div className="text-3xl font-bold text-green-700">₹{overallMetrics.liquidation.value.toFixed(2)}L</div>
-            <div className="text-sm text-green-600">Total Farmer Sales Value</div>
-            <div className="text-xs text-green-500 mt-1">All farmer purchases</div>
-          </div>
-          <div className="bg-white rounded-xl p-4 text-center shadow-sm">
-            <div className="text-3xl font-bold text-green-700">{performanceMetrics.totalDistributors}</div>
-            <div className="text-sm text-green-600">Active Distributors</div>
-            <div className="text-xs text-green-500 mt-1">Contributing to farmer sales</div>
-          </div>
-          <div className="bg-white rounded-xl p-4 text-center shadow-sm">
-            <div className="text-3xl font-bold text-green-700">{overallMetrics.liquidationPercentage}%</div>
-            <div className="text-sm text-green-600">Overall Liquidation</div>
-            <div className="text-xs text-green-500 mt-1">Target: {BUSINESS_RULES.TARGET_LIQUIDATION_PERCENTAGE}%</div>
-          </div>
-        </div>
-        <div className="mt-4 text-sm text-green-600 text-center">
-          ⚠️ <strong>CRITICAL:</strong> Any quantity sold from retailer to farmer automatically updates distributor liquidation count
-        </div>
-      </div>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
