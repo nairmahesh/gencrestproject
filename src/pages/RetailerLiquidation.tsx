@@ -241,14 +241,28 @@ const RetailerLiquidation: React.FC = () => {
     setIsUpdatingStock(false);
   };
   const handleAddTransaction = () => {
-    if (!newTransaction.recipientName || !newTransaction.recipientPhone || newTransaction.quantity <= 0) {
-      alert('Please fill all required fields');
+    // Validation based on transaction type
+    if (newTransaction.quantity <= 0) {
+      alert('Please enter a valid quantity');
       return;
+    }
+    
+    if (newTransaction.recipientType === 'Retailer') {
+      if (!newTransaction.recipientName || !newTransaction.recipientPhone) {
+        alert('Please fill all required fields for retailer transaction');
+        return;
+      }
     }
 
     const transaction: BalanceTransaction = {
       id: `BT${Date.now()}`,
-      ...newTransaction,
+      recipientType: newTransaction.recipientType,
+      recipientName: newTransaction.recipientType === 'Farmer' ? 'Direct Farmer Sale' : newTransaction.recipientName,
+      recipientCode: newTransaction.recipientCode,
+      recipientPhone: newTransaction.recipientType === 'Farmer' ? 'N/A' : newTransaction.recipientPhone,
+      recipientAddress: newTransaction.recipientType === 'Farmer' ? 'Direct Sale' : newTransaction.recipientAddress,
+      quantity: newTransaction.quantity,
+      notes: newTransaction.recipientType === 'Farmer' ? 'Direct farmer sale - no details required' : newTransaction.notes,
       date: new Date().toISOString().split('T')[0],
       value: newTransaction.quantity * 1200 // Assuming average price
     };
@@ -833,32 +847,164 @@ const RetailerLiquidation: React.FC = () => {
             </div>
             
             <div className="p-6 space-y-4">
+              {/* Transaction Type Selection */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Recipient Type</label>
-                <select
-                  value={newTransaction.recipientType}
-                  onChange={(e) => setNewTransaction(prev => ({ ...prev, recipientType: e.target.value as 'Retailer' | 'Farmer' }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                >
-                  <option value="Retailer">Retailer</option>
-                  <option value="Farmer">Farmer</option>
-                </select>
+                <label className="block text-sm font-medium text-gray-700 mb-3">Select Transaction Type</label>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    onClick={() => setNewTransaction(prev => ({ ...prev, recipientType: 'Retailer' }))}
+                    className={`p-4 border-2 rounded-lg text-center transition-colors ${
+                      newTransaction.recipientType === 'Retailer'
+                        ? 'border-blue-500 bg-blue-50 text-blue-700'
+                        : 'border-gray-300 hover:border-gray-400'
+                    }`}
+                  >
+                    <Users className="w-6 h-6 mx-auto mb-2" />
+                    <div className="font-medium">Sold to Retailer</div>
+                    <div className="text-xs text-gray-500">Requires details</div>
+                  </button>
+                  <button
+                    onClick={() => setNewTransaction(prev => ({ ...prev, recipientType: 'Farmer' }))}
+                    className={`p-4 border-2 rounded-lg text-center transition-colors ${
+                      newTransaction.recipientType === 'Farmer'
+                        ? 'border-green-500 bg-green-50 text-green-700'
+                        : 'border-gray-300 hover:border-gray-400'
+                    }`}
+                  >
+                    <User className="w-6 h-6 mx-auto mb-2" />
+                    <div className="font-medium">Sold to Farmer</div>
+                    <div className="text-xs text-gray-500">Quick entry</div>
+                  </button>
+                </div>
               </div>
 
+              {/* Quantity - Always Required */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Recipient Name *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Quantity *</label>
                 <input
-                  type="text"
-                  value={newTransaction.recipientName}
-                  onChange={(e) => setNewTransaction(prev => ({ ...prev, recipientName: e.target.value }))}
+                  type="number"
+                  value={newTransaction.quantity}
+                  onChange={(e) => setNewTransaction(prev => ({ ...prev, quantity: parseInt(e.target.value) || 0 }))}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  placeholder="Enter recipient name"
+                  placeholder="Enter quantity"
+                  min="1"
+                  max={missingStock}
                 />
               </div>
 
+              {/* Show detailed form only for Retailer */}
               {newTransaction.recipientType === 'Retailer' && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Retailer Code</label>
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                    <h4 className="font-medium text-blue-800 mb-2">Retailer Details Required</h4>
+                    <p className="text-sm text-blue-600">Please provide complete retailer information for tracking.</p>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Retailer Name *</label>
+                      <input
+                        type="text"
+                        value={newTransaction.recipientName}
+                        onChange={(e) => setNewTransaction(prev => ({ ...prev, recipientName: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        placeholder="Enter retailer name"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Retailer Code</label>
+                      <input
+                        type="text"
+                        value={newTransaction.recipientCode}
+                        onChange={(e) => setNewTransaction(prev => ({ ...prev, recipientCode: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        placeholder="Enter retailer code"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number *</label>
+                      <input
+                        type="tel"
+                        value={newTransaction.recipientPhone}
+                        onChange={(e) => setNewTransaction(prev => ({ ...prev, recipientPhone: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        placeholder="Enter phone number"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
+                      <input
+                        type="text"
+                        value={newTransaction.recipientAddress}
+                        onChange={(e) => setNewTransaction(prev => ({ ...prev, recipientAddress: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        placeholder="Enter address"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Notes</label>
+                      <textarea
+                        value={newTransaction.notes}
+                        onChange={(e) => setNewTransaction(prev => ({ ...prev, notes: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        placeholder="Enter any additional notes"
+                        rows={3}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {/* Show simple confirmation for Farmer */}
+              {newTransaction.recipientType === 'Farmer' && (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                  <h4 className="font-medium text-green-800 mb-2">Sold to Farmer</h4>
+                  <p className="text-sm text-green-600">
+                    This transaction will be recorded as direct farmer sale with quantity: <strong>{newTransaction.quantity}</strong> units
+                  </p>
+                  <p className="text-xs text-green-500 mt-2">No additional details required for farmer sales.</p>
+                </div>
+              )}
+            </div>
+
+            <div className="flex gap-3 p-6 border-t">
+              <button
+                onClick={() => setShowAddTransactionModal(false)}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleAddTransaction}
+                disabled={
+                  newTransaction.quantity <= 0 || 
+                  (newTransaction.recipientType === 'Retailer' && (!newTransaction.recipientName || !newTransaction.recipientPhone))
+                }
+                className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Signature Capture Modal */}
+      <SignatureCapture
+        isOpen={showSignatureModal}
+        onClose={() => setShowSignatureModal(false)}
+        onSave={handleSignatureSave}
+        title="Retailer Signature Verification"
+      />
+    </div>
+  );
+};
+
+export default RetailerLiquidation;
                   <input
                     type="text"
                     value={newTransaction.recipientCode}
