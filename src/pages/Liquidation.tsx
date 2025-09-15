@@ -1,36 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  ArrowLeft, 
-  Package, 
-  TrendingUp, 
-  Users, 
-  Droplets,
-  Eye,
-  Edit,
-  CheckCircle,
-  AlertTriangle,
-  Search,
-  Filter,
-  Download,
-  Plus,
-  Building,
-  MapPin,
-  Calendar,
-  Phone,
-  DollarSign,
-  Target,
-  BarChart3,
-  Activity,
-  Zap,
-  Award,
-  Clock,
-  X,
-  Save,
-  Camera,
-  FileText,
-  Signature
-} from 'lucide-react';
+import { ArrowLeft, Package, TrendingUp, Users, Droplets, Eye, Edit, CheckCircle, AlertTriangle, Search, Filter, Download, Plus, Building, MapPin, Calendar, Phone, DollarSign, Target, BarChart3, Activity, Zap, Award, Clock, X, Save, Camera, FileText, FileSignature as Signature } from 'lucide-react';
 import { useLiquidationCalculation } from '../hooks/useLiquidationCalculation';
 
 interface LiquidationEntry {
