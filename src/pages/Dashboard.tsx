@@ -65,11 +65,12 @@ const Dashboard: React.FC = () => {
   const { 
     overallMetrics, 
     distributorMetrics, 
-    updateOverallMetrics, 
-    updateDistributorMetrics 
+    getPerformanceMetrics,
+    BUSINESS_RULES
   } = useLiquidationCalculation();
   
   const navigate = useNavigate();
+  const performanceMetrics = getPerformanceMetrics();
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -433,9 +434,9 @@ const Dashboard: React.FC = () => {
     
     // Contacts Module
     contacts: {
-      totalDistributors: 12,
+      totalDistributors: performanceMetrics.totalDistributors,
       totalRetailers: 45,
-      activeContacts: 52,
+      activeContacts: performanceMetrics.activeDistributors + 45,
       newThisMonth: 8
     },
     
@@ -449,10 +450,10 @@ const Dashboard: React.FC = () => {
     
     // Performance & Targets
     performance: {
-      overallScore: 88,
+      overallScore: performanceMetrics.averageLiquidationRate,
       visitTarget: 85,
       salesTarget: 84,
-      liquidationTarget: 78
+      liquidationTarget: performanceMetrics.targetAchievementRate
     }
   };
 
@@ -750,13 +751,16 @@ const Dashboard: React.FC = () => {
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Liquidation Rate</p>
-                <p className="text-2xl font-bold text-gray-900">28%</p>
-                <p className="text-xs text-gray-500">Overall Performance</p>
+                <p className="text-sm font-medium text-gray-600">Overall Liquidation</p>
+                <p className="text-3xl font-bold">{overallMetrics.liquidationPercentage}%</p>
+                <p className="text-purple-200 text-sm">Target: {BUSINESS_RULES.TARGET_LIQUIDATION_PERCENTAGE}%</p>
               </div>
               <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
                 <Target className="w-6 h-6 text-purple-600" />
               </div>
+            </div>
+            <div className="mt-3 text-purple-100 text-sm">
+              {performanceMetrics.targetAchievers}/{performanceMetrics.totalDistributors} distributors achieving target
             </div>
             <div className="mt-3 flex items-center text-purple-600 text-sm">
               <span>View Details</span>
@@ -808,13 +812,18 @@ const Dashboard: React.FC = () => {
             <div>
               <div className="flex justify-between text-sm text-gray-600 mb-2">
                 <span>Overall Liquidation Performance</span>
-                <span>28%</span>
+                <span>{overallMetrics.liquidationPercentage}%</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-3">
                 <div 
                   className="bg-gradient-to-r from-green-500 to-green-600 h-3 rounded-full transition-all duration-1000"
-                  style={{ width: `28%` }}
+                  style={{ width: `${Math.min(100, (overallMetrics.liquidationPercentage / BUSINESS_RULES.TARGET_LIQUIDATION_PERCENTAGE) * 100)}%` }}
                 ></div>
+              </div>
+              <div className="flex justify-between text-xs text-gray-500 mt-1">
+                <span>0%</span>
+                <span>Target: {BUSINESS_RULES.TARGET_LIQUIDATION_PERCENTAGE}%</span>
+                <span>100%</span>
               </div>
             </div>
           </div>
