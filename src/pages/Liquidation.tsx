@@ -447,8 +447,8 @@ const Liquidation: React.FC = () => {
         </div>
       </div>
 
-      {/* Liquidation Entries */}
-      <div className="space-y-8 pb-4 lg:pb-0">
+      {/* Liquidation Entries - Desktop Layout */}
+      <div className="space-y-8">
         {filteredEntries.map((entry) => (
           <div key={entry.id} className="bg-white rounded-xl p-8 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-200">
             {/* Header */}
