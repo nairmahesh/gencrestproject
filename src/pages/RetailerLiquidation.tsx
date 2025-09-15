@@ -65,8 +65,6 @@ const RetailerLiquidation: React.FC = () => {
   const [showStockReductionModal, setShowStockReductionModal] = useState(false);
   const [selectedSKUForReduction, setSelectedSKUForReduction] = useState<string>('');
   const [stockReductionData, setStockReductionData] = useState({
-  const [stockDestination, setStockDestination] = useState<'farmers' | 'retailers'>('farmers');
-  const [retailerCount, setRetailerCount] = useState(3);
     soldToFarmer: 0,
     soldToRetailer: 0,
     retailers: [
