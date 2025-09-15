@@ -23,7 +23,8 @@ import {
   Filter,
   Download,
   Upload,
-  ChevronRight
+  ChevronRight,
+  X
 } from 'lucide-react';
 import { useLiquidationCalculation } from '../hooks/useLiquidationCalculation';
 
