@@ -342,6 +342,83 @@ export const useLiquidationCalculation = () => {
     );
   }, []);
 
+  // NEW: Track farmer sales from retailers and update distributor liquidation
+  const recordFarmerSaleFromRetailer = useCallback((
+    distributorId: string,
+    retailerId: string,
+    productId: string,
+    skuCode: string,
+    quantitySoldToFarmer: number,
+    saleValue: number
+  ) => {
+    // Update distributor's liquidation count when retailer sells to farmer
+    setDistributorMetrics(prev => 
+      prev.map(distributor => {
+        if (distributor.id === distributorId) {
+          const updatedLiquidation = {
+            volume: distributor.metrics.liquidation.volume + quantitySoldToFarmer,
+            value: distributor.metrics.liquidation.value + saleValue
+          };
+
+          // Recalculate metrics with new farmer sale
+          const recalculatedMetrics = calculateLiquidationMetrics(
+            distributor.metrics.openingStock,
+            distributor.metrics.ytdNetSales,
+            updatedLiquidation
+          );
+
+          return {
+            ...distributor,
+            metrics: recalculatedMetrics
+          };
+        }
+        return distributor;
+      })
+    );
+
+    // Also update product-level data
+    setProductData(prev => 
+      prev.map(product => {
+        if (product.productId === productId) {
+          const updatedSKUs = product.skus.map(sku => {
+            if (sku.skuCode === skuCode) {
+              return {
+                ...sku,
+                liquidated: sku.liquidated + quantitySoldToFarmer
+              };
+            }
+            return sku;
+          });
+
+          return {
+            ...product,
+            skus: updatedSKUs
+          };
+        }
+        return product;
+      })
+    );
+
+    console.log(`🌾 FARMER SALE RECORDED: ${quantitySoldToFarmer} units sold to farmer via retailer ${retailerId} - Distributor ${distributorId} liquidation updated`);
+  }, [calculateLiquidationMetrics]);
+
+  // NEW: Get real-time farmer sales tracking
+  const getFarmerSalesTracking = useCallback(() => {
+    const totalFarmerSales = distributorMetrics.reduce((sum, d) => sum + d.metrics.liquidation.volume, 0);
+    const totalFarmerSalesValue = distributorMetrics.reduce((sum, d) => sum + d.metrics.liquidation.value, 0);
+    
+    return {
+      totalFarmerSales,
+      totalFarmerSalesValue,
+      distributorBreakdown: distributorMetrics.map(d => ({
+        distributorId: d.id,
+        distributorName: d.distributorName,
+        farmerSales: d.metrics.liquidation.volume,
+        farmerSalesValue: d.metrics.liquidation.value,
+        liquidationRate: d.metrics.liquidationPercentage
+      }))
+    };
+  }, [distributorMetrics]);
   // Validation functions
   const validateMetrics = useCallback((metrics: LiquidationMetrics): boolean => {
     // Business rule validation
@@ -387,6 +464,7 @@ export const useLiquidationCalculation = () => {
     updateOverallMetrics,
     updateDistributorMetrics,
     updateProductData,
+    recordFarmerSaleFromRetailer,
     
     // Calculation functions
     calculateLiquidationMetrics,
@@ -397,6 +475,7 @@ export const useLiquidationCalculation = () => {
     
     // Performance metrics
     getPerformanceMetrics,
+    getFarmerSalesTracking,
     
     // Business rules
     BUSINESS_RULES

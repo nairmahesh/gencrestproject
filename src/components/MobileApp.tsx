@@ -428,9 +428,9 @@ const MobileApp: React.FC<MobileAppProps> = ({ children }) => {
 
       {/* Liquidation Percentage */}
       <div className="bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl p-6 shadow-lg text-white">
-        <h4 className="text-lg font-bold mb-2">Liquidation Progress (Farmer Sales)</h4>
+        <h4 className="text-lg font-bold mb-2">🌾 Liquidation Progress (All Farmer Sales)</h4>
         <div className="text-5xl font-bold mb-2">28%</div>
-        <p className="text-blue-100 text-sm mb-4">Farmer Sales Only - 50% Target</p>
+        <p className="text-blue-100 text-sm mb-4">Direct + Via Retailers - 50% Target</p>
         <div className="w-full bg-white bg-opacity-30 rounded-full h-3 mb-2">
           <div className="bg-white h-3 rounded-full transition-all duration-1000" style={{ width: `${Math.min(100, (28 / 50) * 100)}%` }}></div>
         </div>
@@ -438,6 +438,9 @@ const MobileApp: React.FC<MobileAppProps> = ({ children }) => {
           <span>0%</span>
           <span>Target: 50%</span>
           <span>100%</span>
+        </div>
+        <div className="text-xs text-blue-200 mt-2 text-center">
+          ⚠️ Includes retailer-to-farmer sales
         </div>
       </div>
 
@@ -566,20 +569,20 @@ const MobileApp: React.FC<MobileAppProps> = ({ children }) => {
               <div className="bg-gray-50 rounded-lg p-3 mb-3">
                 <h5 className="text-xs font-semibold text-green-700 mb-2 flex items-center">
                   <Users className="w-3 h-3 mr-1" />
-                  TRUE LIQUIDATION - Sold to Farmers (Total: {item.liquidated} Kg)
+                  🌾 TRUE LIQUIDATION - All Farmer Sales (Total: {item.liquidated} Kg)
                 </h5>
                 <div className="grid grid-cols-2 gap-2">
                   <div className="bg-green-100 rounded p-2 text-center">
-                    <div className="text-xs text-green-600">Farmers (Liquidated)</div>
+                    <div className="text-xs text-green-600">Direct Farmer Sales</div>
                     <div className="font-bold text-green-800">{item.breakdown.toFarmers}</div>
                   </div>
                   <div className="bg-blue-100 rounded p-2 text-center">
-                    <div className="text-xs text-blue-600">Retailers (Not Liquidated)</div>
+                    <div className="text-xs text-blue-600">Via Retailers</div>
                     <div className="font-bold text-blue-800">{item.breakdown.toRetailers}</div>
                   </div>
                 </div>
                 <div className="text-xs text-green-600 mt-2 text-center">
-                  ⚠️ Only farmer sales count as true liquidation
+                  ⚠️ Both direct & retailer-to-farmer sales = liquidation
                 </div>
               </div>
               

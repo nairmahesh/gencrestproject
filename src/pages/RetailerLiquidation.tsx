@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Package, User, MapPin, Phone, CheckCircle, Clock, AlertTriangle, FileSignature as Signature, Save, Eye, Building, Target, TrendingUp, Users, ShoppingCart, Info, Boxes, X, Plus, Calendar } from 'lucide-react';
 import { SignatureCapture } from '../components/SignatureCapture';
+import { useLiquidationCalculation } from '../hooks/useLiquidationCalculation';
 
 interface RetailerStock {
   skuCode: string;
@@ -55,6 +56,7 @@ interface RetailerLiquidationData {
 
 const RetailerLiquidation: React.FC = () => {
   const navigate = useNavigate();
+  const { recordFarmerSaleFromRetailer } = useLiquidationCalculation();
   const [showSignatureModal, setShowSignatureModal] = useState(false);
   const [stockUpdateData, setStockUpdateData] = useState<{[key: string]: {current: number, liquidated: number, returned: number}}>({});
   const [activeTab, setActiveTab] = useState<'contact' | 'stock'>('contact');
@@ -183,6 +185,11 @@ const RetailerLiquidation: React.FC = () => {
   const metrics = calculateRealTimeMetrics();
 
   const handleStockUpdate = (skuCode: string, field: 'current' | 'liquidated' | 'returned', value: number) => {
+    const previousValue = stockUpdateData[skuCode]?.[field] ?? 
+      (field === 'current' ? retailerData.stockDetails.find(s => s.skuCode === skuCode)?.currentStock ?? 0 :
+       field === 'liquidated' ? retailerData.stockDetails.find(s => s.skuCode === skuCode)?.liquidatedToFarmer ?? 0 :
+       retailerData.stockDetails.find(s => s.skuCode === skuCode)?.returnToDistributor ?? 0);
+
     setStockUpdateData(prev => ({
       ...prev,
       [skuCode]: {
@@ -193,6 +200,27 @@ const RetailerLiquidation: React.FC = () => {
         [field]: value
       }
     }));
+
+    // 🌾 CRITICAL: If liquidated quantity increased, record farmer sale for distributor dashboard
+    if (field === 'liquidated' && value > previousValue) {
+      const quantityIncrease = value - previousValue;
+      const stockItem = retailerData.stockDetails.find(s => s.skuCode === skuCode);
+      if (stockItem && quantityIncrease > 0) {
+        const saleValue = (quantityIncrease * stockItem.unitPrice) / 100000; // Convert to Lakhs
+        
+        // Record this farmer sale in distributor's liquidation count
+        recordFarmerSaleFromRetailer(
+          retailerData.distributorId,
+          retailerData.retailerId,
+          'P001', // Product ID (would be dynamic in real app)
+          skuCode,
+          quantityIncrease,
+          saleValue
+        );
+
+        console.log(`🌾 FARMER SALE RECORDED: ${quantityIncrease} units of ${skuCode} sold to farmer - Distributor liquidation updated!`);
+      }
+    }
   };
 
   const handleTrackLiquidation = () => {

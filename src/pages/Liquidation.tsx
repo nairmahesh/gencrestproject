@@ -1147,13 +1147,15 @@ interface LiquidationEntry {
                         <span>Currency values in Indian Lakhs (L) format</span>
         <h3 className="font-medium text-yellow-800 mb-2">📋 Critical Business Logic - Liquidation Definition:</h3>
                     </div>
-          <li>• <strong>LIQUIDATION = Stock sold to FARMERS ONLY</strong> (non-returnable)</li>
-          <li>• Stock sold to retailers is <strong>NOT liquidation</strong> (can be returned to distributor)</li>
+          <li>• <strong>🌾 LIQUIDATION = Stock sold to FARMERS ONLY</strong> (non-returnable)</li>
+          <li>• <strong>ANY quantity sold from retailer to farmer = LIQUIDATION COUNT ADDED</strong></li>
+          <li>• This appears in distributor and main company dashboard automatically</li>
           <li>• True liquidation only happens when farmers purchase the stock</li>
           <li>• Retailer sales are considered stock transfers, not liquidation</li>
-          <li>• Only farmer sales contribute to liquidation percentage calculation</li>
+          <li>• Distributor liquidation % includes ALL farmer sales (direct + via retailers)</li>
           <li>• Target liquidation percentage: 50% (farmer sales only)</li>
           <li>• Balance stock = Opening + YTD Sales - Farmer Liquidation</li>
+          <li>• <strong>Real-time tracking:</strong> Retailer farmer sales instantly update distributor metrics</li>
         )}
       </div>
     </div>
