@@ -573,6 +573,9 @@ const Liquidation: React.FC = () => {
                     <span className="text-sm text-orange-700">Value (Rs.Lakhs)</span>
                     <span className="font-semibold text-orange-800">{(entry.grossValue * 0.0001).toFixed(2)}</span>
                   </div>
+                  <div className="text-xs text-gray-500 mt-2">
+                    Last updated: Jan 20, 2024
+                  </div>
                 </div>
               </div>
 
@@ -658,9 +661,8 @@ const Liquidation: React.FC = () => {
                     <span className="text-sm text-gray-700">Date</span>
                     <span className="font-semibold text-gray-800">{new Date(entry.lastUpdated).toLocaleDateString()}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-gray-700">Target</span>
-                    <span className="font-semibold text-gray-800">{entry.targetLiquidation}% of 50%</span>
+                  <div className="text-xs text-gray-500 mt-2">
+                    Last updated: Jan 20, 2024
                   </div>
                 </div>
               </div>
