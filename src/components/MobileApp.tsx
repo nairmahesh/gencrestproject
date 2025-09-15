@@ -69,13 +69,6 @@ const MobileApp: React.FC<MobileAppProps> = ({ children }) => {
     { id: 'reports', label: 'Reports', icon: BarChart3 },
   ];
 
-  const quickActions = [
-    { id: 'new-visit', label: 'New Visit', icon: Plus, color: 'bg-blue-500' },
-    { id: 'check-in', label: 'Check In', icon: Navigation, color: 'bg-green-500' },
-    { id: 'camera', label: 'Camera', icon: Camera, color: 'bg-purple-500' },
-    { id: 'call', label: 'Call', icon: Phone, color: 'bg-orange-500' },
-  ];
-
   const todayStats = [
     { label: 'Visits', value: '8', target: '10', icon: MapPin, color: 'text-blue-600' },
     { label: 'Orders', value: '₹45K', target: '₹50K', icon: ShoppingCart, color: 'text-green-600' },
@@ -241,22 +234,6 @@ const MobileApp: React.FC<MobileAppProps> = ({ children }) => {
         </div>
       </div>
 
-      {/* Quick Actions */}
-      <div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
-        <div className="grid grid-cols-4 gap-4">
-          {quickActions.map((action) => (
-            <button
-              key={action.id}
-              className={`${action.color} text-white p-4 rounded-2xl shadow-lg flex flex-col items-center space-y-2 active:scale-95 transition-transform`}
-            >
-              <action.icon className="w-6 h-6" />
-              <span className="text-xs font-medium">{action.label}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-
       {/* Today's Stats */}
       <div>
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Today's Performance</h3>
@@ -282,9 +259,57 @@ const MobileApp: React.FC<MobileAppProps> = ({ children }) => {
         </div>
         <div className="space-y-4">
           {[
-            { dealer: 'SRI RAMA SEEDS', type: 'Distributor', product: 'Multiple Products', opening: 40, current: 210, liquidated: 140, percentage: 40, openingValue: 0.38, currentValue: 1.38, liquidatedValue: 0.93, priority: 'high' },
-            { dealer: 'Ram Kumar Distributors', type: 'Distributor', product: 'NPK Fertilizer', opening: 100, current: 75, liquidated: 15, percentage: 25, openingValue: 1.20, currentValue: 0.90, liquidatedValue: 0.18, priority: 'medium' },
-            { dealer: 'Green Agro Store', type: 'Retailer', product: 'DAP', opening: 120, current: 90, liquidated: 20, percentage: 25, openingValue: 1.44, currentValue: 1.08, liquidatedValue: 0.24, priority: 'low' }
+            { 
+              dealer: 'SRI RAMA SEEDS', 
+              type: 'Distributor', 
+              product: 'Multiple Products', 
+              assigned: 50, 
+              current: 35, 
+              liquidated: 15, 
+              percentage: 40, 
+              assignedValue: 0.60, 
+              currentValue: 0.42, 
+              liquidatedValue: 0.18, 
+              priority: 'high',
+              breakdown: {
+                toFarmers: 10,
+                toRetailers: 5
+              }
+            },
+            { 
+              dealer: 'Ram Kumar Distributors', 
+              type: 'Distributor', 
+              product: 'NPK Fertilizer', 
+              assigned: 80, 
+              current: 60, 
+              liquidated: 20, 
+              percentage: 25, 
+              assignedValue: 0.96, 
+              currentValue: 0.72, 
+              liquidatedValue: 0.24, 
+              priority: 'medium',
+              breakdown: {
+                toFarmers: 15,
+                toRetailers: 5
+              }
+            },
+            { 
+              dealer: 'Green Agro Store', 
+              type: 'Retailer', 
+              product: 'DAP', 
+              assigned: 100, 
+              current: 75, 
+              liquidated: 25, 
+              percentage: 25, 
+              assignedValue: 1.20, 
+              currentValue: 0.90, 
+              liquidatedValue: 0.30, 
+              priority: 'low',
+              breakdown: {
+                toFarmers: 20,
+                toRetailers: 5
+              }
+            }
           ].map((item, index) => (
             <div key={index} className="bg-white rounded-2xl p-4 shadow-lg border border-gray-100 hover:shadow-xl transition-shadow">
               <div className="flex items-start justify-between mb-3">
@@ -308,21 +333,39 @@ const MobileApp: React.FC<MobileAppProps> = ({ children }) => {
                 </div>
               </div>
               
-              <div className="grid grid-cols-3 gap-2 text-xs">
-                <div className="bg-orange-50 rounded-lg p-2">
-                  <div className="text-orange-600 font-medium">Opening</div>
-                  <div className="font-bold text-orange-800">{item.opening}</div>
-                  <div className="text-orange-600">₹{item.openingValue}L</div>
+              <div className="grid grid-cols-3 gap-2 text-xs mb-3">
+                <div className="bg-orange-50 rounded-lg p-2 text-center">
+                  <div className="text-orange-600 font-medium">Assigned</div>
+                  <div className="font-bold text-orange-800">{item.assigned}</div>
+                  <div className="text-orange-600">₹{item.assignedValue}L</div>
                 </div>
-                <div className="bg-blue-50 rounded-lg p-2">
+                <div className="bg-blue-50 rounded-lg p-2 text-center">
                   <div className="text-blue-600 font-medium">Current</div>
                   <div className="font-bold text-blue-800">{item.current}</div>
                   <div className="text-blue-600">₹{item.currentValue}L</div>
                 </div>
-                <div className="bg-green-50 rounded-lg p-2">
+                <div className="bg-green-50 rounded-lg p-2 text-center">
                   <div className="text-green-600 font-medium">Liquidated</div>
                   <div className="font-bold text-green-800">{item.liquidated}</div>
                   <div className="text-green-600">₹{item.liquidatedValue}L</div>
+                </div>
+              </div>
+              
+              {/* Liquidation Breakdown */}
+              <div className="bg-gray-50 rounded-lg p-3 mb-3">
+                <h5 className="text-xs font-semibold text-gray-700 mb-2 flex items-center">
+                  <Users className="w-3 h-3 mr-1" />
+                  Liquidated to whom? (Total: {item.liquidated} Kg)
+                </h5>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="bg-green-100 rounded p-2 text-center">
+                    <div className="text-xs text-green-600">Farmers</div>
+                    <div className="font-bold text-green-800">{item.breakdown.toFarmers}</div>
+                  </div>
+                  <div className="bg-blue-100 rounded p-2 text-center">
+                    <div className="text-xs text-blue-600">Retailers</div>
+                    <div className="font-bold text-blue-800">{item.breakdown.toRetailers}</div>
+                  </div>
                 </div>
               </div>
               
