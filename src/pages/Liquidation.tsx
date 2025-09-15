@@ -25,9 +25,7 @@ import {
   Upload,
   ChevronRight,
   X,
-  Users,
-  RefreshCw,
-  Calculator
+  Users
 } from 'lucide-react';
 import { useLiquidationCalculation } from '../hooks/useLiquidationCalculation';
 
@@ -77,17 +75,7 @@ interface LiquidationEntry {
 
 const Liquidation: React.FC = () => {
   const navigate = useNavigate();
-  
-  // Use the enhanced liquidation calculation hook
-  const { 
-    overallMetrics, 
-    distributorMetrics, 
-    updateOverallMetrics, 
-    updateDistributorMetrics,
-    validateMetrics,
-    getPerformanceMetrics,
-    BUSINESS_RULES
-  } = useLiquidationCalculation();
+  const { overallMetrics } = useLiquidationCalculation();
   
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
@@ -99,11 +87,6 @@ const Liquidation: React.FC = () => {
   const [selectedDistributor, setSelectedDistributor] = useState<string>('');
   const [stockUpdates, setStockUpdates] = useState<{[key: string]: number}>({});
   const [stockChanges, setStockChanges] = useState<{[key: string]: any}>({});
-  const [showCalculationDetails, setShowCalculationDetails] = useState(false);
-  const [lastCalculationTime, setLastCalculationTime] = useState(new Date());
-
-  // Get performance metrics
-  const performanceMetrics = getPerformanceMetrics();
 
   // Sample product and SKU data for verification
   const productData = [
@@ -439,18 +422,6 @@ const Liquidation: React.FC = () => {
     setShowDetailModal(true);
   };
 
-  // Recalculate all metrics
-  const handleRecalculate = () => {
-    setLastCalculationTime(new Date());
-    // Trigger validation for all distributors
-    distributorMetrics.forEach(distributor => {
-      const isValid = validateMetrics(distributor.metrics);
-      if (!isValid) {
-        console.warn(`Validation failed for distributor: ${distributor.distributorName}`);
-      }
-    });
-  };
-
   const addDistribution = (skuId: string, type: 'farmer' | 'retailer', details: any) => {
     setStockChanges(prev => ({
       ...prev,
@@ -487,34 +458,13 @@ const Liquidation: React.FC = () => {
           </button>
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Stock Liquidation Management</h1>
-            <p className="text-gray-600">
-              Track and manage distributor stock liquidation • 
-              <span className="text-purple-600 font-medium">
-                {performanceMetrics.targetAchievers}/{performanceMetrics.totalDistributors} achieving target
-              </span>
-            </p>
+            <p className="text-gray-600">Track and manage distributor stock liquidation</p>
           </div>
         </div>
-        <div className="flex items-center space-x-3">
-          <button
-            onClick={() => setShowCalculationDetails(true)}
-            className="bg-blue-100 text-blue-700 px-4 py-2 rounded-lg hover:bg-blue-200 transition-colors flex items-center"
-          >
-            <Calculator className="w-4 h-4 mr-2" />
-            Business Logic
-          </button>
-          <button
-            onClick={handleRecalculate}
-            className="bg-green-100 text-green-700 px-4 py-2 rounded-lg hover:bg-green-200 transition-colors flex items-center"
-          >
-            <RefreshCw className="w-4 h-4 mr-2" />
-            Recalculate
-          </button>
-          <button className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center">
-            <Plus className="w-4 h-4 mr-2" />
-            Add Entry
-          </button>
-        </div>
+        <button className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center">
+          <Plus className="w-4 h-4 mr-2" />
+          Add Entry
+        </button>
       </div>
 
 
@@ -615,34 +565,6 @@ const Liquidation: React.FC = () => {
             </div>
           </div>
         </div>
-
-      {/* Performance Summary */}
-      <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Performance Summary</h3>
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-blue-600">{performanceMetrics.totalDistributors}</div>
-            <div className="text-sm text-gray-600">Total Distributors</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-green-600">{performanceMetrics.activeDistributors}</div>
-            <div className="text-sm text-gray-600">Active</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-orange-600">{performanceMetrics.highPriorityDistributors}</div>
-            <div className="text-sm text-gray-600">High Priority</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-purple-600">{performanceMetrics.averageLiquidationRate}%</div>
-            <div className="text-sm text-gray-600">Avg Liquidation</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-indigo-600">{performanceMetrics.targetAchievementRate}%</div>
-            <div className="text-sm text-gray-600">Target Achievement</div>
-          </div>
-        </div>
-      </div>
-
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="bg-white rounded-xl p-6 card-shadow">
@@ -940,105 +862,6 @@ const Liquidation: React.FC = () => {
         <div className="text-center py-12">
           <Package className="w-12 h-12 text-gray-400 mx-auto mb-4" />
           <p className="text-gray-500">No liquidation entries found</p>
-        </div>
-      )}
-
-      {/* Business Logic Modal */}
-      {showCalculationDetails && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
-            <div className="flex items-center justify-between p-6 border-b">
-              <h3 className="text-xl font-semibold text-gray-900">Business Logic & Calculation Rules</h3>
-              <button
-                onClick={() => setShowCalculationDetails(false)}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            
-            <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
-              <div className="space-y-6">
-                <div className="bg-blue-50 rounded-xl p-6">
-                  <h4 className="text-lg font-semibold text-blue-800 mb-4">Core Business Formulas</h4>
-                  <div className="space-y-4">
-                    <div className="bg-white rounded-lg p-4 border border-blue-200">
-                      <h5 className="font-medium text-blue-700 mb-2">Balance Stock Calculation</h5>
-                      <div className="font-mono text-sm bg-gray-100 p-2 rounded">
-                        Balance Stock = Opening Stock + YTD Net Sales - Liquidation
-                      </div>
-                      <p className="text-sm text-gray-600 mt-2">
-                        This represents the actual stock remaining at distributors after accounting for all sales and liquidation.
-                      </p>
-                    </div>
-                    
-                    <div className="bg-white rounded-lg p-4 border border-blue-200">
-                      <h5 className="font-medium text-blue-700 mb-2">Liquidation Percentage</h5>
-                      <div className="font-mono text-sm bg-gray-100 p-2 rounded">
-                        Liquidation % = (Liquidation ÷ (Opening Stock + YTD Net Sales)) × 100
-                      </div>
-                      <p className="text-sm text-gray-600 mt-2">
-                        This shows what percentage of total available stock has been liquidated to farmers.
-                      </p>
-                    </div>
-                    
-                    <div className="bg-white rounded-lg p-4 border border-blue-200">
-                      <h5 className="font-medium text-blue-700 mb-2">Target Achievement</h5>
-                      <div className="font-mono text-sm bg-gray-100 p-2 rounded">
-                        Target: {BUSINESS_RULES.TARGET_LIQUIDATION_PERCENTAGE}% Liquidation Rate
-                      </div>
-                      <p className="text-sm text-gray-600 mt-2">
-                        Distributors should achieve at least {BUSINESS_RULES.TARGET_LIQUIDATION_PERCENTAGE}% liquidation rate for optimal performance.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="bg-green-50 rounded-xl p-6">
-                  <h4 className="text-lg font-semibold text-green-800 mb-4">Data Validation Rules</h4>
-                  <div className="space-y-3">
-                    <div className="flex items-start space-x-3">
-                      <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
-                      <div>
-                        <p className="font-medium text-green-700">Balance Stock Validation</p>
-                        <p className="text-sm text-gray-600">System automatically validates that Balance Stock = Opening + YTD - Liquidation</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start space-x-3">
-                      <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
-                      <div>
-                        <p className="font-medium text-green-700">Percentage Accuracy</p>
-                        <p className="text-sm text-gray-600">Liquidation percentages are calculated with proper rounding to nearest whole number</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start space-x-3">
-                      <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
-                      <div>
-                        <p className="font-medium text-green-700">Cascading Updates</p>
-                        <p className="text-sm text-gray-600">Changes to individual distributors automatically update overall metrics</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="bg-yellow-50 rounded-xl p-6">
-                  <h4 className="text-lg font-semibold text-yellow-800 mb-4">Current System Status</h4>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <p className="font-medium text-yellow-700">Last Calculation</p>
-                      <p className="text-sm text-gray-600">{lastCalculationTime.toLocaleString()}</p>
-                    </div>
-                    <div>
-                      <p className="font-medium text-yellow-700">Validation Status</p>
-                      <p className="text-sm text-gray-600">
-                        {distributorMetrics.every(d => validateMetrics(d.metrics)) ? 'All Valid' : 'Some Issues Found'}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       )}
 
@@ -1348,6 +1171,7 @@ const Liquidation: React.FC = () => {
                 </button>
                 <button
                   onClick={handleSaveStockUpdates}
+                  disabled={Object.keys(stockUpdates).length === 0}
                   disabled={Object.keys(stockUpdates).length === 0 || Object.values(stockChanges).some((change: any) => {
                     if (!change.needsTracking) return false;
                     const totalDistributed = change.distributions?.reduce((sum: number, d: any) => sum + d.quantity, 0) || 0;
