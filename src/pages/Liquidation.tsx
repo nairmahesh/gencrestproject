@@ -308,7 +308,7 @@ const Liquidation: React.FC = () => {
               </div>
             </div>
             <div className="mt-2 text-xs text-gray-500">
-              Value: ₹{overallMetrics.openingStock.value}L
+              Value: ₹{overallMetrics.openingStock.value.toFixed(2)}L
             </div>
             <div className="mt-3 flex items-center text-orange-600 text-sm">
               <span>As of 1st April 2025</span>
@@ -330,7 +330,7 @@ const Liquidation: React.FC = () => {
               </div>
             </div>
             <div className="mt-2 text-xs text-gray-500">
-              Value: ₹{overallMetrics.ytdNetSales.value}L
+              Value: ₹{overallMetrics.ytdNetSales.value.toFixed(2)}L
             </div>
             <div className="mt-3 flex items-center text-blue-600 text-sm">
               <span>April - Aug, 2025</span>
@@ -352,7 +352,7 @@ const Liquidation: React.FC = () => {
               </div>
             </div>
             <div className="mt-2 text-xs text-gray-500">
-              Value: ₹{overallMetrics.liquidation.value}L
+              Value: ₹{overallMetrics.liquidation.value.toFixed(2)}L
             </div>
             <div className="mt-3 flex items-center text-green-600 text-sm">
               <span>As of Aug (YTD)</span>
@@ -374,7 +374,7 @@ const Liquidation: React.FC = () => {
               </div>
             </div>
             <div className="mt-2 text-xs text-gray-500">
-              Value: ₹{overallMetrics.balanceStock.value}L
+              Value: ₹{overallMetrics.balanceStock.value.toFixed(2)}L
             </div>
           </div>
         </div>
