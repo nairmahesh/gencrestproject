@@ -54,6 +54,9 @@ const MobileAppDesign: React.FC = () => {
   const [currentView, setCurrentView] = useState('main');
   const [selectedMetric, setSelectedMetric] = useState('');
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [showVerifyModal, setShowVerifyModal] = useState(false);
+  const [showStockModal, setShowStockModal] = useState(false);
+  const [modalContent, setModalContent] = useState({ title: '', message: '' });
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -687,7 +690,11 @@ const MobileAppDesign: React.FC = () => {
               className="px-3 py-1 bg-purple-600 text-white text-xs rounded-lg hover:bg-purple-700 transition-colors"
               onClick={(e) => {
                 e.stopPropagation();
-                alert('Stock Verification:\n\nOpening verification modal for product & SKU wise stock update...');
+                setModalContent({
+                  title: 'Stock Verification',
+                  message: 'Opening verification modal for product & SKU wise stock update...'
+                });
+                setShowVerifyModal(true);
               }}
             >
               Verify
@@ -1097,6 +1104,57 @@ const MobileAppDesign: React.FC = () => {
           </div>
 
           {/* Floating Action Button */}
+
+          {/* Verify Modal */}
+          {showVerifyModal && (
+            <div className="absolute inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+              <div className="bg-white rounded-xl w-full max-w-xs mx-4">
+                <div className="p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">{modalContent.title}</h3>
+                  <p className="text-gray-600 mb-6 text-sm">{modalContent.message}</p>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => setShowVerifyModal(false)}
+                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowVerifyModal(false);
+                        setModalContent({
+                          title: 'Verification Complete',
+                          message: 'Stock verification completed successfully!'
+                        });
+                        setShowStockModal(true);
+                      }}
+                      className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm"
+                    >
+                      Verify
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Stock Modal */}
+          {showStockModal && (
+            <div className="absolute inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+              <div className="bg-white rounded-xl w-full max-w-xs mx-4">
+                <div className="p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">{modalContent.title}</h3>
+                  <p className="text-gray-600 mb-6 text-sm">{modalContent.message}</p>
+                  <button
+                    onClick={() => setShowStockModal(false)}
+                    className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm"
+                  >
+                    OK
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
