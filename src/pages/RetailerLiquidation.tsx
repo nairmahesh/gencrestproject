@@ -602,6 +602,62 @@ const RetailerLiquidation: React.FC = () => {
               )}
 
               {/* Summary */}
+              <div className="bg-gray-50 rounded-xl p-6 mb-6">
+                <h5 className="text-lg font-semibold text-gray-900 mb-4">Debug Info</h5>
+                <div className="text-sm space-y-2">
+                  <p>Transaction Type: <strong>{stockModal.transactionType || 'None'}</strong></p>
+                  <p>Stock Difference: <strong>{stockModal.stockDifference}</strong></p>
+                  <p>Retailer Count: <strong>{stockModal.retailerCount}</strong></p>
+                  <p>Modal Open: <strong>{stockModal.isOpen ? 'Yes' : 'No'}</strong></p>
+                </div>
+              </div>
+
+              {/* Force Show Retailer Section for Testing */}
+              <div className="bg-blue-50 rounded-xl p-6 mb-6">
+                <h5 className="text-lg font-semibold text-blue-800 mb-4">Retailer Distribution Details (Always Visible for Testing)</h5>
+                <div className="space-y-4">
+                  <div className="bg-white rounded-lg p-4 border border-blue-200">
+                    <h6 className="font-semibold text-gray-900 mb-3">Retailer 1</h6>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Assigned QTY</label>
+                        <input type="number" className="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="Enter assigned quantity" />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Sold QTY</label>
+                        <input type="number" className="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="Enter sold quantity" />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="bg-white rounded-lg p-4 border border-blue-200">
+                    <h6 className="font-semibold text-gray-900 mb-3">Retailer 2</h6>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Assigned QTY</label>
+                        <input type="number" className="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="Enter assigned quantity" />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Sold QTY</label>
+                        <input type="number" className="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="Enter sold quantity" />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="bg-white rounded-lg p-4 border border-blue-200">
+                    <h6 className="font-semibold text-gray-900 mb-3">Retailer 3</h6>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Assigned QTY</label>
+                        <input type="number" className="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="Enter assigned quantity" />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Sold QTY</label>
+                        <input type="number" className="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="Enter sold quantity" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               {stockModal.transactionType && (
                 <div className="bg-gray-50 rounded-xl p-6 mb-6">
                   <h5 className="text-lg font-semibold text-gray-900 mb-4">Summary</h5>
