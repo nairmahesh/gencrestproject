@@ -645,6 +645,108 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
+      {/* Stock Liquidation Overview */}
+      <div className="bg-white rounded-xl p-6 shadow-lg">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h3 className="text-xl font-semibold text-gray-900">Stock Liquidation Overview</h3>
+            <p className="text-sm text-gray-600 mt-1">Last updated: {new Date().toLocaleDateString('en-GB', { 
+              day: 'numeric', 
+              month: 'short', 
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+              hour12: true
+            })}</p>
+          </div>
+          <button 
+            onClick={() => handleMetricClick('overview')}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center"
+          >
+            <Eye className="w-4 h-4 mr-2" />
+            View Details
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div 
+            className="bg-orange-50 rounded-xl p-6 border-l-4 border-orange-500 cursor-pointer hover:shadow-md transition-all duration-200"
+            onClick={() => handleMetricClick('opening')}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-orange-500 rounded-lg flex items-center justify-center">
+                <Package className="w-6 h-6 text-white" />
+              </div>
+            </div>
+            <h4 className="text-lg font-semibold text-gray-900 mb-2">Opening Stock</h4>
+            <div className="text-3xl font-bold text-gray-900 mb-1">32,660</div>
+            <div className="text-sm text-gray-600 mb-2">Kg/Litre</div>
+            <div className="text-sm text-gray-500 mb-3">Value: ₹190.00L</div>
+            <button className="text-orange-600 text-sm font-medium hover:text-orange-700 flex items-center">
+              View Details <ChevronRight className="w-4 h-4 ml-1" />
+            </button>
+            <div className="text-xs text-gray-500 mt-2">Last updated: Jan 20, 2024</div>
+          </div>
+
+          <div 
+            className="bg-blue-50 rounded-xl p-6 border-l-4 border-blue-500 cursor-pointer hover:shadow-md transition-all duration-200"
+            onClick={() => handleMetricClick('sales')}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
+                <TrendingUp className="w-6 h-6 text-white" />
+              </div>
+            </div>
+            <h4 className="text-lg font-semibold text-gray-900 mb-2">YTD Net Sales</h4>
+            <div className="text-3xl font-bold text-gray-900 mb-1">13,303</div>
+            <div className="text-sm text-gray-600 mb-2">Kg/Litre</div>
+            <div className="text-sm text-gray-500 mb-3">Value: ₹43.70L</div>
+            <button className="text-blue-600 text-sm font-medium hover:text-blue-700 flex items-center">
+              View Details <ChevronRight className="w-4 h-4 ml-1" />
+            </button>
+            <div className="text-xs text-gray-500 mt-2">Last updated: Jan 20, 2024</div>
+          </div>
+
+          <div 
+            className="bg-green-50 rounded-xl p-6 border-l-4 border-green-500 cursor-pointer hover:shadow-md transition-all duration-200"
+            onClick={() => handleMetricClick('liquidation')}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center">
+                <Droplets className="w-6 h-6 text-white" />
+              </div>
+            </div>
+            <h4 className="text-lg font-semibold text-gray-900 mb-2">Liquidation</h4>
+            <div className="text-3xl font-bold text-gray-900 mb-1">12,720</div>
+            <div className="text-sm text-gray-600 mb-2">Kg/Litre</div>
+            <div className="text-sm text-gray-500 mb-3">Value: ₹55.52L</div>
+            <button className="text-green-600 text-sm font-medium hover:text-green-700 flex items-center">
+              View Details <ChevronRight className="w-4 h-4 ml-1" />
+            </button>
+            <div className="text-xs text-gray-500 mt-2">Last updated: Jan 20, 2024</div>
+          </div>
+
+          <div 
+            className="bg-purple-50 rounded-xl p-6 border-l-4 border-purple-500 cursor-pointer hover:shadow-md transition-all duration-200"
+            onClick={() => handleMetricClick('rate')}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center">
+                <Target className="w-6 h-6 text-white" />
+              </div>
+            </div>
+            <h4 className="text-lg font-semibold text-gray-900 mb-2">Liquidation Rate</h4>
+            <div className="text-3xl font-bold text-gray-900 mb-1">28%</div>
+            <div className="text-sm text-gray-600 mb-2">Overall</div>
+            <div className="text-sm text-gray-500 mb-3">Performance</div>
+            <button className="text-purple-600 text-sm font-medium hover:text-purple-700 flex items-center">
+              View Details <ChevronRight className="w-4 h-4 ml-1" />
+            </button>
+            <div className="text-xs text-gray-500 mt-2">Last updated: Jan 20, 2024</div>
+          </div>
+        </div>
+      </div>
+
       {/* Module Cards - All Sections */}
       <div className="space-y-6">
         <h3 className="text-xl font-semibold text-gray-900">Module Overview</h3>
