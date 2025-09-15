@@ -86,6 +86,7 @@ const Liquidation: React.FC = () => {
   const [showVerifyModal, setShowVerifyModal] = useState(false);
   const [selectedDistributor, setSelectedDistributor] = useState<string>('');
   const [stockUpdates, setStockUpdates] = useState<{[key: string]: number}>({});
+  const [stockChanges, setStockChanges] = useState<{[key: string]: any}>({});
 
   // Sample product and SKU data for verification
   const productData = [
@@ -179,14 +180,59 @@ const Liquidation: React.FC = () => {
       ...prev,
       [skuId]: newStock
     }));
+    
+    // Calculate the change and prompt for details
+    const sku = productData.flatMap(p => p.skus).find(s => s.id === skuId);
+    if (sku) {
+      const originalStock = sku.currentStock;
+      const difference = originalStock - newStock;
+      
+      if (difference > 0) {
+        // Stock decreased - need to track where it went
+        setStockChanges(prev => ({
+          ...prev,
+          [skuId]: {
+            ...prev[skuId],
+            difference,
+            originalStock,
+            newStock,
+            skuCode: sku.skuCode,
+            skuName: sku.skuName,
+            needsTracking: true,
+            distributions: prev[skuId]?.distributions || []
+          }
+        }));
+      } else if (difference < 0) {
+        // Stock increased - unusual case
+        setStockChanges(prev => ({
+          ...prev,
+          [skuId]: {
+            ...prev[skuId],
+            difference: Math.abs(difference),
+            originalStock,
+            newStock,
+            skuCode: sku.skuCode,
+            skuName: sku.skuName,
+            needsTracking: false,
+            isIncrease: true
+          }
+        }));
+      } else {
+        // No change
+        const { [skuId]: removed, ...rest } = stockChanges;
+        setStockChanges(rest);
+      }
+    }
   };
 
   const handleSaveStockUpdates = () => {
     // Here you would typically send the updates to your backend
     console.log('Saving stock updates:', stockUpdates);
+    console.log('Stock changes tracking:', stockChanges);
     alert('Stock updates saved successfully!');
     setShowVerifyModal(false);
     setStockUpdates({});
+    setStockChanges({});
   };
 
   // Sample liquidation data
@@ -374,6 +420,29 @@ const Liquidation: React.FC = () => {
   const handleMetricClick = (metric: string) => {
     setSelectedMetric(metric);
     setShowDetailModal(true);
+  };
+
+  const addDistribution = (skuId: string, type: 'farmer' | 'retailer', details: any) => {
+    setStockChanges(prev => ({
+      ...prev,
+      [skuId]: {
+        ...prev[skuId],
+        distributions: [
+          ...(prev[skuId]?.distributions || []),
+          { type, ...details, id: Date.now().toString() }
+        ]
+      }
+    }));
+  };
+
+  const removeDistribution = (skuId: string, distributionId: string) => {
+    setStockChanges(prev => ({
+      ...prev,
+      [skuId]: {
+        ...prev[skuId],
+        distributions: prev[skuId]?.distributions?.filter((d: any) => d.id !== distributionId) || []
+      }
+    }));
   };
 
   return (
@@ -895,6 +964,129 @@ const Liquidation: React.FC = () => {
                             </div>
                           </div>
 
+                          {/* Stock Change Tracking */}
+                          {stockChanges[sku.id] && (
+                            <div className="mt-6 p-4 bg-yellow-50 border-2 border-yellow-300 rounded-lg">
+                              <div className="flex items-center justify-between mb-3">
+                                <h6 className="text-sm font-semibold text-yellow-800 flex items-center">
+                                  <AlertTriangle className="w-4 h-4 mr-2" />
+                                  Stock Change Detected: {stockChanges[sku.id].difference} {sku.unit} 
+                                  {stockChanges[sku.id].isIncrease ? 'increased' : 'decreased'}
+                                </h6>
+                                <span className="text-xs text-yellow-600">
+                                  {stockChanges[sku.id].originalStock} → {stockChanges[sku.id].newStock}
+                                </span>
+                              </div>
+                              
+                              {stockChanges[sku.id].needsTracking && (
+                                <div className="space-y-4">
+                                  <p className="text-sm text-yellow-700">
+                                    Please specify where these {stockChanges[sku.id].difference} {sku.unit} went:
+                                  </p>
+                                  
+                                  {/* Distribution List */}
+                                  {stockChanges[sku.id].distributions?.map((dist: any) => (
+                                    <div key={dist.id} className="bg-white border border-yellow-200 rounded-lg p-3">
+                                      <div className="flex items-center justify-between">
+                                        <div className="flex items-center space-x-3">
+                                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                            dist.type === 'farmer' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
+                                          }`}>
+                                            {dist.type === 'farmer' ? 'Farmer' : 'Retailer'}
+                                          </span>
+                                          <div>
+                                            <p className="font-medium text-gray-900">{dist.name}</p>
+                                            {dist.code && <p className="text-xs text-gray-500">Code: {dist.code}</p>}
+                                            <p className="text-sm text-gray-600">Quantity: {dist.quantity} {sku.unit}</p>
+                                          </div>
+                                        </div>
+                                        <button
+                                          onClick={() => removeDistribution(sku.id, dist.id)}
+                                          className="p-1 text-red-600 hover:bg-red-100 rounded"
+                                        >
+                                          <X className="w-4 h-4" />
+                                        </button>
+                                      </div>
+                                    </div>
+                                  ))}
+                                  
+                                  {/* Add Distribution Buttons */}
+                                  <div className="flex gap-2">
+                                    <button
+                                      onClick={() => {
+                                        const quantity = prompt(`How much ${sku.unit} was sold to farmers?`);
+                                        if (quantity && parseInt(quantity) > 0) {
+                                          addDistribution(sku.id, 'farmer', {
+                                            name: 'Direct Farmer Sales',
+                                            quantity: parseInt(quantity)
+                                          });
+                                        }
+                                      }}
+                                      className="px-3 py-1 bg-green-600 text-white text-xs rounded-lg hover:bg-green-700"
+                                    >
+                                      + Add Farmer Sale
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        const name = prompt('Retailer name:');
+                                        const code = prompt('Retailer code (optional):');
+                                        const quantity = prompt(`How much ${sku.unit} was given to this retailer?`);
+                                        if (name && quantity && parseInt(quantity) > 0) {
+                                          addDistribution(sku.id, 'retailer', {
+                                            name,
+                                            code: code || '',
+                                            quantity: parseInt(quantity)
+                                          });
+                                        }
+                                      }}
+                                      className="px-3 py-1 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700"
+                                    >
+                                      + Add Retailer Transfer
+                                    </button>
+                                  </div>
+                                  
+                                  {/* Remaining to Account */}
+                                  {(() => {
+                                    const totalDistributed = stockChanges[sku.id].distributions?.reduce((sum: number, d: any) => sum + d.quantity, 0) || 0;
+                                    const remaining = stockChanges[sku.id].difference - totalDistributed;
+                                    return remaining > 0 ? (
+                                      <div className="bg-red-50 border border-red-200 rounded-lg p-2">
+                                        <p className="text-sm text-red-700">
+                                          <AlertTriangle className="w-4 h-4 inline mr-1" />
+                                          Still need to account for: {remaining} {sku.unit}
+                                        </p>
+                                      </div>
+                                    ) : remaining < 0 ? (
+                                      <div className="bg-red-50 border border-red-200 rounded-lg p-2">
+                                        <p className="text-sm text-red-700">
+                                          <AlertTriangle className="w-4 h-4 inline mr-1" />
+                                          Over-allocated by: {Math.abs(remaining)} {sku.unit}
+                                        </p>
+                                      </div>
+                                    ) : (
+                                      <div className="bg-green-50 border border-green-200 rounded-lg p-2">
+                                        <p className="text-sm text-green-700">
+                                          <CheckCircle className="w-4 h-4 inline mr-1" />
+                                          All stock changes accounted for
+                                        </p>
+                                      </div>
+                                    );
+                                  })()}
+                                </div>
+                              )}
+                              
+                              {stockChanges[sku.id].isIncrease && (
+                                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                                  <p className="text-sm text-blue-700">
+                                    <Info className="w-4 h-4 inline mr-1" />
+                                    Stock increased by {stockChanges[sku.id].difference} {sku.unit}. 
+                                    This could be due to returns or new stock received.
+                                  </p>
+                                </div>
+                              )}
+                            </div>
+                          )}
+
                           {/* Liquidation Breakdown - "Liquidated to whom?" */}
                           {sku.liquidationBreakdown && (sku.assignedStock - (stockUpdates[sku.id] !== undefined ? stockUpdates[sku.id] : sku.currentStock)) > 0 && (
                             <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
@@ -964,6 +1156,11 @@ const Liquidation: React.FC = () => {
                     {Object.keys(stockUpdates).length} items modified
                   </span>
                 )}
+                {Object.keys(stockChanges).length > 0 && (
+                  <span className="text-yellow-600 font-medium ml-4">
+                    {Object.keys(stockChanges).length} changes need tracking
+                  </span>
+                )}
               </div>
               <div className="flex gap-3">
                 <button
@@ -975,6 +1172,11 @@ const Liquidation: React.FC = () => {
                 <button
                   onClick={handleSaveStockUpdates}
                   disabled={Object.keys(stockUpdates).length === 0}
+                  disabled={Object.keys(stockUpdates).length === 0 || Object.values(stockChanges).some((change: any) => {
+                    if (!change.needsTracking) return false;
+                    const totalDistributed = change.distributions?.reduce((sum: number, d: any) => sum + d.quantity, 0) || 0;
+                    return totalDistributed !== change.difference;
+                  })}
                   className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Save Updates
