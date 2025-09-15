@@ -109,7 +109,7 @@ const Liquidation: React.FC = () => {
   });
 
   // Sample liquidation data with EXACT values from reference screenshot
-  const [liquidationEntries] = useState<LiquidationEntry[]>([
+  const [liquidationEntries, setLiquidationEntries] = useState<LiquidationEntry[]>([
     {
       id: '1',
       dealerId: 'DIST001',
