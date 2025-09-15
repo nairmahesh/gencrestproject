@@ -539,90 +539,118 @@ const Liquidation: React.FC = () => {
             </div>
 
             {/* Card Layout as per attachment */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
               {/* Opening Stock Card */}
-              <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
-                <div className="border-b border-orange-200 pb-1 mb-2">
-                  <h4 className="text-sm font-semibold text-orange-800">Opening Stock</h4>
+              <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                <div className="border-b border-orange-200 pb-2 mb-3">
+                  <h4 className="font-semibold text-orange-800">Opening Stock</h4>
+                  <p className="text-xs text-orange-600">As of 1st April 2025</p>
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-2">
                   <div className="flex justify-between">
-                    <span className="text-xs text-orange-700">Volume</span>
-                    <span className="text-sm font-semibold text-orange-800">{entry.openingStock}</span>
+                    <span className="text-sm text-orange-700">Vol (Kg/Litre)</span>
+                    <span className="font-semibold text-orange-800">{entry.openingStock}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-xs text-orange-700">Value</span>
-                    <span className="text-sm font-semibold text-orange-800">₹{(entry.grossValue * 0.0001).toFixed(2)}L</span>
+                    <span className="text-sm text-orange-700">Value (Rs.Lakhs)</span>
+                    <span className="font-semibold text-orange-800">{(entry.grossValue * 0.0001).toFixed(2)}</span>
+                  </div>
+                  <div className="text-xs text-gray-500 mt-2">
+                    Last updated: Jan 20, 2024
                   </div>
                 </div>
               </div>
 
               {/* YTD Net Sales Card */}
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                <div className="border-b border-blue-200 pb-1 mb-2">
-                  <h4 className="text-sm font-semibold text-blue-800">YTD Net Sales</h4>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="border-b border-blue-200 pb-2 mb-3">
+                  <h4 className="font-semibold text-blue-800">YTD Net Sales</h4>
+                  <p className="text-xs text-blue-600">April - Aug, 2025</p>
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-2">
                   <div className="flex justify-between">
-                    <span className="text-xs text-blue-700">Volume</span>
-                    <span className="text-sm font-semibold text-blue-800">{Math.round(entry.openingStock * 0.8)}</span>
+                    <span className="text-sm text-blue-700">Vol (Kg/Litre)</span>
+                    <span className="font-semibold text-blue-800">{Math.round(entry.openingStock * 0.8)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-xs text-blue-700">Value</span>
-                    <span className="text-sm font-semibold text-blue-800">₹{(entry.netValue * 0.0001 * 1.5).toFixed(2)}L</span>
+                    <span className="text-sm text-blue-700">Value (Rs.Lakhs)</span>
+                    <span className="font-semibold text-blue-800">{(entry.netValue * 0.0001 * 1.5).toFixed(2)}</span>
+                  </div>
+                  <div className="text-xs text-gray-500 mt-2">
+                    Last updated: Jan 20, 2024
                   </div>
                 </div>
               </div>
 
               {/* Liquidation Card */}
-              <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-                <div className="border-b border-green-200 pb-1 mb-2">
-                  <h4 className="text-sm font-semibold text-green-800">Liquidation</h4>
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                <div className="border-b border-green-200 pb-2 mb-3">
+                  <h4 className="font-semibold text-green-800">Liquidation</h4>
+                  <p className="text-xs text-green-600">As of Aug (YTD)</p>
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-2">
                   <div className="flex justify-between">
-                    <span className="text-xs text-green-700">Volume</span>
-                    <span className="text-sm font-semibold text-green-800">{entry.volume}</span>
+                    <span className="text-sm text-green-700">Vol (Kg/Litre)</span>
+                    <span className="font-semibold text-green-800">{entry.volume}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-xs text-green-700">Value</span>
-                    <span className="text-sm font-semibold text-green-800">₹{(entry.netValue * 0.0001).toFixed(2)}L</span>
+                    <span className="text-sm text-green-700">Value (Rs.Lakhs)</span>
+                    <span className="font-semibold text-green-800">{(entry.netValue * 0.0001).toFixed(2)}</span>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Second Row */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
               {/* Balance Stock Card */}
-              <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
-                <div className="border-b border-purple-200 pb-1 mb-2">
-                  <h4 className="text-sm font-semibold text-purple-800">Balance Stock</h4>
+              <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                <div className="border-b border-purple-200 pb-2 mb-3">
+                  <h4 className="font-semibold text-purple-800">Balance Stock</h4>
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-2">
                   <div className="flex justify-between">
-                    <span className="text-xs text-purple-700">Volume</span>
-                    <span className="text-sm font-semibold text-purple-800">{entry.currentStock}</span>
+                    <span className="text-sm text-purple-700">Vol (Kg/Litre)</span>
+                    <span className="font-semibold text-purple-800">{entry.currentStock}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-xs text-purple-700">Value</span>
-                    <span className="text-sm font-semibold text-purple-800">₹{(entry.grossValue * 0.0001 * 0.6).toFixed(2)}L</span>
+                    <span className="text-sm text-purple-700">Value (Rs.Lakhs)</span>
+                    <span className="font-semibold text-purple-800">{(entry.grossValue * 0.0001 * 0.6).toFixed(2)}</span>
                   </div>
                 </div>
               </div>
 
               {/* Liquidation Percentage Card */}
-              <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-3">
-                <div className="border-b border-indigo-200 pb-1 mb-2">
-                  <h4 className="text-sm font-semibold text-indigo-800">% Liquidation</h4>
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                <div className="border-b border-gray-200 pb-2 mb-3">
+                  <h4 className="font-semibold text-gray-800">% Liquidation</h4>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-indigo-800 mb-1">{entry.liquidationPercentage}%</div>
-                  <div className="w-full bg-indigo-200 rounded-full h-1">
+                  <div className="text-3xl font-bold text-gray-800 mb-2">{entry.liquidationPercentage}%</div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
                     <div 
-                      className="bg-indigo-600 h-1 rounded-full transition-all duration-300" 
+                      className="bg-purple-600 h-2 rounded-full transition-all duration-300" 
                       style={{ width: `${entry.liquidationPercentage}%` }}
                     ></div>
+                  </div>
+                  <div className="text-xs text-gray-500 mt-2">
+                    Last updated: Jan 20, 2024
+                  </div>
+                </div>
+              </div>
+
+              {/* Last Updated Info */}
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                <div className="border-b border-gray-200 pb-2 mb-3">
+                  <h4 className="font-semibold text-gray-800">Last Updated</h4>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-700">Date</span>
+                    <span className="font-semibold text-gray-800">{new Date(entry.lastUpdated).toLocaleDateString()}</span>
+                  </div>
+                  <div className="text-xs text-gray-500 mt-2">
+                    Last updated: Jan 20, 2024
                   </div>
                 </div>
               </div>
