@@ -18,7 +18,9 @@ import {
   Info,
   Calculator,
   X,
-  DollarSign
+  DollarSign,
+  Signature,
+  Save
 } from 'lucide-react';
 
 interface LiquidationEntry {
@@ -75,6 +77,11 @@ interface LiquidationEntry {
   approvedDate?: string;
 }
 
+interface StockVerificationModal {
+  isOpen: boolean;
+  entry: LiquidationEntry | null;
+}
+
 const Liquidation: React.FC = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
@@ -83,6 +90,10 @@ const Liquidation: React.FC = () => {
   const [showBusinessLogicModal, setShowBusinessLogicModal] = useState(false);
   const [showViewModal, setShowViewModal] = useState(false);
   const [viewModalData, setViewModalData] = useState<{type: string, entry: LiquidationEntry} | null>(null);
+  const [stockVerificationModal, setStockVerificationModal] = useState<StockVerificationModal>({
+    isOpen: false,
+    entry: null
+  });
 
   // Sample liquidation data with EXACT values from reference screenshot
   const [liquidationEntries] = useState<LiquidationEntry[]>([
@@ -106,7 +117,7 @@ const Liquidation: React.FC = () => {
         value: 13.80  // ₹13.80L
       },
       ytdNetSales: {
-        volume: 310,
+        volume: 32,   // Updated to match screenshot
         value: 13.95  // ₹13.95L
       },
       liquidation: {
@@ -114,11 +125,11 @@ const Liquidation: React.FC = () => {
         value: 9.30   // ₹9.30L
       },
       balanceStock: {
-        volume: 210,  // 40 + 310 - 140 = 210
-        value: 18.45  // ₹18.45L
+        volume: 210,  
+        value: 8.28   // ₹8.28L as shown in screenshot
       },
       
-      liquidationPercentage: 40, // 140 / (40 + 310) * 100 = 40%
+      liquidationPercentage: 40, 
       targetLiquidation: 50,
       
       liquidationStatus: 'In Progress',
@@ -267,8 +278,27 @@ const Liquidation: React.FC = () => {
 
   // Handle verify stock functionality
   const handleVerifyStock = (entry: LiquidationEntry) => {
-    alert(`Verifying stock for ${entry.dealerName}...\n\nThis will open the stock verification modal with product & SKU wise details.`);
+    setStockVerificationModal({
+      isOpen: true,
+      entry: entry
+    });
   };
+
+  // Handle track liquidation
+  const handleTrackLiquidation = (entry: LiquidationEntry) => {
+    alert(`Tracking liquidation for ${entry.dealerName}...\n\nThis will show detailed liquidation tracking with farmer-wise breakdown.`);
+  };
+
+  // Handle update stock
+  const handleUpdateStock = (entry: LiquidationEntry) => {
+    alert(`Updating stock for ${entry.dealerName}...\n\nThis will open stock update form with current quantities.`);
+  };
+
+  // Handle get signature
+  const handleGetSignature = (entry: LiquidationEntry) => {
+    alert(`Getting signature from ${entry.dealerName}...\n\nThis will open signature capture interface.`);
+  };
+
   // Filter entries
   const filteredEntries = liquidationEntries.filter(entry => {
     const matchesSearch = entry.dealerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -399,38 +429,6 @@ const Liquidation: React.FC = () => {
         </div>
       </div>
 
-      {/* Overall Liquidation Summary */}
-      <div className="bg-white rounded-xl p-6 card-shadow">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Overall Liquidation Summary</h2>
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          <div className="text-center p-4 bg-orange-50 rounded-lg">
-            <div className="text-2xl font-bold text-orange-600">{overallMetrics.totalOpeningStock.volume.toLocaleString()}</div>
-            <div className="text-sm text-orange-700">Opening Stock</div>
-            <div className="text-xs text-orange-600">₹{overallMetrics.totalOpeningStock.value.toFixed(2)}L</div>
-          </div>
-          <div className="text-center p-4 bg-blue-50 rounded-lg">
-            <div className="text-2xl font-bold text-blue-600">{overallMetrics.totalYtdNetSales.volume.toLocaleString()}</div>
-            <div className="text-sm text-blue-700">YTD Net Sales</div>
-            <div className="text-xs text-blue-600">₹{overallMetrics.totalYtdNetSales.value.toFixed(2)}L</div>
-          </div>
-          <div className="text-center p-4 bg-green-50 rounded-lg">
-            <div className="text-2xl font-bold text-green-600">{overallMetrics.totalLiquidation.volume.toLocaleString()}</div>
-            <div className="text-sm text-green-700">Liquidation</div>
-            <div className="text-xs text-green-600">₹{overallMetrics.totalLiquidation.value.toFixed(2)}L</div>
-          </div>
-          <div className="text-center p-4 bg-purple-50 rounded-lg">
-            <div className="text-2xl font-bold text-purple-600">{overallMetrics.totalBalanceStock.volume.toLocaleString()}</div>
-            <div className="text-sm text-purple-700">Balance Stock</div>
-            <div className="text-xs text-purple-600">₹{overallMetrics.totalBalanceStock.value.toFixed(2)}L</div>
-          </div>
-          <div className="text-center p-4 bg-indigo-50 rounded-lg">
-            <div className="text-2xl font-bold text-indigo-600">{overallLiquidationPercentage}%</div>
-            <div className="text-sm text-indigo-700">Liquidation Rate</div>
-            <div className="text-xs text-indigo-600">Target: 50%</div>
-          </div>
-        </div>
-      </div>
-
       {/* Filters */}
       <div className="bg-white rounded-xl p-6 card-shadow">
         <div className="flex flex-col sm:flex-row gap-4">
@@ -489,11 +487,14 @@ const Liquidation: React.FC = () => {
                   <div className="flex items-center space-x-2 text-sm text-gray-600">
                     <span>Code: {entry.dealerCode}</span>
                     <span>•</span>
-                    <span>{entry.dealerType}</span>
+                    <span>Multiple Products</span>
                   </div>
                 </div>
               </div>
               <div className="flex items-center space-x-2">
+                <span className="px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                  {entry.dealerType}
+                </span>
                 <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(entry.liquidationStatus)}`}>
                   {getStatusIcon(entry.liquidationStatus)}
                   <span className="ml-1">{entry.liquidationStatus}</span>
@@ -504,136 +505,148 @@ const Liquidation: React.FC = () => {
               </div>
             </div>
 
-            {/* Stock Metrics */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+            {/* Stock Metrics - OLD STYLE LAYOUT */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
               {/* Opening Stock */}
-              <div className="bg-orange-50 rounded-lg p-4 text-center">
-                <div className="flex items-center justify-center mb-2">
-                  <Package className="w-4 h-4 text-orange-600 mr-1" />
-                  <span className="text-xs font-medium text-orange-600">Opening Stock</span>
+              <div className="bg-orange-50 rounded-lg p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-orange-700">Opening Stock</span>
                   <button 
                     onClick={() => handleViewDetails('opening', entry)}
-                    className="ml-2 text-orange-600 hover:bg-orange-100 rounded p-1"
+                    className="bg-orange-500 text-white px-3 py-1 rounded text-xs hover:bg-orange-600 transition-colors"
                   >
-                    <Eye className="w-3 h-3" />
+                    View
                   </button>
                 </div>
                 <div className="space-y-1">
-                  <div className="text-lg font-bold text-orange-800">
-                    {entry.openingStock.volume.toLocaleString()}
+                  <div className="flex justify-between">
+                    <span className="text-xs text-orange-600">Volume</span>
+                    <span className="font-bold text-orange-800">{entry.openingStock.volume}</span>
                   </div>
-                  <div className="text-xs text-orange-600">Volume</div>
-                  <div className="text-sm font-semibold text-orange-700 border-t border-orange-200 pt-1">
-                    ₹{entry.openingStock.value.toFixed(2)}L
+                  <div className="flex justify-between">
+                    <span className="text-xs text-orange-600">Value</span>
+                    <span className="font-bold text-orange-800">₹{entry.openingStock.value.toFixed(2)}L</span>
                   </div>
-                  <div className="text-xs text-orange-500">Value</div>
                 </div>
               </div>
 
               {/* YTD Net Sales */}
-              <div className="bg-blue-50 rounded-lg p-4 text-center">
-                <div className="flex items-center justify-center mb-2">
-                  <TrendingUp className="w-4 h-4 text-blue-600 mr-1" />
-                  <span className="text-xs font-medium text-blue-600">YTD Net Sales</span>
+              <div className="bg-blue-50 rounded-lg p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-blue-700">YTD Net Sales</span>
                   <button 
                     onClick={() => handleViewDetails('ytd', entry)}
-                    className="ml-2 text-blue-600 hover:bg-blue-100 rounded p-1"
+                    className="bg-blue-500 text-white px-3 py-1 rounded text-xs hover:bg-blue-600 transition-colors"
                   >
-                    <Eye className="w-3 h-3" />
+                    View
                   </button>
                 </div>
                 <div className="space-y-1">
-                  <div className="text-lg font-bold text-blue-800">
-                    {entry.ytdNetSales.volume.toLocaleString()}
+                  <div className="flex justify-between">
+                    <span className="text-xs text-blue-600">Volume</span>
+                    <span className="font-bold text-blue-800">{entry.ytdNetSales.volume}</span>
                   </div>
-                  <div className="text-xs text-blue-600">Volume</div>
-                  <div className="text-sm font-semibold text-blue-700 border-t border-blue-200 pt-1">
-                    ₹{entry.ytdNetSales.value.toFixed(2)}L
+                  <div className="flex justify-between">
+                    <span className="text-xs text-blue-600">Value</span>
+                    <span className="font-bold text-blue-800">₹{entry.ytdNetSales.value.toFixed(2)}L</span>
                   </div>
-                  <div className="text-xs text-blue-500">Value</div>
-                </div>
-              </div>
-
-              {/* Balance Stock */}
-              <div className="bg-purple-50 rounded-lg p-4 text-center">
-                <div className="flex items-center justify-center mb-2">
-                  <Package className="w-4 h-4 text-purple-600 mr-1" />
-                  <span className="text-xs font-medium text-purple-600">Balance Stock</span>
-                  <button 
-                    onClick={() => handleViewDetails('balance', entry)}
-                    className="ml-2 text-purple-600 hover:bg-purple-100 rounded p-1"
-                  >
-                    <Eye className="w-3 h-3" />
-                  </button>
-                </div>
-                <div className="space-y-1">
-                  <div className="text-lg font-bold text-purple-800">
-                    {entry.balanceStock.volume.toLocaleString()}
-                  </div>
-                  <div className="text-xs text-purple-600">Volume</div>
-                  <div className="text-sm font-semibold text-purple-700 border-t border-purple-200 pt-1">
-                    ₹{entry.balanceStock.value.toFixed(2)}L
-                  </div>
-                  <div className="text-xs text-purple-500">Value</div>
                 </div>
               </div>
 
               {/* Liquidation */}
-              <div className="bg-green-50 rounded-lg p-4 text-center">
-                <div className="flex items-center justify-center mb-2">
-                  <Droplets className="w-4 h-4 text-green-600 mr-1" />
-                  <span className="text-xs font-medium text-green-600">Liquidation</span>
+              <div className="bg-green-50 rounded-lg p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-green-700">Liquidation</span>
                   <button 
                     onClick={() => handleViewDetails('liquidation', entry)}
-                    className="ml-2 text-green-600 hover:bg-green-100 rounded p-1"
+                    className="bg-green-500 text-white px-3 py-1 rounded text-xs hover:bg-green-600 transition-colors"
                   >
-                    <Eye className="w-3 h-3" />
+                    View
                   </button>
                 </div>
                 <div className="space-y-1">
-                  <div className="text-lg font-bold text-green-800">
-                    {entry.liquidation.volume.toLocaleString()}
+                  <div className="flex justify-between">
+                    <span className="text-xs text-green-600">Volume</span>
+                    <span className="font-bold text-green-800">{entry.liquidation.volume}</span>
                   </div>
-                  <div className="text-xs text-green-600">Volume</div>
-                  <div className="text-sm font-semibold text-green-700 border-t border-green-200 pt-1">
-                    ₹{entry.liquidation.value.toFixed(2)}L
+                  <div className="flex justify-between">
+                    <span className="text-xs text-green-600">Value</span>
+                    <span className="font-bold text-green-800">₹{entry.liquidation.value.toFixed(2)}L</span>
                   </div>
-                  <div className="text-xs text-green-500">Value</div>
                 </div>
               </div>
             </div>
 
-            {/* Liquidation Progress */}
-            <div className="mb-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-gray-700">% Liquidation</span>
-                <span className="text-2xl font-bold text-purple-600">{entry.liquidationPercentage}%</span>
+            {/* Balance Stock and Liquidation Percentage */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              {/* Balance Stock */}
+              <div className="bg-purple-50 rounded-lg p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-purple-700">Balance Stock</span>
+                  <button 
+                    onClick={() => handleVerifyStock(entry)}
+                    className="bg-purple-500 text-white px-3 py-1 rounded text-xs hover:bg-purple-600 transition-colors"
+                  >
+                    Verify
+                  </button>
+                </div>
+                <div className="space-y-1">
+                  <div className="flex justify-between">
+                    <span className="text-xs text-purple-600">Volume</span>
+                    <span className="font-bold text-purple-800">{entry.balanceStock.volume}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-xs text-purple-600">Value</span>
+                    <span className="font-bold text-purple-800">₹{entry.balanceStock.value.toFixed(2)}L</span>
+                  </div>
+                </div>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-3">
-                <div 
-                  className="bg-gradient-to-r from-green-500 to-purple-500 h-3 rounded-full transition-all duration-500"
-                  style={{ width: `${Math.min(100, (entry.liquidationPercentage / entry.targetLiquidation) * 100)}%` }}
-                ></div>
-              </div>
-              <div className="flex justify-between text-xs text-gray-500 mt-1">
-                <span>0%</span>
-                <span>Target: {entry.targetLiquidation}%</span>
-                <span>100%</span>
+
+              {/* Liquidation Percentage */}
+              <div className="bg-indigo-50 rounded-lg p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-indigo-700">% Liquidation</span>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-indigo-800 mb-2">{entry.liquidationPercentage}%</div>
+                  <div className="w-full bg-indigo-200 rounded-full h-2">
+                    <div 
+                      className="bg-indigo-600 h-2 rounded-full transition-all duration-500"
+                      style={{ width: `${Math.min(100, (entry.liquidationPercentage / entry.targetLiquidation) * 100)}%` }}
+                    ></div>
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Action Buttons */}
+            {/* Action Buttons - OLD STYLE */}
             <div className="flex flex-wrap gap-3 justify-center">
               <button 
-                onClick={() => navigate(`/retailer-liquidation/${entry.id}`)}
-                className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors flex items-center font-medium"
+                onClick={() => handleTrackLiquidation(entry)}
+                className="bg-purple-100 text-purple-700 px-4 py-2 rounded-lg hover:bg-purple-200 transition-colors flex items-center font-medium"
               >
                 <Eye className="w-4 h-4 mr-2" />
-                View Details
+                Track Liquidation
+              </button>
+              
+              <button 
+                onClick={() => handleUpdateStock(entry)}
+                className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors flex items-center font-medium"
+              >
+                <Edit className="w-4 h-4 mr-2" />
+                Update Stock
+              </button>
+              
+              <button 
+                onClick={() => handleGetSignature(entry)}
+                className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors flex items-center font-medium"
+              >
+                <Signature className="w-4 h-4 mr-2" />
+                Get Signature
               </button>
             </div>
 
-            {/* Additional Info */}
+            {/* Remarks */}
             {entry.remarks && (
               <div className="mt-4 p-3 bg-gray-50 rounded-lg">
                 <p className="text-sm text-gray-700">
@@ -652,14 +665,17 @@ const Liquidation: React.FC = () => {
         </div>
       )}
 
-      {/* Business Logic Modal */}
-      {showBusinessLogicModal && (
+      {/* Stock Verification Modal */}
+      {stockVerificationModal.isOpen && stockVerificationModal.entry && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
+          <div className="bg-white rounded-xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
             <div className="flex items-center justify-between p-6 border-b">
-              <h3 className="text-xl font-semibold text-gray-900">Business Logic & Calculations</h3>
+              <div>
+                <h3 className="text-xl font-semibold text-gray-900">Stock Verification</h3>
+                <p className="text-sm text-gray-600">Product & SKU wise stock details - Update current stock</p>
+              </div>
               <button
-                onClick={() => setShowBusinessLogicModal(false)}
+                onClick={() => setStockVerificationModal({ isOpen: false, entry: null })}
                 className="p-2 hover:bg-gray-100 rounded-full transition-colors"
               >
                 <X className="w-5 h-5" />
@@ -667,89 +683,101 @@ const Liquidation: React.FC = () => {
             </div>
             
             <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
-              <div className="space-y-6">
-                <div>
-                  <h4 className="text-lg font-semibold text-gray-900 mb-3">Core Business Formulas</h4>
-                  <div className="space-y-3">
-                    <div className="bg-blue-50 p-4 rounded-lg">
-                      <h5 className="font-medium text-blue-900">Balance Stock Calculation</h5>
-                      <p className="text-blue-800 text-sm mt-1">
-                        Balance Stock = Opening Stock + YTD Net Sales - Liquidation
-                      </p>
-                      <p className="text-blue-600 text-xs mt-2">
-                        Example: 210 = 40 + 310 - 140
-                      </p>
-                    </div>
-                    
-                    <div className="bg-green-50 p-4 rounded-lg">
-                      <h5 className="font-medium text-green-900">Liquidation Percentage</h5>
-                      <p className="text-green-800 text-sm mt-1">
-                        Liquidation % = (Liquidation ÷ (Opening Stock + YTD Net Sales)) × 100
-                      </p>
-                      <p className="text-green-600 text-xs mt-2">
-                        Example: 40% = (140 ÷ (40 + 310)) × 100
-                      </p>
-                    </div>
-                    
-                    <div className="bg-purple-50 p-4 rounded-lg">
-                      <h5 className="font-medium text-purple-900">Target Achievement</h5>
-                      <p className="text-purple-800 text-sm mt-1">
-                        Target Achievement = (Current Liquidation % ÷ Target %) × 100
-                      </p>
-                      <p className="text-purple-600 text-xs mt-2">
-                        Target: 50% liquidation rate benchmark
-                      </p>
-                    </div>
+              {/* Product Section */}
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h4 className="text-lg font-semibold text-gray-900">DAP (Di-Ammonium Phosphate)</h4>
+                    <p className="text-sm text-gray-600">Code: FERT001 | Category: Fertilizers</p>
                   </div>
+                  <span className="text-sm text-gray-500">Total SKUs: 2</span>
                 </div>
 
-                <div>
-                  <h4 className="text-lg font-semibold text-gray-900 mb-3">Validation Rules</h4>
-                  <div className="space-y-2">
-                    <div className="flex items-center text-sm">
-                      <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
-                      <span>Balance Stock = Opening + YTD Sales - Liquidation</span>
+                {/* SKU Details */}
+                <div className="space-y-4">
+                  {/* DAP 25kg Bag */}
+                  <div className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <div>
+                        <h5 className="font-medium text-gray-900">DAP 25kg Bag</h5>
+                        <p className="text-sm text-gray-600">DAP-25KG</p>
+                        <p className="text-xs text-gray-500">Kg</p>
+                      </div>
+                      <span className="text-xs text-gray-500">Last Updated: 1/20/2024</span>
                     </div>
-                    <div className="flex items-center text-sm">
-                      <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
-                      <span>Liquidation % = Liquidation / Total Available Stock</span>
+                    
+                    <div className="grid grid-cols-3 gap-4 mb-3">
+                      <div className="text-center">
+                        <div className="text-sm text-gray-600">Assigned</div>
+                        <div className="text-lg font-bold text-orange-600">50</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-sm text-gray-600">Current Stock</div>
+                        <input 
+                          type="number" 
+                          defaultValue="35" 
+                          className="w-16 text-center text-lg font-bold text-blue-600 border border-blue-300 rounded"
+                        />
+                      </div>
+                      <div className="text-center">
+                        <div className="text-sm text-gray-600">Liquidated</div>
+                        <div className="text-lg font-bold text-green-600">15</div>
+                      </div>
                     </div>
-                    <div className="flex items-center text-sm">
-                      <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
-                      <span>All values must be non-negative</span>
+                    
+                    <div className="mb-3">
+                      <div className="text-xs text-gray-600 mb-1">Liquidation Progress</div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div className="bg-purple-600 h-2 rounded-full" style={{ width: '30%' }}></div>
+                      </div>
+                      <div className="text-xs text-gray-500 mt-1">30%</div>
                     </div>
-                    <div className="flex items-center text-sm">
-                      <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
-                      <span>Currency values in Indian Lakhs (L) format</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <h4 className="text-lg font-semibold text-gray-900 mb-3">System Status</h4>
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm text-gray-600">Last Calculation</span>
-                      <span className="text-sm font-medium text-gray-900">
-                        {new Date().toLocaleString()}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm text-gray-600">Validation Status</span>
-                      <span className="flex items-center text-sm font-medium text-green-600">
-                        <CheckCircle className="w-4 h-4 mr-1" />
-                        All Valid
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">Total Entries</span>
-                      <span className="text-sm font-medium text-gray-900">
-                        {liquidationEntries.length} distributors
-                      </span>
+                    
+                    {/* Liquidation Breakdown */}
+                    <div className="bg-gray-50 rounded p-3">
+                      <div className="text-xs font-medium text-gray-700 mb-2 flex items-center">
+                        <Users className="w-3 h-3 mr-1" />
+                        Liquidated to whom? (Total: 15 Kg)
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="bg-green-100 rounded p-2 text-center">
+                          <div className="text-xs text-green-600">🌾 Farmers</div>
+                          <div className="font-bold text-green-800">15</div>
+                          <div className="text-xs text-green-600">Direct farmer sales</div>
+                        </div>
+                        <div className="bg-blue-100 rounded p-2 text-center">
+                          <div className="text-xs text-blue-600">🏪 Retailers</div>
+                          <div className="font-bold text-blue-800">15</div>
+                          <div className="text-xs text-blue-600">
+                            • Green Agro Store (RET001): 10
+                          </div>
+                          <div className="text-xs text-blue-600">
+                            • Sunrise Traders (RET002): 5
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
+            </div>
+
+            <div className="flex gap-3 p-6 border-t bg-white">
+              <button
+                onClick={() => setStockVerificationModal({ isOpen: false, entry: null })}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  alert('Stock updates saved successfully!');
+                  setStockVerificationModal({ isOpen: false, entry: null });
+                }}
+                className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+              >
+                Save Updates
+              </button>
             </div>
           </div>
         </div>
@@ -823,6 +851,84 @@ const Liquidation: React.FC = () => {
                     <div className="flex justify-between text-sm">
                       <span>Urea 25kg Bag</span>
                       <span>5,000 Kg</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Business Logic Modal */}
+      {showBusinessLogicModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
+            <div className="flex items-center justify-between p-6 border-b">
+              <h3 className="text-xl font-semibold text-gray-900">Business Logic & Calculations</h3>
+              <button
+                onClick={() => setShowBusinessLogicModal(false)}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+              <div className="space-y-6">
+                <div>
+                  <h4 className="text-lg font-semibold text-gray-900 mb-3">Core Business Formulas</h4>
+                  <div className="space-y-3">
+                    <div className="bg-blue-50 p-4 rounded-lg">
+                      <h5 className="font-medium text-blue-900">Balance Stock Calculation</h5>
+                      <p className="text-blue-800 text-sm mt-1">
+                        Balance Stock = Opening Stock + YTD Net Sales - Liquidation
+                      </p>
+                      <p className="text-blue-600 text-xs mt-2">
+                        Example: 210 = 40 + 310 - 140
+                      </p>
+                    </div>
+                    
+                    <div className="bg-green-50 p-4 rounded-lg">
+                      <h5 className="font-medium text-green-900">Liquidation Percentage</h5>
+                      <p className="text-green-800 text-sm mt-1">
+                        Liquidation % = (Liquidation ÷ (Opening Stock + YTD Net Sales)) × 100
+                      </p>
+                      <p className="text-green-600 text-xs mt-2">
+                        Example: 40% = (140 ÷ (40 + 310)) × 100
+                      </p>
+                    </div>
+                    
+                    <div className="bg-purple-50 p-4 rounded-lg">
+                      <h5 className="font-medium text-purple-900">Target Achievement</h5>
+                      <p className="text-purple-800 text-sm mt-1">
+                        Target Achievement = (Current Liquidation % ÷ Target %) × 100
+                      </p>
+                      <p className="text-purple-600 text-xs mt-2">
+                        Target: 50% liquidation rate benchmark
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-lg font-semibold text-gray-900 mb-3">Validation Rules</h4>
+                  <div className="space-y-2">
+                    <div className="flex items-center text-sm">
+                      <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
+                      <span>Balance Stock = Opening + YTD Sales - Liquidation</span>
+                    </div>
+                    <div className="flex items-center text-sm">
+                      <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
+                      <span>Liquidation % = Liquidation / Total Available Stock</span>
+                    </div>
+                    <div className="flex items-center text-sm">
+                      <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
+                      <span>All values must be non-negative</span>
+                    </div>
+                    <div className="flex items-center text-sm">
+                      <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
+                      <span>Currency values in Indian Lakhs (L) format</span>
                     </div>
                   </div>
                 </div>
