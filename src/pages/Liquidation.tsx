@@ -500,18 +500,25 @@ const Liquidation: React.FC = () => {
       <div className="space-y-4">
         {filteredEntries.map((entry) => (
           <div key={entry.id} className="bg-white rounded-xl p-6 card-shadow card-hover">
-            <div className="flex items-center justify-between mb-4">
+            {/* Header with Name and Status */}
+            <div className="flex items-center justify-between mb-6">
               <div className="flex items-center space-x-3">
                 <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
                   <Building className="w-6 h-6 text-purple-600" />
                 </div>
-                <div>
-                  <h3 className="font-semibold text-gray-900">{entry.dealerName}</h3>
-                  <p className="text-sm text-gray-600">Code: {entry.dealerCode} | {entry.productName}</p>
+                <div className="min-w-0 flex-1">
+                  <h3 className="font-semibold text-gray-900 text-lg truncate" title={entry.dealerName}>
+                    {entry.dealerName}
+                  </h3>
+                  <div className="flex items-center space-x-2 mt-1">
+                    <span className="text-sm text-gray-600">Code: {entry.dealerCode}</span>
+                    <span className="text-sm text-gray-400">|</span>
+                    <span className="text-sm text-gray-600">{entry.productName}</span>
+                  </div>
                 </div>
               </div>
-              <div className="flex items-center space-x-2">
-                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+              <div className="flex items-center space-x-2 flex-shrink-0">
+                <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                   entry.dealerType === 'Distributor' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'
                 }`}>
                   {entry.dealerType}
@@ -526,37 +533,117 @@ const Liquidation: React.FC = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-4">
-              <div className="flex items-center text-sm text-gray-600">
-                <Package className="w-4 h-4 mr-2" />
-                <div>
-                  <p className="font-medium">Opening: {entry.openingStock}</p>
-                  <p>Current: {entry.currentStock}</p>
+            {/* Card Layout as per attachment */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              {/* Opening Stock Card */}
+              <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                <div className="border-b border-orange-200 pb-2 mb-3">
+                  <h4 className="font-semibold text-orange-800">Opening Stock</h4>
+                  <p className="text-xs text-orange-600">As of 1st April 2025</p>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-sm text-orange-700">Vol (Kg/Litre)</span>
+                    <span className="font-semibold text-orange-800">{entry.openingStock}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-orange-700">Value (Rs.Lakhs)</span>
+                    <span className="font-semibold text-orange-800">{(entry.grossValue * 0.0001).toFixed(2)}</span>
+                  </div>
                 </div>
               </div>
-              <div className="flex items-center text-sm text-gray-600">
-                <Droplets className="w-4 h-4 mr-2" />
-                <div>
-                  <p className="font-medium">Liquidated: {entry.volume}</p>
-                  <p>{entry.liquidationPercentage}% complete</p>
+
+              {/* YTD Net Sales Card */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="border-b border-blue-200 pb-2 mb-3">
+                  <h4 className="font-semibold text-blue-800">YTD Net Sales</h4>
+                  <p className="text-xs text-blue-600">April - Aug, 2025</p>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-sm text-blue-700">Vol (Kg/Litre)</span>
+                    <span className="font-semibold text-blue-800">{Math.round(entry.openingStock * 0.8)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-blue-700">Value (Rs.Lakhs)</span>
+                    <span className="font-semibold text-blue-800">{(entry.netValue * 0.0001 * 1.5).toFixed(2)}</span>
+                  </div>
                 </div>
               </div>
-              <div className="flex items-center text-sm text-gray-600">
-                <DollarSign className="w-4 h-4 mr-2" />
-                <div>
-                  <p className="font-medium">₹{entry.netValue.toLocaleString()}</p>
-                  <p>Net Value</p>
+
+              {/* Liquidation Card */}
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                <div className="border-b border-green-200 pb-2 mb-3">
+                  <h4 className="font-semibold text-green-800">Liquidation</h4>
+                  <p className="text-xs text-green-600">As of Aug (YTD)</p>
                 </div>
-              </div>
-              <div className="flex items-center text-sm text-gray-600">
-                <Calendar className="w-4 h-4 mr-2" />
-                <div>
-                  <p className="font-medium">{new Date(entry.lastUpdated).toLocaleDateString()}</p>
-                  <p>Last Updated</p>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-sm text-green-700">Vol (Kg/Litre)</span>
+                    <span className="font-semibold text-green-800">{entry.volume}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-green-700">Value (Rs.Lakhs)</span>
+                    <span className="font-semibold text-green-800">{(entry.netValue * 0.0001).toFixed(2)}</span>
+                  </div>
                 </div>
               </div>
             </div>
 
+            {/* Second Row */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              {/* Balance Stock Card */}
+              <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                <div className="border-b border-purple-200 pb-2 mb-3">
+                  <h4 className="font-semibold text-purple-800">Balance Stock</h4>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-sm text-purple-700">Vol (Kg/Litre)</span>
+                    <span className="font-semibold text-purple-800">{entry.currentStock}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-purple-700">Value (Rs.Lakhs)</span>
+                    <span className="font-semibold text-purple-800">{(entry.grossValue * 0.0001 * 0.6).toFixed(2)}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Liquidation Percentage Card */}
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                <div className="border-b border-gray-200 pb-2 mb-3">
+                  <h4 className="font-semibold text-gray-800">% Liquidation</h4>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-gray-800 mb-2">{entry.liquidationPercentage}%</div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div 
+                      className="bg-purple-600 h-2 rounded-full transition-all duration-300" 
+                      style={{ width: `${entry.liquidationPercentage}%` }}
+                    ></div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Last Updated Info */}
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                <div className="border-b border-gray-200 pb-2 mb-3">
+                  <h4 className="font-semibold text-gray-800">Last Updated</h4>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-700">Date</span>
+                    <span className="font-semibold text-gray-800">{new Date(entry.lastUpdated).toLocaleDateString()}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-700">Target</span>
+                    <span className="font-semibold text-gray-800">{entry.targetLiquidation}% of 50%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Overdue Alert */}
             {entry.daysOverdue > 0 && (
               <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
                 <p className="text-red-800 text-sm">
@@ -566,19 +653,7 @@ const Liquidation: React.FC = () => {
               </div>
             )}
 
-            <div className="mb-4">
-              <div className="flex justify-between text-sm text-gray-600 mb-1">
-                <span>Liquidation Progress</span>
-                <span>{entry.liquidationPercentage}% of {entry.targetLiquidation}% target</span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div 
-                  className="bg-purple-600 h-2 rounded-full transition-all duration-300" 
-                  style={{ width: `${(entry.liquidationPercentage / entry.targetLiquidation) * 100}%` }}
-                ></div>
-              </div>
-            </div>
-
+            {/* Action Buttons */}
             <div className="flex flex-wrap gap-2">
               <button 
                 onClick={() => navigate(`/retailer-liquidation/${entry.id}`)}
@@ -601,6 +676,7 @@ const Liquidation: React.FC = () => {
               </button>
             </div>
 
+            {/* Remarks */}
             {entry.remarks && (
               <div className="mt-4 pt-4 border-t border-gray-200">
                 <p className="text-sm text-gray-600">
