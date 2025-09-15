@@ -829,6 +829,7 @@ const RetailerLiquidation: React.FC = () => {
               >
                 <X className="w-5 h-5" />
               </button>
+            </div>
             <p className="text-sm text-gray-600 mb-4">Overall Performance</p>
             
             <div className="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
@@ -964,13 +965,14 @@ const RetailerLiquidation: React.FC = () => {
                 Cancel
               </button>
               <button
-                style={{ width: `28%` }}
+                onClick={handleAddTransaction}
                 disabled={
                   newTransaction.quantity <= 0 || 
                   (newTransaction.recipientType === 'Retailer' && (!newTransaction.recipientName || !newTransaction.recipientPhone))
                 }
                 className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
+                Add Transaction
               </button>
             </div>
           </div>
