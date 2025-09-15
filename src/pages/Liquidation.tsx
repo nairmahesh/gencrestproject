@@ -81,6 +81,85 @@ const Liquidation: React.FC = () => {
   const [typeFilter, setTypeFilter] = useState('All');
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedMetric, setSelectedMetric] = useState<string>('');
+  const [showVerifyModal, setShowVerifyModal] = useState(false);
+  const [selectedDistributor, setSelectedDistributor] = useState<string>('');
+  const [stockUpdates, setStockUpdates] = useState<{[key: string]: number}>({});
+
+  // Sample product and SKU data for verification
+  const productData = [
+    {
+      id: 'P001',
+      productCode: 'FERT001',
+      productName: 'DAP (Di-Ammonium Phosphate)',
+      category: 'Fertilizers',
+      skus: [
+        {
+          id: 'S001',
+          skuCode: 'DAP-25KG',
+          skuName: 'DAP 25kg Bag',
+          unit: 'Kg',
+          assignedStock: 50,
+          currentStock: 35,
+          lastUpdated: '2024-01-20'
+        },
+        {
+          id: 'S002',
+          skuCode: 'DAP-50KG',
+          skuName: 'DAP 50kg Bag',
+          unit: 'Kg',
+          assignedStock: 40,
+          currentStock: 25,
+          lastUpdated: '2024-01-19'
+        }
+      ]
+    },
+    {
+      id: 'P002',
+      productCode: 'UREA001',
+      productName: 'Urea',
+      category: 'Fertilizers',
+      skus: [
+        {
+          id: 'S003',
+          skuCode: 'UREA-25KG',
+          skuName: 'Urea 25kg Bag',
+          unit: 'Kg',
+          assignedStock: 60,
+          currentStock: 45,
+          lastUpdated: '2024-01-20'
+        },
+        {
+          id: 'S004',
+          skuCode: 'UREA-50KG',
+          skuName: 'Urea 50kg Bag',
+          unit: 'Kg',
+          assignedStock: 50,
+          currentStock: 35,
+          lastUpdated: '2024-01-18'
+        }
+      ]
+    }
+  ];
+
+  const handleVerifyClick = (distributorId: string) => {
+    setSelectedDistributor(distributorId);
+    setShowVerifyModal(true);
+  };
+
+  const handleStockUpdate = (skuId: string, newStock: number) => {
+    setStockUpdates(prev => ({
+      ...prev,
+      [skuId]: newStock
+    }));
+  };
+
+  const handleSaveStockUpdates = () => {
+    // Here you would typically send the updates to your backend
+    console.log('Saving stock updates:', stockUpdates);
+    alert('Stock updates saved successfully!');
+    setShowVerifyModal(false);
+    setStockUpdates({});
+  };
 
   // Sample liquidation data
   const liquidationEntries: LiquidationEntry[] = [
@@ -608,7 +687,7 @@ const Liquidation: React.FC = () => {
                   </div>
                   <div className="text-center mt-2">
                     <button
-                      onClick={() => handleMetricClick('balance')}
+                      onClick={() => handleVerifyClick(entry.id)}
                       className="px-2 py-1 bg-purple-600 text-white text-xs rounded hover:bg-purple-700 transition-colors"
                     >
                       Verify
@@ -679,6 +758,141 @@ const Liquidation: React.FC = () => {
         <div className="text-center py-12">
           <Package className="w-12 h-12 text-gray-400 mx-auto mb-4" />
           <p className="text-gray-500">No liquidation entries found</p>
+        </div>
+      )}
+
+      {/* Verify Modal - Product/SKU Details with Stock Update */}
+      {showVerifyModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl w-full max-w-6xl max-h-[90vh] overflow-hidden">
+            <div className="flex items-center justify-between p-6 border-b">
+              <div>
+                <h3 className="text-xl font-semibold text-gray-900">Stock Verification</h3>
+                <p className="text-sm text-gray-600 mt-1">Product & SKU wise stock details - Update current stock</p>
+              </div>
+              <button
+                onClick={() => setShowVerifyModal(false)}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-180px)]">
+              <div className="space-y-6">
+                {productData.map((product) => (
+                  <div key={product.id} className="bg-gray-50 rounded-xl p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <h4 className="text-lg font-semibold text-gray-900">{product.productName}</h4>
+                        <p className="text-sm text-gray-600">Code: {product.productCode} | Category: {product.category}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm text-gray-600">Total SKUs: {product.skus.length}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 gap-4">
+                      {product.skus.map((sku) => (
+                        <div key={sku.id} className="bg-white rounded-lg p-4 border border-gray-200">
+                          <div className="grid grid-cols-1 md:grid-cols-6 gap-4 items-center">
+                            {/* SKU Info */}
+                            <div className="md:col-span-2">
+                              <h5 className="font-medium text-gray-900">{sku.skuName}</h5>
+                              <p className="text-sm text-gray-600">{sku.skuCode}</p>
+                              <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                                {sku.unit}
+                              </span>
+                            </div>
+                            
+                            {/* Assigned Stock */}
+                            <div className="text-center">
+                              <p className="text-sm text-gray-600">Assigned</p>
+                              <p className="text-lg font-semibold text-orange-600">{sku.assignedStock}</p>
+                            </div>
+                            
+                            {/* Current Stock - Editable */}
+                            <div className="text-center">
+                              <p className="text-sm text-gray-600">Current Stock</p>
+                              <input
+                                type="number"
+                                value={stockUpdates[sku.id] !== undefined ? stockUpdates[sku.id] : sku.currentStock}
+                                onChange={(e) => handleStockUpdate(sku.id, parseInt(e.target.value) || 0)}
+                                className="w-20 text-center text-lg font-semibold text-purple-600 border-2 border-purple-300 rounded-lg focus:border-purple-500 focus:outline-none"
+                                min="0"
+                                max={sku.assignedStock}
+                              />
+                            </div>
+                            
+                            {/* Liquidated */}
+                            <div className="text-center">
+                              <p className="text-sm text-gray-600">Liquidated</p>
+                              <p className="text-lg font-semibold text-green-600">
+                                {sku.assignedStock - (stockUpdates[sku.id] !== undefined ? stockUpdates[sku.id] : sku.currentStock)}
+                              </p>
+                            </div>
+                            
+                            {/* Last Updated */}
+                            <div className="text-center">
+                              <p className="text-sm text-gray-600">Last Updated</p>
+                              <p className="text-sm text-gray-800">{new Date(sku.lastUpdated).toLocaleDateString()}</p>
+                              {stockUpdates[sku.id] !== undefined && (
+                                <span className="text-xs text-green-600 font-medium">Modified</span>
+                              )}
+                            </div>
+                          </div>
+                          
+                          {/* Progress Bar */}
+                          <div className="mt-4">
+                            <div className="flex justify-between text-xs text-gray-600 mb-1">
+                              <span>Liquidation Progress</span>
+                              <span>
+                                {Math.round(((sku.assignedStock - (stockUpdates[sku.id] !== undefined ? stockUpdates[sku.id] : sku.currentStock)) / sku.assignedStock) * 100)}%
+                              </span>
+                            </div>
+                            <div className="w-full bg-gray-200 rounded-full h-2">
+                              <div
+                                className="bg-gradient-to-r from-green-500 to-purple-500 h-2 rounded-full transition-all duration-300"
+                                style={{ 
+                                  width: `${Math.round(((sku.assignedStock - (stockUpdates[sku.id] !== undefined ? stockUpdates[sku.id] : sku.currentStock)) / sku.assignedStock) * 100)}%` 
+                                }}
+                              ></div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="flex justify-between items-center p-6 border-t bg-gray-50">
+              <div className="text-sm text-gray-600">
+                {Object.keys(stockUpdates).length > 0 && (
+                  <span className="text-orange-600 font-medium">
+                    {Object.keys(stockUpdates).length} items modified
+                  </span>
+                )}
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowVerifyModal(false)}
+                  className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSaveStockUpdates}
+                  disabled={Object.keys(stockUpdates).length === 0}
+                  className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Save Updates
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
