@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Package, User, MapPin, Phone, CheckCircle, Clock, AlertTriangle, FileSignature as Signature, Save, Eye, Building, Target, TrendingUp, Users, ShoppingCart } from 'lucide-react';
+import { ArrowLeft, Package, User, MapPin, Phone, CheckCircle, Clock, AlertTriangle, FileSignature as Signature, Save, Eye, Building, Target, TrendingUp, Users, ShoppingCart, Info, Boxes } from 'lucide-react';
 import { SignatureCapture } from '../components/SignatureCapture';
 
 interface RetailerStock {
@@ -44,6 +44,7 @@ const RetailerLiquidation: React.FC = () => {
   const [showSignatureModal, setShowSignatureModal] = useState(false);
   const [selectedRetailer, setSelectedRetailer] = useState<string | null>(null);
   const [stockUpdateData, setStockUpdateData] = useState<{[key: string]: {current: number, liquidated: number, returned: number}}>({});
+  const [activeTab, setActiveTab] = useState<'contact' | 'stock'>('contact');
 
   // Sample data for retailer liquidation
   const retailerData: RetailerLiquidationData = {
@@ -160,254 +161,341 @@ const RetailerLiquidation: React.FC = () => {
         </div>
       </div>
 
-      {/* Retailer Information Card */}
-      <div className="bg-white rounded-xl p-6 card-shadow">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-              <Building className="w-6 h-6 text-green-600" />
-            </div>
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900">{retailerData.retailerName}</h2>
-              <p className="text-gray-600">Code: {retailerData.retailerCode}</p>
-            </div>
-          </div>
-          <span className={`px-3 py-1 rounded-full text-sm font-medium flex items-center ${getStatusColor(retailerData.liquidationStatus)}`}>
-            {getStatusIcon(retailerData.liquidationStatus)}
-            <span className="ml-1">{retailerData.liquidationStatus}</span>
-          </span>
+      {/* Tab Navigation */}
+      <div className="bg-white rounded-xl shadow-lg border border-gray-200">
+        <div className="flex border-b border-gray-200">
+          <button
+            onClick={() => setActiveTab('contact')}
+            className={`flex-1 flex items-center justify-center px-6 py-4 text-sm font-medium transition-colors ${
+              activeTab === 'contact'
+                ? 'text-purple-600 border-b-2 border-purple-600 bg-purple-50'
+                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+            }`}
+          >
+            <Info className="w-4 h-4 mr-2" />
+            Contact & Details
+          </button>
+          <button
+            onClick={() => setActiveTab('stock')}
+            className={`flex-1 flex items-center justify-center px-6 py-4 text-sm font-medium transition-colors ${
+              activeTab === 'stock'
+                ? 'text-purple-600 border-b-2 border-purple-600 bg-purple-50'
+                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+            }`}
+          >
+            <Boxes className="w-4 h-4 mr-2" />
+            SKU Verification
+          </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-          <div className="flex items-center text-sm text-gray-600">
-            <Phone className="w-4 h-4 mr-2" />
-            {retailerData.retailerPhone}
-          </div>
-          <div className="flex items-center text-sm text-gray-600">
-            <MapPin className="w-4 h-4 mr-2" />
-            {retailerData.retailerAddress}
-          </div>
-          <div className="flex items-center text-sm text-gray-600">
-            <User className="w-4 h-4 mr-2" />
-            Last Visit: {retailerData.lastVisitDate}
-          </div>
-        </div>
+        {/* Tab Content */}
+        <div className="p-6">
+          {activeTab === 'contact' && (
+            <div className="space-y-6">
+              {/* Retailer Information */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Contact Information */}
+                <div className="bg-gray-50 rounded-xl p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <Building className="w-5 h-5 mr-2 text-purple-600" />
+                    Contact Information
+                  </h3>
+                  <div className="space-y-4">
+                    <div className="flex items-center">
+                      <User className="w-4 h-4 mr-3 text-gray-500" />
+                      <div>
+                        <p className="text-sm text-gray-600">Name</p>
+                        <p className="font-medium text-gray-900">{retailerData.retailerName}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center">
+                      <Package className="w-4 h-4 mr-3 text-gray-500" />
+                      <div>
+                        <p className="text-sm text-gray-600">Code</p>
+                        <p className="font-medium text-gray-900">{retailerData.retailerCode}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center">
+                      <Phone className="w-4 h-4 mr-3 text-gray-500" />
+                      <div>
+                        <p className="text-sm text-gray-600">Phone</p>
+                        <p className="font-medium text-gray-900">{retailerData.retailerPhone}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start">
+                      <MapPin className="w-4 h-4 mr-3 text-gray-500 mt-1" />
+                      <div>
+                        <p className="text-sm text-gray-600">Address</p>
+                        <p className="font-medium text-gray-900">{retailerData.retailerAddress}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
-        <div className="p-4 bg-blue-50 rounded-lg">
-          <h3 className="font-medium text-blue-800 mb-2">Assigned by Distributor</h3>
-          <p className="text-sm text-blue-700">
-            <strong>{retailerData.distributorName}</strong> (Code: {retailerData.distributorCode})
-          </p>
-        </div>
-      </div>
+                {/* Territory Information */}
+                <div className="bg-blue-50 rounded-xl p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <MapPin className="w-5 h-5 mr-2 text-blue-600" />
+                    Territory Information
+                  </h3>
+                  <div className="space-y-4">
+                    <div>
+                      <p className="text-sm text-gray-600">Assigned by Distributor</p>
+                      <p className="font-medium text-blue-800">{retailerData.distributorName}</p>
+                      <p className="text-sm text-blue-600">Code: {retailerData.distributorCode}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">Last Visit</p>
+                      <p className="font-medium text-gray-900">{retailerData.lastVisitDate}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">Status</p>
+                      <span className={`inline-flex px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(retailerData.liquidationStatus)}`}>
+                        {getStatusIcon(retailerData.liquidationStatus)}
+                        <span className="ml-1">{retailerData.liquidationStatus}</span>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
-        <div className="bg-white rounded-xl p-6 card-shadow">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Total Assigned</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {retailerData.stockDetails.reduce((sum, item) => sum + item.assignedQuantity, 0)} Units
-              </p>
-            </div>
-            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-              <Package className="w-6 h-6 text-blue-600" />
-            </div>
-          </div>
-        </div>
+              {/* Stock Summary Cards */}
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-4 text-center border border-orange-200">
+                  <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center mx-auto mb-2">
+                    <Package className="w-4 h-4 text-white" />
+                  </div>
+                  <div className="text-2xl font-bold text-orange-900">
+                    {retailerData.stockDetails.reduce((sum, item) => sum + item.assignedQuantity, 0)}
+                  </div>
+                  <div className="text-sm text-orange-700">Total Assigned</div>
+                </div>
 
-        <div className="bg-white rounded-xl p-6 card-shadow">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Current Stock</p>
-              <p className="text-2xl font-bold text-yellow-600">
-                {retailerData.stockDetails.reduce((sum, item) => sum + item.currentStock, 0)} Units
-              </p>
-            </div>
-            <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
-              <Clock className="w-6 h-6 text-yellow-600" />
-            </div>
-          </div>
-        </div>
+                <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-4 text-center border border-yellow-200">
+                  <div className="w-8 h-8 bg-yellow-500 rounded-lg flex items-center justify-center mx-auto mb-2">
+                    <Clock className="w-4 h-4 text-white" />
+                  </div>
+                  <div className="text-2xl font-bold text-yellow-900">
+                    {retailerData.stockDetails.reduce((sum, item) => sum + item.currentStock, 0)}
+                  </div>
+                  <div className="text-sm text-yellow-700">Current Stock</div>
+                </div>
 
-        <div className="bg-white rounded-xl p-6 card-shadow">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Liquidated</p>
-              <p className="text-2xl font-bold text-green-600">
-                {retailerData.stockDetails.reduce((sum, item) => sum + item.liquidatedToFarmer, 0)} Units
-              </p>
-            </div>
-            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-              <CheckCircle className="w-6 h-6 text-green-600" />
-            </div>
-          </div>
-        </div>
+                <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 text-center border border-green-200">
+                  <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center mx-auto mb-2">
+                    <CheckCircle className="w-4 h-4 text-white" />
+                  </div>
+                  <div className="text-2xl font-bold text-green-900">
+                    {retailerData.stockDetails.reduce((sum, item) => sum + item.liquidatedToFarmer, 0)}
+                  </div>
+                  <div className="text-sm text-green-700">Liquidated</div>
+                </div>
 
-        <div className="bg-white rounded-xl p-6 card-shadow">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Balance Stock</p>
-              <p className="text-2xl font-bold text-orange-600">
-                {retailerData.stockDetails.reduce((sum, item) => sum + (item.assignedQuantity - item.currentStock - item.liquidatedToFarmer), 0)} Units
-              </p>
-            </div>
-            <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
-              <Package className="w-6 h-6 text-orange-600" />
-            </div>
-          </div>
-        </div>
+                <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 text-center border border-purple-200">
+                  <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center mx-auto mb-2">
+                    <Package className="w-4 h-4 text-white" />
+                  </div>
+                  <div className="text-2xl font-bold text-purple-900">
+                    {retailerData.stockDetails.reduce((sum, item) => sum + (item.assignedQuantity - item.currentStock - item.liquidatedToFarmer), 0)}
+                  </div>
+                  <div className="text-sm text-purple-700">Balance Stock</div>
+                </div>
 
-        <div className="bg-white rounded-xl p-6 card-shadow">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Liquidation %</p>
-              <p className="text-2xl font-bold text-purple-600">{retailerData.liquidationPercentage}%</p>
+                <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl p-4 text-center border border-indigo-200">
+                  <div className="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center mx-auto mb-2">
+                    <Target className="w-4 h-4 text-white" />
+                  </div>
+                  <div className="text-2xl font-bold text-indigo-900">{retailerData.liquidationPercentage}%</div>
+                  <div className="text-sm text-indigo-700">Liquidation Rate</div>
+                </div>
+              </div>
             </div>
-            <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-              <Target className="w-6 h-6 text-purple-600" />
-            </div>
-          </div>
-        </div>
-      </div>
+          )}
 
-      {/* Stock Details */}
-      <div className="bg-white rounded-xl p-6 card-shadow">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Product & SKU wise Stock Details</h3>
-        
-        <div className="space-y-4">
-          {retailerData.stockDetails.map((stock) => (
-            <div key={stock.skuCode} className="border border-gray-200 rounded-lg p-4">
-              <div className="flex items-center justify-between mb-4">
+          {activeTab === 'stock' && (
+            <div className="space-y-6">
+              {/* SKU Verification Header */}
+              <div className="flex items-center justify-between">
                 <div>
-                  <h4 className="font-medium text-gray-900">{stock.skuName}</h4>
-                  <p className="text-sm text-gray-600">SKU: {stock.skuCode} | Unit: {stock.unit}</p>
+                  <h3 className="text-xl font-semibold text-gray-900 flex items-center">
+                    <Boxes className="w-6 h-6 mr-2 text-purple-600" />
+                    Product & SKU Verification
+                  </h3>
+                  <p className="text-sm text-gray-600 mt-1">Update stock quantities and track liquidation progress</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm text-gray-600">Assigned Date</p>
-                  <p className="font-medium">{new Date(stock.assignedDate).toLocaleDateString()}</p>
+                  <p className="text-sm text-gray-600">Total Products</p>
+                  <p className="text-2xl font-bold text-purple-600">{retailerData.stockDetails.length}</p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4">
-                <div className="text-center p-3 bg-blue-50 rounded-lg">
-                  <p className="text-xs text-blue-600 font-medium">Assigned by Distributor</p>
-                  <p className="text-lg font-bold text-blue-800">{stock.assignedQuantity} {stock.unit}</p>
-                  <p className="text-xs text-blue-600">₹{stock.totalValue.toLocaleString()}</p>
-                </div>
+              {/* SKU Details - Simplified and Cleaner */}
+              <div className="space-y-6">
+                {retailerData.stockDetails.map((stock) => (
+                  <div key={stock.skuCode} className="bg-white border-2 border-gray-200 rounded-2xl p-6 hover:border-purple-300 transition-colors">
+                    {/* Product Header */}
+                    <div className="flex items-center justify-between mb-6">
+                      <div className="flex items-center space-x-4">
+                        <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                          <Package className="w-6 h-6 text-purple-600" />
+                        </div>
+                        <div>
+                          <h4 className="text-lg font-semibold text-gray-900">{stock.skuName}</h4>
+                          <div className="flex items-center space-x-4 text-sm text-gray-600">
+                            <span className="bg-gray-100 px-2 py-1 rounded-full">SKU: {stock.skuCode}</span>
+                            <span className="bg-blue-100 px-2 py-1 rounded-full text-blue-700">Unit: {stock.unit}</span>
+                            <span className="bg-green-100 px-2 py-1 rounded-full text-green-700">₹{stock.unitPrice}/unit</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm text-gray-600">Assigned Date</p>
+                        <p className="font-medium text-gray-900">{new Date(stock.assignedDate).toLocaleDateString()}</p>
+                      </div>
+                    </div>
 
-                <div className="text-center p-3 bg-yellow-50 rounded-lg">
-                  <p className="text-xs text-yellow-600 font-medium">Current Stock</p>
-                  <div>
-                    <span className="text-lg font-bold text-yellow-800">
-                      {stockUpdateData[stock.skuCode]?.current ?? stock.currentStock} {stock.unit}
-                    </span>
-                  </div>
-                  <p className="text-xs text-yellow-600 mt-1">(Non-editable)</p>
-                </div>
+                    {/* Stock Quantities - Simplified Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                      {/* Assigned by Distributor */}
+                      <div className="text-center">
+                        <div className="bg-orange-50 rounded-xl p-4 border border-orange-200">
+                          <div className="text-xs font-medium text-orange-600 mb-2">ASSIGNED BY DISTRIBUTOR</div>
+                          <div className="text-3xl font-bold text-orange-800 mb-1">{stock.assignedQuantity}</div>
+                          <div className="text-sm text-orange-600">{stock.unit}</div>
+                          <div className="text-xs text-orange-500 mt-2">₹{stock.totalValue.toLocaleString()}</div>
+                        </div>
+                      </div>
 
-                <div className="text-center p-3 bg-green-50 rounded-lg">
-                  <p className="text-xs text-green-600 font-medium">Liquidated to Farmer</p>
-                  <div>
-                    <input
-                      type="number"
-                      value={stockUpdateData[stock.skuCode]?.liquidated ?? stock.liquidatedToFarmer}
-                      onChange={(e) => handleStockUpdate(stock.skuCode, 'liquidated', parseInt(e.target.value) || 0)}
-                      className="w-16 text-center text-lg font-bold text-green-800 bg-transparent border-none focus:outline-none"
-                      min="0"
-                      max={stock.assignedQuantity - (stockUpdateData[stock.skuCode]?.current ?? stock.currentStock)}
-                    />
-                    <span className="text-lg font-bold text-green-800"> {stock.unit}</span>
-                  </div>
-                </div>
+                      {/* Current Stock */}
+                      <div className="text-center">
+                        <div className="bg-yellow-50 rounded-xl p-4 border border-yellow-200">
+                          <div className="text-xs font-medium text-yellow-600 mb-2">CURRENT STOCK</div>
+                          <div className="text-3xl font-bold text-yellow-800 mb-1">
+                            {stockUpdateData[stock.skuCode]?.current ?? stock.currentStock}
+                          </div>
+                          <div className="text-sm text-yellow-600">{stock.unit}</div>
+                          <div className="text-xs text-yellow-500 mt-2">(Non-editable)</div>
+                        </div>
+                      </div>
 
-                <div className="text-center p-3 bg-purple-50 rounded-lg">
-                  <p className="text-xs text-purple-600 font-medium">Return to Distributor</p>
-                  <div>
-                    <input
-                      type="number"
-                      value={stockUpdateData[stock.skuCode]?.returned ?? stock.returnToDistributor}
-                      onChange={(e) => handleStockUpdate(stock.skuCode, 'returned', parseInt(e.target.value) || 0)}
-                      className="w-16 text-center text-lg font-bold text-purple-800 bg-transparent border-none focus:outline-none"
-                      min="0"
-                      max={Math.max(0, stock.assignedQuantity - (stockUpdateData[stock.skuCode]?.current ?? stock.currentStock) - (stockUpdateData[stock.skuCode]?.liquidated ?? stock.liquidatedToFarmer))}
-                    />
-                    <span className="text-lg font-bold text-purple-800"> {stock.unit}</span>
-                  </div>
-                  <p className="text-xs text-purple-600">
-                    Balance Available: {Math.max(0, stock.assignedQuantity - (stockUpdateData[stock.skuCode]?.current ?? stock.currentStock) - (stockUpdateData[stock.skuCode]?.liquidated ?? stock.liquidatedToFarmer))} {stock.unit}
-                  </p>
-                  <p className="text-xs text-purple-500 mt-1">
-                    (Only balance stock can be returned)
-                  </p>
-                </div>
+                      {/* Liquidated to Farmer */}
+                      <div className="text-center">
+                        <div className="bg-green-50 rounded-xl p-4 border border-green-200">
+                          <div className="text-xs font-medium text-green-600 mb-2">LIQUIDATED TO FARMER</div>
+                          <div className="flex items-center justify-center mb-1">
+                            <input
+                              type="number"
+                              value={stockUpdateData[stock.skuCode]?.liquidated ?? stock.liquidatedToFarmer}
+                              onChange={(e) => handleStockUpdate(stock.skuCode, 'liquidated', parseInt(e.target.value) || 0)}
+                              className="w-20 text-center text-2xl font-bold text-green-800 bg-transparent border-2 border-green-300 rounded-lg focus:border-green-500 focus:outline-none"
+                              min="0"
+                              max={stock.assignedQuantity - (stockUpdateData[stock.skuCode]?.current ?? stock.currentStock)}
+                            />
+                          </div>
+                          <div className="text-sm text-green-600">{stock.unit}</div>
+                        </div>
+                      </div>
 
-                <div className="text-center p-3 bg-gray-50 rounded-lg">
-                  <p className="text-xs text-gray-600 font-medium">Status</p>
-                  <div className="mt-1">
-                    {((stockUpdateData[stock.skuCode]?.current ?? stock.currentStock) + 
-                      (stockUpdateData[stock.skuCode]?.liquidated ?? stock.liquidatedToFarmer) + 
-                      (stockUpdateData[stock.skuCode]?.returned ?? stock.returnToDistributor)) === stock.assignedQuantity ? (
-                      <CheckCircle className="w-6 h-6 text-green-600 mx-auto" />
-                    ) : ((stockUpdateData[stock.skuCode]?.liquidated ?? stock.liquidatedToFarmer) + 
-                         (stockUpdateData[stock.skuCode]?.returned ?? stock.returnToDistributor)) > 0 ? (
-                      <Clock className="w-6 h-6 text-yellow-600 mx-auto" />
-                    ) : (
-                      <Package className="w-6 h-6 text-blue-600 mx-auto" />
-                    )}
+                      {/* Return to Distributor */}
+                      <div className="text-center">
+                        <div className="bg-purple-50 rounded-xl p-4 border border-purple-200">
+                          <div className="text-xs font-medium text-purple-600 mb-2">RETURN TO DISTRIBUTOR</div>
+                          <div className="flex items-center justify-center mb-1">
+                            <input
+                              type="number"
+                              value={stockUpdateData[stock.skuCode]?.returned ?? stock.returnToDistributor}
+                              onChange={(e) => handleStockUpdate(stock.skuCode, 'returned', parseInt(e.target.value) || 0)}
+                              className="w-20 text-center text-2xl font-bold text-purple-800 bg-transparent border-2 border-purple-300 rounded-lg focus:border-purple-500 focus:outline-none"
+                              min="0"
+                              max={Math.max(0, stock.assignedQuantity - (stockUpdateData[stock.skuCode]?.current ?? stock.currentStock) - (stockUpdateData[stock.skuCode]?.liquidated ?? stock.liquidatedToFarmer))}
+                            />
+                          </div>
+                          <div className="text-sm text-purple-600">{stock.unit}</div>
+                          <div className="text-xs text-purple-500 mt-2">
+                            Balance: {Math.max(0, stock.assignedQuantity - (stockUpdateData[stock.skuCode]?.current ?? stock.currentStock) - (stockUpdateData[stock.skuCode]?.liquidated ?? stock.liquidatedToFarmer))} {stock.unit}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Progress Bar */}
+                    <div className="mb-4">
+                      <div className="flex justify-between text-sm text-gray-600 mb-2">
+                        <span className="font-medium">Liquidation Progress</span>
+                        <span className="font-bold">
+                          {Math.round((((stockUpdateData[stock.skuCode]?.liquidated ?? stock.liquidatedToFarmer) + 
+                                       (stockUpdateData[stock.skuCode]?.returned ?? stock.returnToDistributor)) / stock.assignedQuantity) * 100)}%
+                        </span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-3">
+                        <div
+                          className="bg-gradient-to-r from-green-500 to-purple-500 h-3 rounded-full transition-all duration-500"
+                          style={{ 
+                            width: `${(((stockUpdateData[stock.skuCode]?.liquidated ?? stock.liquidatedToFarmer) + 
+                                       (stockUpdateData[stock.skuCode]?.returned ?? stock.returnToDistributor)) / stock.assignedQuantity) * 100}%` 
+                          }}
+                        ></div>
+                      </div>
+                    </div>
+
+                    {/* Status Indicator */}
+                    <div className="text-center">
+                      <div className="inline-flex items-center space-x-2 px-4 py-2 rounded-full bg-gray-100">
+                        {((stockUpdateData[stock.skuCode]?.current ?? stock.currentStock) + 
+                          (stockUpdateData[stock.skuCode]?.liquidated ?? stock.liquidatedToFarmer) + 
+                          (stockUpdateData[stock.skuCode]?.returned ?? stock.returnToDistributor)) === stock.assignedQuantity ? (
+                          <>
+                            <CheckCircle className="w-4 h-4 text-green-600" />
+                            <span className="text-sm font-medium text-green-700">Complete</span>
+                          </>
+                        ) : ((stockUpdateData[stock.skuCode]?.liquidated ?? stock.liquidatedToFarmer) + 
+                             (stockUpdateData[stock.skuCode]?.returned ?? stock.returnToDistributor)) > 0 ? (
+                          <>
+                            <Clock className="w-4 h-4 text-yellow-600" />
+                            <span className="text-sm font-medium text-yellow-700">In Progress</span>
+                          </>
+                        ) : (
+                          <>
+                            <Package className="w-4 h-4 text-blue-600" />
+                            <span className="text-sm font-medium text-blue-700">Pending</span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Important Note */}
+                    <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                      <p className="text-xs text-blue-700 text-center">
+                        <AlertTriangle className="w-3 h-3 inline mr-1" />
+                        Balance stock must be either liquidated to farmer or returned to distributor
+                      </p>
+                    </div>
                   </div>
-                </div>
+                ))}
               </div>
 
-              {/* Progress Bar */}
-              <div className="mb-2">
-                <div className="flex justify-between text-xs text-gray-500 mb-1">
-                  <span>Liquidation Progress</span>
-                  <span>
-                    {Math.round((((stockUpdateData[stock.skuCode]?.liquidated ?? stock.liquidatedToFarmer) + 
-                                 (stockUpdateData[stock.skuCode]?.returned ?? stock.returnToDistributor)) / stock.assignedQuantity) * 100)}%
-                  </span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div
-                    className="bg-gradient-to-r from-green-600 to-purple-600 h-2 rounded-full transition-all duration-300"
-                    style={{ 
-                      width: `${(((stockUpdateData[stock.skuCode]?.liquidated ?? stock.liquidatedToFarmer) + 
-                                 (stockUpdateData[stock.skuCode]?.returned ?? stock.returnToDistributor)) / stock.assignedQuantity) * 100}%` 
-                    }}
-                  ></div>
-                </div>
-              </div>
-
-              <div className="text-xs text-gray-500 text-center">
-                Balance must be either liquidated to farmer or returned to distributor
+              {/* Action Buttons */}
+              <div className="flex flex-wrap gap-4 pt-6 border-t border-gray-200">
+                <button
+                  onClick={saveStockUpdates}
+                  className="bg-green-600 text-white px-8 py-3 rounded-xl hover:bg-green-700 transition-colors flex items-center font-medium"
+                >
+                  <Save className="w-5 h-5 mr-2" />
+                  Update Stock & Get Signature
+                </button>
+                
+                <button className="border-2 border-gray-300 text-gray-700 px-8 py-3 rounded-xl hover:bg-gray-50 transition-colors flex items-center font-medium">
+                  <Eye className="w-5 h-5 mr-2" />
+                  View History
+                </button>
+                
+                <button className="border-2 border-gray-300 text-gray-700 px-8 py-3 rounded-xl hover:bg-gray-50 transition-colors flex items-center font-medium">
+                  <ArrowLeft className="w-5 h-5 mr-2" />
+                  Process Return
+                </button>
               </div>
             </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Action Buttons */}
-      <div className="bg-white rounded-xl p-6 card-shadow">
-        <div className="flex flex-wrap gap-3">
-          <button
-            onClick={saveStockUpdates}
-            className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center"
-          >
-            <Save className="w-4 h-4 mr-2" />
-            Update Stock & Get Signature
-          </button>
-          
-          <button className="border border-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-50 transition-colors flex items-center">
-            <Eye className="w-4 h-4 mr-2" />
-            View History
-          </button>
-          
-          <button className="border border-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-50 transition-colors flex items-center">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Process Return
-          </button>
+          )}
         </div>
       </div>
 
