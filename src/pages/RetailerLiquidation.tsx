@@ -441,6 +441,67 @@ const RetailerLiquidation: React.FC = () => {
             </div>
             
             <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+              {/* 🐛 DEBUG SECTION - ALWAYS VISIBLE */}
+              <div className="bg-red-100 border border-red-300 rounded-xl p-4 mb-6">
+                <h5 className="text-lg font-semibold text-red-800 mb-2">🐛 DEBUG INFO</h5>
+                <div className="text-sm space-y-1">
+                  <p>Transaction Type: <strong>{transactionType || 'NONE SELECTED'}</strong></p>
+                  <p>Stock Difference: <strong>{stockDifference}</strong></p>
+                  <p>Modal Open: <strong>YES</strong></p>
+                  <p>Retailer Count: <strong>{retailerCount}</strong></p>
+                </div>
+              </div>
+
+              {/* 🧪 RETAILER BREAKDOWN - ALWAYS VISIBLE */}
+              <div className="bg-yellow-100 border border-yellow-300 rounded-xl p-6 mb-6">
+                <h5 className="text-lg font-semibold text-yellow-800 mb-4">🧪 RETAILER BREAKDOWN</h5>
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-sm font-medium text-yellow-700">How many retailers?</span>
+                  <select
+                    value={retailerCount}
+                    onChange={(e) => handleRetailerCountChange(parseInt(e.target.value))}
+                    className="px-3 py-1 border border-yellow-300 rounded-lg"
+                  >
+                    {[1,2,3,4,5].map(num => (
+                      <option key={num} value={num}>{num}</option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div className="space-y-4">
+                  {retailers.slice(0, retailerCount).map((retailer, index) => (
+                    <div key={retailer.id} className="bg-white rounded-lg p-4 border border-yellow-200">
+                      <h6 className="font-semibold text-gray-900 mb-3">Retailer {index + 1}</h6>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Assigned QTY
+                          </label>
+                          <input
+                            type="number"
+                            value={retailer.assignedQty}
+                            onChange={(e) => handleRetailerChange(index, 'assignedQty', parseInt(e.target.value) || 0)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                            placeholder="Enter assigned quantity"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Sold QTY
+                          </label>
+                          <input
+                            type="number"
+                            value={retailer.soldQty}
+                            onChange={(e) => handleRetailerChange(index, 'soldQty', parseInt(e.target.value) || 0)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                            placeholder="Enter sold quantity"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
               {/* 🐛 RED DEBUG SECTION - ALWAYS VISIBLE */}
               <div className="bg-red-100 border border-red-300 rounded-xl p-4 mb-6">
                 <h5 className="text-lg font-semibold text-red-800 mb-2">🐛 DEBUG INFO - ALWAYS VISIBLE</h5>
