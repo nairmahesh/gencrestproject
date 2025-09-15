@@ -228,12 +228,17 @@ const MobileApp: React.FC<MobileAppProps> = ({ children }) => {
 
       {/* Liquidation Percentage */}
       <div className="bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl p-6 shadow-lg text-white">
-        <h4 className="text-lg font-bold mb-2">% Liquidation</h4>
-        <div className="text-5xl font-bold mb-4">28%</div>
-        <div className="w-full bg-white bg-opacity-30 rounded-full h-3">
-          <div className="bg-white h-3 rounded-full transition-all duration-1000" style={{ width: '28%' }}></div>
+        <h4 className="text-lg font-bold mb-2">Liquidation Progress</h4>
+        <div className="text-5xl font-bold mb-2">28%</div>
+        <p className="text-blue-100 text-sm mb-4">Achieved of 50% Target</p>
+        <div className="w-full bg-white bg-opacity-30 rounded-full h-3 mb-2">
+          <div className="bg-white h-3 rounded-full transition-all duration-1000" style={{ width: `${Math.min(100, (28 / 50) * 100)}%` }}></div>
         </div>
-        <p className="text-sm text-blue-100 mt-2">Overall Performance</p>
+        <div className="flex justify-between text-xs text-blue-100">
+          <span>0%</span>
+          <span>Target: 50%</span>
+          <span>100%</span>
+        </div>
       </div>
 
       {/* Quick Actions */}

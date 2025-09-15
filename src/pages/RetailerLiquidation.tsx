@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Package, User, MapPin, Phone, CheckCircle, Clock, AlertTriangle, FileSignature as Signature, Save, Eye, Building, Target, TrendingUp, Users, ShoppingCart, Info, Boxes } from 'lucide-react';
+import { ArrowLeft, Package, User, MapPin, Phone, CheckCircle, Clock, AlertTriangle, FileSignature as Signature, Save, Eye, Building, Target, TrendingUp, Users, ShoppingCart, Info, Boxes, X } from 'lucide-react';
 import { SignatureCapture } from '../components/SignatureCapture';
 
 interface RetailerStock {
@@ -45,7 +45,6 @@ const RetailerLiquidation: React.FC = () => {
   const [selectedRetailer, setSelectedRetailer] = useState<string | null>(null);
   const [stockUpdateData, setStockUpdateData] = useState<{[key: string]: {current: number, liquidated: number, returned: number}}>({});
   const [activeTab, setActiveTab] = useState<'contact' | 'stock'>('contact');
-  const [showExportModal, setShowExportModal] = useState(false);
   const [isUpdatingStock, setIsUpdatingStock] = useState(false);
 
   // Sample data for retailer liquidation
@@ -155,26 +154,33 @@ const RetailerLiquidation: React.FC = () => {
 
   const handleUpdateStock = async () => {
     setIsUpdatingStock(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    console.log('Stock updates saved:', stockUpdateData);
-    alert('Stock quantities updated successfully!');
+    
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Update the actual stock data
+      console.log('Stock updates saved:', stockUpdateData);
+      
+      // Show success message
+      alert('Stock quantities updated successfully!');
+      
+      // Clear the update data since it's now saved
+      setStockUpdateData({});
+      
+    } catch (error) {
+      console.error('Error updating stock:', error);
+      alert('Failed to update stock. Please try again.');
+    }
+    
     setIsUpdatingStock(false);
   };
 
   const handleGetSignature = () => {
+    setSelectedRetailer(retailerData.id);
     setShowSignatureModal(true);
   };
 
-  const handleExport = () => {
-    setShowExportModal(true);
-  };
-
-  const generateExport = (format: 'pdf' | 'excel') => {
-    // Simulate export generation
-    alert(`Generating ${format.toUpperCase()} export for ${retailerData.retailerName}...`);
-    setShowExportModal(false);
-  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -582,7 +588,7 @@ const RetailerLiquidation: React.FC = () => {
                   disabled={isUpdatingStock}
                   className="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition-colors flex items-center font-medium disabled:opacity-50"
                 >
-                  <Edit className="w-5 h-5 mr-2" />
+                  <Save className="w-5 h-5 mr-2" />
                   {isUpdatingStock ? 'Updating...' : 'Update Stock'}
                 </button>
 
@@ -592,14 +598,6 @@ const RetailerLiquidation: React.FC = () => {
                 >
                   <Signature className="w-5 h-5 mr-2" />
                   Get Signature
-                </button>
-                
-                <button
-                  onClick={handleExport}
-                  className="border-2 border-gray-300 text-gray-700 px-6 py-3 rounded-xl hover:bg-gray-50 transition-colors flex items-center font-medium"
-                >
-                  <Download className="w-5 h-5 mr-2" />
-                  Export
                 </button>
               </div>
             </div>
@@ -623,41 +621,6 @@ const RetailerLiquidation: React.FC = () => {
       </div>
 
       {/* Export Modal */}
-      {showExportModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl w-full max-w-md">
-            <div className="flex items-center justify-between p-6 border-b">
-              <h3 className="text-lg font-semibold text-gray-900">Export Options</h3>
-              <button
-                onClick={() => setShowExportModal(false)}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            
-            <div className="p-6">
-              <p className="text-gray-600 mb-4">Choose export format for {retailerData.retailerName} liquidation data:</p>
-              <div className="space-y-3">
-                <button
-                  onClick={() => generateExport('pdf')}
-                  className="w-full flex items-center justify-center gap-3 p-4 border-2 border-gray-200 rounded-xl hover:border-red-300 hover:bg-red-50 transition-colors"
-                >
-                  <FileText className="w-5 h-5 text-red-600" />
-                  <span className="font-medium">Export as PDF</span>
-                </button>
-                <button
-                  onClick={() => generateExport('excel')}
-                  className="w-full flex items-center justify-center gap-3 p-4 border-2 border-gray-200 rounded-xl hover:border-green-300 hover:bg-green-50 transition-colors"
-                >
-                  <FileText className="w-5 h-5 text-green-600" />
-                  <span className="font-medium">Export as Excel</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Signature Capture Modal */}
       <SignatureCapture
@@ -665,6 +628,8 @@ const RetailerLiquidation: React.FC = () => {
         onClose={() => setShowSignatureModal(false)}
         onSave={(signature) => {
           console.log('Retailer signature saved:', signature);
+          // Update retailer data to show signature is captured
+          retailerData.hasRetailerSignature = true;
           setShowSignatureModal(false);
           alert('Retailer signature captured and saved successfully.');
         }}
