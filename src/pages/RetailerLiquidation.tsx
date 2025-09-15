@@ -772,7 +772,7 @@ const RetailerLiquidation: React.FC = () => {
               {/* Action Buttons */}
               <div className="flex flex-wrap gap-4 pt-6 border-t border-gray-200">
                 <button
-                  onClick={handleTrackLiquidation}
+                  onClick={() => alert('Navigating to detailed liquidation tracking view with farmer-wise breakdown...')}
                   className="bg-purple-600 text-white px-6 py-3 rounded-xl hover:bg-purple-700 transition-colors flex items-center font-medium"
                 >
                   <Eye className="w-5 h-5 mr-2" />
@@ -780,16 +780,44 @@ const RetailerLiquidation: React.FC = () => {
                 </button>
                 
                 <button
-                  onClick={handleUpdateStock}
+                  onClick={async () => {
+                    setIsUpdatingStock(true);
+                    try {
+                      await new Promise(resolve => setTimeout(resolve, 1500));
+                      const updatedStockDetails = retailerData.stockDetails.map(stock => {
+                        const updates = stockUpdateData[stock.skuCode];
+                        if (updates) {
+                          return {
+                            ...stock,
+                            currentStock: updates.current,
+                            liquidatedToFarmer: updates.liquidated,
+                            returnToDistributor: updates.returned
+                          };
+                        }
+                        return stock;
+                      });
+                      setRetailerData(prev => ({
+                        ...prev,
+                        stockDetails: updatedStockDetails
+                      }));
+                      alert('Stock quantities updated successfully!');
+                      setStockUpdateData({});
+                    } catch (error) {
+                      alert('Failed to update stock. Please try again.');
+                    }
+                    setIsUpdatingStock(false);
+                  }}
                   disabled={isUpdatingStock}
-                  className="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition-colors flex items-center font-medium disabled:opacity-50"
+                  className="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition-colors flex items-center font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Save className="w-5 h-5 mr-2" />
                   {isUpdatingStock ? 'Updating...' : 'Update Stock'}
                 </button>
 
                 <button
-                  onClick={handleGetSignature}
+                  onClick={() => {
+                    setShowSignatureModal(true);
+                  }}
                   className="bg-green-600 text-white px-6 py-3 rounded-xl hover:bg-green-700 transition-colors flex items-center font-medium"
                 >
                   <Signature className="w-5 h-5 mr-2" />

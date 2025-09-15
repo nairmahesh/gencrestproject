@@ -686,10 +686,6 @@ const Liquidation: React.FC = () => {
                 <FileSignature className="w-4 h-4 mr-2" />
                 Get Signature
               </button>
-              <button className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors flex items-center">
-                <Download className="w-4 h-4 mr-2" />
-                Export
-              </button>
             </div>
 
             {/* Remarks */}
