@@ -45,6 +45,8 @@ const RetailerLiquidation: React.FC = () => {
   const [selectedRetailer, setSelectedRetailer] = useState<string | null>(null);
   const [stockUpdateData, setStockUpdateData] = useState<{[key: string]: {current: number, liquidated: number, returned: number}}>({});
   const [activeTab, setActiveTab] = useState<'contact' | 'stock'>('contact');
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [isUpdatingStock, setIsUpdatingStock] = useState(false);
 
   // Sample data for retailer liquidation
   const retailerData: RetailerLiquidationData = {
@@ -92,8 +94,44 @@ const RetailerLiquidation: React.FC = () => {
     
     totalAssignedValue: 59250,
     totalLiquidatedValue: 0,
-    liquidationPercentage: 0
+    liquidationPercentage: 40
   };
+
+  // Calculate real-time metrics based on stock updates
+  const calculateRealTimeMetrics = () => {
+    const totalAssigned = retailerData.stockDetails.reduce((sum, item) => sum + item.assignedQuantity, 0);
+    const totalCurrent = retailerData.stockDetails.reduce((sum, item) => 
+      sum + (stockUpdateData[item.skuCode]?.current ?? item.currentStock), 0);
+    const totalLiquidated = retailerData.stockDetails.reduce((sum, item) => 
+      sum + (stockUpdateData[item.skuCode]?.liquidated ?? item.liquidatedToFarmer), 0);
+    const totalReturned = retailerData.stockDetails.reduce((sum, item) => 
+      sum + (stockUpdateData[item.skuCode]?.returned ?? item.returnToDistributor), 0);
+    
+    const liquidationRate = totalAssigned > 0 ? Math.round((totalLiquidated / totalAssigned) * 100) : 0;
+    const balanceStock = totalCurrent;
+    
+    // Calculate values (assuming average unit price for simplification)
+    const avgUnitPrice = retailerData.stockDetails.reduce((sum, item) => sum + item.unitPrice, 0) / retailerData.stockDetails.length;
+    const openingValue = (totalAssigned * avgUnitPrice) / 100000; // Convert to Lakhs
+    const currentValue = (totalCurrent * avgUnitPrice) / 100000;
+    const liquidatedValue = (totalLiquidated * avgUnitPrice) / 100000;
+    const balanceValue = (balanceStock * avgUnitPrice) / 100000;
+    
+    return {
+      totalAssigned,
+      totalCurrent,
+      totalLiquidated,
+      totalReturned,
+      balanceStock,
+      liquidationRate,
+      openingValue,
+      currentValue,
+      liquidatedValue,
+      balanceValue
+    };
+  };
+
+  const metrics = calculateRealTimeMetrics();
 
   const handleStockUpdate = (skuCode: string, field: 'current' | 'liquidated' | 'returned', value: number) => {
     setStockUpdateData(prev => ({
@@ -108,9 +146,33 @@ const RetailerLiquidation: React.FC = () => {
     }));
   };
 
-  const saveStockUpdates = () => {
+  const handleTrackLiquidation = () => {
+    // Navigate to detailed liquidation tracking view
+    alert('Navigating to detailed liquidation tracking view with farmer-wise breakdown...');
+    // In real app: navigate('/liquidation-tracking/' + retailerData.id);
+  };
+
+  const handleUpdateStock = async () => {
+    setIsUpdatingStock(true);
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1000));
     console.log('Stock updates saved:', stockUpdateData);
+    alert('Stock quantities updated successfully!');
+    setIsUpdatingStock(false);
+  };
+
+  const handleGetSignature = () => {
     setShowSignatureModal(true);
+  };
+
+  const handleExport = () => {
+    setShowExportModal(true);
+  };
+
+  const generateExport = (format: 'pdf' | 'excel') => {
+    // Simulate export generation
+    alert(`Generating ${format.toUpperCase()} export for ${retailerData.retailerName}...`);
+    setShowExportModal(false);
   };
 
   const getStatusColor = (status: string) => {
@@ -298,12 +360,10 @@ const RetailerLiquidation: React.FC = () => {
                   <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center mx-auto mb-2">
                     <Package className="w-4 h-4 text-white" />
                   </div>
-                  <div className="text-2xl font-bold text-orange-900">
-                    {retailerData.stockDetails.reduce((sum, item) => sum + item.assignedQuantity, 0)}
-                  </div>
+                  <div className="text-2xl font-bold text-orange-900">{metrics.totalAssigned}</div>
                   <div className="text-sm text-orange-700">Total Assigned</div>
                   <div className="text-xs text-orange-600 mt-1">
-                    ₹{(retailerData.stockDetails.reduce((sum, item) => sum + item.totalValue, 0) / 100000).toFixed(2)}L
+                    ₹{metrics.openingValue.toFixed(2)}L
                   </div>
                 </div>
 
@@ -311,9 +371,7 @@ const RetailerLiquidation: React.FC = () => {
                   <div className="w-8 h-8 bg-yellow-500 rounded-lg flex items-center justify-center mx-auto mb-2">
                     <Clock className="w-4 h-4 text-white" />
                   </div>
-                  <div className="text-2xl font-bold text-yellow-900">
-                    {retailerData.stockDetails.reduce((sum, item) => sum + (stockUpdateData[item.skuCode]?.current ?? item.currentStock), 0)}
-                  </div>
+                  <div className="text-2xl font-bold text-yellow-900">{metrics.totalCurrent}</div>
                   <div className="text-sm text-yellow-700">Current Stock</div>
                   <div className="text-xs text-yellow-600 mt-1">At Retailer</div>
                 </div>
@@ -322,9 +380,7 @@ const RetailerLiquidation: React.FC = () => {
                   <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center mx-auto mb-2">
                     <CheckCircle className="w-4 h-4 text-white" />
                   </div>
-                  <div className="text-2xl font-bold text-green-900">
-                    {retailerData.stockDetails.reduce((sum, item) => sum + (stockUpdateData[item.skuCode]?.liquidated ?? item.liquidatedToFarmer), 0)}
-                  </div>
+                  <div className="text-2xl font-bold text-green-900">{metrics.totalLiquidated}</div>
                   <div className="text-sm text-green-700">Liquidated</div>
                   <div className="text-xs text-green-600 mt-1">To Farmers</div>
                 </div>
@@ -333,14 +389,7 @@ const RetailerLiquidation: React.FC = () => {
                   <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center mx-auto mb-2">
                     <Package className="w-4 h-4 text-white" />
                   </div>
-                  <div className="text-2xl font-bold text-purple-900">
-                    {retailerData.stockDetails.reduce((sum, item) => {
-                      const current = stockUpdateData[item.skuCode]?.current ?? item.currentStock;
-                      const liquidated = stockUpdateData[item.skuCode]?.liquidated ?? item.liquidatedToFarmer;
-                      const returned = stockUpdateData[item.skuCode]?.returned ?? item.returnToDistributor;
-                      return sum + Math.max(0, item.assignedQuantity - current - liquidated - returned);
-                    }, 0)}
-                  </div>
+                  <div className="text-2xl font-bold text-purple-900">{metrics.balanceStock}</div>
                   <div className="text-sm text-purple-700">Balance Stock</div>
                   <div className="text-xs text-purple-600 mt-1">Remaining</div>
                 </div>
@@ -349,10 +398,7 @@ const RetailerLiquidation: React.FC = () => {
                   <div className="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center mx-auto mb-2">
                     <Target className="w-4 h-4 text-white" />
                   </div>
-                  <div className="text-2xl font-bold text-indigo-900">
-                    {Math.round((retailerData.stockDetails.reduce((sum, item) => sum + (stockUpdateData[item.skuCode]?.liquidated ?? item.liquidatedToFarmer), 0) / 
-                                retailerData.stockDetails.reduce((sum, item) => sum + item.assignedQuantity, 0)) * 100) || 0}%
-                  </div>
+                  <div className="text-2xl font-bold text-indigo-900">{metrics.liquidationRate}%</div>
                   <div className="text-sm text-indigo-700">Liquidation Rate</div>
                   <div className="text-xs text-indigo-600 mt-1">Real-time</div>
                 </div>
@@ -474,10 +520,7 @@ const RetailerLiquidation: React.FC = () => {
                       <div className="w-full bg-gray-200 rounded-full h-3">
                         <div
                           className="bg-gradient-to-r from-green-500 to-purple-500 h-3 rounded-full transition-all duration-500"
-                          style={{ 
-                            width: `${(((stockUpdateData[stock.skuCode]?.liquidated ?? stock.liquidatedToFarmer) + 
-                                       (stockUpdateData[stock.skuCode]?.returned ?? stock.returnToDistributor)) / stock.assignedQuantity) * 100}%` 
-                          }}
+                          style={{ width: `${metrics.liquidationRate}%` }}
                         ></div>
                       </div>
                     </div>
@@ -521,21 +564,36 @@ const RetailerLiquidation: React.FC = () => {
               {/* Action Buttons */}
               <div className="flex flex-wrap gap-4 pt-6 border-t border-gray-200">
                 <button
-                  onClick={saveStockUpdates}
-                  className="bg-green-600 text-white px-8 py-3 rounded-xl hover:bg-green-700 transition-colors flex items-center font-medium"
+                  onClick={handleTrackLiquidation}
+                  className="bg-purple-600 text-white px-6 py-3 rounded-xl hover:bg-purple-700 transition-colors flex items-center font-medium"
                 >
-                  <Save className="w-5 h-5 mr-2" />
-                  Update Stock & Get Signature
-                </button>
-                
-                <button className="border-2 border-gray-300 text-gray-700 px-8 py-3 rounded-xl hover:bg-gray-50 transition-colors flex items-center font-medium">
                   <Eye className="w-5 h-5 mr-2" />
-                  View History
+                  Track Liquidation
                 </button>
                 
-                <button className="border-2 border-gray-300 text-gray-700 px-8 py-3 rounded-xl hover:bg-gray-50 transition-colors flex items-center font-medium">
-                  <ArrowLeft className="w-5 h-5 mr-2" />
-                  Process Return
+                <button
+                  onClick={handleUpdateStock}
+                  disabled={isUpdatingStock}
+                  className="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition-colors flex items-center font-medium disabled:opacity-50"
+                >
+                  <Edit className="w-5 h-5 mr-2" />
+                  {isUpdatingStock ? 'Updating...' : 'Update Stock'}
+                </button>
+
+                <button
+                  onClick={handleGetSignature}
+                  className="bg-green-600 text-white px-6 py-3 rounded-xl hover:bg-green-700 transition-colors flex items-center font-medium"
+                >
+                  <Signature className="w-5 h-5 mr-2" />
+                  Get Signature
+                </button>
+                
+                <button
+                  onClick={handleExport}
+                  className="border-2 border-gray-300 text-gray-700 px-6 py-3 rounded-xl hover:bg-gray-50 transition-colors flex items-center font-medium"
+                >
+                  <Download className="w-5 h-5 mr-2" />
+                  Export
                 </button>
               </div>
             </div>
@@ -554,8 +612,46 @@ const RetailerLiquidation: React.FC = () => {
           <li>• No farmer returns accepted - only retailer to distributor returns</li>
           <li>• Retailer signature required for verification</li>
           <li>• True liquidation for distributor calculated only after complete farmer liquidation</li>
+          <li>• <strong>Target "50% of 50%"</strong> means: 50% liquidation target out of the overall 50% liquidation goal</li>
         </ul>
       </div>
+
+      {/* Export Modal */}
+      {showExportModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl w-full max-w-md">
+            <div className="flex items-center justify-between p-6 border-b">
+              <h3 className="text-lg font-semibold text-gray-900">Export Options</h3>
+              <button
+                onClick={() => setShowExportModal(false)}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-6">
+              <p className="text-gray-600 mb-4">Choose export format for {retailerData.retailerName} liquidation data:</p>
+              <div className="space-y-3">
+                <button
+                  onClick={() => generateExport('pdf')}
+                  className="w-full flex items-center justify-center gap-3 p-4 border-2 border-gray-200 rounded-xl hover:border-red-300 hover:bg-red-50 transition-colors"
+                >
+                  <FileText className="w-5 h-5 text-red-600" />
+                  <span className="font-medium">Export as PDF</span>
+                </button>
+                <button
+                  onClick={() => generateExport('excel')}
+                  className="w-full flex items-center justify-center gap-3 p-4 border-2 border-gray-200 rounded-xl hover:border-green-300 hover:bg-green-50 transition-colors"
+                >
+                  <FileText className="w-5 h-5 text-green-600" />
+                  <span className="font-medium">Export as Excel</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Signature Capture Modal */}
       <SignatureCapture
@@ -564,7 +660,7 @@ const RetailerLiquidation: React.FC = () => {
         onSave={(signature) => {
           console.log('Retailer signature saved:', signature);
           setShowSignatureModal(false);
-          alert('Stock updates saved and verified with retailer signature.');
+          alert('Retailer signature captured and saved successfully.');
         }}
         title="Retailer Signature Verification"
       />
