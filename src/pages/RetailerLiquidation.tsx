@@ -273,6 +273,24 @@ const RetailerLiquidation: React.FC = () => {
     alert('Transaction added successfully!');
   };
 
+  const handleGetSignature = () => {
+    setShowSignatureModal(true);
+  };
+
+  const handleSignatureSave = (signatureData: string) => {
+    // Update retailer data with signature
+    setRetailerData(prev => ({
+      ...prev,
+      hasRetailerSignature: true
+    }));
+    
+    // Close the signature modal
+    setShowSignatureModal(false);
+    
+    // Show success message
+    alert('Retailer signature captured successfully!');
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'Assigned':
