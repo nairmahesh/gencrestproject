@@ -62,6 +62,17 @@ const RetailerLiquidation: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'contact' | 'stock'>('contact');
   const [isUpdatingStock, setIsUpdatingStock] = useState(false);
   const [showAddTransactionModal, setShowAddTransactionModal] = useState(false);
+  const [showStockReductionModal, setShowStockReductionModal] = useState(false);
+  const [selectedSKUForReduction, setSelectedSKUForReduction] = useState<string>('');
+  const [stockReductionData, setStockReductionData] = useState({
+    soldToFarmer: 0,
+    soldToRetailer: 0,
+    retailers: [
+      { id: 'R1', name: 'Sunrise Agro Center', assigned: 0, sold: 0 },
+      { id: 'R2', name: 'Green Valley Store', assigned: 0, sold: 0 },
+      { id: 'R3', name: 'Farm Fresh Supplies', assigned: 0, sold: 0 }
+    ]
+  });
   const [newTransaction, setNewTransaction] = useState({
     recipientType: 'Retailer' as 'Retailer' | 'Farmer',
     recipientName: '',
@@ -185,6 +196,25 @@ const RetailerLiquidation: React.FC = () => {
   const metrics = calculateRealTimeMetrics();
 
   const handleStockUpdate = (skuCode: string, field: 'current' | 'liquidated' | 'returned', value: number) => {
+    // If reducing current stock, show the breakdown modal first
+    if (field === 'current') {
+      const currentValue = stockUpdateData[skuCode]?.current ?? 
+        retailerData.stockDetails.find(s => s.skuCode === skuCode)?.currentStock ?? 0;
+      
+      if (value < currentValue) {
+        const difference = currentValue - value;
+        setSelectedSKUForReduction(skuCode);
+        setStockReductionData(prev => ({
+          ...prev,
+          soldToFarmer: 0,
+          soldToRetailer: 0,
+          retailers: prev.retailers.map(r => ({ ...r, assigned: Math.floor(difference / 3), sold: 0 }))
+        }));
+        setShowStockReductionModal(true);
+        return; // Don't update the stock yet, wait for modal confirmation
+      }
+    }
+
     const previousValue = stockUpdateData[skuCode]?.[field] ?? 
       (field === 'current' ? retailerData.stockDetails.find(s => s.skuCode === skuCode)?.currentStock ?? 0 :
        field === 'liquidated' ? retailerData.stockDetails.find(s => s.skuCode === skuCode)?.liquidatedToFarmer ?? 0 :
@@ -299,6 +329,60 @@ const RetailerLiquidation: React.FC = () => {
 
     setShowAddTransactionModal(false);
     alert('Transaction added successfully!');
+  };
+
+  const handleStockReductionConfirm = () => {
+    const totalSold = stockReductionData.soldToFarmer + stockReductionData.soldToRetailer;
+    const currentValue = stockUpdateData[selectedSKUForReduction]?.current ?? 
+      retailerData.stockDetails.find(s => s.skuCode === selectedSKUForReduction)?.currentStock ?? 0;
+    
+    const newCurrentStock = currentValue - totalSold;
+    
+    // Update the current stock
+    setStockUpdateData(prev => ({
+      ...prev,
+      [selectedSKUForReduction]: {
+        ...prev[selectedSKUForReduction],
+        current: prev[selectedSKUForReduction]?.current ?? retailerData.stockDetails.find(s => s.skuCode === selectedSKUForReduction)?.currentStock ?? 0,
+        liquidated: (prev[selectedSKUForReduction]?.liquidated ?? retailerData.stockDetails.find(s => s.skuCode === selectedSKUForReduction)?.liquidatedToFarmer ?? 0) + stockReductionData.soldToFarmer,
+        returned: prev[selectedSKUForReduction]?.returned ?? retailerData.stockDetails.find(s => s.skuCode === selectedSKUForReduction)?.returnToDistributor ?? 0,
+        current: newCurrentStock
+      }
+    }));
+
+    // Record farmer sales if any
+    if (stockReductionData.soldToFarmer > 0) {
+      const stockItem = retailerData.stockDetails.find(s => s.skuCode === selectedSKUForReduction);
+      if (stockItem) {
+        const saleValue = (stockReductionData.soldToFarmer * stockItem.unitPrice) / 100000;
+        recordFarmerSaleFromRetailer(
+          retailerData.distributorId,
+          retailerData.retailerId,
+          'P001',
+          selectedSKUForReduction,
+          stockReductionData.soldToFarmer,
+          saleValue
+        );
+      }
+    }
+
+    setShowStockReductionModal(false);
+    setSelectedSKUForReduction('');
+  };
+
+  const handleRetailerStockUpdate = (retailerId: string, field: 'assigned' | 'sold', value: number) => {
+    setStockReductionData(prev => ({
+      ...prev,
+      retailers: prev.retailers.map(r => 
+        r.id === retailerId ? { ...r, [field]: value } : r
+      )
+    }));
+    
+    // Update total sold to retailer
+    const totalRetailerSold = stockReductionData.retailers.reduce((sum, r) => 
+      sum + (r.id === retailerId && field === 'sold' ? value : r.sold), 0
+    );
+    setStockReductionData(prev => ({ ...prev, soldToRetailer: totalRetailerSold }));
   };
 
   const handleGetSignature = () => {
@@ -1008,6 +1092,111 @@ const RetailerLiquidation: React.FC = () => {
         </div>
       )}
 
+      {/* Stock Reduction Modal */}
+      {showStockReductionModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between p-6 border-b">
+              <h3 className="text-lg font-semibold">Stock Reduction Breakdown</h3>
+              <button
+                onClick={() => setShowStockReductionModal(false)}
+                className="p-2 hover:bg-gray-100 rounded-full"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-6 space-y-6">
+              {/* Current Stock Info */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h4 className="font-medium text-blue-800 mb-2">
+                  SKU: {retailerData.stockDetails.find(s => s.skuCode === selectedSKUForReduction)?.skuName}
+                </h4>
+                <p className="text-sm text-blue-600">
+                  Current Stock: {stockUpdateData[selectedSKUForReduction]?.current ?? 
+                    retailerData.stockDetails.find(s => s.skuCode === selectedSKUForReduction)?.currentStock ?? 0} units
+                </p>
+              </div>
+
+              {/* Sold to Farmer */}
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                <h4 className="font-medium text-green-800 mb-3 flex items-center">
+                  <Users className="w-4 h-4 mr-2" />
+                  🌾 Sold to Farmer (Liquidation)
+                </h4>
+                <input
+                  type="number"
+                  value={stockReductionData.soldToFarmer}
+                  onChange={(e) => setStockReductionData(prev => ({ ...prev, soldToFarmer: parseInt(e.target.value) || 0 }))}
+                  className="w-full px-3 py-2 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  placeholder="Enter quantity sold to farmers"
+                  min="0"
+                />
+                <p className="text-xs text-green-600 mt-1">This will count as liquidation</p>
+              </div>
+
+              {/* Sold to Retailers */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h4 className="font-medium text-blue-800 mb-3 flex items-center">
+                  <Building className="w-4 h-4 mr-2" />
+                  Sold to Retailers (Not Liquidation)
+                </h4>
+                <p className="text-sm text-blue-600 mb-4">How many retailers: {stockReductionData.retailers.length}</p>
+                
+                <div className="space-y-4">
+                  {stockReductionData.retailers.map((retailer, index) => (
+                    <div key={retailer.id} className="bg-white border border-blue-200 rounded-lg p-4">
+                      <h5 className="font-medium text-gray-900 mb-3">Retailer {index + 1} - {retailer.name}</h5>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Assigned QTY</label>
+                          <input
+                            type="number"
+                            value={retailer.assigned}
+                            onChange={(e) => handleRetailerStockUpdate(retailer.id, 'assigned', parseInt(e.target.value) || 0)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            min="0"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Sold QTY</label>
+                          <input
+                            type="number"
+                            value={retailer.sold}
+                            onChange={(e) => handleRetailerStockUpdate(retailer.id, 'sold', parseInt(e.target.value) || 0)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            min="0"
+                            max={retailer.assigned}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="mt-4 p-3 bg-blue-100 rounded-lg">
+                  <p className="text-sm text-blue-800">
+                    Total Sold to Retailers: <strong>{stockReductionData.soldToRetailer} units</strong>
+                  </p>
+                  <p className="text-xs text-blue-600 mt-1">This will NOT count as liquidation</p>
+                </div>
+              </div>
+
+              {/* Summary */}
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                <h4 className="font-medium text-gray-800 mb-2">Summary</h4>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-gray-600">Total Reduction:</span>
+                    <span className="font-medium ml-2">{stockReductionData.soldToFarmer + stockReductionData.soldToRetailer} units</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Liquidation Count:</span>
+                    <span className="font-medium ml-2 text-green-600">{stockReductionData.soldToFarmer} units</span>
+                  </div>
+                </div>
+              </div>
+            </div>
       {/* Signature Capture Modal */}
       <SignatureCapture
         isOpen={showSignatureModal}
@@ -1019,4 +1208,21 @@ const RetailerLiquidation: React.FC = () => {
   );
 };
 
+            <div className="flex gap-3 p-6 border-t bg-white sticky bottom-0">
+              <button
+                onClick={() => setShowStockReductionModal(false)}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleStockReductionConfirm}
+                className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+              >
+                Confirm Stock Reduction
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 export default RetailerLiquidation;
