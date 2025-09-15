@@ -1197,16 +1197,6 @@ const RetailerLiquidation: React.FC = () => {
                 </div>
               </div>
             </div>
-      {/* Signature Capture Modal */}
-      <SignatureCapture
-        isOpen={showSignatureModal}
-        onClose={() => setShowSignatureModal(false)}
-        onSave={handleSignatureSave}
-        title="Retailer Signature Verification"
-      />
-    </div>
-  );
-};
 
             <div className="flex gap-3 p-6 border-t bg-white sticky bottom-0">
               <button
@@ -1225,4 +1215,16 @@ const RetailerLiquidation: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Signature Capture Modal */}
+      <SignatureCapture
+        isOpen={showSignatureModal}
+        onClose={() => setShowSignatureModal(false)}
+        onSave={handleSignatureSave}
+        title="Retailer Signature Verification"
+      />
+    </div>
+  );
+};
+
 export default RetailerLiquidation;
