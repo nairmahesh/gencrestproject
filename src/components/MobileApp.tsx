@@ -969,10 +969,11 @@ const MobileApp: React.FC<MobileAppProps> = ({ children }) => {
           </button>
           
           <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
-              <span className="text-white font-bold text-sm">G</span>
-            </div>
-            <span className="font-semibold text-gray-900">Gencrest</span>
+            <img 
+              src="/Gencrest logo.png" 
+              alt="Gencrest" 
+              className="h-8 w-auto"
+            />
           </div>
 
           <div className="flex items-center space-x-2">
