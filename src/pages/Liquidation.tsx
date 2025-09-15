@@ -82,6 +82,32 @@ interface LiquidationEntry {
   notes?: string;
 }
 
+const Liquidation: React.FC = () => {
+  const navigate = useNavigate();
+  
+  // State variables
+  const [searchTerm, setSearchTerm] = useState('');
+  const [typeFilter, setTypeFilter] = useState('All');
+  const [statusFilter, setStatusFilter] = useState('All');
+  const [priorityFilter, setPriorityFilter] = useState('All');
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [viewModalData, setViewModalData] = useState<{ type: string; entry: LiquidationEntry } | null>(null);
+  const [stockVerificationModal, setStockVerificationModal] = useState<StockVerificationModal>({ isOpen: false, entry: null });
+  const [liquidationModal, setLiquidationModal] = useState<LiquidationModal>({ isOpen: false, skuCode: '', skuName: '', originalQty: 0, newQty: 0, liquidatedQty: 0 });
+  const [showBusinessLogicModal, setShowBusinessLogicModal] = useState(false);
+  const [liquidationEntries, setLiquidationEntries] = useState<LiquidationEntry[]>([]);
+  const [newLiquidationEntry, setNewLiquidationEntry] = useState<LiquidationEntry>({
+    id: '',
+    type: 'Farmer',
+    recipientName: '',
+    recipientCode: '',
+    recipientPhone: '',
+    recipientAddress: '',
+    quantity: 0,
+    date: new Date().toISOString().split('T')[0],
+    notes: ''
+  });
+
   // Sample liquidation data with EXACT values from reference screenshot
   const [liquidationEntries] = useState<LiquidationEntry[]>([
     {
