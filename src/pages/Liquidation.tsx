@@ -81,6 +81,8 @@ const Liquidation: React.FC = () => {
   const [typeFilter, setTypeFilter] = useState('All');
   const [statusFilter, setStatusFilter] = useState('All');
   const [showBusinessLogicModal, setShowBusinessLogicModal] = useState(false);
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [viewModalData, setViewModalData] = useState<{type: string, entry: LiquidationEntry} | null>(null);
 
   // Sample liquidation data with EXACT values from reference screenshot
   const [liquidationEntries] = useState<LiquidationEntry[]>([
@@ -257,6 +259,16 @@ const Liquidation: React.FC = () => {
     ? Math.round((overallMetrics.totalLiquidation.volume / totalAvailableStock) * 100)
     : 0;
 
+  // Handle view details functionality
+  const handleViewDetails = (type: string, entry: LiquidationEntry) => {
+    setViewModalData({ type, entry });
+    setShowViewModal(true);
+  };
+
+  // Handle verify stock functionality
+  const handleVerifyStock = (entry: LiquidationEntry) => {
+    alert(`Verifying stock for ${entry.dealerName}...\n\nThis will open the stock verification modal with product & SKU wise details.`);
+  };
   // Filter entries
   const filteredEntries = liquidationEntries.filter(entry => {
     const matchesSearch = entry.dealerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -499,7 +511,10 @@ const Liquidation: React.FC = () => {
                 <div className="flex items-center justify-center mb-2">
                   <Package className="w-4 h-4 text-orange-600 mr-1" />
                   <span className="text-xs font-medium text-orange-600">Opening Stock</span>
-                  <button className="ml-2 text-orange-600 hover:bg-orange-100 rounded p-1">
+                  <button 
+                    onClick={() => handleViewDetails('opening', entry)}
+                    className="ml-2 text-orange-600 hover:bg-orange-100 rounded p-1"
+                  >
                     <Eye className="w-3 h-3" />
                   </button>
                 </div>
@@ -520,7 +535,10 @@ const Liquidation: React.FC = () => {
                 <div className="flex items-center justify-center mb-2">
                   <TrendingUp className="w-4 h-4 text-blue-600 mr-1" />
                   <span className="text-xs font-medium text-blue-600">YTD Net Sales</span>
-                  <button className="ml-2 text-blue-600 hover:bg-blue-100 rounded p-1">
+                  <button 
+                    onClick={() => handleViewDetails('ytd', entry)}
+                    className="ml-2 text-blue-600 hover:bg-blue-100 rounded p-1"
+                  >
                     <Eye className="w-3 h-3" />
                   </button>
                 </div>
@@ -541,7 +559,10 @@ const Liquidation: React.FC = () => {
                 <div className="flex items-center justify-center mb-2">
                   <Package className="w-4 h-4 text-purple-600 mr-1" />
                   <span className="text-xs font-medium text-purple-600">Balance Stock</span>
-                  <button className="ml-2 text-purple-600 hover:bg-purple-100 rounded p-1">
+                  <button 
+                    onClick={() => handleViewDetails('balance', entry)}
+                    className="ml-2 text-purple-600 hover:bg-purple-100 rounded p-1"
+                  >
                     <Eye className="w-3 h-3" />
                   </button>
                 </div>
@@ -555,9 +576,6 @@ const Liquidation: React.FC = () => {
                   </div>
                   <div className="text-xs text-purple-500">Value</div>
                 </div>
-                <button className="mt-2 px-3 py-1 bg-purple-600 text-white text-xs rounded-lg hover:bg-purple-700 transition-colors">
-                  Verify
-                </button>
               </div>
 
               {/* Liquidation */}
@@ -565,7 +583,10 @@ const Liquidation: React.FC = () => {
                 <div className="flex items-center justify-center mb-2">
                   <Droplets className="w-4 h-4 text-green-600 mr-1" />
                   <span className="text-xs font-medium text-green-600">Liquidation</span>
-                  <button className="ml-2 text-green-600 hover:bg-green-100 rounded p-1">
+                  <button 
+                    onClick={() => handleViewDetails('liquidation', entry)}
+                    className="ml-2 text-green-600 hover:bg-green-100 rounded p-1"
+                  >
                     <Eye className="w-3 h-3" />
                   </button>
                 </div>
@@ -613,6 +634,13 @@ const Liquidation: React.FC = () => {
               <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center">
                 <Edit className="w-4 h-4 mr-2" />
                 Update Stock
+              </button>
+              <button 
+                onClick={() => handleVerifyStock(entry)}
+                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center"
+              >
+                <CheckCircle className="w-4 h-4 mr-2" />
+                Verify Stock
               </button>
               <button className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">
                 Get Signature
@@ -732,6 +760,83 @@ const Liquidation: React.FC = () => {
                       <span className="text-sm font-medium text-gray-900">
                         {liquidationEntries.length} distributors
                       </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* View Details Modal */}
+      {showViewModal && viewModalData && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
+            <div className="flex items-center justify-between p-6 border-b">
+              <h3 className="text-xl font-semibold text-gray-900">
+                {viewModalData.type === 'opening' && 'Opening Stock Details'}
+                {viewModalData.type === 'ytd' && 'YTD Net Sales Details'}
+                {viewModalData.type === 'balance' && 'Balance Stock Details'}
+                {viewModalData.type === 'liquidation' && 'Liquidation Details'}
+              </h3>
+              <button
+                onClick={() => setShowViewModal(false)}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+              <div className="space-y-4">
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h4 className="font-semibold text-gray-900 mb-2">{viewModalData.entry.dealerName}</h4>
+                  <p className="text-sm text-gray-600">Code: {viewModalData.entry.dealerCode}</p>
+                  <p className="text-sm text-gray-600">Type: {viewModalData.entry.dealerType}</p>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-blue-50 rounded-lg p-4">
+                    <h5 className="font-medium text-blue-900 mb-2">Volume</h5>
+                    <p className="text-2xl font-bold text-blue-800">
+                      {viewModalData.type === 'opening' && viewModalData.entry.openingStock.volume.toLocaleString()}
+                      {viewModalData.type === 'ytd' && viewModalData.entry.ytdNetSales.volume.toLocaleString()}
+                      {viewModalData.type === 'balance' && viewModalData.entry.balanceStock.volume.toLocaleString()}
+                      {viewModalData.type === 'liquidation' && viewModalData.entry.liquidation.volume.toLocaleString()}
+                    </p>
+                    <p className="text-sm text-blue-600">Kg/Litre</p>
+                  </div>
+                  
+                  <div className="bg-green-50 rounded-lg p-4">
+                    <h5 className="font-medium text-green-900 mb-2">Value</h5>
+                    <p className="text-2xl font-bold text-green-800">
+                      ₹{viewModalData.type === 'opening' && viewModalData.entry.openingStock.value.toFixed(2)}
+                      {viewModalData.type === 'ytd' && viewModalData.entry.ytdNetSales.value.toFixed(2)}
+                      {viewModalData.type === 'balance' && viewModalData.entry.balanceStock.value.toFixed(2)}
+                      {viewModalData.type === 'liquidation' && viewModalData.entry.liquidation.value.toFixed(2)}L
+                    </p>
+                    <p className="text-sm text-green-600">Indian Lakhs</p>
+                  </div>
+                </div>
+                
+                <div className="bg-yellow-50 rounded-lg p-4">
+                  <h5 className="font-medium text-yellow-900 mb-2">Product & SKU Breakdown</h5>
+                  <p className="text-sm text-yellow-700">
+                    This section would show detailed product and SKU wise breakdown for {viewModalData.entry.dealerName}.
+                  </p>
+                  <div className="mt-3 space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span>DAP 25kg Bag</span>
+                      <span>15,000 Kg</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span>DAP 50kg Bag</span>
+                      <span>10,000 Kg</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span>Urea 25kg Bag</span>
+                      <span>5,000 Kg</span>
                     </div>
                   </div>
                 </div>
