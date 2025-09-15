@@ -101,7 +101,14 @@ const Liquidation: React.FC = () => {
           unit: 'Kg',
           assignedStock: 50,
           currentStock: 35,
-          lastUpdated: '2024-01-20'
+          lastUpdated: '2024-01-20',
+          liquidationBreakdown: {
+            toFarmers: 15,
+            toRetailers: [
+              { retailerName: 'Green Agro Store', retailerCode: 'RET001', quantity: 10 },
+              { retailerName: 'Sunrise Traders', retailerCode: 'RET002', quantity: 5 }
+            ]
+          }
         },
         {
           id: 'S002',
@@ -110,7 +117,13 @@ const Liquidation: React.FC = () => {
           unit: 'Kg',
           assignedStock: 40,
           currentStock: 25,
-          lastUpdated: '2024-01-19'
+          lastUpdated: '2024-01-19',
+          liquidationBreakdown: {
+            toFarmers: 20,
+            toRetailers: [
+              { retailerName: 'Modern Agri Center', retailerCode: 'RET003', quantity: 5 }
+            ]
+          }
         }
       ]
     },
@@ -127,7 +140,13 @@ const Liquidation: React.FC = () => {
           unit: 'Kg',
           assignedStock: 60,
           currentStock: 45,
-          lastUpdated: '2024-01-20'
+          lastUpdated: '2024-01-20',
+          liquidationBreakdown: {
+            toFarmers: 25,
+            toRetailers: [
+              { retailerName: 'Village Agro Hub', retailerCode: 'RET004', quantity: 10 }
+            ]
+          }
         },
         {
           id: 'S004',
@@ -136,7 +155,14 @@ const Liquidation: React.FC = () => {
           unit: 'Kg',
           assignedStock: 50,
           currentStock: 35,
-          lastUpdated: '2024-01-18'
+          lastUpdated: '2024-01-18',
+          liquidationBreakdown: {
+            toFarmers: 18,
+            toRetailers: [
+              { retailerName: 'Farm Supply Co', retailerCode: 'RET005', quantity: 8 },
+              { retailerName: 'Rural Mart', retailerCode: 'RET006', quantity: 4 }
+            ]
+          }
         }
       ]
     }
