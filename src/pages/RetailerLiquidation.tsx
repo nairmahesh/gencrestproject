@@ -107,7 +107,8 @@ const RetailerLiquidation: React.FC = () => {
     const totalReturned = retailerData.stockDetails.reduce((sum, item) => 
       sum + (stockUpdateData[item.skuCode]?.returned ?? item.returnToDistributor), 0);
     
-    const liquidationRate = totalAssigned > 0 ? Math.round((totalLiquidated / totalAssigned) * 100) : 0;
+    // Correct liquidation calculation: liquidated out of total available stock
+    const liquidationRate = totalAssigned > 0 ? Math.round(((totalLiquidated + totalReturned) / totalAssigned) * 100) : 0;
     const balanceStock = totalCurrent;
     
     // Calculate values (assuming average unit price for simplification)

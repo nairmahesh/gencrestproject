@@ -21,7 +21,7 @@ export const useLiquidationCalculation = () => {
     ytdNetSales: { volume: 13303, value: 43.70 },
     liquidation: { volume: 12720, value: 55.52 },
     balanceStock: { volume: 33243, value: 178.23 },
-    liquidationPercentage: 28 // Correct calculation: 12720 / (32660 + 13303) * 100 = 27.7% ≈ 28%
+    liquidationPercentage: 28 // FIXED: 12720 / (32660 + 13303) * 100 = 27.7% ≈ 28%
   });
 
   const [distributorMetrics, setDistributorMetrics] = useState<DistributorLiquidation[]>([
@@ -41,26 +41,12 @@ export const useLiquidationCalculation = () => {
 
   // Calculate liquidation percentage using different methods
   const calculateLiquidationPercentage = (metrics: LiquidationMetrics, method: 'opening' | 'ytd' | 'custom' = 'opening'): number => {
-    switch (method) {
-      case 'opening':
-        // Method 1: Liquidation / (Opening Stock + YTD Sales) - This is the correct business logic
-        const totalStock = metrics.openingStock.volume + metrics.ytdNetSales.volume;
-        return totalStock > 0 ? Math.round((metrics.liquidation.volume / totalStock) * 100) : 0;
-      
-      case 'ytd':
-        // Method 2: Liquidation / YTD Sales
-        if (metrics.ytdNetSales.volume === 0) return 0;
-        return Math.round((metrics.liquidation.volume / metrics.ytdNetSales.volume) * 100);
-      
-      case 'custom':
-        // Method 3: Custom business logic - using the correct formula
-        const totalAvailable = metrics.openingStock.volume + metrics.ytdNetSales.volume;
-        return 28;
-      
-      default:
-        const total = metrics.openingStock.volume + metrics.ytdNetSales.volume;
-        return total > 0 ? Math.round((metrics.liquidation.volume / total) * 100) : 0;
-    }
+    // CORRECT FORMULA: Liquidation / (Opening Stock + YTD Net Sales) * 100
+    const totalAvailableStock = metrics.openingStock.volume + metrics.ytdNetSales.volume;
+    if (totalAvailableStock === 0) return 0;
+    
+    const percentage = (metrics.liquidation.volume / totalAvailableStock) * 100;
+    return Math.round(percentage);
   };
 
   // Helper function to recalculate all metrics
