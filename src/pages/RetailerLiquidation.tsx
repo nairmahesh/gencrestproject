@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Package, User, MapPin, Phone, CheckCircle, Clock, AlertTriangle, FileSignature as Signature, Save, Eye, Building, Target, TrendingUp, Users, ShoppingCart, Info, Boxes, X } from 'lucide-react';
+import { ArrowLeft, Package, User, MapPin, Phone, CheckCircle, Clock, AlertTriangle, FileSignature as Signature, Save, Eye, Building, Target, TrendingUp, Users, ShoppingCart, Info, Boxes, X, Plus } from 'lucide-react';
 import { SignatureCapture } from '../components/SignatureCapture';
 
 interface RetailerStock {
@@ -16,6 +16,19 @@ interface RetailerStock {
   totalValue: number;
 }
 
+interface BalanceTransaction {
+  id: string;
+  recipientType: 'Retailer' | 'Farmer';
+  recipientName: string;
+  recipientCode?: string;
+  recipientPhone: string;
+  recipientAddress: string;
+  quantity: number;
+  date: string;
+  value: number;
+  notes: string;
+}
+
 interface RetailerLiquidationData {
   id: string;
   retailerId: string;
@@ -28,6 +41,7 @@ interface RetailerLiquidationData {
   distributorCode: string;
   
   stockDetails: RetailerStock[];
+  balanceTransactions: BalanceTransaction[];
   
   liquidationStatus: 'Assigned' | 'Partially Liquidated' | 'Fully Liquidated' | 'Stock Returned';
   hasRetailerSignature: boolean;
@@ -42,13 +56,22 @@ interface RetailerLiquidationData {
 const RetailerLiquidation: React.FC = () => {
   const navigate = useNavigate();
   const [showSignatureModal, setShowSignatureModal] = useState(false);
-  const [selectedRetailer, setSelectedRetailer] = useState<string | null>(null);
   const [stockUpdateData, setStockUpdateData] = useState<{[key: string]: {current: number, liquidated: number, returned: number}}>({});
   const [activeTab, setActiveTab] = useState<'contact' | 'stock'>('contact');
   const [isUpdatingStock, setIsUpdatingStock] = useState(false);
+  const [showAddTransactionModal, setShowAddTransactionModal] = useState(false);
+  const [newTransaction, setNewTransaction] = useState({
+    recipientType: 'Retailer' as 'Retailer' | 'Farmer',
+    recipientName: '',
+    recipientCode: '',
+    recipientPhone: '',
+    recipientAddress: '',
+    quantity: 0,
+    notes: ''
+  });
 
   // Sample data for retailer liquidation
-  const retailerData: RetailerLiquidationData = {
+  const [retailerData, setRetailerData] = useState<RetailerLiquidationData>({
     id: 'RL001',
     retailerId: 'RET001',
     retailerCode: 'A001',
@@ -86,6 +109,32 @@ const RetailerLiquidation: React.FC = () => {
       }
     ],
     
+    balanceTransactions: [
+      {
+        id: 'BT001',
+        recipientType: 'Retailer',
+        recipientName: 'Sunrise Agro Center',
+        recipientCode: 'RET002',
+        recipientPhone: '+91 98765 22222',
+        recipientAddress: 'Main Street, Agricultural Hub',
+        quantity: 15,
+        date: '2024-01-18',
+        value: 18000,
+        notes: 'Emergency stock transfer due to high demand'
+      },
+      {
+        id: 'BT002',
+        recipientType: 'Farmer',
+        recipientName: 'Rajesh Kumar',
+        recipientPhone: '+91 98765 33333',
+        recipientAddress: 'Village Greenfield, District North',
+        quantity: 5,
+        date: '2024-01-19',
+        value: 6000,
+        notes: 'Direct sale to large farmer'
+      }
+    ],
+    
     liquidationStatus: 'Assigned',
     hasRetailerSignature: false,
     lastVisitDate: '2024-01-20',
@@ -94,7 +143,7 @@ const RetailerLiquidation: React.FC = () => {
     totalAssignedValue: 59250,
     totalLiquidatedValue: 0,
     liquidationPercentage: 40
-  };
+  });
 
   // Calculate real-time metrics based on stock updates
   const calculateRealTimeMetrics = () => {
@@ -160,7 +209,23 @@ const RetailerLiquidation: React.FC = () => {
       await new Promise(resolve => setTimeout(resolve, 1500));
       
       // Update the actual stock data
-      console.log('Stock updates saved:', stockUpdateData);
+      const updatedStockDetails = retailerData.stockDetails.map(stock => {
+        const updates = stockUpdateData[stock.skuCode];
+        if (updates) {
+          return {
+            ...stock,
+            currentStock: updates.current,
+            liquidatedToFarmer: updates.liquidated,
+            returnToDistributor: updates.returned
+          };
+        }
+        return stock;
+      });
+
+      setRetailerData(prev => ({
+        ...prev,
+        stockDetails: updatedStockDetails
+      }));
       
       // Show success message
       alert('Stock quantities updated successfully!');
@@ -177,10 +242,52 @@ const RetailerLiquidation: React.FC = () => {
   };
 
   const handleGetSignature = () => {
-    setSelectedRetailer(retailerData.id);
     setShowSignatureModal(true);
   };
 
+  const handleSignatureSave = (signature: string) => {
+    console.log('Retailer signature saved:', signature);
+    // Update retailer data to show signature is captured
+    setRetailerData(prev => ({
+      ...prev,
+      hasRetailerSignature: true
+    }));
+    setShowSignatureModal(false);
+    alert('Retailer signature captured and saved successfully.');
+  };
+
+  const handleAddTransaction = () => {
+    if (!newTransaction.recipientName || !newTransaction.recipientPhone || newTransaction.quantity <= 0) {
+      alert('Please fill all required fields');
+      return;
+    }
+
+    const transaction: BalanceTransaction = {
+      id: `BT${Date.now()}`,
+      ...newTransaction,
+      date: new Date().toISOString().split('T')[0],
+      value: newTransaction.quantity * 1200 // Assuming average price
+    };
+
+    setRetailerData(prev => ({
+      ...prev,
+      balanceTransactions: [...prev.balanceTransactions, transaction]
+    }));
+
+    // Reset form
+    setNewTransaction({
+      recipientType: 'Retailer',
+      recipientName: '',
+      recipientCode: '',
+      recipientPhone: '',
+      recipientAddress: '',
+      quantity: 0,
+      notes: ''
+    });
+
+    setShowAddTransactionModal(false);
+    alert('Transaction added successfully!');
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -211,6 +318,17 @@ const RetailerLiquidation: React.FC = () => {
         return <AlertTriangle className="w-4 h-4" />;
     }
   };
+
+  // Calculate balance stock that needs explanation
+  const calculateMissingStock = () => {
+    const totalAssigned = retailerData.stockDetails.reduce((sum, item) => sum + item.assignedQuantity, 0);
+    const totalCurrent = retailerData.stockDetails.reduce((sum, item) => sum + item.currentStock, 0);
+    const totalTransacted = retailerData.balanceTransactions.reduce((sum, transaction) => sum + transaction.quantity, 0);
+    
+    return Math.max(0, totalAssigned - totalCurrent - totalTransacted);
+  };
+
+  const missingStock = calculateMissingStock();
 
   return (
     <div className="space-y-6">
@@ -356,12 +474,90 @@ const RetailerLiquidation: React.FC = () => {
                   </div>
                 </div>
               </div>
+
+              {/* Balance Stock Section */}
+              {missingStock > 0 && (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-yellow-800 flex items-center">
+                      <AlertTriangle className="w-5 h-5 mr-2" />
+                      Balance Stock Tracking
+                    </h3>
+                    <button
+                      onClick={() => setShowAddTransactionModal(true)}
+                      className="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 transition-colors flex items-center text-sm"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add Transaction
+                    </button>
+                  </div>
+                  
+                  <div className="bg-yellow-100 border border-yellow-300 rounded-lg p-4 mb-4">
+                    <p className="text-yellow-800 font-medium">
+                      Missing Stock: {missingStock} units need to be accounted for
+                    </p>
+                    <p className="text-yellow-700 text-sm mt-1">
+                      Please record where this stock was distributed (to retailers or farmers)
+                    </p>
+                  </div>
+
+                  {/* Transaction History */}
+                  <div className="space-y-4">
+                    <h4 className="font-medium text-gray-900">Transaction History</h4>
+                    {retailerData.balanceTransactions.map((transaction) => (
+                      <div key={transaction.id} className="bg-white border border-gray-200 rounded-lg p-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center space-x-3">
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                              transaction.recipientType === 'Retailer' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'
+                            }`}>
+                              {transaction.recipientType}
+                            </span>
+                            <span className="font-medium text-gray-900">{transaction.recipientName}</span>
+                            {transaction.recipientCode && (
+                              <span className="text-sm text-gray-500">({transaction.recipientCode})</span>
+                            )}
+                          </div>
+                          <div className="text-right">
+                            <div className="font-semibold text-gray-900">{transaction.quantity} units</div>
+                            <div className="text-sm text-gray-500">₹{transaction.value.toLocaleString()}</div>
+                          </div>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
+                          <div className="flex items-center">
+                            <Phone className="w-4 h-4 mr-2" />
+                            {transaction.recipientPhone}
+                          </div>
+                          <div className="flex items-center">
+                            <Calendar className="w-4 h-4 mr-2" />
+                            {new Date(transaction.date).toLocaleDateString()}
+                          </div>
+                        </div>
+                        
+                        {transaction.recipientAddress && (
+                          <div className="mt-2 text-sm text-gray-600 flex items-start">
+                            <MapPin className="w-4 h-4 mr-2 mt-0.5" />
+                            {transaction.recipientAddress}
+                          </div>
+                        )}
+                        
+                        {transaction.notes && (
+                          <div className="mt-2 text-sm text-gray-700 bg-gray-50 p-2 rounded">
+                            <strong>Notes:</strong> {transaction.notes}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
           {activeTab === 'stock' && (
             <div className="space-y-6">
-              {/* Detailed Stock Summary Cards - Moved from Contact Tab */}
+              {/* Detailed Stock Summary Cards */}
               <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                 <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-4 text-center border border-orange-200">
                   <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center mx-auto mb-2">
@@ -426,7 +622,7 @@ const RetailerLiquidation: React.FC = () => {
                 </div>
               </div>
 
-              {/* SKU Details - Simplified and Cleaner */}
+              {/* SKU Details */}
               <div className="space-y-6">
                 {retailerData.stockDetails.map((stock) => (
                   <div key={stock.skuCode} className="bg-white border-2 border-gray-200 rounded-2xl p-6 hover:border-purple-300 transition-colors">
@@ -451,7 +647,7 @@ const RetailerLiquidation: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* Stock Quantities - Simplified Grid */}
+                    {/* Stock Quantities */}
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
                       {/* Assigned by Distributor */}
                       <div className="text-center">
@@ -521,7 +717,7 @@ const RetailerLiquidation: React.FC = () => {
                         <span className="font-medium">Liquidation Progress</span>
                         <span className="font-bold">
                           {Math.round((((stockUpdateData[stock.skuCode]?.liquidated ?? stock.liquidatedToFarmer) + 
-                                       (stockUpdateData[stock.skuCode]?.returned ?? stock.returnToDistributor)) / stock.assignedQuantity) * 100)}% of 50% target
+                                       (stockUpdateData[stock.skuCode]?.returned ?? stock.returnToDistributor)) / stock.assignedQuantity) * 100)}% Achieved of 50% Target
                         </span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-3">
@@ -616,23 +812,131 @@ const RetailerLiquidation: React.FC = () => {
           <li>• No farmer returns accepted - only retailer to distributor returns</li>
           <li>• Retailer signature required for verification</li>
           <li>• True liquidation for distributor calculated only after complete farmer liquidation</li>
-          <li>• <strong>Target "50% of 50%"</strong> means: 50% liquidation target out of the overall 50% liquidation goal</li>
+          <li>• <strong>Target "50%"</strong> means: 50% liquidation target achievement</li>
         </ul>
       </div>
 
-      {/* Export Modal */}
+      {/* Add Transaction Modal */}
+      {showAddTransactionModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl w-full max-w-md">
+            <div className="flex items-center justify-between p-6 border-b">
+              <h3 className="text-lg font-semibold">Add Balance Transaction</h3>
+              <button
+                onClick={() => setShowAddTransactionModal(false)}
+                className="p-2 hover:bg-gray-100 rounded-full"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Recipient Type</label>
+                <select
+                  value={newTransaction.recipientType}
+                  onChange={(e) => setNewTransaction(prev => ({ ...prev, recipientType: e.target.value as 'Retailer' | 'Farmer' }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                >
+                  <option value="Retailer">Retailer</option>
+                  <option value="Farmer">Farmer</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Recipient Name *</label>
+                <input
+                  type="text"
+                  value={newTransaction.recipientName}
+                  onChange={(e) => setNewTransaction(prev => ({ ...prev, recipientName: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  placeholder="Enter recipient name"
+                />
+              </div>
+
+              {newTransaction.recipientType === 'Retailer' && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Retailer Code</label>
+                  <input
+                    type="text"
+                    value={newTransaction.recipientCode}
+                    onChange={(e) => setNewTransaction(prev => ({ ...prev, recipientCode: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    placeholder="Enter retailer code"
+                  />
+                </div>
+              )}
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number *</label>
+                <input
+                  type="tel"
+                  value={newTransaction.recipientPhone}
+                  onChange={(e) => setNewTransaction(prev => ({ ...prev, recipientPhone: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  placeholder="Enter phone number"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
+                <input
+                  type="text"
+                  value={newTransaction.recipientAddress}
+                  onChange={(e) => setNewTransaction(prev => ({ ...prev, recipientAddress: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  placeholder="Enter address"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Quantity *</label>
+                <input
+                  type="number"
+                  value={newTransaction.quantity}
+                  onChange={(e) => setNewTransaction(prev => ({ ...prev, quantity: parseInt(e.target.value) || 0 }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  placeholder="Enter quantity"
+                  min="1"
+                  max={missingStock}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Notes</label>
+                <textarea
+                  value={newTransaction.notes}
+                  onChange={(e) => setNewTransaction(prev => ({ ...prev, notes: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  placeholder="Enter any additional notes"
+                  rows={3}
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-3 p-6 border-t">
+              <button
+                onClick={() => setShowAddTransactionModal(false)}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleAddTransaction}
+                className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+              >
+                Add Transaction
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Signature Capture Modal */}
       <SignatureCapture
         isOpen={showSignatureModal}
         onClose={() => setShowSignatureModal(false)}
-        onSave={(signature) => {
-          console.log('Retailer signature saved:', signature);
-          // Update retailer data to show signature is captured
-          retailerData.hasRetailerSignature = true;
-          setShowSignatureModal(false);
-          alert('Retailer signature captured and saved successfully.');
-        }}
+        onSave={handleSignatureSave}
         title="Retailer Signature Verification"
       />
     </div>
