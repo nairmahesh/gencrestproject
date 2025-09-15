@@ -725,12 +725,11 @@ const RetailerLiquidation: React.FC = () => {
                       <div className="w-full bg-gray-200 rounded-full h-3">
                         <div
                           className="bg-gradient-to-r from-green-500 to-purple-500 h-3 rounded-full transition-all duration-500"
-                          style={{ width: `${Math.min(100, (metrics.liquidationRate / 50) * 100)}%` }}
+                          style={{ width: `${metrics.liquidationRate}%` }}
                         ></div>
                       </div>
                       <div className="flex justify-between text-xs text-gray-500 mt-1">
                         <span>0%</span>
-                        <span>Target: 50%</span>
                         <span>100%</span>
                       </div>
                     </div>
@@ -830,7 +829,7 @@ const RetailerLiquidation: React.FC = () => {
               >
                 <X className="w-5 h-5" />
               </button>
-            </div>
+            <p className="text-sm text-gray-600 mb-4">Overall Performance</p>
             
             <div className="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
               {/* Transaction Type Selection */}
@@ -965,14 +964,13 @@ const RetailerLiquidation: React.FC = () => {
                 Cancel
               </button>
               <button
-                onClick={handleAddTransaction}
+                style={{ width: `28%` }}
                 disabled={
                   newTransaction.quantity <= 0 || 
                   (newTransaction.recipientType === 'Retailer' && (!newTransaction.recipientName || !newTransaction.recipientPhone))
                 }
                 className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Save
               </button>
             </div>
           </div>

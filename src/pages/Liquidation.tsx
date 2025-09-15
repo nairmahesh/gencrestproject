@@ -313,6 +313,9 @@ const Liquidation: React.FC = () => {
             <div className="mt-3 flex items-center text-orange-600 text-sm">
               <span>As of 1st April 2025</span>
             </div>
+            <div className="mt-2 text-xs text-gray-400">
+              Last updated
+            </div>
           </div>
 
           <div 
@@ -334,6 +337,9 @@ const Liquidation: React.FC = () => {
             </div>
             <div className="mt-3 flex items-center text-blue-600 text-sm">
               <span>April - Aug, 2025</span>
+            </div>
+            <div className="mt-2 text-xs text-gray-400">
+              Last updated
             </div>
           </div>
 
@@ -357,6 +363,9 @@ const Liquidation: React.FC = () => {
             <div className="mt-3 flex items-center text-green-600 text-sm">
               <span>As of Aug (YTD)</span>
             </div>
+            <div className="mt-2 text-xs text-gray-400">
+              Last updated
+            </div>
           </div>
 
           <div 
@@ -376,6 +385,9 @@ const Liquidation: React.FC = () => {
             <div className="mt-2 text-xs text-gray-500">
               Value: ₹{overallMetrics.balanceStock.value.toFixed(2)}L
             </div>
+            <div className="mt-2 text-xs text-gray-400">
+              Last updated
+            </div>
           </div>
         </div>
 
@@ -384,20 +396,19 @@ const Liquidation: React.FC = () => {
           <div className="text-center mb-6">
             <h4 className="text-lg font-bold text-gray-900 mb-4">Liquidation Progress</h4>
             <div className="text-4xl font-bold text-purple-600 mb-2">{overallMetrics.liquidationPercentage}%</div>
-            <p className="text-sm text-gray-600 mb-4">Achieved of 50% Target</p>
+            <p className="text-sm text-gray-600 mb-4">Overall Performance</p>
             
             {/* Progress Bar */}
             <div className="w-full bg-gray-200 rounded-full h-4 mb-2">
               <div 
                 className="bg-gradient-to-r from-purple-500 to-pink-500 h-4 rounded-full transition-all duration-1000" 
-                style={{ width: `${Math.min(100, (overallMetrics.liquidationPercentage / 50) * 100)}%` }}
+                style={{ width: `${overallMetrics.liquidationPercentage}%` }}
               ></div>
             </div>
             
             {/* Progress Labels */}
             <div className="flex justify-between text-xs text-gray-500">
               <span>0%</span>
-              <span className="font-medium">Target: 50%</span>
               <span>100%</span>
             </div>
           </div>
