@@ -348,6 +348,13 @@ const Liquidation: React.FC = () => {
               <div className="text-xs text-purple-700">Balance Stock</div>
               <div className="text-xs text-purple-600">₹{overallMetrics.balanceStock.value.toFixed(2)}L</div>
             </div>
+            <div className="text-xs text-purple-400 mt-1">Last updated: Jan 20, 2024</div>
+            <button
+              onClick={() => handleMetricClick('balance')}
+              className="mt-2 px-2 py-1 bg-purple-600 text-white text-xs rounded hover:bg-purple-700 transition-colors"
+            >
+              Verify
+            </button>
             <div className="mt-2 text-xs text-gray-500">
         </div>
 
