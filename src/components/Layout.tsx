@@ -32,13 +32,15 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       {/* Main Content */}
       <div className="lg:pl-64">
         <Header onMenuClick={() => setSidebarOpen(true)} />
-        <main className="py-6 px-4 sm:px-6 lg:px-8 pb-20 lg:pb-6">
+        <main className="py-6 px-4 sm:px-6 lg:px-8 pb-6">
           {children}
         </main>
       </div>
 
-      {/* Mobile Navigation */}
-      <MobileNavigation />
+      {/* Mobile Navigation - Only show on mobile */}
+      <div className="lg:hidden">
+        <MobileNavigation />
+      </div>
     </div>
   );
 };

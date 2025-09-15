@@ -325,124 +325,125 @@ const Liquidation: React.FC = () => {
         return 'text-yellow-700 bg-yellow-100';
       case 'Low':
         return 'text-green-700 bg-green-100';
-      default:
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         return 'text-gray-700 bg-gray-100';
-    }
+            <div className="bg-orange-50 rounded-xl p-6 border border-orange-200">
   };
-
+                <span className="text-base font-semibold text-orange-800">Opening Stock</span>
   return (
     <div className="space-y-6">
-      {/* Header */}
+                  className="bg-orange-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-orange-600 transition-colors"
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <button 
             onClick={() => navigate('/')}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              <div className="space-y-3">
           >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
+                  <span className="text-sm font-medium text-orange-600">Volume</span>
+                  <span className="text-xl font-bold text-orange-900">{entry.openingStock.volume}</span>
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Stock Liquidation Tracking</h1>
-            <p className="text-gray-600">Monitor and manage distributor stock liquidation progress</p>
-          </div>
+                  <span className="text-sm font-medium text-orange-600">Value</span>
+                  <span className="text-xl font-bold text-orange-900">₹{entry.openingStock.value.toFixed(2)}L</span>
         </div>
         <div className="flex items-center space-x-3">
           <button
             onClick={() => setShowBusinessLogicModal(true)}
             className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center"
-          >
+            <div className="bg-blue-50 rounded-xl p-6 border border-blue-200">
             <Calculator className="w-4 h-4 mr-2" />
-            Business Logic
+                <span className="text-base font-semibold text-blue-800">YTD Net Sales</span>
           </button>
         </div>
-      </div>
+                  className="bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors"
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="bg-white rounded-xl p-6 card-shadow">
-          <div className="flex items-center justify-between">
+              <div className="space-y-3">
             <div>
-              <p className="text-sm text-gray-600">Total Entries</p>
-              <p className="text-2xl font-bold text-gray-900">{overallMetrics.totalEntries}</p>
+                  <span className="text-sm font-medium text-blue-600">Volume</span>
+                  <span className="text-xl font-bold text-blue-900">{entry.ytdNetSales.volume}</span>
             </div>
             <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-              <Package className="w-6 h-6 text-blue-600" />
-            </div>
+                  <span className="text-sm font-medium text-blue-600">Value</span>
+                  <span className="text-xl font-bold text-blue-900">₹{entry.ytdNetSales.value.toFixed(2)}L</span>
           </div>
         </div>
 
         <div className="bg-white rounded-xl p-6 card-shadow">
           <div className="flex items-center justify-between">
-            <div>
+            <div className="bg-green-50 rounded-xl p-6 border border-green-200">
               <p className="text-sm text-gray-600">Active</p>
-              <p className="text-2xl font-bold text-gray-900">{overallMetrics.activeEntries}</p>
+                <span className="text-base font-semibold text-green-800">Liquidation</span>
             </div>
             <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-              <CheckCircle className="w-6 h-6 text-green-600" />
+                  className="bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-600 transition-colors"
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl p-6 card-shadow">
+              <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Pending</p>
+                  <span className="text-sm font-medium text-green-600">Volume</span>
+                  <span className="text-xl font-bold text-green-900">{entry.liquidation.volume}</span>
               <p className="text-2xl font-bold text-gray-900">{overallMetrics.pendingEntries}</p>
             </div>
-            <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
-              <Clock className="w-6 h-6 text-yellow-600" />
+                  <span className="text-sm font-medium text-green-600">Value</span>
+                  <span className="text-xl font-bold text-green-900">₹{entry.liquidation.value.toFixed(2)}L</span>
             </div>
           </div>
         </div>
 
         <div className="bg-white rounded-xl p-6 card-shadow">
           <div className="flex items-center justify-between">
-            <div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
               <p className="text-sm text-gray-600">Overdue</p>
-              <p className="text-2xl font-bold text-gray-900">{overallMetrics.overdueEntries}</p>
+            <div className="bg-purple-50 rounded-xl p-6 border border-purple-200">
             </div>
-            <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                <span className="text-base font-semibold text-purple-800">Balance Stock</span>
               <AlertTriangle className="w-6 h-6 text-red-600" />
             </div>
-          </div>
+                  className="bg-purple-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-purple-600 transition-colors"
         </div>
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-xl p-6 card-shadow">
+              <div className="space-y-3">
         <div className="flex flex-col sm:flex-row gap-4">
-          <div className="flex-1">
-            <div className="relative">
+                  <span className="text-sm font-medium text-purple-600">Volume</span>
+                  <span className="text-xl font-bold text-purple-900">{entry.balanceStock.volume}</span>
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <input
-                type="text"
-                placeholder="Search by dealer name, code, or product..."
+                  <span className="text-sm font-medium text-purple-600">Value</span>
+                  <span className="text-xl font-bold text-purple-900">₹{entry.balanceStock.value.toFixed(2)}L</span>
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               />
             </div>
-          </div>
+            <div className="bg-indigo-50 rounded-xl p-6 border border-indigo-200">
           <div className="flex items-center space-x-4">
-            <select
+                <span className="text-base font-semibold text-indigo-800">% Liquidation</span>
               value={typeFilter}
               onChange={(e) => setTypeFilter(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-            >
+                <div className="text-4xl font-bold text-indigo-900 mb-4">{entry.liquidationPercentage}%</div>
+                <div className="w-full bg-indigo-200 rounded-full h-3">
               <option value="All">All Types</option>
-              <option value="Distributor">Distributors</option>
+                    className="bg-indigo-600 h-3 rounded-full transition-all duration-500"
               <option value="Retailer">Retailers</option>
             </select>
             <select
-              value={statusFilter}
+                <div className="text-sm text-indigo-600 mt-2">Target: {entry.targetLiquidation}%</div>
+              className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center font-medium shadow-md"
               onChange={(e) => setStatusFilter(e.target.value)}
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             >
               <option value="All">All Status</option>
-              <option value="Pending">Pending</option>
+          <div className="flex flex-wrap gap-4 justify-center lg:justify-start">
               <option value="In Progress">In Progress</option>
               <option value="Completed">Completed</option>
-              <option value="Verified">Verified</option>
+              className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors flex items-center font-medium shadow-md"
             </select>
             <button className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50">
               <Filter className="w-4 h-4 text-gray-600" />
