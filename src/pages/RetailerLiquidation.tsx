@@ -259,7 +259,40 @@ const RetailerLiquidation: React.FC = () => {
                 </div>
               </div>
 
-              {/* Stock Summary Cards */}
+              {/* Simple Summary */}
+              <div className="bg-white rounded-xl p-6 border border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Summary</h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                  <div>
+                    <div className="text-2xl font-bold text-orange-600">
+                      {retailerData.stockDetails.reduce((sum, item) => sum + item.assignedQuantity, 0)}
+                    </div>
+                    <div className="text-sm text-gray-600">Total Assigned</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-yellow-600">
+                      {retailerData.stockDetails.reduce((sum, item) => sum + item.currentStock, 0)}
+                    </div>
+                    <div className="text-sm text-gray-600">Current Stock</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-green-600">
+                      {retailerData.stockDetails.reduce((sum, item) => sum + item.liquidatedToFarmer, 0)}
+                    </div>
+                    <div className="text-sm text-gray-600">Liquidated</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-purple-600">{retailerData.liquidationPercentage}%</div>
+                    <div className="text-sm text-gray-600">Liquidation Rate</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'stock' && (
+            <div className="space-y-6">
+              {/* Detailed Stock Summary Cards - Moved from Contact Tab */}
               <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                 <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-4 text-center border border-orange-200">
                   <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center mx-auto mb-2">
@@ -269,6 +302,9 @@ const RetailerLiquidation: React.FC = () => {
                     {retailerData.stockDetails.reduce((sum, item) => sum + item.assignedQuantity, 0)}
                   </div>
                   <div className="text-sm text-orange-700">Total Assigned</div>
+                  <div className="text-xs text-orange-600 mt-1">
+                    ₹{(retailerData.stockDetails.reduce((sum, item) => sum + item.totalValue, 0) / 100000).toFixed(2)}L
+                  </div>
                 </div>
 
                 <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-4 text-center border border-yellow-200">
@@ -276,9 +312,10 @@ const RetailerLiquidation: React.FC = () => {
                     <Clock className="w-4 h-4 text-white" />
                   </div>
                   <div className="text-2xl font-bold text-yellow-900">
-                    {retailerData.stockDetails.reduce((sum, item) => sum + item.currentStock, 0)}
+                    {retailerData.stockDetails.reduce((sum, item) => sum + (stockUpdateData[item.skuCode]?.current ?? item.currentStock), 0)}
                   </div>
                   <div className="text-sm text-yellow-700">Current Stock</div>
+                  <div className="text-xs text-yellow-600 mt-1">At Retailer</div>
                 </div>
 
                 <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 text-center border border-green-200">
@@ -286,9 +323,10 @@ const RetailerLiquidation: React.FC = () => {
                     <CheckCircle className="w-4 h-4 text-white" />
                   </div>
                   <div className="text-2xl font-bold text-green-900">
-                    {retailerData.stockDetails.reduce((sum, item) => sum + item.liquidatedToFarmer, 0)}
+                    {retailerData.stockDetails.reduce((sum, item) => sum + (stockUpdateData[item.skuCode]?.liquidated ?? item.liquidatedToFarmer), 0)}
                   </div>
                   <div className="text-sm text-green-700">Liquidated</div>
+                  <div className="text-xs text-green-600 mt-1">To Farmers</div>
                 </div>
 
                 <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 text-center border border-purple-200">
@@ -296,24 +334,30 @@ const RetailerLiquidation: React.FC = () => {
                     <Package className="w-4 h-4 text-white" />
                   </div>
                   <div className="text-2xl font-bold text-purple-900">
-                    {retailerData.stockDetails.reduce((sum, item) => sum + (item.assignedQuantity - item.currentStock - item.liquidatedToFarmer), 0)}
+                    {retailerData.stockDetails.reduce((sum, item) => {
+                      const current = stockUpdateData[item.skuCode]?.current ?? item.currentStock;
+                      const liquidated = stockUpdateData[item.skuCode]?.liquidated ?? item.liquidatedToFarmer;
+                      const returned = stockUpdateData[item.skuCode]?.returned ?? item.returnToDistributor;
+                      return sum + Math.max(0, item.assignedQuantity - current - liquidated - returned);
+                    }, 0)}
                   </div>
                   <div className="text-sm text-purple-700">Balance Stock</div>
+                  <div className="text-xs text-purple-600 mt-1">Remaining</div>
                 </div>
 
                 <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl p-4 text-center border border-indigo-200">
                   <div className="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center mx-auto mb-2">
                     <Target className="w-4 h-4 text-white" />
                   </div>
-                  <div className="text-2xl font-bold text-indigo-900">{retailerData.liquidationPercentage}%</div>
+                  <div className="text-2xl font-bold text-indigo-900">
+                    {Math.round((retailerData.stockDetails.reduce((sum, item) => sum + (stockUpdateData[item.skuCode]?.liquidated ?? item.liquidatedToFarmer), 0) / 
+                                retailerData.stockDetails.reduce((sum, item) => sum + item.assignedQuantity, 0)) * 100) || 0}%
+                  </div>
                   <div className="text-sm text-indigo-700">Liquidation Rate</div>
+                  <div className="text-xs text-indigo-600 mt-1">Real-time</div>
                 </div>
               </div>
-            </div>
-          )}
 
-          {activeTab === 'stock' && (
-            <div className="space-y-6">
               {/* SKU Verification Header */}
               <div className="flex items-center justify-between">
                 <div>
