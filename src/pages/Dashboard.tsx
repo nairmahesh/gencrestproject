@@ -647,8 +647,9 @@ const Dashboard: React.FC = () => {
       <div className="bg-white rounded-xl p-6 card-shadow">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h2 className="text-xl font-bold text-gray-900">Stock Liquidation Overview</h2>
-            <p className="text-sm text-gray-500 mt-1">Last updated: {new Date().toLocaleDateString('en-IN', { 
+            <h2 className="text-xl font-bold text-gray-900">Stock Liquidation Overview (Farmer Sales Only)</h2>
+            <p className="text-sm text-gray-500 mt-1">
+              <strong>Liquidation = Stock sold to farmers only (non-returnable)</strong> • Last updated: {new Date().toLocaleDateString('en-IN', { 
               year: 'numeric', 
               month: 'short', 
               day: 'numeric',
@@ -725,7 +726,7 @@ const Dashboard: React.FC = () => {
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Liquidation</p>
+                <p className="text-sm font-medium text-gray-600">Liquidation (Farmer Sales)</p>
                 <p className="text-2xl font-bold text-gray-900">{overallMetrics.liquidation.volume.toLocaleString()}</p>
                 <p className="text-xs text-gray-500">Kg/Litre</p>
               </div>
@@ -751,7 +752,7 @@ const Dashboard: React.FC = () => {
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Overall Liquidation</p>
+                <p className="text-sm font-medium text-gray-600">Overall Liquidation (Farmers Only)</p>
                 <p className="text-3xl font-bold">{overallMetrics.liquidationPercentage}%</p>
                 <p className="text-purple-200 text-sm">Target: {BUSINESS_RULES.TARGET_LIQUIDATION_PERCENTAGE}%</p>
               </div>
@@ -787,7 +788,7 @@ const Dashboard: React.FC = () => {
           <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-xl p-6 text-white">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-green-100">Liquidation Value</p>
+                <p className="text-green-100">Liquidation Value (Farmers)</p>
                 <p className="text-3xl font-bold">₹{overallMetrics.liquidation.value.toFixed(2)}L</p>
               </div>
               <Droplets className="w-8 h-8 text-green-200" />
@@ -807,11 +808,11 @@ const Dashboard: React.FC = () => {
 
         {/* Progress Visualization */}
         <div className="bg-gray-50 rounded-xl p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Liquidation Progress</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Liquidation Progress (Farmer Sales Only)</h3>
           <div className="space-y-4">
             <div>
               <div className="flex justify-between text-sm text-gray-600 mb-2">
-                <span>Overall Liquidation Performance</span>
+                <span>Overall Liquidation Performance (Farmers Only)</span>
                 <span>{overallMetrics.liquidationPercentage}%</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-3">

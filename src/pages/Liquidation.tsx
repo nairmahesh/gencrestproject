@@ -1145,13 +1145,15 @@ interface LiquidationEntry {
                       <div className="flex items-center text-sm">
                         <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
                         <span>Currency values in Indian Lakhs (L) format</span>
-                      </div>
+        <h3 className="font-medium text-yellow-800 mb-2">📋 Critical Business Logic - Liquidation Definition:</h3>
                     </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <li>• <strong>LIQUIDATION = Stock sold to FARMERS ONLY</strong> (non-returnable)</li>
+          <li>• Stock sold to retailers is <strong>NOT liquidation</strong> (can be returned to distributor)</li>
+          <li>• True liquidation only happens when farmers purchase the stock</li>
+          <li>• Retailer sales are considered stock transfers, not liquidation</li>
+          <li>• Only farmer sales contribute to liquidation percentage calculation</li>
+          <li>• Target liquidation percentage: 50% (farmer sales only)</li>
+          <li>• Balance stock = Opening + YTD Sales - Farmer Liquidation</li>
         )}
       </div>
     </div>

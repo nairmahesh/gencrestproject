@@ -806,15 +806,16 @@ const RetailerLiquidation: React.FC = () => {
 
       {/* Important Notes */}
       <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6">
-        <h3 className="font-medium text-yellow-800 mb-2">Important Notes:</h3>
+        <h3 className="font-medium text-yellow-800 mb-2">📋 Critical Business Logic - Liquidation Definition:</h3>
         <ul className="text-sm text-yellow-700 space-y-1">
-          <li>• MDO sees product and SKU wise list assigned by distributor</li>
-          <li>• Input current stock at retailer level</li>
-          <li>• Record final liquidated stock to farmers</li>
-          <li>• Return option available only for remaining balance stock</li>
-          <li>• No farmer returns accepted - only retailer to distributor returns</li>
-          <li>• Retailer signature required for verification</li>
-          <li>• True liquidation for distributor calculated only after complete farmer liquidation</li>
+          <li>• <strong>LIQUIDATION = Stock sold to FARMERS ONLY</strong> (non-returnable)</li>
+          <li>• Stock at retailer level is <strong>NOT yet liquidated</strong> until sold to farmers</li>
+          <li>• True liquidation happens only when farmers purchase from retailers</li>
+          <li>• Retailer stock can be returned to distributor (not liquidation)</li>
+          <li>• Farmer purchases are final liquidation (cannot be returned)</li>
+          <li>• Distributor liquidation % calculated only from confirmed farmer sales</li>
+          <li>• MDO tracks retailer-to-farmer sales for true liquidation measurement</li>
+          <li>• Retailer signature required for farmer sales verification</li>
         </ul>
       </div>
 

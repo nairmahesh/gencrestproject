@@ -42,6 +42,9 @@ interface ProductData {
 
 // Business Logic Constants
 const BUSINESS_RULES = {
+  // CRITICAL BUSINESS DEFINITION: Liquidation = Stock sold to FARMERS ONLY (non-returnable)
+  // Stock sold to retailers is NOT liquidation as it can be returned to distributor
+  LIQUIDATION_DEFINITION: 'farmer_sales_only_non_returnable',
   // Liquidation percentage calculation: Liquidation / (Opening Stock + YTD Net Sales) * 100
   LIQUIDATION_FORMULA: 'liquidation_over_total_available',
   // Balance stock calculation: Opening Stock + YTD Net Sales - Liquidation
@@ -51,7 +54,13 @@ const BUSINESS_RULES = {
   // Minimum liquidation target percentage
   TARGET_LIQUIDATION_PERCENTAGE: 50,
   // Currency format
-  CURRENCY_FORMAT: 'INR_LAKHS'
+  CURRENCY_FORMAT: 'INR_LAKHS',
+  // Stock movement types
+  STOCK_MOVEMENTS: {
+    LIQUIDATION: 'farmer_sales_only', // Only farmer sales count as liquidation
+    RETAILER_SALES: 'retailer_transfer', // Retailer sales are transfers, not liquidation
+    RETURNS: 'distributor_returns' // Only from retailers back to distributor
+  }
 };
 
 export const useLiquidationCalculation = () => {
