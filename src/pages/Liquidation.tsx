@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Package, TrendingUp, Droplets, Target, Users, Building, Search, Filter, Eye, Edit, CheckCircle, Clock, AlertTriangle, ArrowLeft, Info, Calculator, X, DollarSign, FileSignature as Signature, Save } from 'lucide-react';
+import { Package, TrendingUp, Droplets, Target, Users, Building, Search, Filter, Eye, Edit, CheckCircle, Clock, AlertTriangle, ArrowLeft, Info, Calculator, X, DollarSign, FileSignature as Signature, Save, Plus, Minus } from 'lucide-react';
 
 interface LiquidationEntry {
   id: string;
@@ -61,6 +61,27 @@ interface StockVerificationModal {
   entry: LiquidationEntry | null;
 }
 
+interface LiquidationModal {
+  isOpen: boolean;
+  skuCode: string;
+  skuName: string;
+  originalQty: number;
+  newQty: number;
+  liquidatedQty: number;
+}
+
+interface LiquidationEntry {
+  id: string;
+  type: 'Farmer' | 'Retailer';
+  recipientName: string;
+  recipientCode?: string;
+  recipientPhone?: string;
+  recipientAddress?: string;
+  quantity: number;
+  date: string;
+  notes?: string;
+}
+
 const Liquidation: React.FC = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
@@ -73,6 +94,26 @@ const Liquidation: React.FC = () => {
   const [stockVerificationModal, setStockVerificationModal] = useState<StockVerificationModal>({
     isOpen: false,
     entry: null
+  });
+  const [liquidationModal, setLiquidationModal] = useState<LiquidationModal>({
+    isOpen: false,
+    skuCode: '',
+    skuName: '',
+    originalQty: 0,
+    newQty: 0,
+    liquidatedQty: 0
+  });
+  const [liquidationEntries, setLiquidationEntries] = useState<LiquidationEntry[]>([]);
+  const [newLiquidationEntry, setNewLiquidationEntry] = useState<LiquidationEntry>({
+    id: '',
+    type: 'Farmer',
+    recipientName: '',
+    recipientCode: '',
+    recipientPhone: '',
+    recipientAddress: '',
+    quantity: 0,
+    date: new Date().toISOString().split('T')[0],
+    notes: ''
   });
 
   // Sample liquidation data with EXACT values from reference screenshot
@@ -702,10 +743,25 @@ const Liquidation: React.FC = () => {
                         </div>
                         <div className="text-center">
                           <div className="text-sm text-gray-600">Current Stock</div>
-                          <input 
+                          <input
                             type="number" 
-                            defaultValue="35" 
+                            defaultValue="27" 
                             className="w-16 text-center text-lg font-bold text-blue-600 border border-blue-300 rounded"
+                            onChange={(e) => {
+                              const newQty = parseInt(e.target.value) || 0;
+                              const originalQty = 35;
+                              const liquidatedQty = originalQty - newQty;
+                              if (liquidatedQty > 0) {
+                                setLiquidationModal({
+                                  isOpen: true,
+                                  skuCode: 'DAP-25KG',
+                                  skuName: 'DAP 25kg Bag',
+                                  originalQty: originalQty,
+                                  newQty: newQty,
+                                  liquidatedQty: liquidatedQty
+                                });
+                              }
+                            }}
                           />
                         </div>
                         <div className="text-center">
@@ -766,6 +822,217 @@ const Liquidation: React.FC = () => {
                   className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
                 >
                   Save Updates
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Liquidation Modal - "Liquidated to whom?" */}
+        {liquidationModal.isOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
+              <div className="flex items-center justify-between p-6 border-b">
+                <div>
+                  <h3 className="text-xl font-semibold text-gray-900">Liquidated to whom?</h3>
+                  <p className="text-sm text-gray-600">
+                    {liquidationModal.skuName} - Quantity: {liquidationModal.liquidatedQty} Kg
+                  </p>
+                </div>
+                <button
+                  onClick={() => setLiquidationModal({ ...liquidationModal, isOpen: false })}
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              
+              <div className="p-6">
+                {/* Transaction Type Selection */}
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-3">Select Transaction Type</label>
+                  <div className="grid grid-cols-2 gap-4">
+                    <button
+                      onClick={() => setNewLiquidationEntry(prev => ({ ...prev, type: 'Farmer' }))}
+                      className={`p-6 border-2 rounded-lg text-center transition-colors ${
+                        newLiquidationEntry.type === 'Farmer'
+                          ? 'border-green-500 bg-green-50 text-green-700'
+                          : 'border-gray-300 hover:border-gray-400'
+                      }`}
+                    >
+                      <div className="text-4xl mb-2">🌾</div>
+                      <div className="font-medium">Sold to Farmer</div>
+                      <div className="text-xs text-gray-500 mt-1">Direct liquidation</div>
+                    </button>
+                    <button
+                      onClick={() => setNewLiquidationEntry(prev => ({ ...prev, type: 'Retailer' }))}
+                      className={`p-6 border-2 rounded-lg text-center transition-colors ${
+                        newLiquidationEntry.type === 'Retailer'
+                          ? 'border-blue-500 bg-blue-50 text-blue-700'
+                          : 'border-gray-300 hover:border-gray-400'
+                      }`}
+                    >
+                      <div className="text-4xl mb-2">🏪</div>
+                      <div className="font-medium">Sold to Retailer</div>
+                      <div className="text-xs text-gray-500 mt-1">Requires retailer details</div>
+                    </button>
+                  </div>
+                </div>
+
+                {/* SKU Details Summary */}
+                <div className="bg-gray-50 rounded-lg p-4 mb-6">
+                  <h4 className="font-medium text-gray-900 mb-3">SKU Details</h4>
+                  <div className="grid grid-cols-3 gap-4 text-center">
+                    <div>
+                      <div className="text-sm text-gray-600">Original Qty</div>
+                      <div className="text-lg font-bold text-orange-600">{liquidationModal.originalQty}</div>
+                    </div>
+                    <div>
+                      <div className="text-sm text-gray-600">New Qty</div>
+                      <div className="text-lg font-bold text-blue-600">{liquidationModal.newQty}</div>
+                    </div>
+                    <div>
+                      <div className="text-sm text-gray-600">To be Liquidated</div>
+                      <div className="text-lg font-bold text-green-600">{liquidationModal.liquidatedQty}</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Form Fields */}
+                <div className="space-y-4">
+                  {/* Quantity (Auto-filled) */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Quantity *</label>
+                    <input
+                      type="number"
+                      value={liquidationModal.liquidatedQty}
+                      readOnly
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700"
+                    />
+                  </div>
+
+                  {/* Show detailed form only for Retailer */}
+                  {newLiquidationEntry.type === 'Retailer' && (
+                    <div>
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                        <h4 className="font-medium text-blue-800 mb-2">Retailer Details Required</h4>
+                        <p className="text-sm text-blue-600">Please provide complete retailer information for tracking.</p>
+                      </div>
+                      
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Retailer Name *</label>
+                          <input
+                            type="text"
+                            value={newLiquidationEntry.recipientName}
+                            onChange={(e) => setNewLiquidationEntry(prev => ({ ...prev, recipientName: e.target.value }))}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="Enter retailer name"
+                          />
+                        </div>
+                        
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Retailer Code</label>
+                          <input
+                            type="text"
+                            value={newLiquidationEntry.recipientCode}
+                            onChange={(e) => setNewLiquidationEntry(prev => ({ ...prev, recipientCode: e.target.value }))}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="Enter retailer code"
+                          />
+                        </div>
+                        
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number *</label>
+                          <input
+                            type="tel"
+                            value={newLiquidationEntry.recipientPhone}
+                            onChange={(e) => setNewLiquidationEntry(prev => ({ ...prev, recipientPhone: e.target.value }))}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="Enter phone number"
+                          />
+                        </div>
+                        
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
+                          <input
+                            type="text"
+                            value={newLiquidationEntry.recipientAddress}
+                            onChange={(e) => setNewLiquidationEntry(prev => ({ ...prev, recipientAddress: e.target.value }))}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="Enter address"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Show simple confirmation for Farmer */}
+                  {newLiquidationEntry.type === 'Farmer' && (
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                      <h4 className="font-medium text-green-800 mb-2">Direct Farmer Sale</h4>
+                      <p className="text-sm text-green-600">
+                        This transaction will be recorded as direct farmer liquidation with quantity: <strong>{liquidationModal.liquidatedQty}</strong> Kg
+                      </p>
+                      <p className="text-xs text-green-500 mt-2">No additional details required for farmer sales.</p>
+                    </div>
+                  )}
+
+                  {/* Notes */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Notes (Optional)</label>
+                    <textarea
+                      value={newLiquidationEntry.notes}
+                      onChange={(e) => setNewLiquidationEntry(prev => ({ ...prev, notes: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Enter any additional notes"
+                      rows={3}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-3 p-6 border-t bg-white">
+                <button
+                  onClick={() => setLiquidationModal({ ...liquidationModal, isOpen: false })}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    // Add liquidation entry
+                    const entry: LiquidationEntry = {
+                      ...newLiquidationEntry,
+                      id: Date.now().toString(),
+                      quantity: liquidationModal.liquidatedQty
+                    };
+                    setLiquidationEntries(prev => [...prev, entry]);
+                    
+                    // Show success message
+                    alert(`Liquidation recorded successfully!\n\n${entry.type}: ${entry.recipientName || 'Direct Farmer Sale'}\nQuantity: ${entry.quantity} Kg`);
+                    
+                    // Reset and close modal
+                    setNewLiquidationEntry({
+                      id: '',
+                      type: 'Farmer',
+                      recipientName: '',
+                      recipientCode: '',
+                      recipientPhone: '',
+                      recipientAddress: '',
+                      quantity: 0,
+                      date: new Date().toISOString().split('T')[0],
+                      notes: ''
+                    });
+                    setLiquidationModal({ ...liquidationModal, isOpen: false });
+                  }}
+                  disabled={
+                    newLiquidationEntry.type === 'Retailer' && 
+                    (!newLiquidationEntry.recipientName || !newLiquidationEntry.recipientPhone)
+                  }
+                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Record Liquidation
                 </button>
               </div>
             </div>
