@@ -647,8 +647,11 @@ const Liquidation: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
               {/* Opening Stock Card */}
               <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
-                <div className="border-b border-orange-200 pb-1 mb-2">
+                <div className="flex items-center justify-between border-b border-orange-200 pb-1 mb-2">
                   <h4 className="text-sm font-semibold text-orange-800">Opening Stock</h4>
+                  <button className="px-3 py-1 bg-orange-600 text-white text-xs rounded-lg hover:bg-orange-700 transition-colors">
+                    View
+                  </button>
                 </div>
                 <div className="space-y-1">
                   <div className="flex justify-between">
@@ -664,8 +667,11 @@ const Liquidation: React.FC = () => {
 
               {/* YTD Net Sales Card */}
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                <div className="border-b border-blue-200 pb-1 mb-2">
+                <div className="flex items-center justify-between border-b border-blue-200 pb-1 mb-2">
                   <h4 className="text-sm font-semibold text-blue-800">YTD Net Sales</h4>
+                  <button className="px-3 py-1 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700 transition-colors">
+                    View
+                  </button>
                 </div>
                 <div className="space-y-1">
                   <div className="flex justify-between">
@@ -681,8 +687,11 @@ const Liquidation: React.FC = () => {
 
               {/* Liquidation Card */}
               <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-                <div className="border-b border-green-200 pb-1 mb-2">
+                <div className="flex items-center justify-between border-b border-green-200 pb-1 mb-2">
                   <h4 className="text-sm font-semibold text-green-800">Liquidation</h4>
+                  <button className="px-3 py-1 bg-green-600 text-white text-xs rounded-lg hover:bg-green-700 transition-colors">
+                    View
+                  </button>
                 </div>
                 <div className="space-y-1">
                   <div className="flex justify-between">
@@ -701,8 +710,14 @@ const Liquidation: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
               {/* Balance Stock Card */}
               <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
-                <div className="border-b border-purple-200 pb-1 mb-2">
+                <div className="flex items-center justify-between border-b border-purple-200 pb-1 mb-2">
                   <h4 className="text-sm font-semibold text-purple-800">Balance Stock</h4>
+                  <button
+                    onClick={() => handleVerifyClick(entry.id)}
+                    className="px-3 py-1 bg-purple-600 text-white text-xs rounded-lg hover:bg-purple-700 transition-colors"
+                  >
+                    Verify
+                  </button>
                 </div>
                 <div className="space-y-1">
                   <div className="flex justify-between">
@@ -712,14 +727,6 @@ const Liquidation: React.FC = () => {
                   <div className="flex justify-between">
                     <span className="text-xs text-purple-700">Value</span>
                     <span className="text-sm font-semibold text-purple-800">₹{(entry.grossValue * 0.0001 * 0.6).toFixed(2)}L</span>
-                  </div>
-                  <div className="text-center mt-2">
-                    <button
-                      onClick={() => handleVerifyClick(entry.id)}
-                      className="px-2 py-1 bg-purple-600 text-white text-xs rounded hover:bg-purple-700 transition-colors"
-                    >
-                      Verify
-                    </button>
                   </div>
                 </div>
               </div>
