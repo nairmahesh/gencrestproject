@@ -888,11 +888,11 @@ const Liquidation: React.FC = () => {
                   <div key={product.id} className="bg-gray-50 rounded-xl p-6">
                     <div className="flex items-center justify-between mb-4">
                       <div>
-                        <h4 className="text-lg font-semibold text-gray-900">{product.productName}</h4>
+                        {distributor.metrics.balanceStock.volume?.toLocaleString() || '0'}
                         <p className="text-sm text-gray-600">Code: {product.productCode} | Category: {product.category}</p>
                       </div>
                       <div className="text-right">
-                        <p className="text-sm text-gray-600">Total SKUs: {product.skus.length}</p>
+                        ₹{(distributor.metrics.balanceStock.value || 0).toFixed(2)}L
                       </div>
                     </div>
                     

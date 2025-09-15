@@ -57,10 +57,10 @@ const BUSINESS_RULES = {
 export const useLiquidationCalculation = () => {
   // Core metrics state
   const [overallMetrics, setOverallMetrics] = useState<LiquidationMetrics>({
-    openingStock: { volume: 32660, value: 421.55 },
-    ytdNetSales: { volume: 23303, value: 176.36 },
-    liquidation: { volume: 12720, value: 166.55 },
-    balanceStock: { volume: 43243, value: 431.36 },
+    openingStock: { volume: 32660, value: 40.55 },
+    ytdNetSales: { volume: 23303, value: 27.36 },
+    liquidation: { volume: 12720, value: 16.55 },
+    balanceStock: { volume: 43243, value: 51.36 },
     liquidationPercentage: 28,
     lastUpdated: new Date().toISOString()
   });
@@ -76,10 +76,10 @@ export const useLiquidationCalculation = () => {
       status: 'Active',
       priority: 'High',
       metrics: {
-        openingStock: { volume: 40, value: 0.38 },
-        ytdNetSales: { volume: 310, value: 1.93 },
-        liquidation: { volume: 140, value: 0.93 },
-        balanceStock: { volume: 210, value: 1.38 },
+        openingStock: { volume: 40, value: 13.80 },
+        ytdNetSales: { volume: 310, value: 13.95 },
+        liquidation: { volume: 140, value: 9.30 },
+        balanceStock: { volume: 210, value: 18.45 },
         liquidationPercentage: 40,
         lastUpdated: new Date().toISOString()
       }
@@ -162,8 +162,8 @@ export const useLiquidationCalculation = () => {
   ): LiquidationMetrics => {
     
     // BUSINESS RULE 1: Balance Stock = Opening Stock + YTD Net Sales - Liquidation
-    const balanceStockVolume = openingStock.volume + ytdNetSales.volume - liquidation.volume;
-    const balanceStockValue = openingStock.value + ytdNetSales.value - liquidation.value;
+    const balanceStockVolume = Math.max(0, openingStock.volume + ytdNetSales.volume - liquidation.volume);
+    const balanceStockValue = Math.max(0, openingStock.value + ytdNetSales.value - liquidation.value);
     
     // BUSINESS RULE 2: Liquidation % = Liquidation / (Opening Stock + YTD Net Sales) * 100
     const totalAvailableStock = Math.max(1, openingStock.volume + ytdNetSales.volume); // Prevent division by zero
@@ -176,7 +176,7 @@ export const useLiquidationCalculation = () => {
       ytdNetSales,
       liquidation,
       balanceStock: {
-        volume: Math.max(0, balanceStockVolume), // Ensure non-negative
+        volume: balanceStockVolume,
         value: Number(balanceStockValue.toFixed(2))
       },
       liquidationPercentage,
@@ -187,11 +187,11 @@ export const useLiquidationCalculation = () => {
   // Aggregate distributor metrics to overall metrics
   const aggregateOverallMetrics = useCallback(() => {
     const totalOpeningVolume = distributorMetrics.reduce((sum, d) => sum + d.metrics.openingStock.volume, 0);
-    const totalOpeningValue = distributorMetrics.reduce((sum, d) => sum + d.metrics.openingStock.value, 0);
+    const totalOpeningValue = distributorMetrics.reduce((sum, d) => sum + (d.metrics.openingStock.value || 0), 0);
     const totalYtdVolume = distributorMetrics.reduce((sum, d) => sum + d.metrics.ytdNetSales.volume, 0);
-    const totalYtdValue = distributorMetrics.reduce((sum, d) => sum + d.metrics.ytdNetSales.value, 0);
+    const totalYtdValue = distributorMetrics.reduce((sum, d) => sum + (d.metrics.ytdNetSales.value || 0), 0);
     const totalLiquidationVolume = distributorMetrics.reduce((sum, d) => sum + d.metrics.liquidation.volume, 0);
-    const totalLiquidationValue = distributorMetrics.reduce((sum, d) => sum + d.metrics.liquidation.value, 0);
+    const totalLiquidationValue = distributorMetrics.reduce((sum, d) => sum + (d.metrics.liquidation.value || 0), 0);
 
     const aggregatedMetrics = calculateLiquidationMetrics(
       { volume: totalOpeningVolume, value: totalOpeningValue },
