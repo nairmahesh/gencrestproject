@@ -357,74 +357,74 @@ const Liquidation: React.FC = () => {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-white rounded-xl p-6 card-shadow">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="bg-white rounded-xl p-8 shadow-lg border border-gray-100">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Total Entries</p>
-              <p className="text-2xl font-bold text-gray-900">{overallMetrics.totalEntries}</p>
+              <p className="text-base font-medium text-gray-600">Total Entries</p>
+              <p className="text-3xl font-bold text-gray-900 mt-2">{overallMetrics.totalEntries}</p>
             </div>
-            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-              <Package className="w-6 h-6 text-blue-600" />
+            <div className="w-16 h-16 bg-blue-100 rounded-xl flex items-center justify-center">
+              <Package className="w-8 h-8 text-blue-600" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl p-6 card-shadow">
+        <div className="bg-white rounded-xl p-8 shadow-lg border border-gray-100">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Active</p>
-              <p className="text-2xl font-bold text-gray-900">{overallMetrics.activeEntries}</p>
+              <p className="text-base font-medium text-gray-600">Active</p>
+              <p className="text-3xl font-bold text-gray-900 mt-2">{overallMetrics.activeEntries}</p>
             </div>
-            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-              <TrendingUp className="w-6 h-6 text-green-600" />
+            <div className="w-16 h-16 bg-green-100 rounded-xl flex items-center justify-center">
+              <TrendingUp className="w-8 h-8 text-green-600" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl p-6 card-shadow">
+        <div className="bg-white rounded-xl p-8 shadow-lg border border-gray-100">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Pending</p>
-              <p className="text-2xl font-bold text-gray-900">{overallMetrics.pendingEntries}</p>
+              <p className="text-base font-medium text-gray-600">Pending</p>
+              <p className="text-3xl font-bold text-gray-900 mt-2">{overallMetrics.pendingEntries}</p>
             </div>
-            <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
-              <Clock className="w-6 h-6 text-yellow-600" />
+            <div className="w-16 h-16 bg-yellow-100 rounded-xl flex items-center justify-center">
+              <Clock className="w-8 h-8 text-yellow-600" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl p-6 card-shadow">
+        <div className="bg-white rounded-xl p-8 shadow-lg border border-gray-100">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Overdue</p>
-              <p className="text-2xl font-bold text-gray-900">{overallMetrics.overdueEntries}</p>
+              <p className="text-base font-medium text-gray-600">Overdue</p>
+              <p className="text-3xl font-bold text-gray-900 mt-2">{overallMetrics.overdueEntries}</p>
             </div>
-            <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-              <AlertTriangle className="w-6 h-6 text-red-600" />
+            <div className="w-16 h-16 bg-red-100 rounded-xl flex items-center justify-center">
+              <AlertTriangle className="w-8 h-8 text-red-600" />
             </div>
           </div>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-xl p-6 card-shadow">
+      <div className="bg-white rounded-xl p-8 shadow-lg border border-gray-100">
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <input
               type="text"
-              placeholder="Search by dealer name or code..."
+              placeholder="Search by dealer name, code, or product..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-base"
             />
           </div>
           <div className="flex items-center space-x-4">
             <select
               value={typeFilter}
               onChange={(e) => setTypeFilter(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-base min-w-[120px]"
             >
               <option value="All">All Types</option>
               <option value="Distributor">Distributors</option>
@@ -433,33 +433,33 @@ const Liquidation: React.FC = () => {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-base min-w-[120px]"
             >
               <option value="All">All Status</option>
               <option value="Pending">Pending</option>
               <option value="In Progress">In Progress</option>
               <option value="Completed">Completed</option>
             </select>
-            <button className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50">
-              <Filter className="w-4 h-4 text-gray-600" />
+            <button className="p-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+              <Filter className="w-5 h-5 text-gray-600" />
             </button>
           </div>
         </div>
       </div>
 
       {/* Liquidation Entries */}
-      <div className="space-y-4">
+      <div className="space-y-8">
         {filteredEntries.map((entry) => (
-          <div key={entry.id} className="bg-white rounded-xl p-6 card-shadow card-hover">
+          <div key={entry.id} className="bg-white rounded-xl p-8 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-200">
             {/* Header */}
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-6">
               <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-                  <Building className="w-6 h-6 text-purple-600" />
+                <div className="w-16 h-16 bg-purple-100 rounded-xl flex items-center justify-center">
+                  <Building className="w-8 h-8 text-purple-600" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">{entry.dealerName}</h3>
-                  <div className="flex items-center space-x-2 text-sm text-gray-600">
+                  <h3 className="text-xl font-bold text-gray-900">{entry.dealerName}</h3>
+                  <div className="flex items-center space-x-2 text-base text-gray-600 mt-1">
                     <span>Code: {entry.dealerCode}</span>
                     <span>•</span>
                     <span>Multiple Products</span>
@@ -467,138 +467,139 @@ const Liquidation: React.FC = () => {
                 </div>
               </div>
               <div className="flex items-center space-x-2">
-                <span className="px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                <span className="px-4 py-2 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
                   {entry.dealerType}
                 </span>
-                <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(entry.liquidationStatus)}`}>
+                <span className={`px-4 py-2 rounded-full text-sm font-medium ${getStatusColor(entry.liquidationStatus)}`}>
                   {getStatusIcon(entry.liquidationStatus)}
                   <span className="ml-1">{entry.liquidationStatus}</span>
                 </span>
-                <span className={`px-3 py-1 rounded-full text-xs font-medium ${getPriorityColor(entry.priority)}`}>
+                <span className={`px-4 py-2 rounded-full text-sm font-medium ${getPriorityColor(entry.priority)}`}>
                   {entry.priority}
                 </span>
               </div>
             </div>
 
-            {/* Stock Metrics - OLD STYLE LAYOUT */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            {/* Stock Metrics - DESKTOP WEB LAYOUT */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
               {/* Opening Stock */}
-              <div className="bg-orange-50 rounded-lg p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-orange-700">Opening Stock</span>
+              <div className="bg-orange-50 rounded-xl p-6 border border-orange-200 shadow-sm">
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-base font-semibold text-orange-700">Opening Stock</span>
                   <button 
                     onClick={() => handleViewDetails('opening', entry)}
-                    className="bg-orange-500 text-white px-3 py-1 rounded text-xs hover:bg-orange-600 transition-colors"
+                    className="bg-orange-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-orange-600 transition-colors shadow-sm"
                   >
                     View
                   </button>
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-3">
                   <div className="flex justify-between">
-                    <span className="text-xs text-orange-600">Volume</span>
-                    <span className="font-bold text-orange-800">{entry.openingStock.volume}</span>
+                    <span className="text-sm font-medium text-orange-600">Volume</span>
+                    <span className="text-xl font-bold text-orange-800">{entry.openingStock.volume}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-xs text-orange-600">Value</span>
-                    <span className="font-bold text-orange-800">₹{entry.openingStock.value.toFixed(2)}L</span>
+                    <span className="text-sm font-medium text-orange-600">Value</span>
+                    <span className="text-xl font-bold text-orange-800">₹{entry.openingStock.value.toFixed(2)}L</span>
                   </div>
                 </div>
               </div>
 
               {/* YTD Net Sales */}
-              <div className="bg-blue-50 rounded-lg p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-blue-700">YTD Net Sales</span>
+              <div className="bg-blue-50 rounded-xl p-6 border border-blue-200 shadow-sm">
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-base font-semibold text-blue-700">YTD Net Sales</span>
                   <button 
                     onClick={() => handleViewDetails('ytd', entry)}
-                    className="bg-blue-500 text-white px-3 py-1 rounded text-xs hover:bg-blue-600 transition-colors"
+                    className="bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors shadow-sm"
                   >
                     View
                   </button>
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-3">
                   <div className="flex justify-between">
-                    <span className="text-xs text-blue-600">Volume</span>
-                    <span className="font-bold text-blue-800">{entry.ytdNetSales.volume}</span>
+                    <span className="text-sm font-medium text-blue-600">Volume</span>
+                    <span className="text-xl font-bold text-blue-800">{entry.ytdNetSales.volume}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-xs text-blue-600">Value</span>
-                    <span className="font-bold text-blue-800">₹{entry.ytdNetSales.value.toFixed(2)}L</span>
+                    <span className="text-sm font-medium text-blue-600">Value</span>
+                    <span className="text-xl font-bold text-blue-800">₹{entry.ytdNetSales.value.toFixed(2)}L</span>
                   </div>
                 </div>
               </div>
 
               {/* Liquidation */}
-              <div className="bg-green-50 rounded-lg p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-green-700">Liquidation</span>
+              <div className="bg-green-50 rounded-xl p-6 border border-green-200 shadow-sm">
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-base font-semibold text-green-700">Liquidation</span>
                   <button 
                     onClick={() => handleViewDetails('liquidation', entry)}
-                    className="bg-green-500 text-white px-3 py-1 rounded text-xs hover:bg-green-600 transition-colors"
+                    className="bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-600 transition-colors shadow-sm"
                   >
                     View
                   </button>
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-3">
                   <div className="flex justify-between">
-                    <span className="text-xs text-green-600">Volume</span>
-                    <span className="font-bold text-green-800">{entry.liquidation.volume}</span>
+                    <span className="text-sm font-medium text-green-600">Volume</span>
+                    <span className="text-xl font-bold text-green-800">{entry.liquidation.volume}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-xs text-green-600">Value</span>
-                    <span className="font-bold text-green-800">₹{entry.liquidation.value.toFixed(2)}L</span>
+                    <span className="text-sm font-medium text-green-600">Value</span>
+                    <span className="text-xl font-bold text-green-800">₹{entry.liquidation.value.toFixed(2)}L</span>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Balance Stock and Liquidation Percentage */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               {/* Balance Stock */}
-              <div className="bg-purple-50 rounded-lg p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-purple-700">Balance Stock</span>
+              <div className="bg-purple-50 rounded-xl p-6 border border-purple-200 shadow-sm">
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-base font-semibold text-purple-700">Balance Stock</span>
                   <button 
                     onClick={() => handleVerifyStock(entry)}
-                    className="bg-purple-500 text-white px-3 py-1 rounded text-xs hover:bg-purple-600 transition-colors"
+                    className="bg-purple-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-purple-600 transition-colors shadow-sm"
                   >
                     Verify
                   </button>
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-3">
                   <div className="flex justify-between">
-                    <span className="text-xs text-purple-600">Volume</span>
-                    <span className="font-bold text-purple-800">{entry.balanceStock.volume}</span>
+                    <span className="text-sm font-medium text-purple-600">Volume</span>
+                    <span className="text-xl font-bold text-purple-800">{entry.balanceStock.volume}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-xs text-purple-600">Value</span>
-                    <span className="font-bold text-purple-800">₹{entry.balanceStock.value.toFixed(2)}L</span>
+                    <span className="text-sm font-medium text-purple-600">Value</span>
+                    <span className="text-xl font-bold text-purple-800">₹{entry.balanceStock.value.toFixed(2)}L</span>
                   </div>
                 </div>
               </div>
 
               {/* Liquidation Percentage */}
-              <div className="bg-indigo-50 rounded-lg p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-indigo-700">% Liquidation</span>
+              <div className="bg-indigo-50 rounded-xl p-6 border border-indigo-200 shadow-sm">
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-base font-semibold text-indigo-700">% Liquidation</span>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-indigo-800 mb-2">{entry.liquidationPercentage}%</div>
-                  <div className="w-full bg-indigo-200 rounded-full h-2">
+                  <div className="text-4xl font-bold text-indigo-800 mb-4">{entry.liquidationPercentage}%</div>
+                  <div className="w-full bg-indigo-200 rounded-full h-3">
                     <div 
-                      className="bg-indigo-600 h-2 rounded-full transition-all duration-500"
+                      className="bg-indigo-600 h-3 rounded-full transition-all duration-500"
                       style={{ width: `${Math.min(100, (entry.liquidationPercentage / entry.targetLiquidation) * 100)}%` }}
                     ></div>
                   </div>
+                  <div className="text-sm text-indigo-600 mt-2">Target: {entry.targetLiquidation}%</div>
                 </div>
               </div>
             </div>
 
-            {/* Action Buttons - OLD STYLE */}
-            <div className="flex flex-wrap gap-3 justify-center">
+            {/* Action Buttons - DESKTOP STYLE */}
+            <div className="flex flex-wrap gap-4 justify-center lg:justify-start">
               <button 
                 onClick={() => handleTrackLiquidation(entry)}
-                className="bg-purple-100 text-purple-700 px-4 py-2 rounded-lg hover:bg-purple-200 transition-colors flex items-center font-medium"
+                className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors flex items-center font-medium shadow-sm"
               >
                 <Eye className="w-4 h-4 mr-2" />
                 Track Liquidation
@@ -606,7 +607,7 @@ const Liquidation: React.FC = () => {
               
               <button 
                 onClick={() => handleUpdateStock(entry)}
-                className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors flex items-center font-medium"
+                className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center font-medium shadow-sm"
               >
                 <Edit className="w-4 h-4 mr-2" />
                 Update Stock
@@ -614,7 +615,7 @@ const Liquidation: React.FC = () => {
               
               <button 
                 onClick={() => handleGetSignature(entry)}
-                className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors flex items-center font-medium"
+                className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors flex items-center font-medium shadow-sm"
               >
                 <Signature className="w-4 h-4 mr-2" />
                 Get Signature
@@ -623,8 +624,8 @@ const Liquidation: React.FC = () => {
 
             {/* Remarks */}
             {entry.remarks && (
-              <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-                <p className="text-sm text-gray-700">
+              <div className="mt-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                <p className="text-base text-gray-700">
                   <strong>Remarks:</strong> {entry.remarks}
                 </p>
               </div>
