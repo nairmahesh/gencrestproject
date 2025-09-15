@@ -347,14 +347,8 @@ const Liquidation: React.FC = () => {
               <div className="text-lg font-bold text-purple-900">{overallMetrics.balanceStock.volume.toLocaleString()}</div>
               <div className="text-xs text-purple-700">Balance Stock</div>
               <div className="text-xs text-purple-600">₹{overallMetrics.balanceStock.value.toFixed(2)}L</div>
-            </div>
-            <div className="text-xs text-purple-400 mt-1">Last updated: Jan 20, 2024</div>
-            <button
-              onClick={() => handleMetricClick('balance')}
-              className="mt-2 px-2 py-1 bg-purple-600 text-white text-xs rounded hover:bg-purple-700 transition-colors"
-            >
-              Verify
             </button>
+            <div className="text-xs text-purple-400 mt-1">Last updated: Jan 20, 2024</div>
             <div className="mt-2 text-xs text-gray-500">
             </div>
           </div>
@@ -614,6 +608,14 @@ const Liquidation: React.FC = () => {
                   <div className="flex justify-between">
                     <span className="text-xs text-purple-700">Value</span>
                     <span className="text-sm font-semibold text-purple-800">₹{(entry.grossValue * 0.0001 * 0.6).toFixed(2)}L</span>
+                  </div>
+                  <div className="text-center mt-2">
+                    <button
+                      onClick={() => handleMetricClick('balance')}
+                      className="px-2 py-1 bg-purple-600 text-white text-xs rounded hover:bg-purple-700 transition-colors"
+                    >
+                      Verify
+                    </button>
                   </div>
                 </div>
               </div>
