@@ -970,7 +970,7 @@ const MobileApp: React.FC<MobileAppProps> = ({ children }) => {
           
           <div className="flex items-center space-x-2">
             <img 
-              src="/gencrest-logo.png" 
+              src="/Gencrest logo copy.png" 
               alt="Gencrest" 
               className="h-8 w-auto"
             />
