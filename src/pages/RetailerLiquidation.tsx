@@ -473,6 +473,17 @@ const RetailerLiquidation: React.FC = () => {
             </div>
             
             <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+              {/* Debug Section - Always Visible */}
+              <div className="bg-red-100 border border-red-300 rounded-xl p-4 mb-6">
+                <h5 className="text-lg font-semibold text-red-800 mb-2">🐛 DEBUG INFO</h5>
+                <div className="text-sm space-y-1">
+                  <p>Transaction Type: <strong>{stockModal.transactionType || 'NONE'}</strong></p>
+                  <p>Stock Difference: <strong>{stockModal.stockDifference}</strong></p>
+                  <p>Modal Open: <strong>{stockModal.isOpen ? 'YES' : 'NO'}</strong></p>
+                  <p>Retailer Count: <strong>{stockModal.retailerCount}</strong></p>
+                </div>
+              </div>
+
               {/* Transaction Type Selection */}
               <div className="mb-6">
                 <h4 className="text-lg font-semibold text-gray-900 mb-4">Select Transaction Type</h4>
@@ -510,6 +521,50 @@ const RetailerLiquidation: React.FC = () => {
                       <p className="text-sm text-gray-600">Requires retailer details</p>
                     </div>
                   </div>
+                </div>
+              </div>
+
+              {/* Test Section - Always Visible Retailer Breakdown */}
+              <div className="bg-yellow-100 border border-yellow-300 rounded-xl p-6 mb-6">
+                <h5 className="text-lg font-semibold text-yellow-800 mb-4">🧪 TEST SECTION - Always Visible Retailer Breakdown</h5>
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-sm font-medium text-yellow-700">How many retailers?</span>
+                  <select
+                    value={3}
+                    className="px-3 py-1 border border-yellow-300 rounded-lg"
+                  >
+                    <option value={3}>3</option>
+                  </select>
+                </div>
+                
+                <div className="space-y-4">
+                  {[1, 2, 3].map((index) => (
+                    <div key={index} className="bg-white rounded-lg p-4 border border-yellow-200">
+                      <h6 className="font-semibold text-gray-900 mb-3">Retailer {index}</h6>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Assigned QTY
+                          </label>
+                          <input
+                            type="number"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                            placeholder="Enter assigned quantity"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Sold QTY
+                          </label>
+                          <input
+                            type="number"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                            placeholder="Enter sold quantity"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
 
