@@ -192,7 +192,19 @@ const MobileAppDesign: React.FC = () => {
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Today's Progress</h3>
         <div className="grid grid-cols-2 gap-3">
           {todayStats.map((stat, index) => (
-            <div key={index} className="bg-white rounded-lg p-3 shadow-md border border-gray-200">
+            <div 
+              key={index} 
+              className="bg-white rounded-lg p-3 shadow-md border border-gray-200 cursor-pointer hover:shadow-lg transition-all duration-200 active:scale-95"
+              onClick={() => {
+                const details = {
+                  'Visits': 'Today\'s Visits:\n• Scheduled: 8\n• Completed: 3\n• In Progress: 1\n• Remaining: 4',
+                  'Orders': 'Today\'s Orders:\n• Total Value: ₹45K\n• Orders: 5\n• Avg Order: ₹9K\n• Target: ₹50K',
+                  'Calls': 'Today\'s Calls:\n• Total Calls: 12\n• Connected: 10\n• Follow-ups: 2\n• Target: 15',
+                  'Tasks': 'Today\'s Tasks:\n• Completed: 6\n• Remaining: 2\n• Total: 8\n• Progress: 75%'
+                };
+                alert(details[stat.label] || 'Details not available');
+              }}
+            >
               <div className="flex items-center justify-between mb-3">
                 <stat.icon className={`w-5 h-5 ${stat.color}`} />
                 <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
@@ -426,7 +438,10 @@ const MobileAppDesign: React.FC = () => {
 
       {/* Stock Liquidation Overview Cards */}
       <div className="grid grid-cols-2 gap-4">
-        <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-4 shadow-lg border border-orange-200">
+        <div 
+          className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-4 shadow-lg border border-orange-200 cursor-pointer hover:shadow-xl transition-all duration-200 active:scale-95"
+          onClick={() => alert('Opening Stock Details:\n\nProduct & SKU wise breakdown:\n• DAP 25kg: 15,000 Kg\n• Urea 50kg: 12,000 Kg\n• NPK Complex: 5,660 Kg\n\nTotal Value: ₹190.00L')}
+        >
           <div className="flex items-center justify-between mb-2">
             <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center">
               <Package className="w-4 h-4 text-white" />
@@ -441,7 +456,10 @@ const MobileAppDesign: React.FC = () => {
           </div>
         </div>
         
-        <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 shadow-lg border border-blue-200">
+        <div 
+          className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 shadow-lg border border-blue-200 cursor-pointer hover:shadow-xl transition-all duration-200 active:scale-95"
+          onClick={() => alert('YTD Net Sales Details:\n\nProduct & SKU wise sales:\n• DAP 25kg: 6,500 Kg\n• Urea 50kg: 4,800 Kg\n• NPK Complex: 2,003 Kg\n\nTotal Value: ₹43.70L')}
+        >
           <div className="flex items-center justify-between mb-2">
             <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
               <TrendingUp className="w-4 h-4 text-white" />
@@ -458,7 +476,10 @@ const MobileAppDesign: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 shadow-lg border border-green-200">
+        <div 
+          className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 shadow-lg border border-green-200 cursor-pointer hover:shadow-xl transition-all duration-200 active:scale-95"
+          onClick={() => alert('Liquidation Details:\n\nProduct & SKU wise liquidation:\n• DAP 25kg: 6,200 Kg\n• Urea 50kg: 4,520 Kg\n• NPK Complex: 2,000 Kg\n\nTotal Value: ₹55.52L')}
+        >
           <div className="flex items-center justify-between mb-2">
             <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
               <Droplets className="w-4 h-4 text-white" />
@@ -473,7 +494,10 @@ const MobileAppDesign: React.FC = () => {
           </div>
         </div>
         
-        <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 shadow-lg border border-purple-200">
+        <div 
+          className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 shadow-lg border border-purple-200 cursor-pointer hover:shadow-xl transition-all duration-200 active:scale-95"
+          onClick={() => alert('Balance Stock Details:\n\nProduct & SKU wise remaining:\n• DAP 25kg: 23,300 Kg\n• Urea 50kg: 19,480 Kg\n• NPK Complex: 9,663 Kg\n\nTotal Value: ₹178.23L\n\nClick Verify to update stock levels')}
+        >
           <div className="flex items-center justify-between mb-2">
             <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center">
               <Package className="w-4 h-4 text-white" />
@@ -485,6 +509,17 @@ const MobileAppDesign: React.FC = () => {
             <div className="text-lg font-bold text-purple-900">33,243</div>
             <div className="text-xs text-purple-700">Kg/Litre</div>
             <div className="text-sm font-semibold text-purple-800 border-t border-purple-300 pt-1">₹178.23L</div>
+          </div>
+          <div className="text-center mt-2">
+            <button 
+              className="px-3 py-1 bg-purple-600 text-white text-xs rounded-lg hover:bg-purple-700 transition-colors"
+              onClick={(e) => {
+                e.stopPropagation();
+                alert('Stock Verification:\n\nOpening verification modal for product & SKU wise stock update...');
+              }}
+            >
+              Verify
+            </button>
           </div>
         </div>
       </div>
@@ -886,9 +921,6 @@ const MobileAppDesign: React.FC = () => {
           </div>
 
           {/* Floating Action Button */}
-          <button className="absolute bottom-20 right-4 w-12 h-12 bg-purple-600 text-white rounded-full shadow-lg flex items-center justify-center z-40 active:scale-95 transition-transform">
-            <Plus className="w-6 h-6" />
-          </button>
         </div>
       </div>
     </div>
