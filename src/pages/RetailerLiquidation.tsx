@@ -241,28 +241,14 @@ const RetailerLiquidation: React.FC = () => {
     setIsUpdatingStock(false);
   };
   const handleAddTransaction = () => {
-    // Validation based on transaction type
-    if (newTransaction.quantity <= 0) {
-      alert('Please enter a valid quantity');
+    if (!newTransaction.recipientName || !newTransaction.recipientPhone || newTransaction.quantity <= 0) {
+      alert('Please fill all required fields');
       return;
-    }
-    
-    if (newTransaction.recipientType === 'Retailer') {
-      if (!newTransaction.recipientName || !newTransaction.recipientPhone) {
-        alert('Please fill all required fields for retailer transaction');
-        return;
-      }
     }
 
     const transaction: BalanceTransaction = {
       id: `BT${Date.now()}`,
-      recipientType: newTransaction.recipientType,
-      recipientName: newTransaction.recipientType === 'Farmer' ? 'Direct Farmer Sale' : newTransaction.recipientName,
-      recipientCode: newTransaction.recipientCode,
-      recipientPhone: newTransaction.recipientType === 'Farmer' ? 'N/A' : newTransaction.recipientPhone,
-      recipientAddress: newTransaction.recipientType === 'Farmer' ? 'Direct Sale' : newTransaction.recipientAddress,
-      quantity: newTransaction.quantity,
-      notes: newTransaction.recipientType === 'Farmer' ? 'Direct farmer sale - no details required' : newTransaction.notes,
+      ...newTransaction,
       date: new Date().toISOString().split('T')[0],
       value: newTransaction.quantity * 1200 // Assuming average price
     };
