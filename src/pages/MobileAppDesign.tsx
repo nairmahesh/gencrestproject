@@ -171,7 +171,7 @@ const MobileAppDesign: React.FC = () => {
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-xl font-bold">Good Morning!</h2>
-            <p className="text-purple-100">MDO - North Delhi</p>
+            <p className="text-purple-100">Rajesh Kumar</p>
           </div>
           <div className="text-right">
             <div className="text-3xl font-bold">8</div>

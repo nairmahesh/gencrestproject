@@ -140,19 +140,20 @@ const MobileApp: React.FC<MobileAppProps> = ({ children }) => {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-xl font-bold mb-1">Good Morning!</h2>
-            <p className="text-blue-100">
-              {currentTime.toLocaleDateString('en-IN', { 
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-              })}
-            </p>
+            <p className="text-blue-100">Rajesh Kumar</p>
           </div>
           <div className="text-right">
             <div className="text-2xl font-bold">8</div>
             <div className="text-blue-100 text-sm">Visits today</div>
           </div>
+        </div>
+        <div className="text-blue-100 text-sm mt-2">
+          {currentTime.toLocaleDateString('en-IN', { 
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+          })}
         </div>
       </div>
 
