@@ -494,7 +494,7 @@ const RetailerLiquidation: React.FC = () => {
                 </div>
               </div>
 
-              {/* ALWAYS VISIBLE RETAILER BREAKDOWN */}
+              {/* RETAILER BREAKDOWN - ALWAYS VISIBLE */}
               <div className="bg-yellow-100 border border-yellow-300 rounded-xl p-6 mb-6">
                 <h5 className="text-lg font-semibold text-yellow-800 mb-4">🧪 RETAILER BREAKDOWN - ALWAYS VISIBLE</h5>
                 <div className="flex items-center justify-between mb-4">
