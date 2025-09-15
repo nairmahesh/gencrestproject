@@ -709,6 +709,7 @@ const RetailerLiquidation: React.FC = () => {
                           <div className="text-xs text-purple-500 mt-2">
                             Remaining: {Math.max(0, stock.assignedQuantity - (stockUpdateData[stock.skuCode]?.current ?? stock.currentStock) - (stockUpdateData[stock.skuCode]?.liquidated ?? stock.liquidatedToFarmer))} {stock.unit}
                           </div>
+                          <div className="text-xs text-purple-400 mt-1">Last updated: Jan 20, 2024</div>
                         </div>
                       </div>
                     </div>
@@ -732,6 +733,7 @@ const RetailerLiquidation: React.FC = () => {
                         <span>0%</span>
                         <span>100%</span>
                       </div>
+                      <div className="text-xs text-gray-400 mt-1 text-center">Last updated: Jan 20, 2024</div>
                     </div>
 
                     {/* Status Indicator */}
@@ -813,7 +815,6 @@ const RetailerLiquidation: React.FC = () => {
           <li>• No farmer returns accepted - only retailer to distributor returns</li>
           <li>• Retailer signature required for verification</li>
           <li>• True liquidation for distributor calculated only after complete farmer liquidation</li>
-          <li>• <strong>Target "50%"</strong> means: 50% liquidation target achievement</li>
         </ul>
       </div>
 
