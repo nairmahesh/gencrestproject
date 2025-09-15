@@ -21,7 +21,7 @@ export const useLiquidationCalculation = () => {
     ytdNetSales: { volume: 13303, value: 43.70 },
     liquidation: { volume: 12720, value: 55.52 },
     balanceStock: { volume: 33243, value: 178.23 },
-    liquidationPercentage: 28 // FIXED: 12720 / (32660 + 13303) * 100 = 27.7% ≈ 28%
+    liquidationPercentage: 28
   });
 
   const [distributorMetrics, setDistributorMetrics] = useState<DistributorLiquidation[]>([
@@ -30,10 +30,10 @@ export const useLiquidationCalculation = () => {
       distributorName: 'SRI RAMA SEEDS AND PESTICIDES',
       distributorCode: '1325',
       metrics: {
-        openingStock: { volume: 40, value: 0.38 },
-        ytdNetSales: { volume: 310, value: 1.93 },
-        liquidation: { volume: 140, value: 0.93 },
-        balanceStock: { volume: 210, value: 1.38 },
+        openingStock: { volume: 40, value: 13.80 },
+        ytdNetSales: { volume: 310, value: 13.95 },
+        liquidation: { volume: 140, value: 9.30 },
+        balanceStock: { volume: 210, value: 8.28 },
         liquidationPercentage: 40
       }
     }
