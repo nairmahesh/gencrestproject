@@ -37,8 +37,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </main>
       </div>
 
-      {/* Mobile Navigation - Only show on mobile */}
-      <div className="lg:hidden">
+      {/* Mobile Navigation - Hide completely on desktop */}
+      <div className="block lg:hidden">
         <MobileNavigation />
       </div>
     </div>
