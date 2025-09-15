@@ -856,7 +856,10 @@ const Liquidation: React.FC = () => {
                             <div className="text-center">
                               <p className="text-sm text-gray-600">Liquidated</p>
                               <p className="text-lg font-semibold text-green-600">
-                                {sku.assignedStock - (stockUpdates[sku.id] !== undefined ? stockUpdates[sku.id] : sku.currentStock)}
+                                {sku.liquidationBreakdown ? 
+                                  sku.liquidationBreakdown.toFarmers + sku.liquidationBreakdown.toRetailers.reduce((sum, r) => sum + r.quantity, 0) :
+                                  sku.assignedStock - (stockUpdates[sku.id] !== undefined ? stockUpdates[sku.id] : sku.currentStock)
+                                }
                               </p>
                             </div>
                             
@@ -936,7 +939,13 @@ const Liquidation: React.FC = () => {
                                     </div>
                                   ) : (
                                     <p className="text-xs text-blue-600">No retailer sales</p>
-                                  )}
+                                  {sku.liquidationBreakdown ? 
+                                    Math.round(((sku.liquidationBreakdown.toFarmers + sku.liquidationBreakdown.toRetailers.reduce((sum, r) => sum + r.quantity, 0)) / sku.assignedStock) * 100) :
+                                    width: `${sku.liquidationBreakdown ? 
+                                      Math.round(((sku.liquidationBreakdown.toFarmers + sku.liquidationBreakdown.toRetailers.reduce((sum, r) => sum + r.quantity, 0)) / sku.assignedStock) * 100) :
+                                      Math.round(((sku.assignedStock - (stockUpdates[sku.id] !== undefined ? stockUpdates[sku.id] : sku.currentStock)) / sku.assignedStock) * 100)
+                                    }%` 
+                                  }%
                                 </div>
                               </div>
                             </div>
