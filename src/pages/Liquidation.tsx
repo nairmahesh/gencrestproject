@@ -594,6 +594,9 @@ const Liquidation: React.FC = () => {
                     <span className="text-sm text-blue-700">Value (Rs.Lakhs)</span>
                     <span className="font-semibold text-blue-800">{(entry.netValue * 0.0001 * 1.5).toFixed(2)}</span>
                   </div>
+                  <div className="text-xs text-gray-500 mt-2">
+                    Last updated: Jan 20, 2024
+                  </div>
                 </div>
               </div>
 
@@ -647,6 +650,9 @@ const Liquidation: React.FC = () => {
                       className="bg-purple-600 h-2 rounded-full transition-all duration-300" 
                       style={{ width: `${entry.liquidationPercentage}%` }}
                     ></div>
+                  </div>
+                  <div className="text-xs text-gray-500 mt-2">
+                    Last updated: Jan 20, 2024
                   </div>
                 </div>
               </div>
