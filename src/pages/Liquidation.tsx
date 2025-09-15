@@ -856,10 +856,7 @@ const Liquidation: React.FC = () => {
                             <div className="text-center">
                               <p className="text-sm text-gray-600">Liquidated</p>
                               <p className="text-lg font-semibold text-green-600">
-                                {sku.liquidationBreakdown ? 
-                                  sku.liquidationBreakdown.toFarmers + sku.liquidationBreakdown.toRetailers.reduce((sum, r) => sum + r.quantity, 0) :
-                                  sku.assignedStock - (stockUpdates[sku.id] !== undefined ? stockUpdates[sku.id] : sku.currentStock)
-                                }
+                                {sku.assignedStock - (stockUpdates[sku.id] !== undefined ? stockUpdates[sku.id] : sku.currentStock)}
                               </p>
                             </div>
                             
@@ -878,25 +875,25 @@ const Liquidation: React.FC = () => {
                             <div className="flex justify-between text-xs text-gray-600 mb-1">
                               <span>Liquidation Progress</span>
                               <span>
-                                {Math.round(((sku.assignedStock - (stockUpdates[sku.id] !== undefined ? stockUpdates[sku.id] : sku.currentStock)) / sku.assignedStock) * 100)}%
+                                {sku.assignedStock > 0 ? Math.round(((sku.assignedStock - (stockUpdates[sku.id] !== undefined ? stockUpdates[sku.id] : sku.currentStock)) / sku.assignedStock) * 100) : 0}%
                               </span>
                             </div>
                             <div className="w-full bg-gray-200 rounded-full h-2">
                               <div
                                 className="bg-gradient-to-r from-green-500 to-purple-500 h-2 rounded-full transition-all duration-300"
                                 style={{ 
-                                  width: `${Math.round(((sku.assignedStock - (stockUpdates[sku.id] !== undefined ? stockUpdates[sku.id] : sku.currentStock)) / sku.assignedStock) * 100)}%` 
+                                  width: `${sku.assignedStock > 0 ? Math.round(((sku.assignedStock - (stockUpdates[sku.id] !== undefined ? stockUpdates[sku.id] : sku.currentStock)) / sku.assignedStock) * 100) : 0}%` 
                                 }}
                               ></div>
                             </div>
                           </div>
 
                           {/* Liquidation Breakdown - "Liquidated to whom?" */}
-                          {sku.liquidationBreakdown && (sku.liquidationBreakdown.toFarmers > 0 || sku.liquidationBreakdown.toRetailers.length > 0) && (
+                          {sku.liquidationBreakdown && (sku.assignedStock - (stockUpdates[sku.id] !== undefined ? stockUpdates[sku.id] : sku.currentStock)) > 0 && (
                             <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
                               <h6 className="text-sm font-semibold text-gray-900 mb-3 flex items-center">
                                 <Users className="w-4 h-4 mr-2 text-purple-600" />
-                                Liquidated to whom? (Total: {sku.liquidationBreakdown.toFarmers + sku.liquidationBreakdown.toRetailers.reduce((sum, r) => sum + r.quantity, 0)} {sku.unit})
+                                Liquidated to whom? (Total: {sku.assignedStock - (stockUpdates[sku.id] !== undefined ? stockUpdates[sku.id] : sku.currentStock)} {sku.unit})
                               </h6>
                               
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
