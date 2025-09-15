@@ -503,7 +503,7 @@ const RetailerLiquidation: React.FC = () => {
                           </div>
                           <div className="text-sm text-purple-600">{stock.unit}</div>
                           <div className="text-xs text-purple-500 mt-2">
-                            Balance: {Math.max(0, stock.assignedQuantity - (stockUpdateData[stock.skuCode]?.current ?? stock.currentStock) - (stockUpdateData[stock.skuCode]?.liquidated ?? stock.liquidatedToFarmer))} {stock.unit}
+                            Remaining: {Math.max(0, stock.assignedQuantity - (stockUpdateData[stock.skuCode]?.current ?? stock.currentStock) - (stockUpdateData[stock.skuCode]?.liquidated ?? stock.liquidatedToFarmer))} {stock.unit}
                           </div>
                         </div>
                       </div>
@@ -515,14 +515,19 @@ const RetailerLiquidation: React.FC = () => {
                         <span className="font-medium">Liquidation Progress</span>
                         <span className="font-bold">
                           {Math.round((((stockUpdateData[stock.skuCode]?.liquidated ?? stock.liquidatedToFarmer) + 
-                                       (stockUpdateData[stock.skuCode]?.returned ?? stock.returnToDistributor)) / stock.assignedQuantity) * 100)}%
+                                       (stockUpdateData[stock.skuCode]?.returned ?? stock.returnToDistributor)) / stock.assignedQuantity) * 100)}% of 50% target
                         </span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-3">
                         <div
                           className="bg-gradient-to-r from-green-500 to-purple-500 h-3 rounded-full transition-all duration-500"
-                          style={{ width: `${metrics.liquidationRate}%` }}
+                          style={{ width: `${Math.min(100, (metrics.liquidationRate / 50) * 100)}%` }}
                         ></div>
+                      </div>
+                      <div className="flex justify-between text-xs text-gray-500 mt-1">
+                        <span>0%</span>
+                        <span>Target: 50%</span>
+                        <span>100%</span>
                       </div>
                     </div>
 

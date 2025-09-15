@@ -381,9 +381,25 @@ const Liquidation: React.FC = () => {
 
         {/* Liquidation Percentage Card */}
         <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200 mb-6">
-          <div className="text-center">
-            <h4 className="text-lg font-bold text-gray-900 mb-2">% Liquidation</h4>
-            <div className="text-4xl font-bold text-purple-600 mb-4">{overallMetrics.liquidationPercentage}%</div>
+          <div className="text-center mb-6">
+            <h4 className="text-lg font-bold text-gray-900 mb-4">Liquidation Progress</h4>
+            <div className="text-4xl font-bold text-purple-600 mb-2">{overallMetrics.liquidationPercentage}%</div>
+            <p className="text-sm text-gray-600 mb-4">Achieved of 50% Target</p>
+            
+            {/* Progress Bar */}
+            <div className="w-full bg-gray-200 rounded-full h-4 mb-2">
+              <div 
+                className="bg-gradient-to-r from-purple-500 to-pink-500 h-4 rounded-full transition-all duration-1000" 
+                style={{ width: `${Math.min(100, (overallMetrics.liquidationPercentage / 50) * 100)}%` }}
+              ></div>
+            </div>
+            
+            {/* Progress Labels */}
+            <div className="flex justify-between text-xs text-gray-500">
+              <span>0%</span>
+              <span className="font-medium">Target: 50%</span>
+              <span>100%</span>
+            </div>
           </div>
         </div>
       {/* Summary Cards */}
