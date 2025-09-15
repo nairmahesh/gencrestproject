@@ -650,14 +650,7 @@ const Dashboard: React.FC = () => {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h3 className="text-xl font-semibold text-gray-900">Stock Liquidation Overview</h3>
-            <p className="text-sm text-gray-600 mt-1">Last updated: {new Date().toLocaleDateString('en-GB', { 
-              day: 'numeric', 
-              month: 'short', 
-              year: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit',
-              hour12: true
-            })}</p>
+            <p className="text-sm text-gray-600 mt-1">Last updated: 15 Sept 2025, 10:00 pm</p>
           </div>
           <button 
             onClick={() => handleMetricClick('overview')}
