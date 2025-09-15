@@ -70,18 +70,6 @@ interface LiquidationModal {
   liquidatedQty: number;
 }
 
-interface LiquidationEntry {
-  id: string;
-  type: 'Farmer' | 'Retailer';
-  recipientName: string;
-  recipientCode?: string;
-  recipientPhone?: string;
-  recipientAddress?: string;
-  quantity: number;
-  date: string;
-  notes?: string;
-}
-
 const Liquidation: React.FC = () => {
   const navigate = useNavigate();
   
@@ -90,24 +78,14 @@ const Liquidation: React.FC = () => {
   const [typeFilter, setTypeFilter] = useState('All');
   const [statusFilter, setStatusFilter] = useState('All');
   const [priorityFilter, setPriorityFilter] = useState('All');
-  const [stockVerificationModal, setStockVerificationModal] = useState<StockVerificationModal>({
-    isOpen: false,
-    entry: null
-  });
-  const [liquidationModal, setLiquidationModal] = useState<LiquidationModal>({
-    isOpen: false,
-    skuCode: '',
-    skuName: '',
-    originalQty: 0,
-    newQty: 0,
-    liquidatedQty: 0
-  });
   const [showViewModal, setShowViewModal] = useState(false);
   const [viewModalData, setViewModalData] = useState<{ type: string; entry: LiquidationEntry } | null>(null);
+  const [stockVerificationModal, setStockVerificationModal] = useState<StockVerificationModal>({ isOpen: false, entry: null });
+  const [liquidationModal, setLiquidationModal] = useState<LiquidationModal>({ isOpen: false, skuCode: '', skuName: '', originalQty: 0, newQty: 0, liquidatedQty: 0 });
   const [showBusinessLogicModal, setShowBusinessLogicModal] = useState(false);
-  const [newLiquidationEntry, setNewLiquidationEntry] = useState<LiquidationEntry>({
+  const [newLiquidationEntry, setNewLiquidationEntry] = useState({
     id: '',
-    type: 'Farmer',
+    type: 'Farmer' as 'Farmer' | 'Retailer',
     recipientName: '',
     recipientCode: '',
     recipientPhone: '',
@@ -116,10 +94,9 @@ const Liquidation: React.FC = () => {
     date: new Date().toISOString().split('T')[0],
     notes: ''
   });
-  const [liquidationEntries, setLiquidationEntries] = useState<LiquidationEntry[]>([]);
 
   // Sample liquidation data with EXACT values from reference screenshot
-  const [liquidationData, setLiquidationData] = useState<LiquidationEntry[]>([
+  const [liquidationEntries, setLiquidationEntries] = useState<LiquidationEntry[]>([
     {
       id: '1',
       dealerId: 'DIST001',
@@ -263,27 +240,27 @@ const Liquidation: React.FC = () => {
 
   // Calculate overall metrics
   const overallMetrics = {
-    totalEntries: liquidationData.length,
-    activeEntries: liquidationData.filter(entry => entry.liquidationStatus !== 'Completed').length,
-    pendingEntries: liquidationData.filter(entry => entry.liquidationStatus === 'Pending').length,
-    overdueEntries: liquidationData.filter(entry => entry.priority === 'High').length,
+    totalEntries: liquidationEntries.length,
+    activeEntries: liquidationEntries.filter(entry => entry.liquidationStatus !== 'Completed').length,
+    pendingEntries: liquidationEntries.filter(entry => entry.liquidationStatus === 'Pending').length,
+    overdueEntries: liquidationEntries.filter(entry => entry.priority === 'High').length,
     
     // Aggregate totals
     totalOpeningStock: {
-      volume: liquidationData.reduce((sum, entry) => sum + entry.openingStock.volume, 0),
-      value: liquidationData.reduce((sum, entry) => sum + entry.openingStock.value, 0)
+      volume: liquidationEntries.reduce((sum, entry) => sum + entry.openingStock.volume, 0),
+      value: liquidationEntries.reduce((sum, entry) => sum + entry.openingStock.value, 0)
     },
     totalYtdNetSales: {
-      volume: liquidationData.reduce((sum, entry) => sum + entry.ytdNetSales.volume, 0),
-      value: liquidationData.reduce((sum, entry) => sum + entry.ytdNetSales.value, 0)
+      volume: liquidationEntries.reduce((sum, entry) => sum + entry.ytdNetSales.volume, 0),
+      value: liquidationEntries.reduce((sum, entry) => sum + entry.ytdNetSales.value, 0)
     },
     totalLiquidation: {
-      volume: liquidationData.reduce((sum, entry) => sum + entry.liquidation.volume, 0),
-      value: liquidationData.reduce((sum, entry) => sum + entry.liquidation.value, 0)
+      volume: liquidationEntries.reduce((sum, entry) => sum + entry.liquidation.volume, 0),
+      value: liquidationEntries.reduce((sum, entry) => sum + entry.liquidation.value, 0)
     },
     totalBalanceStock: {
-      volume: liquidationData.reduce((sum, entry) => sum + entry.balanceStock.volume, 0),
-      value: liquidationData.reduce((sum, entry) => sum + entry.balanceStock.value, 0)
+      volume: liquidationEntries.reduce((sum, entry) => sum + entry.balanceStock.volume, 0),
+      value: liquidationEntries.reduce((sum, entry) => sum + entry.balanceStock.value, 0)
     }
   };
 
@@ -323,7 +300,7 @@ const Liquidation: React.FC = () => {
   };
 
   // Filter entries
-  const filteredEntries = liquidationData.filter(entry => {
+  const filteredEntries = liquidationEntries.filter(entry => {
     const matchesSearch = entry.dealerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          entry.dealerCode.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesType = typeFilter === 'All' || entry.dealerType === typeFilter;
@@ -1004,12 +981,11 @@ const Liquidation: React.FC = () => {
                 <button
                   onClick={() => {
                     // Add liquidation entry
-                    const entry: LiquidationEntry = {
+                    const entry = {
                       ...newLiquidationEntry,
                       id: Date.now().toString(),
                       quantity: liquidationModal.liquidatedQty
                     };
-                    setLiquidationEntries(prev => [...prev, entry]);
                     
                     // Show success message
                     alert(`Liquidation recorded successfully!\n\n${entry.type}: ${entry.recipientName || 'Direct Farmer Sale'}\nQuantity: ${entry.quantity} Kg`);
@@ -1194,13 +1170,15 @@ const Liquidation: React.FC = () => {
                   <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                     <h3 className="font-medium text-yellow-800 mb-2">📋 Critical Business Logic - Liquidation Definition:</h3>
                     <ul className="text-sm text-yellow-700 space-y-1">
-                      <li>• <strong>LIQUIDATION = Stock sold to FARMERS ONLY</strong> (non-returnable)</li>
-                      <li>• Stock sold to retailers is <strong>NOT liquidation</strong> (can be returned to distributor)</li>
+                      <li>• <strong>🌾 LIQUIDATION = Stock sold to FARMERS ONLY</strong> (non-returnable)</li>
+                      <li>• <strong>ANY quantity sold from retailer to farmer = LIQUIDATION COUNT ADDED</strong></li>
+                      <li>• This appears in distributor and main company dashboard automatically</li>
                       <li>• True liquidation only happens when farmers purchase the stock</li>
                       <li>• Retailer sales are considered stock transfers, not liquidation</li>
-                      <li>• Only farmer sales contribute to liquidation percentage calculation</li>
+                      <li>• Distributor liquidation % includes ALL farmer sales (direct + via retailers)</li>
                       <li>• Target liquidation percentage: 50% (farmer sales only)</li>
                       <li>• Balance stock = Opening + YTD Sales - Farmer Liquidation</li>
+                      <li>• <strong>Real-time tracking:</strong> Retailer farmer sales instantly update distributor metrics</li>
                     </ul>
                   </div>
                 </div>
