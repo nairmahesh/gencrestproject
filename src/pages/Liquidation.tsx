@@ -347,7 +347,7 @@ const Liquidation: React.FC = () => {
               <div className="text-lg font-bold text-purple-900">{overallMetrics.balanceStock.volume.toLocaleString()}</div>
               <div className="text-xs text-purple-700">Balance Stock</div>
               <div className="text-xs text-purple-600">₹{overallMetrics.balanceStock.value.toFixed(2)}L</div>
-            </button>
+            </div>
             <div className="text-xs text-purple-400 mt-1">Last updated: Jan 20, 2024</div>
             <div className="mt-2 text-xs text-gray-500">
             </div>
