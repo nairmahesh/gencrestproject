@@ -886,6 +886,60 @@ const Liquidation: React.FC = () => {
                               ></div>
                             </div>
                           </div>
+
+                          {/* Liquidation Breakdown - "Liquidated to whom?" */}
+                          {sku.liquidationBreakdown && (sku.liquidationBreakdown.toFarmers > 0 || sku.liquidationBreakdown.toRetailers.length > 0) && (
+                            <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                              <h6 className="text-sm font-semibold text-gray-900 mb-3 flex items-center">
+                                <Users className="w-4 h-4 mr-2 text-purple-600" />
+                                Liquidated to whom? (Total: {sku.liquidationBreakdown.toFarmers + sku.liquidationBreakdown.toRetailers.reduce((sum, r) => sum + r.quantity, 0)} {sku.unit})
+                              </h6>
+                              
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {/* Farmers Section */}
+                                <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                                  <div className="flex items-center justify-between mb-2">
+                                    <h7 className="text-sm font-medium text-green-800 flex items-center">
+                                      <User className="w-3 h-3 mr-1" />
+                                      Farmers
+                                    </h7>
+                                    <span className="text-lg font-bold text-green-700">{sku.liquidationBreakdown.toFarmers}</span>
+                                  </div>
+                                  <p className="text-xs text-green-600">Direct farmer sales</p>
+                                </div>
+
+                                {/* Retailers Section */}
+                                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                                  <div className="flex items-center justify-between mb-2">
+                                    <h7 className="text-sm font-medium text-blue-800 flex items-center">
+                                      <Building className="w-3 h-3 mr-1" />
+                                      Retailers
+                                    </h7>
+                                    <span className="text-lg font-bold text-blue-700">
+                                      {sku.liquidationBreakdown.toRetailers.reduce((sum, r) => sum + r.quantity, 0)}
+                                    </span>
+                                  </div>
+                                  
+                                  {sku.liquidationBreakdown.toRetailers.length > 0 ? (
+                                    <div className="space-y-1">
+                                      {sku.liquidationBreakdown.toRetailers.map((retailer, idx) => (
+                                        <div key={idx} className="flex items-center justify-between text-xs">
+                                          <div className="flex items-center">
+                                            <div className="w-2 h-2 bg-blue-400 rounded-full mr-2"></div>
+                                            <span className="text-blue-700">{retailer.retailerName}</span>
+                                            <span className="text-blue-500 ml-1">({retailer.retailerCode})</span>
+                                          </div>
+                                          <span className="font-medium text-blue-800">{retailer.quantity}</span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  ) : (
+                                    <p className="text-xs text-blue-600">No retailer sales</p>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>
