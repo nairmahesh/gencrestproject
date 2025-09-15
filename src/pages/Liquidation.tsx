@@ -310,11 +310,8 @@ const Liquidation: React.FC = () => {
             <div className="mt-2 text-xs text-gray-500">
               Value: ₹{overallMetrics.openingStock.value.toFixed(2)}L
             </div>
-            <div className="mt-3 flex items-center text-orange-600 text-sm">
-              <span>As of 1st April 2025</span>
-            </div>
-            <div className="mt-2 text-xs text-gray-400">
-              Last updated
+            <div className="mt-3 text-xs text-gray-400">
+              Last updated: Jan 20, 2024
             </div>
           </div>
 
@@ -335,11 +332,8 @@ const Liquidation: React.FC = () => {
             <div className="mt-2 text-xs text-gray-500">
               Value: ₹{overallMetrics.ytdNetSales.value.toFixed(2)}L
             </div>
-            <div className="mt-3 flex items-center text-blue-600 text-sm">
-              <span>April - Aug, 2025</span>
-            </div>
-            <div className="mt-2 text-xs text-gray-400">
-              Last updated
+            <div className="mt-3 text-xs text-gray-400">
+              Last updated: Jan 20, 2024
             </div>
           </div>
 
@@ -360,11 +354,8 @@ const Liquidation: React.FC = () => {
             <div className="mt-2 text-xs text-gray-500">
               Value: ₹{overallMetrics.liquidation.value.toFixed(2)}L
             </div>
-            <div className="mt-3 flex items-center text-green-600 text-sm">
-              <span>As of Aug (YTD)</span>
-            </div>
-            <div className="mt-2 text-xs text-gray-400">
-              Last updated
+            <div className="mt-3 text-xs text-gray-400">
+              Last updated: Jan 20, 2024
             </div>
           </div>
 
@@ -385,8 +376,8 @@ const Liquidation: React.FC = () => {
             <div className="mt-2 text-xs text-gray-500">
               Value: ₹{overallMetrics.balanceStock.value.toFixed(2)}L
             </div>
-            <div className="mt-2 text-xs text-gray-400">
-              Last updated
+            <div className="mt-3 text-xs text-gray-400">
+              Last updated: Jan 20, 2024
             </div>
           </div>
         </div>
@@ -410,6 +401,10 @@ const Liquidation: React.FC = () => {
             <div className="flex justify-between text-xs text-gray-500">
               <span>0%</span>
               <span>100%</span>
+            </div>
+            
+            <div className="mt-3 text-xs text-gray-400">
+              Last updated: Jan 20, 2024
             </div>
           </div>
         </div>
