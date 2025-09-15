@@ -57,10 +57,10 @@ const BUSINESS_RULES = {
 export const useLiquidationCalculation = () => {
   // Core metrics state
   const [overallMetrics, setOverallMetrics] = useState<LiquidationMetrics>({
-    openingStock: { volume: 32660, value: 40.83 },
-    ytdNetSales: { volume: 13303, value: 16.63 },
-    liquidation: { volume: 12720, value: 15.90 },
-    balanceStock: { volume: 33243, value: 41.56 },
+    openingStock: { volume: 32660, value: 421.55 },
+    ytdNetSales: { volume: 23303, value: 176.36 },
+    liquidation: { volume: 12720, value: 166.55 },
+    balanceStock: { volume: 43243, value: 431.36 },
     liquidationPercentage: 28,
     lastUpdated: new Date().toISOString()
   });
@@ -166,7 +166,7 @@ export const useLiquidationCalculation = () => {
     const balanceStockValue = openingStock.value + ytdNetSales.value - liquidation.value;
     
     // BUSINESS RULE 2: Liquidation % = Liquidation / (Opening Stock + YTD Net Sales) * 100
-    const totalAvailableStock = openingStock.volume + ytdNetSales.volume;
+    const totalAvailableStock = Math.max(1, openingStock.volume + ytdNetSales.volume); // Prevent division by zero
     const liquidationPercentage = totalAvailableStock > 0 
       ? Math.round((liquidation.volume / totalAvailableStock) * 100) 
       : 0;
@@ -176,7 +176,7 @@ export const useLiquidationCalculation = () => {
       ytdNetSales,
       liquidation,
       balanceStock: {
-        volume: balanceStockVolume,
+        volume: Math.max(0, balanceStockVolume), // Ensure non-negative
         value: Number(balanceStockValue.toFixed(2))
       },
       liquidationPercentage,
