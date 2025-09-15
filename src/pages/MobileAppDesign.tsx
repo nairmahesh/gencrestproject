@@ -51,6 +51,8 @@ const MobileAppDesign: React.FC = () => {
   const [activeTab, setActiveTab] = useState('home');
   const [showSidebar, setShowSidebar] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [currentView, setCurrentView] = useState('main');
+  const [selectedMetric, setSelectedMetric] = useState('');
   const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
@@ -164,6 +166,184 @@ const MobileAppDesign: React.FC = () => {
     { id: 'logout', label: 'Logout', icon: LogOut, color: 'text-red-600' }
   ];
 
+  const handleMetricClick = (metric: string) => {
+    setSelectedMetric(metric);
+    setCurrentView(metric);
+  };
+
+  const handleBackToMain = () => {
+    setCurrentView('main');
+    setSelectedMetric('');
+  };
+
+  const renderDetailPage = () => {
+    const getDetailData = (metric: string) => {
+      switch (metric) {
+        case 'opening-stock':
+          return {
+            title: 'Opening Stock Details',
+            subtitle: 'Product & SKU wise opening stock breakdown',
+            data: [
+              { product: 'DAP (Di-Ammonium Phosphate)', skus: [
+                { name: 'DAP 25kg Bag', code: 'DAP-25KG', volume: 15000, value: 18.75, unit: 'Kg' },
+                { name: 'DAP 50kg Bag', code: 'DAP-50KG', volume: 10000, value: 12.50, unit: 'Kg' }
+              ]},
+              { product: 'Urea', skus: [
+                { name: 'Urea 25kg Bag', code: 'UREA-25KG', volume: 5000, value: 6.25, unit: 'Kg' },
+                { name: 'Urea 50kg Bag', code: 'UREA-50KG', volume: 2660, value: 3.33, unit: 'Kg' }
+              ]},
+              { product: 'NPK Complex', skus: [
+                { name: 'NPK 25kg Bag', code: 'NPK-25KG', volume: 0, value: 0, unit: 'Kg' }
+              ]}
+            ]
+          };
+        case 'ytd-sales':
+          return {
+            title: 'YTD Net Sales Details',
+            subtitle: 'Product & SKU wise sales performance',
+            data: [
+              { product: 'DAP (Di-Ammonium Phosphate)', skus: [
+                { name: 'DAP 25kg Bag', code: 'DAP-25KG', volume: 6500, value: 8.13, unit: 'Kg' },
+                { name: 'DAP 50kg Bag', code: 'DAP-50KG', volume: 4300, value: 5.38, unit: 'Kg' }
+              ]},
+              { product: 'Urea', skus: [
+                { name: 'Urea 25kg Bag', code: 'UREA-25KG', volume: 1800, value: 2.25, unit: 'Kg' },
+                { name: 'Urea 50kg Bag', code: 'UREA-50KG', volume: 703, value: 0.88, unit: 'Kg' }
+              ]},
+              { product: 'NPK Complex', skus: [
+                { name: 'NPK 25kg Bag', code: 'NPK-25KG', volume: 0, value: 0, unit: 'Kg' }
+              ]}
+            ]
+          };
+        case 'liquidation':
+          return {
+            title: 'Liquidation Details',
+            subtitle: 'Product & SKU wise liquidation breakdown',
+            data: [
+              { product: 'DAP (Di-Ammonium Phosphate)', skus: [
+                { name: 'DAP 25kg Bag', code: 'DAP-25KG', volume: 6200, value: 7.75, unit: 'Kg' },
+                { name: 'DAP 50kg Bag', code: 'DAP-50KG', volume: 4100, value: 5.13, unit: 'Kg' }
+              ]},
+              { product: 'Urea', skus: [
+                { name: 'Urea 25kg Bag', code: 'UREA-25KG', volume: 1720, value: 2.15, unit: 'Kg' },
+                { name: 'Urea 50kg Bag', code: 'UREA-50KG', volume: 700, value: 0.88, unit: 'Kg' }
+              ]},
+              { product: 'NPK Complex', skus: [
+                { name: 'NPK 25kg Bag', code: 'NPK-25KG', volume: 0, value: 0, unit: 'Kg' }
+              ]}
+            ]
+          };
+        case 'balance-stock':
+          return {
+            title: 'Balance Stock Details',
+            subtitle: 'Product & SKU wise remaining stock',
+            data: [
+              { product: 'DAP (Di-Ammonium Phosphate)', skus: [
+                { name: 'DAP 25kg Bag', code: 'DAP-25KG', volume: 23300, value: 29.13, unit: 'Kg' },
+                { name: 'DAP 50kg Bag', code: 'DAP-50KG', volume: 6200, value: 7.75, unit: 'Kg' }
+              ]},
+              { product: 'Urea', skus: [
+                { name: 'Urea 25kg Bag', code: 'UREA-25KG', volume: 3080, value: 3.85, unit: 'Kg' },
+                { name: 'Urea 50kg Bag', code: 'UREA-50KG', volume: 2663, value: 3.33, unit: 'Kg' }
+              ]},
+              { product: 'NPK Complex', skus: [
+                { name: 'NPK 25kg Bag', code: 'NPK-25KG', volume: 0, value: 0, unit: 'Kg' }
+              ]}
+            ]
+          };
+        case 'today-stats':
+          return {
+            title: 'Today\'s Performance Details',
+            subtitle: 'Detailed breakdown of today\'s activities',
+            data: [
+              { product: 'Visits', skus: [
+                { name: 'Scheduled Visits', code: 'SCH', volume: 8, value: 0, unit: 'visits' },
+                { name: 'Completed Visits', code: 'COM', volume: 3, value: 0, unit: 'visits' },
+                { name: 'In Progress', code: 'PRG', volume: 1, value: 0, unit: 'visits' },
+                { name: 'Remaining', code: 'REM', volume: 4, value: 0, unit: 'visits' }
+              ]},
+              { product: 'Orders', skus: [
+                { name: 'Total Orders', code: 'TOT', volume: 5, value: 45, unit: 'orders' },
+                { name: 'Average Order Value', code: 'AVG', volume: 9000, value: 0, unit: 'INR' },
+                { name: 'Target Achievement', code: 'ACH', volume: 90, value: 0, unit: '%' }
+              ]},
+              { product: 'Calls & Tasks', skus: [
+                { name: 'Total Calls', code: 'CAL', volume: 12, value: 0, unit: 'calls' },
+                { name: 'Connected Calls', code: 'CON', volume: 10, value: 0, unit: 'calls' },
+                { name: 'Completed Tasks', code: 'TSK', volume: 6, value: 0, unit: 'tasks' },
+                { name: 'Pending Tasks', code: 'PEN', volume: 2, value: 0, unit: 'tasks' }
+              ]}
+            ]
+          };
+        default:
+          return { title: '', subtitle: '', data: [] };
+      }
+    };
+
+    const detailData = getDetailData(selectedMetric);
+
+    return (
+      <div className="space-y-6">
+        {/* Header with Back Button */}
+        <div className="flex items-center space-x-3">
+          <button
+            onClick={handleBackToMain}
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5 text-gray-600" />
+          </button>
+          <div>
+            <h2 className="text-lg font-bold text-gray-900">{detailData.title}</h2>
+            <p className="text-sm text-gray-600">{detailData.subtitle}</p>
+          </div>
+        </div>
+
+        {/* Detail Content */}
+        <div className="space-y-4">
+          {detailData.data.map((product, index) => (
+            <div key={index} className="bg-white rounded-xl p-4 shadow-lg border border-gray-100">
+              <h3 className="font-semibold text-gray-900 mb-3">{product.product}</h3>
+              <div className="space-y-3">
+                {product.skus.map((sku, skuIndex) => (
+                  <div key={skuIndex} className="bg-gray-50 rounded-lg p-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <div>
+                        <h4 className="font-medium text-gray-800">{sku.name}</h4>
+                        <p className="text-xs text-gray-500">{sku.code}</p>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-lg font-bold text-gray-900">
+                          {sku.volume.toLocaleString()} {sku.unit}
+                        </div>
+                        {sku.value > 0 && (
+                          <div className="text-sm text-gray-600">₹{sku.value.toFixed(2)}L</div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Summary */}
+        <div className="bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl p-4 text-white">
+          <h3 className="font-semibold mb-2">Summary</h3>
+          <div className="text-sm">
+            <p>Last updated: {new Date().toLocaleDateString('en-IN', { 
+              year: 'numeric', 
+              month: 'short', 
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            })}</p>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const renderHomeContent = () => (
     <div className="space-y-6">
       {/* Header with Greeting */}
@@ -195,15 +375,7 @@ const MobileAppDesign: React.FC = () => {
             <div 
               key={index} 
               className="bg-white rounded-lg p-3 shadow-md border border-gray-200 cursor-pointer hover:shadow-lg transition-all duration-200 active:scale-95"
-              onClick={() => {
-                const details = {
-                  'Visits': 'Today\'s Visits:\n• Scheduled: 8\n• Completed: 3\n• In Progress: 1\n• Remaining: 4',
-                  'Orders': 'Today\'s Orders:\n• Total Value: ₹45K\n• Orders: 5\n• Avg Order: ₹9K\n• Target: ₹50K',
-                  'Calls': 'Today\'s Calls:\n• Total Calls: 12\n• Connected: 10\n• Follow-ups: 2\n• Target: 15',
-                  'Tasks': 'Today\'s Tasks:\n• Completed: 6\n• Remaining: 2\n• Total: 8\n• Progress: 75%'
-                };
-                alert(details[stat.label] || 'Details not available');
-              }}
+              onClick={() => handleMetricClick('today-stats')}
             >
               <div className="flex items-center justify-between mb-3">
                 <stat.icon className={`w-5 h-5 ${stat.color}`} />
@@ -440,7 +612,7 @@ const MobileAppDesign: React.FC = () => {
       <div className="grid grid-cols-2 gap-4">
         <div 
           className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-4 shadow-lg border border-orange-200 cursor-pointer hover:shadow-xl transition-all duration-200 active:scale-95"
-          onClick={() => alert('Opening Stock Details:\n\nProduct & SKU wise breakdown:\n• DAP 25kg: 15,000 Kg\n• Urea 50kg: 12,000 Kg\n• NPK Complex: 5,660 Kg\n\nTotal Value: ₹190.00L')}
+          onClick={() => handleMetricClick('opening-stock')}
         >
           <div className="flex items-center justify-between mb-2">
             <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center">
@@ -458,7 +630,7 @@ const MobileAppDesign: React.FC = () => {
         
         <div 
           className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 shadow-lg border border-blue-200 cursor-pointer hover:shadow-xl transition-all duration-200 active:scale-95"
-          onClick={() => alert('YTD Net Sales Details:\n\nProduct & SKU wise sales:\n• DAP 25kg: 6,500 Kg\n• Urea 50kg: 4,800 Kg\n• NPK Complex: 2,003 Kg\n\nTotal Value: ₹43.70L')}
+          onClick={() => handleMetricClick('ytd-sales')}
         >
           <div className="flex items-center justify-between mb-2">
             <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
@@ -478,7 +650,7 @@ const MobileAppDesign: React.FC = () => {
       <div className="grid grid-cols-2 gap-3">
         <div 
           className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 shadow-lg border border-green-200 cursor-pointer hover:shadow-xl transition-all duration-200 active:scale-95"
-          onClick={() => alert('Liquidation Details:\n\nProduct & SKU wise liquidation:\n• DAP 25kg: 6,200 Kg\n• Urea 50kg: 4,520 Kg\n• NPK Complex: 2,000 Kg\n\nTotal Value: ₹55.52L')}
+          onClick={() => handleMetricClick('liquidation')}
         >
           <div className="flex items-center justify-between mb-2">
             <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
@@ -496,7 +668,7 @@ const MobileAppDesign: React.FC = () => {
         
         <div 
           className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 shadow-lg border border-purple-200 cursor-pointer hover:shadow-xl transition-all duration-200 active:scale-95"
-          onClick={() => alert('Balance Stock Details:\n\nProduct & SKU wise remaining:\n• DAP 25kg: 23,300 Kg\n• Urea 50kg: 19,480 Kg\n• NPK Complex: 9,663 Kg\n\nTotal Value: ₹178.23L\n\nClick Verify to update stock levels')}
+          onClick={() => handleMetricClick('balance-stock')}
         >
           <div className="flex items-center justify-between mb-2">
             <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center">
@@ -833,6 +1005,10 @@ const MobileAppDesign: React.FC = () => {
   );
 
   const renderContent = () => {
+    if (currentView !== 'main') {
+      return renderDetailPage();
+    }
+
     switch (activeTab) {
       case 'home': return renderHomeContent();
       case 'schedule': return renderScheduleContent();
