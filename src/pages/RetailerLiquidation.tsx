@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Package, User, MapPin, Phone, CheckCircle, Clock, AlertTriangle, FileSignature as Signature, Save, Eye, Building, Target, TrendingUp, Users, ShoppingCart, Info, Boxes, X, Plus } from 'lucide-react';
+import { ArrowLeft, Package, User, MapPin, Phone, CheckCircle, Clock, AlertTriangle, FileSignature as Signature, Save, Eye, Building, Target, TrendingUp, Users, ShoppingCart, Info, Boxes, X, Plus, Calendar } from 'lucide-react';
 import { SignatureCapture } from '../components/SignatureCapture';
 
 interface RetailerStock {
