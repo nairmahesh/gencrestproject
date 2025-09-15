@@ -623,27 +623,13 @@ const Liquidation: React.FC = () => {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-3 justify-center">
               <button 
                 onClick={() => navigate(`/retailer-liquidation/${entry.id}`)}
-                className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center"
+                className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors flex items-center font-medium"
               >
                 <Eye className="w-4 h-4 mr-2" />
-                Track Liquidation
-              </button>
-              <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center">
-                <Edit className="w-4 h-4 mr-2" />
-                Update Stock
-              </button>
-              <button 
-                onClick={() => handleVerifyStock(entry)}
-                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center"
-              >
-                <CheckCircle className="w-4 h-4 mr-2" />
-                Verify Stock
-              </button>
-              <button className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">
-                Get Signature
+                View Details
               </button>
             </div>
 
