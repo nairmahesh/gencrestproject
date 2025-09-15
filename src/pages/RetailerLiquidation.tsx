@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Package, User, MapPin, Phone, CheckCircle, Clock, AlertTriangle, FileSignature as Signature, Save, Eye, Building, Target, TrendingUp, Users, ShoppingCart, Info, Boxes, X, Plus, Calendar } from 'lucide-react';
+import { ArrowLeft, Package, User, MapPin, Phone, CheckCircle, Clock, AlertTriangle, FileSignature as Signature, Save, Eye, Building, Target, TrendingUp, Users, ShoppingCart, Info, Boxes, X, Plus, Calendar, Calculator } from 'lucide-react';
 import { SignatureCapture } from '../components/SignatureCapture';
 import { useLiquidationCalculation } from '../hooks/useLiquidationCalculation';
 
@@ -1097,108 +1097,142 @@ const RetailerLiquidation: React.FC = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between p-6 border-b">
-              <h3 className="text-lg font-semibold">Stock Reduction Breakdown</h3>
+              <div>
+                <h3 className="text-xl font-semibold text-gray-900 flex items-center">
+                  <Calculator className="w-6 h-6 text-purple-600 mr-2" />
+                  Stock Reduction Breakdown
+                </h3>
+                <p className="text-sm text-gray-600 mt-1">
+                  Account for stock reduction in current stock
+                </p>
+              </div>
               <button
                 onClick={() => setShowStockReductionModal(false)}
-                className="p-2 hover:bg-gray-100 rounded-full"
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
             
-            <div className="p-6 space-y-6">
-              {/* Current Stock Info */}
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <h4 className="font-medium text-blue-800 mb-2">
-                  SKU: {retailerData.stockDetails.find(s => s.skuCode === selectedSKUForReduction)?.skuName}
-                </h4>
-                <p className="text-sm text-blue-600">
-                  Current Stock: {stockUpdateData[selectedSKUForReduction]?.current ?? 
-                    retailerData.stockDetails.find(s => s.skuCode === selectedSKUForReduction)?.currentStock ?? 0} units
-                </p>
-              </div>
-
-              {/* Sold to Farmer */}
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                <h4 className="font-medium text-green-800 mb-3 flex items-center">
-                  <Users className="w-4 h-4 mr-2" />
-                  🌾 Sold to Farmer (Liquidation)
-                </h4>
-                <input
-                  type="number"
-                  value={stockReductionData.soldToFarmer}
-                  onChange={(e) => setStockReductionData(prev => ({ ...prev, soldToFarmer: parseInt(e.target.value) || 0 }))}
-                  className="w-full px-3 py-2 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  placeholder="Enter quantity sold to farmers"
-                  min="0"
-                />
-                <p className="text-xs text-green-600 mt-1">This will count as liquidation</p>
-              </div>
-
-              {/* Sold to Retailers */}
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <h4 className="font-medium text-blue-800 mb-3 flex items-center">
-                  <Building className="w-4 h-4 mr-2" />
-                  Sold to Retailers (Not Liquidation)
-                </h4>
-                <p className="text-sm text-blue-600 mb-4">How many retailers: {stockReductionData.retailers.length}</p>
-                
-                <div className="space-y-4">
-                  {stockReductionData.retailers.map((retailer, index) => (
-                    <div key={retailer.id} className="bg-white border border-blue-200 rounded-lg p-4">
-                      <h5 className="font-medium text-gray-900 mb-3">Retailer {index + 1} - {retailer.name}</h5>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Assigned QTY</label>
-                          <input
-                            type="number"
-                            value={retailer.assigned}
-                            onChange={(e) => handleRetailerStockUpdate(retailer.id, 'assigned', parseInt(e.target.value) || 0)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            min="0"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Sold QTY</label>
-                          <input
-                            type="number"
-                            value={retailer.sold}
-                            onChange={(e) => handleRetailerStockUpdate(retailer.id, 'sold', parseInt(e.target.value) || 0)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            min="0"
-                            max={retailer.assigned}
-                          />
-                        </div>
-                      </div>
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-180px)]">
+              <div className="space-y-6">
+                {/* Summary */}
+                <div className="bg-blue-50 rounded-xl p-4">
+                  <h4 className="font-semibold text-blue-900 mb-2">Stock Reduction Summary</h4>
+                  <div className="grid grid-cols-3 gap-4 text-sm">
+                    <div className="text-center">
+                      <div className="text-lg font-bold text-blue-800">{stockReductionData.soldToFarmer + stockReductionData.soldToRetailer}</div>
+                      <div className="text-blue-600">Total Reduction</div>
                     </div>
-                  ))}
-                </div>
-                
-                <div className="mt-4 p-3 bg-blue-100 rounded-lg">
-                  <p className="text-sm text-blue-800">
-                    Total Sold to Retailers: <strong>{stockReductionData.soldToRetailer} units</strong>
-                  </p>
-                  <p className="text-xs text-blue-600 mt-1">This will NOT count as liquidation</p>
-                </div>
-              </div>
-
-              {/* Summary */}
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                <h4 className="font-medium text-gray-800 mb-2">Summary</h4>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="text-gray-600">Total Reduction:</span>
-                    <span className="font-medium ml-2">{stockReductionData.soldToFarmer + stockReductionData.soldToRetailer} units</span>
+                    <div className="text-center">
+                      <div className="text-lg font-bold text-green-800">{stockReductionData.soldToFarmer}</div>
+                      <div className="text-green-600">🌾 Farmer Sales (Liquidation)</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-lg font-bold text-orange-800">{stockReductionData.soldToRetailer}</div>
+                      <div className="text-orange-600">🏪 Retailer Sales</div>
+                    </div>
                   </div>
-                  <div>
-                    <span className="text-gray-600">Liquidation Count:</span>
-                    <span className="font-medium ml-2 text-green-600">{stockReductionData.soldToFarmer} units</span>
+                </div>
+
+                {/* Farmer Sales */}
+                <div className="bg-green-50 rounded-xl p-4">
+                  <h4 className="font-semibold text-green-900 mb-3 flex items-center">
+                    <Users className="w-5 h-5 mr-2" />
+                    🌾 Sold to Farmers (Counts as Liquidation)
+                  </h4>
+                  <div className="flex items-center space-x-3">
+                    <label className="text-sm font-medium text-green-800">Quantity sold to farmers:</label>
+                    <input
+                      type="number"
+                      value={stockReductionData.soldToFarmer}
+                      onChange={(e) => setStockReductionData(prev => ({ ...prev, soldToFarmer: Number(e.target.value) }))}
+                      className="px-3 py-2 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent w-24"
+                      min="0"
+                    />
+                    <span className="text-sm text-green-600">units</span>
+                  </div>
+                  <p className="text-xs text-green-600 mt-2">
+                    ⚠️ This will be added to distributor's liquidation count
+                  </p>
+                </div>
+
+                {/* Retailer Sales */}
+                <div className="bg-orange-50 rounded-xl p-4">
+                  <h4 className="font-semibold text-orange-900 mb-3 flex items-center">
+                    <Package className="w-5 h-5 mr-2" />
+                    🏪 Sold to Retailers (Does NOT count as liquidation)
+                  </h4>
+                  <p className="text-sm text-orange-700 mb-4">How many retailers: {stockReductionData.retailers.length}</p>
+                  
+                  <div className="space-y-4">
+                    {stockReductionData.retailers.map((retailer, index) => (
+                      <div key={retailer.id} className="bg-white rounded-lg p-4 border border-orange-200">
+                        <h5 className="font-medium text-gray-900 mb-3">Retailer {index + 1} - {retailer.name}</h5>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Assigned QTY
+                            </label>
+                            <input
+                              type="number"
+                              value={retailer.assigned}
+                              onChange={(e) => handleRetailerStockUpdate(retailer.id, 'assigned', Number(e.target.value))}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                              min="0"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Sold QTY
+                            </label>
+                            <input
+                              type="number"
+                              value={retailer.sold}
+                              onChange={(e) => handleRetailerStockUpdate(retailer.id, 'sold', Number(e.target.value))}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                              min="0"
+                              max={retailer.assigned}
+                            />
+                          </div>
+                        </div>
+                        {retailer.sold > retailer.assigned && (
+                          <p className="text-xs text-red-600 mt-1">
+                            ⚠️ Sold quantity cannot exceed assigned quantity
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <div className="mt-4 p-3 bg-orange-100 rounded-lg">
+                    <div className="flex justify-between text-sm">
+                      <span className="font-medium text-orange-800">Total Retailer Sales:</span>
+                      <span className="font-bold text-orange-900">{stockReductionData.soldToRetailer} units</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Validation */}
+                <div className="bg-gray-50 rounded-xl p-4">
+                  <h4 className="font-semibold text-gray-900 mb-2">Validation</h4>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span className="text-gray-600">Total Accounted:</span>
+                      <span className="ml-2 font-bold text-gray-900">
+                        {stockReductionData.soldToFarmer + stockReductionData.soldToRetailer} units
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-gray-600">Must Equal:</span>
+                      <span className="ml-2 font-bold text-gray-900">Stock reduction difference</span>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-
-            <div className="flex gap-3 p-6 border-t bg-white sticky bottom-0">
+            
+            <div className="flex gap-3 p-6 border-t">
               <button
                 onClick={() => setShowStockReductionModal(false)}
                 className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
