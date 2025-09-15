@@ -68,6 +68,7 @@ interface LiquidationEntry {
   approvalStatus: 'Pending' | 'Approved' | 'Rejected';
   approvedBy?: string;
   approvedDate?: string;
+  dealerType: string;
 }
 
 const Liquidation: React.FC = () => {
@@ -669,18 +670,16 @@ const Liquidation: React.FC = () => {
             {entry.daysOverdue > 0 && (
               <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
                 <p className="text-red-800 text-sm">
-                <div className="text-xs text-orange-500 mt-1">Last updated: Jan 20, 2024</div>
                   <AlertTriangle className="w-4 h-4 inline mr-1" />
                   Overdue by {entry.daysOverdue} days - Immediate attention required
                 </p>
               </div>
             )}
-                <div className="text-xs text-blue-500 mt-1">Last updated: Jan 20, 2024</div>
 
             {/* Action Buttons */}
             <div className="flex flex-wrap gap-2">
+              <button 
                 onClick={() => navigate(`/retailer-liquidation/${entry.id}`)}
-                <div className="text-xs text-green-500 mt-1">Last updated: Jan 20, 2024</div>
                 className="bg-purple-100 text-purple-700 px-4 py-2 rounded-lg hover:bg-purple-200 transition-colors flex items-center"
               >
                 <Eye className="w-4 h-4 mr-2" />
@@ -693,8 +692,8 @@ const Liquidation: React.FC = () => {
               <button className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors flex items-center">
                 <FileSignature className="w-4 h-4 mr-2" />
                 Get Signature
+              </button>
             </div>
-              <div className="text-xs text-gray-500 mt-1">Last updated: Jan 20, 2024</div>
 
             {/* Remarks */}
             {entry.remarks && (
@@ -702,6 +701,8 @@ const Liquidation: React.FC = () => {
                 <p className="text-sm text-gray-600">
                   <strong>Remarks:</strong> {entry.remarks}
                 </p>
+              </div>
+            )}
           </div>
         ))}
       </div>
