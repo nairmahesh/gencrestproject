@@ -82,6 +82,11 @@ const RetailerLiquidation: React.FC = () => {
     quantity: 0,
     notes: ''
   });
+  const [stockDestination, setStockDestination] = useState<'farmers' | 'retailers'>('farmers');
+  const [farmerSales, setFarmerSales] = useState(0);
+  const [retailerCount, setRetailerCount] = useState(1);
+  const [retailerBreakdown, setRetailerBreakdown] = useState<{name: string, assignedQty: number, soldQty: number}[]>([]);
+  const [stockDifference, setStockDifference] = useState(0);
 
   // Sample data for retailer liquidation
   const [retailerData, setRetailerData] = useState<RetailerLiquidationData>({
@@ -204,6 +209,7 @@ const RetailerLiquidation: React.FC = () => {
       if (value < currentValue) {
         const difference = currentValue - value;
         setSelectedSKUForReduction(skuCode);
+        setStockDifference(difference);
         setStockReductionData(prev => ({
           ...prev,
           soldToFarmer: 0,
@@ -298,6 +304,7 @@ const RetailerLiquidation: React.FC = () => {
     
     setIsUpdatingStock(false);
   };
+
   const handleAddTransaction = () => {
     if (!newTransaction.recipientName || !newTransaction.recipientPhone || newTransaction.quantity <= 0) {
       alert('Please fill all required fields');
@@ -331,8 +338,19 @@ const RetailerLiquidation: React.FC = () => {
     alert('Transaction added successfully!');
   };
 
+  const updateRetailerBreakdown = (index: number, field: 'assignedQty' | 'soldQty', value: number) => {
+    setRetailerBreakdown(prev => 
+      prev.map((retailer, i) => 
+        i === index ? { ...retailer, [field]: value } : retailer
+      )
+    );
+  };
+
   const handleStockReductionConfirm = () => {
-    const totalSold = stockReductionData.soldToFarmer + stockReductionData.soldToRetailer;
+    const totalSold = stockDestination === 'farmers' 
+      ? farmerSales 
+      : retailerBreakdown.reduce((sum, r) => sum + r.assignedQty, 0);
+    
     const currentValue = stockUpdateData[selectedSKUForReduction]?.current ?? 
       retailerData.stockDetails.find(s => s.skuCode === selectedSKUForReduction)?.currentStock ?? 0;
     
@@ -343,24 +361,23 @@ const RetailerLiquidation: React.FC = () => {
       ...prev,
       [selectedSKUForReduction]: {
         ...prev[selectedSKUForReduction],
-        current: prev[selectedSKUForReduction]?.current ?? retailerData.stockDetails.find(s => s.skuCode === selectedSKUForReduction)?.currentStock ?? 0,
-        liquidated: (prev[selectedSKUForReduction]?.liquidated ?? retailerData.stockDetails.find(s => s.skuCode === selectedSKUForReduction)?.liquidatedToFarmer ?? 0) + stockReductionData.soldToFarmer,
-        returned: prev[selectedSKUForReduction]?.returned ?? retailerData.stockDetails.find(s => s.skuCode === selectedSKUForReduction)?.returnToDistributor ?? 0,
-        current: newCurrentStock
+        current: newCurrentStock,
+        liquidated: (prev[selectedSKUForReduction]?.liquidated ?? retailerData.stockDetails.find(s => s.skuCode === selectedSKUForReduction)?.liquidatedToFarmer ?? 0) + (stockDestination === 'farmers' ? farmerSales : 0),
+        returned: prev[selectedSKUForReduction]?.returned ?? retailerData.stockDetails.find(s => s.skuCode === selectedSKUForReduction)?.returnToDistributor ?? 0
       }
     }));
 
     // Record farmer sales if any
-    if (stockReductionData.soldToFarmer > 0) {
+    if (stockDestination === 'farmers' && farmerSales > 0) {
       const stockItem = retailerData.stockDetails.find(s => s.skuCode === selectedSKUForReduction);
       if (stockItem) {
-        const saleValue = (stockReductionData.soldToFarmer * stockItem.unitPrice) / 100000;
+        const saleValue = (farmerSales * stockItem.unitPrice) / 100000;
         recordFarmerSaleFromRetailer(
           retailerData.distributorId,
           retailerData.retailerId,
           'P001',
           selectedSKUForReduction,
-          stockReductionData.soldToFarmer,
+          farmerSales,
           saleValue
         );
       }
@@ -663,87 +680,6 @@ const RetailerLiquidation: React.FC = () => {
                         )}
                       </div>
                     ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Retailer Details Section */}
-              {selectedTransactionType === 'retailer' && (
-                <div className="mt-6 space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      How many retailers?
-                    </label>
-                    <input
-                      type="number"
-                      min="1"
-                      max="10"
-                      value={retailerCount}
-                      onChange={(e) => setRetailerCount(parseInt(e.target.value) || 1)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  </div>
-
-                  <div className="space-y-3">
-                    <h4 className="font-medium text-gray-900">Retailer Breakdown:</h4>
-                    {Array.from({ length: retailerCount }, (_, index) => (
-                      <div key={index} className="bg-gray-50 rounded-lg p-4">
-                        <h5 className="font-medium text-gray-800 mb-3">
-                          Retailer {index + 1}
-                        </h5>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-600 mb-1">
-                              Assigned QTY
-                            </label>
-                            <input
-                              type="number"
-                              min="0"
-                              value={retailerBreakdown[index]?.assigned || 0}
-                              onChange={(e) => {
-                                const newBreakdown = [...retailerBreakdown];
-                                newBreakdown[index] = {
-                                  ...newBreakdown[index],
-                                  assigned: parseInt(e.target.value) || 0
-                                };
-                                setRetailerBreakdown(newBreakdown);
-                              }}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-600 mb-1">
-                              Sold QTY
-                            </label>
-                            <input
-                              type="number"
-                              min="0"
-                              max={retailerBreakdown[index]?.assigned || 0}
-                              value={retailerBreakdown[index]?.sold || 0}
-                              onChange={(e) => {
-                                const newBreakdown = [...retailerBreakdown];
-                                newBreakdown[index] = {
-                                  ...newBreakdown[index],
-                                  sold: parseInt(e.target.value) || 0
-                                };
-                                setRetailerBreakdown(newBreakdown);
-                              }}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Summary */}
-                  <div className="bg-blue-50 rounded-lg p-4">
-                    <h4 className="font-medium text-blue-900 mb-2">Summary</h4>
-                    <div className="text-sm text-blue-800">
-                      <p>Total Assigned: {retailerBreakdown.reduce((sum, r) => sum + (r?.assigned || 0), 0)} Kg</p>
-                      <p>Total Sold: {retailerBreakdown.reduce((sum, r) => sum + (r?.sold || 0), 0)} Kg</p>
-                      <p>Stock Difference: {stockDifference} Kg</p>
-                    </div>
                   </div>
                 </div>
               )}
@@ -1194,86 +1130,159 @@ const RetailerLiquidation: React.FC = () => {
                   SKU: {retailerData.stockDetails.find(s => s.skuCode === selectedSKUForReduction)?.skuName}
                 </h4>
                 <p className="text-sm text-blue-600">
-                  Current Stock: {stockUpdateData[selectedSKUForReduction]?.current ?? 
-                    retailerData.stockDetails.find(s => s.skuCode === selectedSKUForReduction)?.currentStock ?? 0} units
+                  You reduced stock by {stockDifference} units. Please specify where this stock went:
                 </p>
               </div>
 
-              {/* Sold to Farmer */}
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                <h4 className="font-medium text-green-800 mb-3 flex items-center">
-                  <Users className="w-4 h-4 mr-2" />
-                  🌾 Sold to Farmer (Liquidation)
-                </h4>
-                <input
-                  type="number"
-                  value={stockReductionData.soldToFarmer}
-                  onChange={(e) => setStockReductionData(prev => ({ ...prev, soldToFarmer: parseInt(e.target.value) || 0 }))}
-                  className="w-full px-3 py-2 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  placeholder="Enter quantity sold to farmers"
-                  min="0"
-                />
-                <p className="text-xs text-green-600 mt-1">This will count as liquidation</p>
+              {/* Stock Distribution Options */}
+              <div className="space-y-4 mb-6">
+                <div>
+                  <label className="flex items-center space-x-2">
+                    <input
+                      type="radio"
+                      name="stockDestination"
+                      value="farmers"
+                      checked={stockDestination === 'farmers'}
+                      onChange={(e) => setStockDestination(e.target.value as 'farmers' | 'retailers')}
+                      className="text-green-600"
+                    />
+                    <span className="text-sm font-medium">🌾 Sold to Farmers (Liquidation)</span>
+                  </label>
+                  <p className="text-xs text-green-600 mt-1">This will count as liquidation</p>
+                </div>
+                <div>
+                  <label className="flex items-center space-x-2">
+                    <input
+                      type="radio"
+                      name="stockDestination"
+                      value="retailers"
+                      checked={stockDestination === 'retailers'}
+                      onChange={(e) => setStockDestination(e.target.value as 'farmers' | 'retailers')}
+                      className="text-blue-600"
+                    />
+                    <span className="text-sm font-medium">🏪 Given to Retailers (Not Liquidation)</span>
+                  </label>
+                </div>
               </div>
 
-              {/* Sold to Retailers */}
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <h4 className="font-medium text-blue-800 mb-3 flex items-center">
-                  <Building className="w-4 h-4 mr-2" />
-                  Sold to Retailers (Not Liquidation)
-                </h4>
-                <p className="text-sm text-blue-600 mb-4">How many retailers: {stockReductionData.retailers.length}</p>
-                
-                <div className="space-y-4">
-                  {stockReductionData.retailers.map((retailer, index) => (
-                    <div key={retailer.id} className="bg-white border border-blue-200 rounded-lg p-4">
-                      <h5 className="font-medium text-gray-900 mb-3">Retailer {index + 1} - {retailer.name}</h5>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Assigned QTY</label>
-                          <input
-                            type="number"
-                            value={retailer.assigned}
-                            onChange={(e) => handleRetailerStockUpdate(retailer.id, 'assigned', parseInt(e.target.value) || 0)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            min="0"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Sold QTY</label>
-                          <input
-                            type="number"
-                            value={retailer.sold}
-                            onChange={(e) => handleRetailerStockUpdate(retailer.id, 'sold', parseInt(e.target.value) || 0)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            min="0"
-                            max={retailer.assigned}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                
-                <div className="mt-4 p-3 bg-blue-100 rounded-lg">
-                  <p className="text-sm text-blue-800">
-                    Total Sold to Retailers: <strong>{stockReductionData.soldToRetailer} units</strong>
+              {/* Farmer Sales Input */}
+              {stockDestination === 'farmers' && (
+                <div className="bg-green-50 rounded-lg p-4 mb-6">
+                  <h4 className="font-medium text-green-800 mb-3">🌾 Farmer Sales Details</h4>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Quantity sold to farmers:
+                  </label>
+                  <input
+                    type="number"
+                    value={farmerSales}
+                    onChange={(e) => setFarmerSales(parseInt(e.target.value) || 0)}
+                    max={stockDifference}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    placeholder="Enter quantity sold to farmers"
+                  />
+                  <p className="text-xs text-green-600 mt-1">
+                    ✅ This counts as liquidation (non-returnable)
                   </p>
-                  <p className="text-xs text-blue-600 mt-1">This will NOT count as liquidation</p>
                 </div>
-              </div>
+              )}
+              
+              {/* Retailer Sales Input */}
+              {stockDestination === 'retailers' && (
+                <div className="bg-blue-50 rounded-lg p-4 mb-6">
+                  <h4 className="font-medium text-blue-800 mb-3">🏪 Retailer Distribution</h4>
+                  
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      How many retailers?
+                    </label>
+                    <input
+                      type="number"
+                      value={retailerCount}
+                      onChange={(e) => {
+                        const count = parseInt(e.target.value) || 0;
+                        setRetailerCount(count);
+                        // Update retailer breakdown array
+                        const newBreakdown = Array.from({ length: count }, (_, i) => ({
+                          name: `Retailer ${i + 1}`,
+                          assignedQty: 0,
+                          soldQty: 0
+                        }));
+                        setRetailerBreakdown(newBreakdown);
+                      }}
+                      min="1"
+                      max="10"
+                      className="w-20 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                  
+                  {retailerBreakdown.length > 0 && (
+                    <div className="space-y-4">
+                      {retailerBreakdown.map((retailer, index) => (
+                        <div key={index} className="bg-white rounded-lg p-3 border border-blue-200">
+                          <h5 className="font-medium text-gray-900 mb-2">{retailer.name}</h5>
+                          <div className="grid grid-cols-2 gap-3">
+                            <div>
+                              <label className="block text-xs font-medium text-gray-600 mb-1">
+                                Assigned QTY
+                              </label>
+                              <input
+                                type="number"
+                                value={retailer.assignedQty}
+                                onChange={(e) => updateRetailerBreakdown(index, 'assignedQty', parseInt(e.target.value) || 0)}
+                                className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                                placeholder="0"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-xs font-medium text-gray-600 mb-1">
+                                Sold QTY
+                              </label>
+                              <input
+                                type="number"
+                                value={retailer.soldQty}
+                                onChange={(e) => updateRetailerBreakdown(index, 'soldQty', parseInt(e.target.value) || 0)}
+                                className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                                placeholder="0"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Summary */}
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+              <div className="bg-gray-50 rounded-lg p-4">
                 <h4 className="font-medium text-gray-800 mb-2">Summary</h4>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="text-gray-600">Total Reduction:</span>
-                    <span className="font-medium ml-2">{stockReductionData.soldToFarmer + stockReductionData.soldToRetailer} units</span>
+                <div className="space-y-1 text-sm">
+                  <div className="flex justify-between">
+                    <span>Total Stock Reduced:</span>
+                    <span className="font-medium">{stockDifference} units</span>
                   </div>
-                  <div>
-                    <span className="text-gray-600">Liquidation Count:</span>
-                    <span className="font-medium ml-2 text-green-600">{stockReductionData.soldToFarmer} units</span>
+                  {stockDestination === 'farmers' && (
+                    <div className="flex justify-between">
+                      <span>🌾 Farmer Sales (Liquidation):</span>
+                      <span className="font-medium text-green-600">{farmerSales} units</span>
+                    </div>
+                  )}
+                  {stockDestination === 'retailers' && (
+                    <div className="flex justify-between">
+                      <span>🏪 Retailer Distribution:</span>
+                      <span className="font-medium text-blue-600">{retailerBreakdown.reduce((sum, r) => sum + r.assignedQty, 0)} units</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between border-t pt-2">
+                    <span>Remaining to Account:</span>
+                    <span className="font-medium">
+                      {stockDestination === 'farmers' 
+                        ? stockDifference - farmerSales
+                        : stockDestination === 'retailers'
+                        ? stockDifference - retailerBreakdown.reduce((sum, r) => sum + r.assignedQty, 0)
+                        : stockDifference
+                      } units
+                    </span>
                   </div>
                 </div>
               </div>
@@ -1288,7 +1297,14 @@ const RetailerLiquidation: React.FC = () => {
               </button>
               <button
                 onClick={handleStockReductionConfirm}
-                className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                disabled={
+                  stockDestination === 'farmers' 
+                    ? farmerSales !== stockDifference
+                    : stockDestination === 'retailers'
+                    ? retailerBreakdown.reduce((sum, r) => sum + r.assignedQty, 0) !== stockDifference
+                    : true
+                }
+                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Confirm Stock Reduction
               </button>
