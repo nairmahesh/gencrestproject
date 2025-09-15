@@ -666,6 +666,87 @@ const RetailerLiquidation: React.FC = () => {
                   </div>
                 </div>
               )}
+
+              {/* Retailer Details Section */}
+              {selectedTransactionType === 'retailer' && (
+                <div className="mt-6 space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      How many retailers?
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      max="10"
+                      value={retailerCount}
+                      onChange={(e) => setRetailerCount(parseInt(e.target.value) || 1)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+
+                  <div className="space-y-3">
+                    <h4 className="font-medium text-gray-900">Retailer Breakdown:</h4>
+                    {Array.from({ length: retailerCount }, (_, index) => (
+                      <div key={index} className="bg-gray-50 rounded-lg p-4">
+                        <h5 className="font-medium text-gray-800 mb-3">
+                          Retailer {index + 1}
+                        </h5>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-600 mb-1">
+                              Assigned QTY
+                            </label>
+                            <input
+                              type="number"
+                              min="0"
+                              value={retailerBreakdown[index]?.assigned || 0}
+                              onChange={(e) => {
+                                const newBreakdown = [...retailerBreakdown];
+                                newBreakdown[index] = {
+                                  ...newBreakdown[index],
+                                  assigned: parseInt(e.target.value) || 0
+                                };
+                                setRetailerBreakdown(newBreakdown);
+                              }}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-600 mb-1">
+                              Sold QTY
+                            </label>
+                            <input
+                              type="number"
+                              min="0"
+                              max={retailerBreakdown[index]?.assigned || 0}
+                              value={retailerBreakdown[index]?.sold || 0}
+                              onChange={(e) => {
+                                const newBreakdown = [...retailerBreakdown];
+                                newBreakdown[index] = {
+                                  ...newBreakdown[index],
+                                  sold: parseInt(e.target.value) || 0
+                                };
+                                setRetailerBreakdown(newBreakdown);
+                              }}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Summary */}
+                  <div className="bg-blue-50 rounded-lg p-4">
+                    <h4 className="font-medium text-blue-900 mb-2">Summary</h4>
+                    <div className="text-sm text-blue-800">
+                      <p>Total Assigned: {retailerBreakdown.reduce((sum, r) => sum + (r?.assigned || 0), 0)} Kg</p>
+                      <p>Total Sold: {retailerBreakdown.reduce((sum, r) => sum + (r?.sold || 0), 0)} Kg</p>
+                      <p>Stock Difference: {stockDifference} Kg</p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
