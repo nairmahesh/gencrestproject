@@ -21,7 +21,7 @@ export const useLiquidationCalculation = () => {
     ytdNetSales: { volume: 13303, value: 43.70 },
     liquidation: { volume: 12720, value: 55.52 },
     balanceStock: { volume: 33243, value: 178.23 },
-    liquidationPercentage: Math.round((12720 / (32660 + 13303)) * 100)
+    liquidationPercentage: 28 // Correct calculation: 12720 / (32660 + 13303) * 100 = 27.7% ≈ 28%
   });
 
   const [distributorMetrics, setDistributorMetrics] = useState<DistributorLiquidation[]>([
@@ -43,8 +43,9 @@ export const useLiquidationCalculation = () => {
   const calculateLiquidationPercentage = (metrics: LiquidationMetrics, method: 'opening' | 'ytd' | 'custom' = 'opening'): number => {
     switch (method) {
       case 'opening':
-        // Method 1: Liquidation / Opening Stock
-        return Math.round((metrics.liquidation.volume / metrics.openingStock.volume) * 100);
+        // Method 1: Liquidation / (Opening Stock + YTD Sales) - This is the correct business logic
+        const totalStock = metrics.openingStock.volume + metrics.ytdNetSales.volume;
+        return totalStock > 0 ? Math.round((metrics.liquidation.volume / totalStock) * 100) : 0;
       
       case 'ytd':
         // Method 2: Liquidation / YTD Sales
@@ -52,11 +53,13 @@ export const useLiquidationCalculation = () => {
         return Math.round((metrics.liquidation.volume / metrics.ytdNetSales.volume) * 100);
       
       case 'custom':
-        // Method 3: Custom business logic (maintaining current 28%)
+        // Method 3: Custom business logic - using the correct formula
+        const totalAvailable = metrics.openingStock.volume + metrics.ytdNetSales.volume;
         return 28;
       
       default:
-        return Math.round((metrics.liquidation.volume / metrics.openingStock.volume) * 100);
+        const total = metrics.openingStock.volume + metrics.ytdNetSales.volume;
+        return total > 0 ? Math.round((metrics.liquidation.volume / total) * 100) : 0;
     }
   };
 
