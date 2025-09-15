@@ -86,6 +86,7 @@ export interface LiquidationEntry {
   dealerId: string;
   dealerName: string;
   dealerCode: string;
+  dealerType: 'Distributor' | 'Retailer';
   dealerAddress: string;
   dealerPhone: string;
   territory: string;

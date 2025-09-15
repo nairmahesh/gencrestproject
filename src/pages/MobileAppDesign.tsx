@@ -420,122 +420,184 @@ const MobileAppDesign: React.FC = () => {
 
   const renderLiquidationContent = () => (
     <div className="space-y-6">
+      {/* Search and Filter */}
+      <div className="flex space-x-3">
+        <div className="flex-1 relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+          <input
+            type="text"
+            placeholder="Search distributors, retailers..."
+            className="w-full pl-10 pr-4 py-3 bg-white rounded-xl border border-gray-200 focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm"
+          />
+        </div>
+        <button className="bg-white p-3 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+          <Filter className="w-5 h-5 text-gray-600" />
+        </button>
+      </div>
+
+      {/* Filter Tabs */}
+      <div className="flex space-x-2 overflow-x-auto pb-2">
+        <button className="px-4 py-2 bg-purple-600 text-white rounded-full text-sm font-medium whitespace-nowrap">
+          All
+        </button>
+        <button className="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium whitespace-nowrap hover:bg-gray-200">
+          Distributors
+        </button>
+        <button className="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium whitespace-nowrap hover:bg-gray-200">
+          Retailers
+        </button>
+        <button className="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium whitespace-nowrap hover:bg-gray-200">
+          High Priority
+        </button>
+      </div>
+
       {/* Stock Liquidation Overview Cards */}
-      <div className="grid grid-cols-2 gap-3">
-        <div className="bg-orange-50 rounded-xl p-4 shadow-lg border border-orange-200">
+      <div className="grid grid-cols-2 gap-4">
+        <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-4 shadow-lg border border-orange-200">
           <div className="flex items-center justify-between mb-2">
-            <h4 className="text-sm font-bold text-gray-900">Opening Stock</h4>
+            <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center">
+              <Package className="w-4 h-4 text-white" />
+            </div>
           </div>
-          <p className="text-xs text-gray-600 mb-3">As of 1st April 2025</p>
-          <div className="space-y-1">
-            <div className="text-sm font-semibold text-gray-900">Vol (Kg/Litre) 32660</div>
-            <div className="text-sm font-semibold text-gray-900 border-t border-gray-300 pt-1">Value (Rs.Lakhs) 190.00</div>
+          <h4 className="text-sm font-bold text-orange-800 mb-1">Opening Stock</h4>
+          <p className="text-xs text-orange-600 mb-2">As of 1st April 2025</p>
+          <div className="space-y-1 text-center">
+            <div className="text-lg font-bold text-orange-900">32,660</div>
+            <div className="text-xs text-orange-700">Kg/Litre</div>
+            <div className="text-sm font-semibold text-orange-800 border-t border-orange-300 pt-1">₹190.00L</div>
           </div>
         </div>
         
-        <div className="bg-blue-50 rounded-xl p-4 shadow-lg border border-blue-200">
+        <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 shadow-lg border border-blue-200">
           <div className="flex items-center justify-between mb-2">
-            <h4 className="text-sm font-bold text-gray-900">YTD Net Sales</h4>
+            <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+              <TrendingUp className="w-4 h-4 text-white" />
+            </div>
           </div>
-          <p className="text-xs text-gray-600 mb-3">April - Aug,2025</p>
-          <div className="space-y-1">
-            <div className="text-sm font-semibold text-gray-900">Vol (Kg/Litre) 13303</div>
-            <div className="text-sm font-semibold text-gray-900 border-t border-gray-300 pt-1">Value (Rs.Lakhs) 43.70</div>
+          <h4 className="text-sm font-bold text-blue-800 mb-1">YTD Net Sales</h4>
+          <p className="text-xs text-blue-600 mb-2">April - Aug, 2025</p>
+          <div className="space-y-1 text-center">
+            <div className="text-lg font-bold text-blue-900">13,303</div>
+            <div className="text-xs text-blue-700">Kg/Litre</div>
+            <div className="text-sm font-semibold text-blue-800 border-t border-blue-300 pt-1">₹43.70L</div>
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        <div className="bg-green-50 rounded-xl p-4 shadow-lg border border-green-200">
+        <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 shadow-lg border border-green-200">
           <div className="flex items-center justify-between mb-2">
-            <h4 className="text-sm font-bold text-gray-900">Liquidation</h4>
+            <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
+              <Droplets className="w-4 h-4 text-white" />
+            </div>
           </div>
-          <p className="text-xs text-gray-600 mb-3">As of Aug (YTD)</p>
-          <div className="space-y-1">
-            <div className="text-sm font-semibold text-gray-900">Vol (Kg/Litre) 12720</div>
-            <div className="text-sm font-semibold text-gray-900 border-t border-gray-300 pt-1">Value (Rs.Lakhs) 55.52</div>
+          <h4 className="text-sm font-bold text-green-800 mb-1">Liquidation</h4>
+          <p className="text-xs text-green-600 mb-2">As of Aug (YTD)</p>
+          <div className="space-y-1 text-center">
+            <div className="text-lg font-bold text-green-900">12,720</div>
+            <div className="text-xs text-green-700">Kg/Litre</div>
+            <div className="text-sm font-semibold text-green-800 border-t border-green-300 pt-1">₹55.52L</div>
           </div>
         </div>
         
-        <div className="bg-purple-50 rounded-xl p-4 shadow-lg border border-purple-200">
+        <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 shadow-lg border border-purple-200">
           <div className="flex items-center justify-between mb-2">
-            <h4 className="text-sm font-bold text-gray-900">Balance Stock</h4>
+            <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center">
+              <Package className="w-4 h-4 text-white" />
+            </div>
           </div>
-          <p className="text-xs text-gray-600 mb-3">&nbsp;</p>
-          <div className="space-y-1">
-            <div className="text-sm font-semibold text-gray-900">Vol (Kg/Litre) 33243</div>
-            <div className="text-sm font-semibold text-gray-900 border-t border-gray-300 pt-1">Value (Rs.Lakhs) 178.23</div>
+          <h4 className="text-sm font-bold text-purple-800 mb-1">Balance Stock</h4>
+          <p className="text-xs text-purple-600 mb-2">&nbsp;</p>
+          <div className="space-y-1 text-center">
+            <div className="text-lg font-bold text-purple-900">33,243</div>
+            <div className="text-xs text-purple-700">Kg/Litre</div>
+            <div className="text-sm font-semibold text-purple-800 border-t border-purple-300 pt-1">₹178.23L</div>
           </div>
         </div>
       </div>
 
       {/* Liquidation Percentage Card */}
-      <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
+      <div className="bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl p-6 shadow-lg text-white">
         <div className="text-center">
-          <h4 className="text-lg font-bold text-gray-900 mb-2">% Liquidation</h4>
-          <div className="text-4xl font-bold text-purple-600 mb-4">28%</div>
-          <div className="w-full bg-gray-200 rounded-full h-3">
-            <div className="bg-gradient-to-r from-purple-500 to-pink-500 h-3 rounded-full" style={{ width: '28%' }}></div>
+          <h4 className="text-lg font-bold mb-2">% Liquidation</h4>
+          <div className="text-5xl font-bold mb-4">28%</div>
+          <div className="w-full bg-white bg-opacity-30 rounded-full h-3">
+            <div className="bg-white h-3 rounded-full transition-all duration-1000" style={{ width: '28%' }}></div>
           </div>
-        </div>
-      </div>
-
-      {/* Liquidation Progress */}
-      <div className="bg-white rounded-xl p-4 shadow-lg border border-gray-100">
-        <h3 className="font-semibold text-gray-900 mb-4">Overall Progress</h3>
-        <div className="space-y-3">
-          <div className="flex justify-between text-sm">
-            <span>Liquidation Rate</span>
-            <span className="font-semibold">39%</span>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-3">
-            <div className="bg-gradient-to-r from-green-500 to-blue-500 h-3 rounded-full" style={{ width: '39%' }}></div>
-          </div>
+          <p className="text-sm text-purple-100 mt-2">Overall Performance</p>
         </div>
       </div>
 
       {/* Dealer Liquidation List */}
       <div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Dealer Liquidation</h3>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-gray-900">Liquidation Tracking</h3>
+          <span className="text-sm text-gray-500">3 entries</span>
+        </div>
         <div className="space-y-4">
           {[
-            { dealer: 'SRI RAMA SEEDS AND PESTICIDES', product: 'Multiple Products', opening: 40, current: 210, liquidated: 140, percentage: 40, openingValue: 0.38, currentValue: 1.38, liquidatedValue: 0.93 },
-            { dealer: 'Ram Kumar Distributors', product: 'NPK Fertilizer', opening: 100, current: 75, liquidated: 15, percentage: 25, openingValue: 1.20, currentValue: 0.90, liquidatedValue: 0.18 },
-            { dealer: 'Green Agro Store', product: 'DAP', opening: 120, current: 90, liquidated: 20, percentage: 25, openingValue: 1.44, currentValue: 1.08, liquidatedValue: 0.24 }
+            { dealer: 'SRI RAMA SEEDS', type: 'Distributor', product: 'Multiple Products', opening: 40, current: 210, liquidated: 140, percentage: 40, openingValue: 0.38, currentValue: 1.38, liquidatedValue: 0.93, priority: 'high' },
+            { dealer: 'Ram Kumar Distributors', type: 'Distributor', product: 'NPK Fertilizer', opening: 100, current: 75, liquidated: 15, percentage: 25, openingValue: 1.20, currentValue: 0.90, liquidatedValue: 0.18, priority: 'medium' },
+            { dealer: 'Green Agro Store', type: 'Retailer', product: 'DAP', opening: 120, current: 90, liquidated: 20, percentage: 25, openingValue: 1.44, currentValue: 1.08, liquidatedValue: 0.24, priority: 'low' }
           ].map((item, index) => (
             <div key={index} className="bg-white rounded-xl p-4 shadow-lg border border-gray-100 hover:shadow-xl transition-shadow">
               <div className="flex items-center justify-between mb-3">
-                <div>
-                  <h4 className="font-semibold text-gray-900">{item.dealer}</h4>
-                  <p className="text-sm text-gray-600">{item.product}</p>
+                <div className="flex-1">
+                  <div className="flex items-center space-x-2 mb-1">
+                    <h4 className="font-semibold text-gray-900 text-sm">{item.dealer}</h4>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      item.type === 'Distributor' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'
+                    }`}>
+                      {item.type}
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-600">{item.product}</p>
                 </div>
-                <span className="text-sm font-semibold text-purple-600">{item.percentage}%</span>
+                <div className="text-right">
+                  <span className="text-lg font-bold text-purple-600">{item.percentage}%</span>
+                  <div className={`w-2 h-2 rounded-full mt-1 ml-auto ${
+                    item.priority === 'high' ? 'bg-red-500' :
+                    item.priority === 'medium' ? 'bg-yellow-500' : 'bg-green-500'
+                  }`}></div>
+                </div>
               </div>
               
-              <div className="grid grid-cols-3 gap-3 text-center text-sm mb-2">
-                <div>
-                  <div className="text-gray-600">Opening</div>
-                  <div className="font-semibold">{item.opening}</div>
-                  <div className="text-xs text-gray-500">₹{item.openingValue}L</div>
+              <div className="grid grid-cols-3 gap-2 text-center text-xs mb-3">
+                <div className="bg-orange-50 rounded-lg p-2">
+                  <div className="text-orange-600 font-medium">Opening</div>
+                  <div className="font-bold text-orange-800">{item.opening}</div>
+                  <div className="text-orange-600">₹{item.openingValue}L</div>
                 </div>
-                <div>
-                  <div className="text-gray-600">Current</div>
-                  <div className="font-semibold">{item.current}</div>
-                  <div className="text-xs text-gray-500">₹{item.currentValue}L</div>
+                <div className="bg-blue-50 rounded-lg p-2">
+                  <div className="text-blue-600 font-medium">Current</div>
+                  <div className="font-bold text-blue-800">{item.current}</div>
+                  <div className="text-blue-600">₹{item.currentValue}L</div>
                 </div>
-                <div>
-                  <div className="text-gray-600">Liquidated</div>
-                  <div className="font-semibold text-green-600">{item.liquidated}</div>
-                  <div className="text-xs text-gray-500">₹{item.liquidatedValue}L</div>
+                <div className="bg-green-50 rounded-lg p-2">
+                  <div className="text-green-600 font-medium">Liquidated</div>
+                  <div className="font-bold text-green-800">{item.liquidated}</div>
+                  <div className="text-green-600">₹{item.liquidatedValue}L</div>
                 </div>
               </div>
               
               <div className="mt-3">
+                <div className="flex justify-between text-xs text-gray-500 mb-1">
+                  <span>Progress</span>
+                  <span>{item.percentage}%</span>
+                </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div 
-                    className="bg-green-500 h-2 rounded-full" 
+                    className="bg-gradient-to-r from-green-500 to-blue-500 h-2 rounded-full transition-all duration-500" 
                     style={{ width: `${item.percentage}%` }}
                   ></div>
+                </div>
+                <div className="flex justify-between mt-2">
+                  <button className="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-full font-medium">
+                    Track
+                  </button>
+                  <button className="text-xs bg-gray-100 text-gray-700 px-3 py-1 rounded-full font-medium">
+                    Details
+                  </button>
                 </div>
               </div>
             </div>

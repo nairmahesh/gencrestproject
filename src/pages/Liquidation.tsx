@@ -77,6 +77,7 @@ const Liquidation: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [priorityFilter, setPriorityFilter] = useState('All');
+  const [typeFilter, setTypeFilter] = useState('All');
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedMetric, setSelectedMetric] = useState<string>('');
 
@@ -87,6 +88,7 @@ const Liquidation: React.FC = () => {
       dealerId: 'DIST001',
       dealerName: 'SRI RAMA SEEDS AND PESTICIDES',
       dealerCode: '1325',
+      dealerType: 'Distributor',
       dealerAddress: 'Main Market, Agricultural Zone',
       dealerPhone: '+91 98765 12345',
       territory: 'North Delhi',
@@ -129,6 +131,7 @@ const Liquidation: React.FC = () => {
       dealerId: 'DIST002',
       dealerName: 'Ram Kumar Distributors',
       dealerCode: 'DLR001',
+      dealerType: 'Distributor',
       dealerAddress: 'Green Valley, Sector 12',
       dealerPhone: '+91 98765 43210',
       territory: 'South Delhi',
@@ -169,6 +172,7 @@ const Liquidation: React.FC = () => {
       dealerId: 'DIST003',
       dealerName: 'Green Agro Store',
       dealerCode: 'DLR003',
+      dealerType: 'Retailer',
       dealerAddress: 'Industrial Area, Sector 8',
       dealerPhone: '+91 76543 21098',
       territory: 'East Delhi',
@@ -253,9 +257,10 @@ const Liquidation: React.FC = () => {
     const matchesSearch = entry.dealerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          entry.dealerCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          entry.productName.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesType = typeFilter === 'All' || entry.dealerType === typeFilter;
     const matchesStatus = statusFilter === 'All' || entry.status === statusFilter;
     const matchesPriority = priorityFilter === 'All' || entry.priority === priorityFilter;
-    return matchesSearch && matchesStatus && matchesPriority;
+    return matchesSearch && matchesType && matchesStatus && matchesPriority;
   });
 
   const handleMetricClick = (metric: string) => {
@@ -455,6 +460,15 @@ const Liquidation: React.FC = () => {
           </div>
           <div className="flex items-center space-x-4">
             <select
+              value={typeFilter}
+              onChange={(e) => setTypeFilter(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            >
+              <option value="All">All Types</option>
+              <option value="Distributor">Distributors</option>
+              <option value="Retailer">Retailers</option>
+            </select>
+            <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
@@ -497,6 +511,11 @@ const Liquidation: React.FC = () => {
                 </div>
               </div>
               <div className="flex items-center space-x-2">
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                  entry.dealerType === 'Distributor' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'
+                }`}>
+                  {entry.dealerType}
+                </span>
                 <span className={`px-3 py-1 rounded-full text-xs font-medium flex items-center ${getStatusColor(entry.status)}`}>
                   {getStatusIcon(entry.status)}
                   <span className="ml-1">{entry.status}</span>

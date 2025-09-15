@@ -139,70 +139,114 @@ const MobileApp: React.FC<MobileAppProps> = ({ children }) => {
       unread: false
     }
   ];
+      {/* Search and Filter */}
+      <div className="flex space-x-3">
+        <div className="flex-1 relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+          <input
+            type="text"
+            placeholder="Search distributors, retailers..."
+            className="w-full pl-10 pr-4 py-3 bg-white rounded-2xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+        </div>
+        <button className="bg-white p-3 rounded-2xl border border-gray-200 shadow-sm">
+          <Filter className="w-5 h-5 text-gray-600" />
+        </button>
+      </div>
+
+      {/* Filter Tabs */}
+      <div className="flex space-x-2 overflow-x-auto pb-2">
+        <button className="px-4 py-2 bg-blue-600 text-white rounded-full text-sm font-medium whitespace-nowrap">
+          All
+        </button>
+        <button className="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium whitespace-nowrap">
+          Distributors
+        </button>
+        <button className="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium whitespace-nowrap">
+          Retailers
+        </button>
+        <button className="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium whitespace-nowrap">
+          High Priority
+        </button>
+      </div>
+
 
   const renderHomeContent = () => (
-    <div className="space-y-6">
+        <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-2xl p-4 shadow-lg border border-orange-200">
       {/* Header with Greeting */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-6 text-white">
+            <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center">
+              <Package className="w-4 h-4 text-white" />
+            </div>
         <div className="flex items-center justify-between mb-4">
-          <div>
-            <h2 className="text-xl font-bold">Good Morning!</h2>
-            <p className="text-blue-100">Rajesh Kumar</p>
-          </div>
+          <h4 className="text-sm font-bold text-orange-800 mb-1">Opening Stock</h4>
+          <p className="text-xs text-orange-600 mb-2">As of 1st April 2025</p>
+          <div className="space-y-1 text-center">
+            <div className="text-lg font-bold text-orange-900">32,660</div>
+            <div className="text-xs text-orange-700">Kg/Litre</div>
+            <div className="text-sm font-semibold text-orange-800 border-t border-orange-300 pt-1">₹190.00L</div>
           <div className="text-right">
             <div className="text-2xl font-bold">8</div>
             <div className="text-blue-100 text-sm">Visits today</div>
-          </div>
+        <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-4 shadow-lg border border-blue-200">
         </div>
-        <div className="text-blue-100 text-sm">
+            <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+              <TrendingUp className="w-4 h-4 text-white" />
+            </div>
           {currentTime.toLocaleDateString('en-IN', { 
-            weekday: 'long', 
-            month: 'long', 
-            day: 'numeric' 
-          })}
+          <h4 className="text-sm font-bold text-blue-800 mb-1">YTD Net Sales</h4>
+          <p className="text-xs text-blue-600 mb-2">April - Aug, 2025</p>
+          <div className="space-y-1 text-center">
+            <div className="text-lg font-bold text-blue-900">13,303</div>
+            <div className="text-xs text-blue-700">Kg/Litre</div>
+            <div className="text-sm font-semibold text-blue-800 border-t border-blue-300 pt-1">₹43.70L</div>
         </div>
       </div>
 
       {/* Quick Actions */}
       <div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+        <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-4 shadow-lg border border-green-200">
         <div className="grid grid-cols-4 gap-4">
-          {quickActions.map((action) => (
+            <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
+              <Droplets className="w-4 h-4 text-white" />
+            </div>
             <button
-              key={action.id}
-              className={`${action.color} text-white p-4 rounded-2xl flex flex-col items-center space-y-2 active:scale-95 transition-transform`}
-            >
-              <action.icon className="w-6 h-6" />
+          <h4 className="text-sm font-bold text-green-800 mb-1">Liquidation</h4>
+          <p className="text-xs text-green-600 mb-2">As of Aug (YTD)</p>
+          <div className="space-y-1 text-center">
+            <div className="text-lg font-bold text-green-900">12,720</div>
+            <div className="text-xs text-green-700">Kg/Litre</div>
+            <div className="text-sm font-semibold text-green-800 border-t border-green-300 pt-1">₹55.52L</div>
               <span className="text-xs font-medium">{action.label}</span>
             </button>
           ))}
-        </div>
+        <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-4 shadow-lg border border-purple-200">
       </div>
-
+            <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center">
+              <Package className="w-4 h-4 text-white" />
+            </div>
       {/* Today's Stats */}
-      <div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Today's Progress</h3>
-        <div className="grid grid-cols-2 gap-4">
-          {todayStats.map((stat, index) => (
+          <h4 className="text-sm font-bold text-purple-800 mb-1">Balance Stock</h4>
+          <p className="text-xs text-purple-600 mb-2">&nbsp;</p>
+          <div className="space-y-1 text-center">
+            <div className="text-lg font-bold text-purple-900">33,243</div>
+            <div className="text-xs text-purple-700">Kg/Litre</div>
+            <div className="text-sm font-semibold text-purple-800 border-t border-purple-300 pt-1">₹178.23L</div>
             <div key={index} className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
               <div className="flex items-center justify-between mb-2">
                 <stat.icon className={`w-5 h-5 ${stat.color}`} />
                 <span className="text-xs text-gray-500">Target: {stat.target}</span>
               </div>
-              <div className="text-xl font-bold text-gray-900">{stat.value}</div>
+      <div className="bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl p-6 shadow-lg text-white">
               <div className="text-sm text-gray-600">{stat.label}</div>
-            </div>
-          ))}
-        </div>
-      </div>
+          <h4 className="text-lg font-bold mb-2">% Liquidation</h4>
+          <div className="text-5xl font-bold mb-4">28%</div>
+          <div className="w-full bg-white bg-opacity-30 rounded-full h-3">
+            <div className="bg-white h-3 rounded-full transition-all duration-1000" style={{ width: '28%' }}></div>
 
+          <p className="text-sm text-blue-100 mt-2">Overall Performance</p>
       {/* Upcoming Visits */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">Upcoming Visits</h3>
-          <button className="text-blue-600 text-sm font-medium">View All</button>
-        </div>
-        <div className="space-y-3">
           {upcomingVisits.map((visit) => (
             <div key={visit.id} className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
               <div className="flex items-center justify-between mb-2">
@@ -543,43 +587,49 @@ const MobileApp: React.FC<MobileAppProps> = ({ children }) => {
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="px-4 py-6 pb-24">
-        {renderContent()}
-      </div>
-
-      {/* Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2 z-50">
-        <div className="flex justify-around">
-          {navigationTabs.map((tab) => (
-            <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex flex-col items-center py-2 px-3 rounded-xl transition-colors ${
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-gray-900">Liquidation Tracking</h3>
+          <span className="text-sm text-gray-500">3 entries</span>
+        </div>
                 activeTab === tab.id
                   ? 'text-blue-600 bg-blue-50'
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
-            >
+            { dealer: 'SRI RAMA SEEDS', type: 'Distributor', product: 'Multiple Products', opening: 40, current: 210, liquidated: 140, percentage: 40, openingValue: 0.38, currentValue: 1.38, liquidatedValue: 0.93, priority: 'high' },
+            { dealer: 'Ram Kumar Distributors', type: 'Distributor', product: 'NPK Fertilizer', opening: 100, current: 75, liquidated: 15, percentage: 25, openingValue: 1.20, currentValue: 0.90, liquidatedValue: 0.18, priority: 'medium' },
+            { dealer: 'Green Agro Store', type: 'Retailer', product: 'DAP', opening: 120, current: 90, liquidated: 20, percentage: 25, openingValue: 1.44, currentValue: 1.08, liquidatedValue: 0.24, priority: 'low' }
               <tab.icon className="w-5 h-5 mb-1" />
-              <span className="text-xs font-medium">{tab.label}</span>
+            <div key={index} className="bg-white rounded-2xl p-4 shadow-lg border border-gray-100 hover:shadow-xl transition-shadow">
             </button>
-          ))}
-        </div>
-      </div>
+                <div className="flex-1">
+                  <div className="flex items-center space-x-2 mb-1">
+                    <h4 className="font-semibold text-gray-900 text-sm">{item.dealer}</h4>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      item.type === 'Distributor' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'
+                    }`}>
+                      {item.type}
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-600">{item.product}</p>
 
-      {/* Sidebar Overlay */}
+                <div className="text-right">
+                  <span className="text-lg font-bold text-purple-600">{item.percentage}%</span>
+                  <div className={`w-2 h-2 rounded-full mt-1 ml-auto ${
+                    item.priority === 'high' ? 'bg-red-500' :
+                    item.priority === 'medium' ? 'bg-yellow-500' : 'bg-green-500'
+                  }`}></div>
+                </div>
       {showSidebar && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50">
-          <div className="fixed inset-y-0 left-0 w-80 bg-white shadow-xl">
-            <div className="flex items-center justify-between p-6 border-b border-gray-200">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
-                  <span className="text-white font-bold">RK</span>
-                </div>
-                <div>
-                  <h3 className="font-semibold text-gray-900">Rajesh Kumar</h3>
-                  <p className="text-sm text-gray-600">MDO - North Delhi</p>
+                <div className="bg-blue-50 rounded-lg p-2">
+                  <div className="text-blue-600 font-medium">Current</div>
+                  <div className="font-bold text-blue-800">{item.current}</div>
+                  <div className="text-blue-600">₹{item.currentValue}L</div>
+                  <div className="font-bold text-orange-800">{item.opening}</div>
+                <div className="bg-green-50 rounded-lg p-2">
+                  <div className="text-green-600 font-medium">Liquidated</div>
+                  <div className="font-bold text-green-800">{item.liquidated}</div>
+                  <div className="text-green-600">₹{item.liquidatedValue}L</div>
                 </div>
               </div>
               <button
@@ -635,11 +685,23 @@ const MobileApp: React.FC<MobileAppProps> = ({ children }) => {
                   <div className="flex items-start justify-between mb-2">
                     <h4 className="font-medium text-gray-900">{notification.title}</h4>
                     {notification.unread && (
+                <div className="flex justify-between text-xs text-gray-500 mb-1">
+                  <span>Progress</span>
+                  <span>{item.percentage}%</span>
+                </div>
                       <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                     )}
-                  </div>
+                    className="bg-gradient-to-r from-green-500 to-blue-500 h-2 rounded-full transition-all duration-500" 
                   <p className="text-sm text-gray-600 mb-2">{notification.message}</p>
                   <p className="text-xs text-gray-500">{notification.time}</p>
+                </div>
+                <div className="flex justify-between mt-2">
+                  <button className="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-medium">
+                    Track
+                  </button>
+                  <button className="text-xs bg-gray-100 text-gray-700 px-3 py-1 rounded-full font-medium">
+                    Details
+                  </button>
                 </div>
               ))}
             </div>
