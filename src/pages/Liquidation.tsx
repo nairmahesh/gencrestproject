@@ -1,27 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Package, 
-  TrendingUp, 
-  Droplets, 
-  Target, 
-  Users, 
-  Building, 
-  Search, 
-  Filter, 
-  Eye, 
-  Edit, 
-  CheckCircle, 
-  Clock, 
-  AlertTriangle,
-  ArrowLeft,
-  Info,
-  Calculator,
-  X,
-  DollarSign,
-  Signature,
-  Save
-} from 'lucide-react';
+import { Package, TrendingUp, Droplets, Target, Users, Building, Search, Filter, Eye, Edit, CheckCircle, Clock, AlertTriangle, ArrowLeft, Info, Calculator, X, DollarSign, FileSignature as Signature, Save } from 'lucide-react';
 
 interface LiquidationEntry {
   id: string;
