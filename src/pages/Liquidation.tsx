@@ -1,192 +1,134 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Package, TrendingUp, Users, Droplets, Eye, Edit, CheckCircle, AlertTriangle, Search, Filter, Download, Plus, Building, MapPin, Calendar, Phone, DollarSign, Target, BarChart3, Activity, Zap, Award, Clock, X, Save, Camera, FileText, FileSignature as Signature } from 'lucide-react';
+import { ArrowLeft, Package, TrendingUp, Users, Droplets, Eye, Edit, CheckCircle, AlertTriangle, Search, Filter, Download, Plus, Building, MapPin, Calendar, Phone, DollarSign, Target, BarChart3, Activity, Zap, Award, Clock, X, Save, Camera, FileText, FileSignature as Signature, Shield } from 'lucide-react';
 import { useLiquidationCalculation } from '../hooks/useLiquidationCalculation';
 
-interface LiquidationEntry {
+interface DistributorEntry {
   id: string;
-  dealerId: string;
-  dealerName: string;
-  dealerCode: string;
-  dealerType: 'Distributor' | 'Retailer';
-  dealerAddress: string;
-  dealerPhone: string;
+  distributorName: string;
+  distributorCode: string;
+  products: string;
   territory: string;
   region: string;
   zone: string;
-  assignedMDO?: string;
-  assignedTSM?: string;
-  
-  // Stock Data
   openingStock: { volume: number; value: number };
   ytdNetSales: { volume: number; value: number };
   liquidation: { volume: number; value: number };
   balanceStock: { volume: number; value: number };
   liquidationPercentage: number;
-  
-  // Status
-  status: 'Active' | 'Pending' | 'Completed' | 'Overdue';
+  status: 'Active' | 'Pending';
   priority: 'High' | 'Medium' | 'Low';
-  lastUpdated: string;
-  updatedBy: string;
-  
-  // Verification
-  hasSignature: boolean;
-  hasMedia: boolean;
-  verificationDate?: string;
-  
-  // Additional Info
   remarks?: string;
-  targetLiquidation: number;
-  daysOverdue: number;
 }
 
 const Liquidation: React.FC = () => {
   const navigate = useNavigate();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [typeFilter, setTypeFilter] = useState('All');
-  const [statusFilter, setStatusFilter] = useState('All');
+  const [selectedDistributor, setSelectedDistributor] = useState<string | null>(null);
+  const [showViewModal, setShowViewModal] = useState(false);
   const [showVerifyModal, setShowVerifyModal] = useState(false);
-  const [selectedEntry, setSelectedEntry] = useState<string | null>(null);
-  const [verificationStep, setVerificationStep] = useState<'photo' | 'signature' | 'complete'>('photo');
-  
-  // Use dynamic liquidation calculation hook
-  const { 
-    overallMetrics, 
-    distributorMetrics, 
-    getPerformanceMetrics,
-    BUSINESS_RULES
-  } = useLiquidationCalculation();
-  
-  const performanceMetrics = getPerformanceMetrics();
+  const [viewType, setViewType] = useState<'opening' | 'ytd' | 'liquidation'>('opening');
 
-  // Sample liquidation entries based on distributor metrics
-  const [liquidationEntries] = useState<LiquidationEntry[]>([
+  const [distributorEntries] = useState<DistributorEntry[]>([
     {
-      id: 'DIST001',
-      dealerId: 'DIST001',
-      dealerName: 'SRI RAMA SEEDS AND PESTICIDES',
-      dealerCode: '1325',
-      dealerType: 'Distributor',
-      dealerAddress: 'Green Valley, Sector 12, Delhi',
-      dealerPhone: '+91 98765 43210',
+      id: '1',
+      distributorName: 'SRI RAMA SEEDS AND PESTICIDES',
+      distributorCode: '1325',
+      products: 'Multiple Products',
       territory: 'North Delhi',
       region: 'Delhi NCR',
       zone: 'North Zone',
-      assignedMDO: 'MDO001',
-      assignedTSM: 'TSM001',
       openingStock: { volume: 40, value: 13.80 },
-      ytdNetSales: { volume: 310, value: 13.95 },
+      ytdNetSales: { volume: 32, value: 13.95 },
       liquidation: { volume: 140, value: 9.30 },
       balanceStock: { volume: 210, value: 18.45 },
       liquidationPercentage: 40,
       status: 'Active',
       priority: 'High',
-      lastUpdated: '2024-01-20',
-      updatedBy: 'MDO001',
-      hasSignature: false,
-      hasMedia: false,
-      targetLiquidation: 50,
-      daysOverdue: 0,
-      remarks: 'Stock verification pending'
+      remarks: 'Good progress on liquidation'
     },
     {
-      id: 'DIST002',
-      dealerId: 'DIST002',
-      dealerName: 'Ram Kumar Distributors',
-      dealerCode: 'DLR001',
-      dealerType: 'Distributor',
-      dealerAddress: 'Market Area, Sector 8, Delhi',
-      dealerPhone: '+91 87654 32109',
-      territory: 'Green Valley',
+      id: '2',
+      distributorName: 'Ram Kumar Distributors',
+      distributorCode: 'DLR001',
+      products: 'NPK Fertilizer',
+      territory: 'South Delhi',
       region: 'Delhi NCR',
       zone: 'North Zone',
-      assignedMDO: 'MDO002',
-      assignedTSM: 'TSM001',
-      openingStock: { volume: 15000, value: 18.75 },
-      ytdNetSales: { volume: 6500, value: 8.13 },
-      liquidation: { volume: 6200, value: 7.75 },
-      balanceStock: { volume: 15300, value: 19.13 },
+      openingStock: { volume: 80, value: 18.75 },
+      ytdNetSales: { volume: 65, value: 8.13 },
+      liquidation: { volume: 62, value: 7.75 },
+      balanceStock: { volume: 83, value: 19.13 },
       liquidationPercentage: 29,
-      status: 'Active',
-      priority: 'Medium',
-      lastUpdated: '2024-01-19',
-      updatedBy: 'MDO002',
-      hasSignature: true,
-      hasMedia: true,
-      targetLiquidation: 50,
-      daysOverdue: 2,
-      remarks: 'Regular follow-up required'
-    },
-    {
-      id: 'DIST003',
-      dealerId: 'DIST003',
-      dealerName: 'Green Agro Solutions',
-      dealerCode: 'GAS001',
-      dealerType: 'Distributor',
-      dealerAddress: 'Industrial Area, Delhi',
-      dealerPhone: '+91 76543 21098',
-      territory: 'Sector 8',
-      region: 'Delhi NCR',
-      zone: 'North Zone',
-      assignedMDO: 'MDO003',
-      assignedTSM: 'TSM002',
-      openingStock: { volume: 17620, value: 21.70 },
-      ytdNetSales: { volume: 6493, value: 6.57 },
-      liquidation: { volume: 6380, value: 7.22 },
-      balanceStock: { volume: 17733, value: 21.05 },
-      liquidationPercentage: 26,
       status: 'Pending',
-      priority: 'Low',
-      lastUpdated: '2024-01-18',
-      updatedBy: 'MDO003',
-      hasSignature: false,
-      hasMedia: false,
-      targetLiquidation: 50,
-      daysOverdue: 5,
-      remarks: 'Awaiting stock verification'
+      priority: 'Medium',
+      remarks: 'Needs follow-up'
     }
   ]);
 
-  const handleVerify = (entryId: string) => {
-    setSelectedEntry(entryId);
-    setVerificationStep('photo');
+  const handleView = (distributorId: string, type: 'opening' | 'ytd' | 'liquidation') => {
+    setSelectedDistributor(distributorId);
+    setViewType(type);
+    setShowViewModal(true);
+  };
+
+  const handleVerify = (distributorId: string) => {
+    setSelectedDistributor(distributorId);
     setShowVerifyModal(true);
   };
 
-  const handleVerificationComplete = () => {
-    // Update the entry as verified
-    console.log(`Verification completed for entry: ${selectedEntry}`);
-    setShowVerifyModal(false);
-    setSelectedEntry(null);
-    setVerificationStep('photo');
-    
-    // Show success message
-    alert('Stock verification completed successfully!');
+  const handleTrackLiquidation = (distributorId: string) => {
+    navigate(`/retailer-liquidation/${distributorId}`);
   };
 
-  const handleNextStep = () => {
-    if (verificationStep === 'photo') {
-      setVerificationStep('signature');
-    } else if (verificationStep === 'signature') {
-      setVerificationStep('complete');
+  const handleUpdateStock = (distributorId: string) => {
+    console.log(`Update stock for distributor: ${distributorId}`);
+    // Add stock update functionality
+  };
+
+  const handleGetSignature = (distributorId: string) => {
+    console.log(`Get signature for distributor: ${distributorId}`);
+    // Add signature functionality
+  };
+
+  const closeModals = () => {
+    setShowViewModal(false);
+    setShowVerifyModal(false);
+    setSelectedDistributor(null);
+  };
+
+  const getSelectedDistributor = () => {
+    return distributorEntries.find(d => d.id === selectedDistributor);
+  };
+
+  const getViewData = () => {
+    const distributor = getSelectedDistributor();
+    if (!distributor) return null;
+
+    switch (viewType) {
+      case 'opening':
+        return {
+          title: 'Opening Stock Details',
+          data: distributor.openingStock
+        };
+      case 'ytd':
+        return {
+          title: 'YTD Net Sales Details',
+          data: distributor.ytdNetSales
+        };
+      case 'liquidation':
+        return {
+          title: 'Liquidation Details',
+          data: distributor.liquidation
+        };
+      default:
+        return null;
     }
   };
-
-  const filteredEntries = liquidationEntries.filter(entry => {
-    const matchesSearch = entry.dealerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         entry.dealerCode.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesType = typeFilter === 'All' || entry.dealerType === typeFilter;
-    const matchesStatus = statusFilter === 'All' || entry.status === statusFilter;
-    return matchesSearch && matchesType && matchesStatus;
-  });
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'Active': return 'text-green-700 bg-green-100';
       case 'Pending': return 'text-yellow-700 bg-yellow-100';
-      case 'Completed': return 'text-blue-700 bg-blue-100';
-      case 'Overdue': return 'text-red-700 bg-red-100';
       default: return 'text-gray-700 bg-gray-100';
     }
   };
@@ -212,181 +154,32 @@ const Liquidation: React.FC = () => {
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Stock Liquidation Management</h1>
-            <p className="text-gray-600 mt-1">Track and manage distributor stock liquidation (Farmer Sales Only)</p>
-          </div>
-        </div>
-        <button className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center">
-          <Plus className="w-4 h-4 mr-2" />
-          Add Entry
-        </button>
-      </div>
-
-
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div 
-          className="bg-white rounded-xl p-6 shadow-lg border-l-4 border-orange-500 cursor-pointer hover:shadow-xl transition-all duration-200 hover:scale-105"
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Opening Stock</p>
-              <p className="text-2xl font-bold text-gray-900">{overallMetrics.openingStock.volume.toLocaleString()}</p>
-              <p className="text-xs text-gray-500">Kg/Litre</p>
-            </div>
-            <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-              <Package className="w-6 h-6 text-orange-600" />
-            </div>
-          </div>
-          <div className="mt-2 text-xs text-gray-500">
-            Value: ₹{overallMetrics.openingStock.value.toFixed(2)}L
-          </div>
-        </div>
-
-        <div 
-          className="bg-white rounded-xl p-6 shadow-lg border-l-4 border-blue-500 cursor-pointer hover:shadow-xl transition-all duration-200 hover:scale-105"
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">YTD Net Sales</p>
-              <p className="text-2xl font-bold text-gray-900">{overallMetrics.ytdNetSales.volume.toLocaleString()}</p>
-              <p className="text-xs text-gray-500">Kg/Litre</p>
-            </div>
-            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-              <TrendingUp className="w-6 h-6 text-blue-600" />
-            </div>
-          </div>
-          <div className="mt-2 text-xs text-gray-500">
-            Value: ₹{overallMetrics.ytdNetSales.value.toFixed(2)}L
-          </div>
-        </div>
-
-        <div 
-          className="bg-white rounded-xl p-6 shadow-lg border-l-4 border-green-500 cursor-pointer hover:shadow-xl transition-all duration-200 hover:scale-105"
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">🌾 Liquidation (All Farmer Sales)</p>
-              <p className="text-2xl font-bold text-gray-900">{overallMetrics.liquidation.volume.toLocaleString()}</p>
-              <p className="text-xs text-gray-500">Kg/Litre</p>
-            </div>
-            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-              <Droplets className="w-6 h-6 text-green-600" />
-            </div>
-          </div>
-          <div className="mt-2 text-xs text-gray-500">
-            Value: ₹{overallMetrics.liquidation.value.toFixed(2)}L
-          </div>
-          <div className="mt-1 text-xs text-green-600">
-            Includes retailer-to-farmer sales
-          </div>
-        </div>
-
-        <div 
-          className="bg-white rounded-xl p-6 shadow-lg border-l-4 border-purple-500 cursor-pointer hover:shadow-xl transition-all duration-200 hover:scale-105"
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Balance Stock</p>
-              <p className="text-2xl font-bold text-gray-900">{overallMetrics.balanceStock.volume.toLocaleString()}</p>
-              <p className="text-xs text-gray-500">Kg/Litre</p>
-            </div>
-            <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-              <Package className="w-6 h-6 text-purple-600" />
-            </div>
-          </div>
-          <div className="mt-2 text-xs text-gray-500">
-            Value: ₹{overallMetrics.balanceStock.value.toFixed(2)}L
+            <h1 className="text-2xl font-bold text-gray-900">Liquidation</h1>
+            <p className="text-gray-600 mt-1">Track and manage distributor stock liquidation</p>
           </div>
         </div>
       </div>
 
-      {/* Liquidation Progress */}
-      <div className="bg-white rounded-xl p-6 shadow-lg">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">🌾 Overall Liquidation Progress (All Farmer Sales)</h3>
-        <div className="space-y-4">
-          <div>
-            <div className="flex justify-between text-sm text-gray-600 mb-2">
-              <span>Overall Liquidation Performance (All Farmer Sales)</span>
-              <span>{overallMetrics.liquidationPercentage}%</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-3">
-              <div 
-                className="bg-gradient-to-r from-green-500 to-green-600 h-3 rounded-full transition-all duration-1000"
-                style={{ width: `${Math.min(100, (overallMetrics.liquidationPercentage / BUSINESS_RULES.TARGET_LIQUIDATION_PERCENTAGE) * 100)}%` }}
-              ></div>
-            </div>
-            <div className="flex justify-between text-xs text-gray-500 mt-1">
-              <span>0%</span>
-              <span>Target: {BUSINESS_RULES.TARGET_LIQUIDATION_PERCENTAGE}%</span>
-              <span>100%</span>
-            </div>
-            <div className="text-xs text-green-600 mt-2 text-center">
-              ⚠️ Includes all farmer purchases: direct from distributors + via retailers
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Filters */}
-      <div className="bg-white rounded-xl p-6 shadow-sm">
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="flex-1">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <input
-                type="text"
-                placeholder="Search by dealer name, code, or product..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              />
-            </div>
-          </div>
-          <div className="flex items-center space-x-4">
-            <select
-              value={typeFilter}
-              onChange={(e) => setTypeFilter(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-            >
-              <option value="All">All Types</option>
-              <option value="Distributor">Distributors</option>
-              <option value="Retailer">Retailers</option>
-            </select>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-            >
-              <option value="All">All Status</option>
-              <option value="Active">Active</option>
-              <option value="Pending">Pending</option>
-              <option value="Completed">Completed</option>
-              <option value="Overdue">Overdue</option>
-            </select>
-            <button className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50">
-              <Filter className="w-4 h-4 text-gray-600" />
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Liquidation Entries */}
+      {/* Distributor Entries */}
       <div className="space-y-4">
-        {filteredEntries.map((entry) => (
-          <div key={entry.id} className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+        {distributorEntries.map((entry) => (
+          <div key={entry.id} className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-4">
                 <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
                   <Building className="w-6 h-6 text-purple-600" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">{entry.dealerName}</h3>
-                  <p className="text-sm text-gray-600">{entry.dealerCode} • {entry.dealerType}</p>
+                  <h3 className="text-xl font-bold text-gray-900">{entry.distributorName}</h3>
+                  <p className="text-sm text-gray-600">Code: {entry.distributorCode} | {entry.products}</p>
                 </div>
               </div>
               <div className="flex items-center space-x-2">
+                <span className="px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                  Distributor
+                </span>
                 <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(entry.status)}`}>
+                  <CheckCircle className="w-3 h-3 inline mr-1" />
                   {entry.status}
                 </span>
                 <span className={`px-3 py-1 rounded-full text-sm font-medium ${getPriorityColor(entry.priority)}`}>
@@ -395,120 +188,170 @@ const Liquidation: React.FC = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
-              <div className="flex items-center text-sm text-gray-600">
-                <MapPin className="w-4 h-4 mr-2" />
-                <div>
-                  <p className="font-medium">Territory: {entry.territory}</p>
-                  <p>Region: {entry.region}</p>
+            {/* Stock Metrics Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+              {/* Opening Stock */}
+              <div className="bg-orange-50 rounded-lg p-4 border-l-4 border-orange-500">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="text-sm font-semibold text-orange-800">Opening Stock</h4>
+                  <button 
+                    onClick={() => handleView(entry.id, 'opening')}
+                    className="bg-orange-600 text-white px-3 py-1 rounded text-xs hover:bg-orange-700"
+                  >
+                    View
+                  </button>
+                </div>
+                <div className="space-y-1">
+                  <div className="text-sm text-orange-700">Volume</div>
+                  <div className="text-2xl font-bold text-orange-900">{entry.openingStock.volume}</div>
+                  <div className="text-sm text-orange-700">Value</div>
+                  <div className="text-lg font-semibold text-orange-800">₹{entry.openingStock.value.toFixed(2)}L</div>
                 </div>
               </div>
-              <div className="flex items-center text-sm text-gray-600">
-                <Users className="w-4 h-4 mr-2" />
-                <div>
-                  <p className="font-medium">MDO: {entry.assignedMDO}</p>
-                  <p>TSM: {entry.assignedTSM}</p>
-                </div>
-              </div>
-              <div className="flex items-center text-sm text-gray-600">
-                <Calendar className="w-4 h-4 mr-2" />
-                <div>
-                  <p className="font-medium">Updated: {new Date(entry.lastUpdated).toLocaleDateString()}</p>
-                  <p>By: {entry.updatedBy}</p>
-                </div>
-              </div>
-            </div>
 
-            {/* Stock Metrics */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-              <div className="bg-orange-50 rounded-lg p-3 text-center">
-                <div className="text-lg font-bold text-orange-800">{entry.openingStock.volume}</div>
-                <div className="text-xs text-orange-600">Opening Stock</div>
-                <div className="text-xs text-orange-500">₹{entry.openingStock.value}L</div>
+              {/* YTD Net Sales */}
+              <div className="bg-blue-50 rounded-lg p-4 border-l-4 border-blue-500">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="text-sm font-semibold text-blue-800">YTD Net Sales</h4>
+                  <button 
+                    onClick={() => handleView(entry.id, 'ytd')}
+                    className="bg-blue-600 text-white px-3 py-1 rounded text-xs hover:bg-blue-700"
+                  >
+                    View
+                  </button>
+                </div>
+                <div className="space-y-1">
+                  <div className="text-sm text-blue-700">Volume</div>
+                  <div className="text-2xl font-bold text-blue-900">{entry.ytdNetSales.volume}</div>
+                  <div className="text-sm text-blue-700">Value</div>
+                  <div className="text-lg font-semibold text-blue-800">₹{entry.ytdNetSales.value.toFixed(2)}L</div>
+                </div>
               </div>
-              <div className="bg-blue-50 rounded-lg p-3 text-center">
-                <div className="text-lg font-bold text-blue-800">{entry.ytdNetSales.volume}</div>
-                <div className="text-xs text-blue-600">YTD Net Sales</div>
-                <div className="text-xs text-blue-500">₹{entry.ytdNetSales.value}L</div>
+
+              {/* Liquidation */}
+              <div className="bg-green-50 rounded-lg p-4 border-l-4 border-green-500">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="text-sm font-semibold text-green-800">Liquidation</h4>
+                  <button 
+                    onClick={() => handleView(entry.id, 'liquidation')}
+                    className="bg-green-600 text-white px-3 py-1 rounded text-xs hover:bg-green-700"
+                  >
+                    View
+                  </button>
+                </div>
+                <div className="space-y-1">
+                  <div className="text-sm text-green-700">Volume</div>
+                  <div className="text-2xl font-bold text-green-900">{entry.liquidation.volume}</div>
+                  <div className="text-sm text-green-700">Value</div>
+                  <div className="text-lg font-semibold text-green-800">₹{entry.liquidation.value.toFixed(2)}L</div>
+                </div>
               </div>
-              <div className="bg-green-50 rounded-lg p-3 text-center">
-                <div className="text-lg font-bold text-green-800">{entry.liquidation.volume}</div>
-                <div className="text-xs text-green-600">🌾 Liquidation</div>
-                <div className="text-xs text-green-500">₹{entry.liquidation.value}L</div>
-              </div>
-              <div className="bg-purple-50 rounded-lg p-3 text-center relative">
-                <div className="text-lg font-bold text-purple-800">{entry.balanceStock.volume}</div>
-                <div className="text-xs text-purple-600">Balance Stock</div>
-                <div className="text-xs text-purple-500">₹{entry.balanceStock.value}L</div>
-                <button 
-                  onClick={() => handleVerify(entry.id)}
-                  className="absolute -top-2 -right-2 bg-purple-600 text-white text-xs px-2 py-1 rounded-full hover:bg-purple-700 transition-colors"
-                >
-                  Verify
-                </button>
+
+              {/* Balance Stock */}
+              <div className="bg-purple-50 rounded-lg p-4 border-l-4 border-purple-500">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="text-sm font-semibold text-purple-800">Balance Stock</h4>
+                  <button 
+                    onClick={() => handleVerify(entry.id)}
+                    className="bg-purple-600 text-white px-3 py-1 rounded text-xs hover:bg-purple-700"
+                  >
+                    Verify
+                  </button>
+                </div>
+                <div className="space-y-1">
+                  <div className="text-sm text-purple-700">Volume</div>
+                  <div className="text-2xl font-bold text-purple-900">{entry.balanceStock.volume}</div>
+                  <div className="text-sm text-purple-700">Value</div>
+                  <div className="text-lg font-semibold text-purple-800">₹{entry.balanceStock.value.toFixed(2)}L</div>
+                </div>
               </div>
             </div>
 
             {/* Liquidation Progress */}
-            <div className="mb-4">
+            <div className="mb-6">
               <div className="flex justify-between text-sm text-gray-600 mb-2">
-                <span>% Liquidation</span>
-                <span>{entry.liquidationPercentage}% (Target: {entry.targetLiquidation}%)</span>
+                <span className="font-semibold text-gray-900">% Liquidation</span>
+                <span className="text-2xl font-bold text-purple-600">{entry.liquidationPercentage}%</span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className="w-full bg-gray-200 rounded-full h-4 mb-2">
                 <div 
-                  className="bg-gradient-to-r from-green-500 to-blue-500 h-2 rounded-full transition-all duration-500" 
-                  style={{ width: `${Math.min(100, (entry.liquidationPercentage / entry.targetLiquidation) * 100)}%` }}
+                  className="bg-gradient-to-r from-purple-500 to-blue-500 h-4 rounded-full transition-all duration-500" 
+                  style={{ width: `${entry.liquidationPercentage}%` }}
                 ></div>
               </div>
-              <div className="flex justify-between text-xs text-gray-500 mt-1">
-                <span>0%</span>
-                <span>Target: {entry.targetLiquidation}%</span>
-                <span>100%</span>
-              </div>
             </div>
 
+            {/* Action Buttons */}
+            <div className="flex flex-wrap gap-3 mb-4">
+              <button 
+                onClick={() => handleTrackLiquidation(entry.id)}
+                className="flex items-center gap-2 px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors"
+              >
+                <Eye className="w-4 h-4" />
+                Track Liquidation
+              </button>
+              <button 
+                onClick={() => handleUpdateStock(entry.id)}
+                className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                <Edit className="w-4 h-4" />
+                Update Stock
+              </button>
+              <button 
+                onClick={() => handleGetSignature(entry.id)}
+                className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                <FileText className="w-4 h-4" />
+                Get Signature
+              </button>
+            </div>
+
+            {/* Remarks */}
             {entry.remarks && (
-              <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-                <p className="text-sm text-gray-700">{entry.remarks}</p>
+              <div className="p-3 bg-gray-50 rounded-lg">
+                <span className="text-sm font-medium text-gray-700">Remarks: </span>
+                <span className="text-sm text-gray-600">{entry.remarks}</span>
               </div>
             )}
-
-            <div className="flex flex-wrap gap-2">
-              <button 
-                onClick={() => navigate(`/retailer-liquidation/${entry.id}`)}
-                className="bg-purple-100 text-purple-700 px-4 py-2 rounded-lg hover:bg-purple-200 transition-colors flex items-center"
-              >
-                <Eye className="w-4 h-4 mr-2" />
-                View Details
-              </button>
-              <button className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors flex items-center">
-                <Edit className="w-4 h-4 mr-2" />
-                Edit
-              </button>
-              <button className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors flex items-center">
-                <Download className="w-4 h-4 mr-2" />
-                Export
-              </button>
-              {entry.daysOverdue > 0 && (
-                <span className="bg-red-100 text-red-700 px-3 py-2 rounded-lg text-sm font-medium flex items-center">
-                  <AlertTriangle className="w-4 h-4 mr-1" />
-                  {entry.daysOverdue} days overdue
-                </span>
-              )}
-            </div>
           </div>
         ))}
       </div>
 
-      {filteredEntries.length === 0 && (
-        <div className="text-center py-12">
-          <Package className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-500">No liquidation entries found</p>
+      {/* View Modal */}
+      {showViewModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl w-full max-w-md">
+            <div className="flex items-center justify-between p-6 border-b">
+              <h3 className="text-lg font-semibold text-gray-900">
+                {getViewData()?.title}
+              </h3>
+              <button
+                onClick={closeModals}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-6">
+              {getViewData() && (
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-gray-900 mb-2">
+                    {getViewData()!.data.volume}
+                  </div>
+                  <div className="text-sm text-gray-600 mb-4">Volume (Kg/Litre)</div>
+                  <div className="text-xl font-semibold text-gray-800">
+                    ₹{getViewData()!.data.value.toFixed(2)}L
+                  </div>
+                  <div className="text-sm text-gray-600">Value</div>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
 
-      {/* Verification Modal */}
+      {/* Verify Modal */}
       {showVerifyModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl w-full max-w-md">
@@ -517,7 +360,7 @@ const Liquidation: React.FC = () => {
                 Stock Verification
               </h3>
               <button
-                onClick={() => setShowVerifyModal(false)}
+                onClick={closeModals}
                 className="p-2 hover:bg-gray-100 rounded-full transition-colors"
               >
                 <X className="w-5 h-5" />
@@ -525,56 +368,30 @@ const Liquidation: React.FC = () => {
             </div>
             
             <div className="p-6">
-              {verificationStep === 'photo' && (
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Camera className="w-8 h-8 text-blue-600" />
-                  </div>
-                  <h4 className="text-lg font-semibold text-gray-900 mb-2">Take Photo</h4>
-                  <p className="text-gray-600 mb-6">Capture a photo of the current stock for verification</p>
+              <div className="text-center">
+                <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Shield className="w-8 h-8 text-purple-600" />
+                </div>
+                <h4 className="text-lg font-semibold text-gray-900 mb-2">Verify Stock</h4>
+                <p className="text-gray-600 mb-6">Confirm the current stock levels for this distributor</p>
+                <div className="flex gap-3">
                   <button
-                    onClick={handleNextStep}
-                    className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center"
+                    onClick={closeModals}
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
                   >
-                    <Camera className="w-5 h-5 mr-2" />
-                    Capture Photo
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => {
+                      alert('Stock verification completed!');
+                      closeModals();
+                    }}
+                    className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+                  >
+                    Verify
                   </button>
                 </div>
-              )}
-
-              {verificationStep === 'signature' && (
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Signature className="w-8 h-8 text-green-600" />
-                  </div>
-                  <h4 className="text-lg font-semibold text-gray-900 mb-2">Get Signature</h4>
-                  <p className="text-gray-600 mb-6">Obtain dealer signature to confirm stock verification</p>
-                  <button
-                    onClick={handleNextStep}
-                    className="w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center"
-                  >
-                    <FileText className="w-5 h-5 mr-2" />
-                    Get Signature
-                  </button>
-                </div>
-              )}
-
-              {verificationStep === 'complete' && (
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <CheckCircle className="w-8 h-8 text-purple-600" />
-                  </div>
-                  <h4 className="text-lg font-semibold text-gray-900 mb-2">Verification Complete</h4>
-                  <p className="text-gray-600 mb-6">Stock verification has been completed successfully</p>
-                  <button
-                    onClick={handleVerificationComplete}
-                    className="w-full bg-purple-600 text-white py-3 px-4 rounded-lg hover:bg-purple-700 transition-colors flex items-center justify-center"
-                  >
-                    <Save className="w-5 h-5 mr-2" />
-                    Save Verification
-                  </button>
-                </div>
-              )}
+              </div>
             </div>
           </div>
         </div>
