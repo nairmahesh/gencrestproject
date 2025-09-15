@@ -58,22 +58,6 @@ interface RetailerLiquidationData {
   approvedDate?: string;
 }
 
-interface StockReductionModal {
-  isOpen: boolean;
-  productName: string;
-  skuCode: string;
-  stockDifference: number;
-  transactionType: 'farmer' | 'retailer' | '';
-  retailerCount: number;
-  retailers: Array<{
-    id: string;
-    name: string;
-    assignedQty: number;
-    soldQty: number;
-  }>;
-  farmerQty: number;
-}
-
 const RetailerLiquidation: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -93,10 +77,10 @@ const RetailerLiquidation: React.FC = () => {
     skuName: 'DAP 25kg Bag',
     unit: 'Kg',
     assignedStock: 50,
-    currentStock: 27,
+    currentStock: 35,
     liquidatedStock: 15,
     assignedValue: 0.60,
-    currentValue: 0.32,
+    currentValue: 0.42,
     liquidatedValue: 0.18,
     billingDate: '2024-01-15',
     lastUpdated: '2024-01-20',
@@ -122,21 +106,17 @@ const RetailerLiquidation: React.FC = () => {
   const [editingStock, setEditingStock] = useState(false);
   const [tempCurrentStock, setTempCurrentStock] = useState(liquidationData.currentStock);
   const [originalStock, setOriginalStock] = useState(liquidationData.currentStock);
-  
-  const [stockModal, setStockModal] = useState<StockReductionModal>({
-    isOpen: false,
-    productName: '',
-    skuCode: '',
-    stockDifference: 0,
-    transactionType: '',
-    retailerCount: 3,
-    retailers: [
-      { id: '1', name: 'Green Valley Retailer', assignedQty: 0, soldQty: 0 },
-      { id: '2', name: 'Market Area Store', assignedQty: 0, soldQty: 0 },
-      { id: '3', name: 'Sector 8 Outlet', assignedQty: 0, soldQty: 0 }
-    ],
-    farmerQty: 0
-  });
+  const [showModal, setShowModal] = useState(false);
+  const [transactionType, setTransactionType] = useState<'farmer' | 'retailer' | ''>('');
+  const [retailerCount, setRetailerCount] = useState(3);
+  const [retailers, setRetailers] = useState([
+    { id: '1', name: 'Retailer 1', assignedQty: 0, soldQty: 0 },
+    { id: '2', name: 'Retailer 2', assignedQty: 0, soldQty: 0 },
+    { id: '3', name: 'Retailer 3', assignedQty: 0, soldQty: 0 }
+  ]);
+  const [farmerQty, setFarmerQty] = useState(0);
+
+  const stockDifference = originalStock - tempCurrentStock;
 
   const handleEditStock = () => {
     setOriginalStock(liquidationData.currentStock);
@@ -145,20 +125,14 @@ const RetailerLiquidation: React.FC = () => {
   };
 
   const handleSaveStock = () => {
-    const stockDifference = originalStock - tempCurrentStock;
+    const difference = originalStock - tempCurrentStock;
     
-    if (stockDifference > 0) {
-      // Stock was reduced - show popup
-      setStockModal({
-        ...stockModal,
-        isOpen: true,
-        productName: liquidationData.productName,
-        skuCode: liquidationData.skuCode,
-        stockDifference: stockDifference,
-        transactionType: '',
-        farmerQty: 0,
-        retailers: stockModal.retailers.map(r => ({ ...r, assignedQty: 0, soldQty: 0 }))
-      });
+    if (difference > 0) {
+      // Stock was reduced - show modal
+      setShowModal(true);
+      setTransactionType('');
+      setFarmerQty(0);
+      setRetailers(retailers.map(r => ({ ...r, assignedQty: 0, soldQty: 0 })));
     } else {
       // Stock was increased or same - just save
       setLiquidationData(prev => ({
@@ -177,17 +151,17 @@ const RetailerLiquidation: React.FC = () => {
   };
 
   const handleTransactionTypeChange = (type: 'farmer' | 'retailer') => {
-    setStockModal(prev => ({
-      ...prev,
-      transactionType: type,
-      farmerQty: type === 'farmer' ? prev.stockDifference : 0
-    }));
+    setTransactionType(type);
+    if (type === 'farmer') {
+      setFarmerQty(stockDifference);
+    }
   };
 
   const handleRetailerCountChange = (count: number) => {
+    setRetailerCount(count);
     const newRetailers = [];
     for (let i = 0; i < count; i++) {
-      const existingRetailer = stockModal.retailers[i];
+      const existingRetailer = retailers[i];
       newRetailers.push(existingRetailer || {
         id: (i + 1).toString(),
         name: `Retailer ${i + 1}`,
@@ -195,39 +169,33 @@ const RetailerLiquidation: React.FC = () => {
         soldQty: 0
       });
     }
-    
-    setStockModal(prev => ({
-      ...prev,
-      retailerCount: count,
-      retailers: newRetailers
-    }));
+    setRetailers(newRetailers);
   };
 
   const handleRetailerChange = (index: number, field: 'assignedQty' | 'soldQty', value: number) => {
-    setStockModal(prev => ({
-      ...prev,
-      retailers: prev.retailers.map((retailer, i) => 
+    setRetailers(prev => 
+      prev.map((retailer, i) => 
         i === index ? { ...retailer, [field]: value } : retailer
       )
-    }));
+    );
   };
 
   const handleModalSave = () => {
-    const totalAssigned = stockModal.retailers.reduce((sum, r) => sum + r.assignedQty, 0);
-    const totalSold = stockModal.retailers.reduce((sum, r) => sum + r.soldQty, 0);
+    const totalAssigned = retailers.slice(0, retailerCount).reduce((sum, r) => sum + r.assignedQty, 0);
+    const totalSold = retailers.slice(0, retailerCount).reduce((sum, r) => sum + r.soldQty, 0);
     
-    if (stockModal.transactionType === 'retailer') {
-      if (totalAssigned !== stockModal.stockDifference) {
-        alert(`Total assigned (${totalAssigned}) must equal stock difference (${stockModal.stockDifference})`);
+    if (transactionType === 'retailer') {
+      if (totalAssigned !== stockDifference) {
+        alert(`Total assigned (${totalAssigned}) must equal stock difference (${stockDifference})`);
         return;
       }
     }
     
     // Update liquidation data
     let newLiquidatedStock = liquidationData.liquidatedStock;
-    if (stockModal.transactionType === 'farmer') {
-      newLiquidatedStock += stockModal.farmerQty;
-    } else if (stockModal.transactionType === 'retailer') {
+    if (transactionType === 'farmer') {
+      newLiquidatedStock += farmerQty;
+    } else if (transactionType === 'retailer') {
       newLiquidatedStock += totalSold; // Only sold qty counts as liquidation
     }
     
@@ -241,12 +209,12 @@ const RetailerLiquidation: React.FC = () => {
       lastUpdated: new Date().toISOString()
     }));
     
-    setStockModal(prev => ({ ...prev, isOpen: false }));
+    setShowModal(false);
     setEditingStock(false);
   };
 
-  const getTotalAssigned = () => stockModal.retailers.reduce((sum, r) => sum + r.assignedQty, 0);
-  const getTotalSold = () => stockModal.retailers.reduce((sum, r) => sum + r.soldQty, 0);
+  const getTotalAssigned = () => retailers.slice(0, retailerCount).reduce((sum, r) => sum + r.assignedQty, 0);
+  const getTotalSold = () => retailers.slice(0, retailerCount).reduce((sum, r) => sum + r.soldQty, 0);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -454,18 +422,18 @@ const RetailerLiquidation: React.FC = () => {
       </div>
 
       {/* Stock Reduction Modal */}
-      {stockModal.isOpen && (
+      {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
             <div className="flex items-center justify-between p-6 border-b">
               <div>
                 <h3 className="text-xl font-semibold text-gray-900">Liquidated to whom?</h3>
                 <p className="text-sm text-gray-600 mt-1">
-                  {stockModal.productName} - Quantity: {stockModal.stockDifference} {liquidationData.unit}
+                  {liquidationData.productName} - Quantity: {stockDifference} {liquidationData.unit}
                 </p>
               </div>
               <button
-                onClick={() => setStockModal(prev => ({ ...prev, isOpen: false }))}
+                onClick={() => setShowModal(false)}
                 className="p-2 hover:bg-gray-100 rounded-full transition-colors"
               >
                 <X className="w-5 h-5" />
@@ -477,23 +445,12 @@ const RetailerLiquidation: React.FC = () => {
               <div className="bg-red-100 border border-red-300 rounded-xl p-4 mb-6">
                 <h5 className="text-lg font-semibold text-red-800 mb-2">🐛 DEBUG INFO - ALWAYS VISIBLE</h5>
                 <div className="text-sm space-y-1">
-                  <p>Transaction Type: <strong>{stockModal.transactionType || 'NONE SELECTED'}</strong></p>
-                  <p>Stock Difference: <strong>{stockModal.stockDifference}</strong></p>
-                  <p>Modal Open: <strong>{stockModal.isOpen ? 'YES' : 'NO'}</strong></p>
-                  <p>Retailer Count: <strong>{stockModal.retailerCount}</strong></p>
-                  <p>Product Name: <strong>{stockModal.productName}</strong></p>
-                  <p>SKU Code: <strong>{stockModal.skuCode}</strong></p>
-                </div>
-              </div>
-
-              {/* Debug Section - Always Visible */}
-              <div className="bg-red-100 border border-red-300 rounded-xl p-4 mb-6">
-                <h5 className="text-lg font-semibold text-red-800 mb-2">🐛 DEBUG INFO</h5>
-                <div className="text-sm space-y-1">
-                  <p>Transaction Type: <strong>{stockModal.transactionType || 'NONE'}</strong></p>
-                  <p>Stock Difference: <strong>{stockModal.stockDifference}</strong></p>
-                  <p>Modal Open: <strong>{stockModal.isOpen ? 'YES' : 'NO'}</strong></p>
-                  <p>Retailer Count: <strong>{stockModal.retailerCount}</strong></p>
+                  <p>Transaction Type: <strong>{transactionType || 'NONE SELECTED'}</strong></p>
+                  <p>Stock Difference: <strong>{stockDifference}</strong></p>
+                  <p>Modal Open: <strong>{showModal ? 'YES' : 'NO'}</strong></p>
+                  <p>Retailer Count: <strong>{retailerCount}</strong></p>
+                  <p>Product Name: <strong>{liquidationData.productName}</strong></p>
+                  <p>SKU Code: <strong>{liquidationData.skuCode}</strong></p>
                 </div>
               </div>
 
@@ -503,7 +460,7 @@ const RetailerLiquidation: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div 
                     className={`p-6 rounded-xl border-2 cursor-pointer transition-all ${
-                      stockModal.transactionType === 'farmer' 
+                      transactionType === 'farmer' 
                         ? 'border-green-500 bg-green-50' 
                         : 'border-gray-200 hover:border-green-300'
                     }`}
@@ -520,7 +477,7 @@ const RetailerLiquidation: React.FC = () => {
                   
                   <div 
                     className={`p-6 rounded-xl border-2 cursor-pointer transition-all ${
-                      stockModal.transactionType === 'retailer' 
+                      transactionType === 'retailer' 
                         ? 'border-blue-500 bg-blue-50' 
                         : 'border-gray-200 hover:border-blue-300'
                     }`}
@@ -537,13 +494,13 @@ const RetailerLiquidation: React.FC = () => {
                 </div>
               </div>
 
-              {/* TEST SECTION - ALWAYS VISIBLE RETAILER BREAKDOWN */}
+              {/* ALWAYS VISIBLE RETAILER BREAKDOWN */}
               <div className="bg-yellow-100 border border-yellow-300 rounded-xl p-6 mb-6">
-                <h5 className="text-lg font-semibold text-yellow-800 mb-4">🧪 TEST SECTION - Always Visible Retailer Breakdown</h5>
+                <h5 className="text-lg font-semibold text-yellow-800 mb-4">🧪 RETAILER BREAKDOWN - ALWAYS VISIBLE</h5>
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-sm font-medium text-yellow-700">How many retailers?</span>
                   <select
-                    value={stockModal.retailerCount}
+                    value={retailerCount}
                     onChange={(e) => handleRetailerCountChange(parseInt(e.target.value))}
                     className="px-3 py-1 border border-yellow-300 rounded-lg"
                   >
@@ -554,7 +511,7 @@ const RetailerLiquidation: React.FC = () => {
                 </div>
                 
                 <div className="space-y-4">
-                  {stockModal.retailers.slice(0, stockModal.retailerCount).map((retailer, index) => (
+                  {retailers.slice(0, retailerCount).map((retailer, index) => (
                     <div key={retailer.id} className="bg-white rounded-lg p-4 border border-yellow-200">
                       <h6 className="font-semibold text-gray-900 mb-3">Retailer {index + 1}</h6>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -587,52 +544,9 @@ const RetailerLiquidation: React.FC = () => {
                   ))}
                 </div>
               </div>
-              {/* Test Section - Always Visible Retailer Breakdown */}
-              <div className="bg-yellow-100 border border-yellow-300 rounded-xl p-6 mb-6">
-                <h5 className="text-lg font-semibold text-yellow-800 mb-4">🧪 TEST SECTION - Always Visible Retailer Breakdown</h5>
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-sm font-medium text-yellow-700">How many retailers?</span>
-                  <select
-                    value={3}
-                    className="px-3 py-1 border border-yellow-300 rounded-lg"
-                  >
-                    <option value={3}>3</option>
-                  </select>
-                </div>
-                
-                <div className="space-y-4">
-                  {[1, 2, 3].map((index) => (
-                    <div key={index} className="bg-white rounded-lg p-4 border border-yellow-200">
-                      <h6 className="font-semibold text-gray-900 mb-3">Retailer {index}</h6>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Assigned QTY
-                          </label>
-                          <input
-                            type="number"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                            placeholder="Enter assigned quantity"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Sold QTY
-                          </label>
-                          <input
-                            type="number"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                            placeholder="Enter sold quantity"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
 
               {/* Farmer Details */}
-              {stockModal.transactionType === 'farmer' && (
+              {transactionType === 'farmer' && (
                 <div className="bg-green-50 rounded-xl p-6 mb-6">
                   <h5 className="text-lg font-semibold text-green-800 mb-4">Farmer Sale Details</h5>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -642,15 +556,15 @@ const RetailerLiquidation: React.FC = () => {
                       </label>
                       <input
                         type="number"
-                        value={stockModal.farmerQty}
-                        onChange={(e) => setStockModal(prev => ({ ...prev, farmerQty: parseInt(e.target.value) || 0 }))}
-                        max={stockModal.stockDifference}
+                        value={farmerQty}
+                        onChange={(e) => setFarmerQty(parseInt(e.target.value) || 0)}
+                        max={stockDifference}
                         className="w-full px-3 py-2 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                       />
                     </div>
                     <div className="flex items-end">
                       <div className="text-sm text-green-600">
-                        <p>Max: {stockModal.stockDifference} {liquidationData.unit}</p>
+                        <p>Max: {stockDifference} {liquidationData.unit}</p>
                         <p className="font-semibold">This counts as liquidation</p>
                       </div>
                     </div>
@@ -658,15 +572,15 @@ const RetailerLiquidation: React.FC = () => {
                 </div>
               )}
 
-              {/* Retailer Details */}
-              {stockModal.transactionType === 'retailer' && (
+              {/* Retailer Details - CONDITIONAL */}
+              {transactionType === 'retailer' && (
                 <div className="bg-blue-50 rounded-xl p-6 mb-6">
                   <div className="flex items-center justify-between mb-4">
-                    <h5 className="text-lg font-semibold text-blue-800">Retailer Distribution Details</h5>
+                    <h5 className="text-lg font-semibold text-blue-800">Retailer Distribution Details - CONDITIONAL</h5>
                     <div className="flex items-center space-x-2">
                       <label className="text-sm font-medium text-blue-700">How many retailers?</label>
                       <select
-                        value={stockModal.retailerCount}
+                        value={retailerCount}
                         onChange={(e) => handleRetailerCountChange(parseInt(e.target.value))}
                         className="px-3 py-1 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       >
@@ -678,7 +592,7 @@ const RetailerLiquidation: React.FC = () => {
                   </div>
                   
                   <div className="space-y-4">
-                    {stockModal.retailers.slice(0, stockModal.retailerCount).map((retailer, index) => (
+                    {retailers.slice(0, retailerCount).map((retailer, index) => (
                       <div key={retailer.id} className="bg-white rounded-lg p-4 border border-blue-200">
                         <h6 className="font-semibold text-gray-900 mb-3">Retailer {index + 1}</h6>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -720,85 +634,29 @@ const RetailerLiquidation: React.FC = () => {
               )}
 
               {/* Summary */}
-              <div className="bg-gray-50 rounded-xl p-6 mb-6">
-                <h5 className="text-lg font-semibold text-gray-900 mb-4">Debug Info</h5>
-                <div className="text-sm space-y-2">
-                  <p>Transaction Type: <strong>{stockModal.transactionType || 'None'}</strong></p>
-                  <p>Stock Difference: <strong>{stockModal.stockDifference}</strong></p>
-                  <p>Retailer Count: <strong>{stockModal.retailerCount}</strong></p>
-                  <p>Modal Open: <strong>{stockModal.isOpen ? 'Yes' : 'No'}</strong></p>
-                </div>
-              </div>
-
-              {/* Force Show Retailer Section for Testing */}
-              <div className="bg-blue-50 rounded-xl p-6 mb-6">
-                <h5 className="text-lg font-semibold text-blue-800 mb-4">Retailer Distribution Details (Always Visible for Testing)</h5>
-                <div className="space-y-4">
-                  <div className="bg-white rounded-lg p-4 border border-blue-200">
-                    <h6 className="font-semibold text-gray-900 mb-3">Retailer 1</h6>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Assigned QTY</label>
-                        <input type="number" className="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="Enter assigned quantity" />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Sold QTY</label>
-                        <input type="number" className="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="Enter sold quantity" />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="bg-white rounded-lg p-4 border border-blue-200">
-                    <h6 className="font-semibold text-gray-900 mb-3">Retailer 2</h6>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Assigned QTY</label>
-                        <input type="number" className="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="Enter assigned quantity" />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Sold QTY</label>
-                        <input type="number" className="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="Enter sold quantity" />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="bg-white rounded-lg p-4 border border-blue-200">
-                    <h6 className="font-semibold text-gray-900 mb-3">Retailer 3</h6>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Assigned QTY</label>
-                        <input type="number" className="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="Enter assigned quantity" />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Sold QTY</label>
-                        <input type="number" className="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="Enter sold quantity" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {stockModal.transactionType && (
+              {transactionType && (
                 <div className="bg-gray-50 rounded-xl p-6 mb-6">
                   <h5 className="text-lg font-semibold text-gray-900 mb-4">Summary</h5>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-gray-900">{stockModal.stockDifference}</div>
+                      <div className="text-2xl font-bold text-gray-900">{stockDifference}</div>
                       <div className="text-sm text-gray-600">Stock Reduction</div>
                     </div>
                     
-                    {stockModal.transactionType === 'farmer' && (
+                    {transactionType === 'farmer' && (
                       <>
                         <div className="text-center">
-                          <div className="text-2xl font-bold text-green-600">{stockModal.farmerQty}</div>
+                          <div className="text-2xl font-bold text-green-600">{farmerQty}</div>
                           <div className="text-sm text-gray-600">Sold to Farmers</div>
                         </div>
                         <div className="text-center">
-                          <div className="text-2xl font-bold text-green-600">{stockModal.farmerQty}</div>
+                          <div className="text-2xl font-bold text-green-600">{farmerQty}</div>
                           <div className="text-sm text-gray-600">Liquidation Count</div>
                         </div>
                       </>
                     )}
                     
-                    {stockModal.transactionType === 'retailer' && (
+                    {transactionType === 'retailer' && (
                       <>
                         <div className="text-center">
                           <div className="text-2xl font-bold text-blue-600">{getTotalAssigned()}</div>
@@ -812,10 +670,10 @@ const RetailerLiquidation: React.FC = () => {
                     )}
                   </div>
                   
-                  {stockModal.transactionType === 'retailer' && getTotalAssigned() !== stockModal.stockDifference && (
+                  {transactionType === 'retailer' && getTotalAssigned() !== stockDifference && (
                     <div className="mt-4 p-3 bg-red-100 border border-red-300 rounded-lg">
                       <p className="text-red-800 text-sm">
-                        ⚠️ Total assigned ({getTotalAssigned()}) must equal stock difference ({stockModal.stockDifference})
+                        ⚠️ Total assigned ({getTotalAssigned()}) must equal stock difference ({stockDifference})
                       </p>
                     </div>
                   )}
@@ -825,14 +683,14 @@ const RetailerLiquidation: React.FC = () => {
             
             <div className="flex justify-end space-x-3 p-6 border-t">
               <button
-                onClick={() => setStockModal(prev => ({ ...prev, isOpen: false }))}
+                onClick={() => setShowModal(false)}
                 className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleModalSave}
-                disabled={!stockModal.transactionType}
+                disabled={!transactionType}
                 className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 Save Changes
