@@ -245,17 +245,45 @@ const RetailerLiquidation: React.FC = () => {
     setShowSignatureModal(true);
   };
 
-  const handleSignatureSave = (signature: string) => {
-    console.log('Retailer signature saved:', signature);
-    // Update retailer data to show signature is captured
-    setRetailerData(prev => ({
-      ...prev,
-      hasRetailerSignature: true
-    }));
-    setShowSignatureModal(false);
-    alert('Retailer signature captured and saved successfully.');
-  };
+  const handleUpdateStock = async () => {
+    setIsUpdatingStock(true);
+    
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Update the actual stock data
+      const updatedStockDetails = retailerData.stockDetails.map(stock => {
+        const updates = stockUpdateData[stock.skuCode];
+        if (updates) {
+          return {
+            ...stock,
+            currentStock: updates.current,
+            liquidatedToFarmer: updates.liquidated,
+            returnToDistributor: updates.returned
+          };
+        }
+        return stock;
+      });
 
+      setRetailerData(prev => ({
+        ...prev,
+        stockDetails: updatedStockDetails
+      }));
+      
+      // Show success message
+      alert('Stock quantities updated successfully!');
+      
+      // Clear the update data since it's now saved
+      setStockUpdateData({});
+      
+    } catch (error) {
+      console.error('Error updating stock:', error);
+      alert('Failed to update stock. Please try again.');
+    }
+    
+    setIsUpdatingStock(false);
+  };
   const handleAddTransaction = () => {
     if (!newTransaction.recipientName || !newTransaction.recipientPhone || newTransaction.quantity <= 0) {
       alert('Please fill all required fields');
