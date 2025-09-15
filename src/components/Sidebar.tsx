@@ -42,10 +42,11 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
       {/* Header */}
       <div className="flex items-center justify-between p-6 border-b border-gray-200">
         <div className="flex items-center">
-          <div className="w-8 h-8 bg-gradient-to-r from-primary-500 to-secondary-500 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-sm">G</span>
-          </div>
-          <span className="ml-3 text-xl font-semibold text-gray-900">Gencrest</span>
+          <img 
+            src="/image.png" 
+            alt="Gencrest" 
+            className="h-8 w-auto"
+          />
         </div>
         {onClose && (
           <button onClick={onClose} className="lg:hidden p-2 rounded-md text-gray-600 hover:text-gray-900">
@@ -132,12 +133,14 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
       {/* User Info */}
       <div className="p-4 border-t border-gray-200">
         <div className="flex items-center">
-          <div className="w-8 h-8 bg-primary-500 rounded-full flex items-center justify-center">
-            <span className="text-white text-sm font-medium">E</span>
-          </div>
+          <img 
+            src="/image.png" 
+            alt="Gencrest" 
+            className="h-8 w-8 rounded-full object-contain bg-white p-1"
+          />
           <div className="ml-3">
-            <p className="text-sm font-medium text-gray-900">EffyBiz Inc</p>
-            <p className="text-xs text-gray-500">Super Admin</p>
+            <p className="text-sm font-medium text-gray-900">Gencrest</p>
+            <p className="text-xs text-gray-500">Sales Team</p>
           </div>
         </div>
       </div>
