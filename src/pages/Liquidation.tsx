@@ -679,7 +679,6 @@ const Liquidation: React.FC = () => {
 
             {/* Action Buttons */}
             <div className="flex flex-wrap gap-2">
-              <button 
                 onClick={() => navigate(`/retailer-liquidation/${entry.id}`)}
                 <div className="text-xs text-green-500 mt-1">Last updated: Jan 20, 2024</div>
                 className="bg-purple-100 text-purple-700 px-4 py-2 rounded-lg hover:bg-purple-200 transition-colors flex items-center"
@@ -694,7 +693,6 @@ const Liquidation: React.FC = () => {
               <button className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors flex items-center">
                 <FileSignature className="w-4 h-4 mr-2" />
                 Get Signature
-              </button>
             </div>
               <div className="text-xs text-gray-500 mt-1">Last updated: Jan 20, 2024</div>
 
@@ -704,8 +702,6 @@ const Liquidation: React.FC = () => {
                 <p className="text-sm text-gray-600">
                   <strong>Remarks:</strong> {entry.remarks}
                 </p>
-              </div>
-            )}
           </div>
         ))}
       </div>
