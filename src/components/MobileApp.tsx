@@ -1095,11 +1095,11 @@ const MobileApp: React.FC<MobileAppProps> = ({ children }) => {
 
       {/* Verify Modal */}
       {showVerifyModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div className="absolute inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-xl w-full max-w-sm mx-4">
             <div className="p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">{modalContent.title}</h3>
-              <p className="text-gray-600 mb-6">{modalContent.message}</p>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Stock Verification</h3>
+              <p className="text-gray-600 mb-6">Opening verification modal for product & SKU wise stock update...</p>
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowVerifyModal(false)}
@@ -1110,10 +1110,6 @@ const MobileApp: React.FC<MobileAppProps> = ({ children }) => {
                 <button
                   onClick={() => {
                     setShowVerifyModal(false);
-                    setModalContent({
-                      title: 'Verification Complete',
-                      message: 'Stock verification completed successfully!'
-                    });
                     setShowStockModal(true);
                   }}
                   className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
@@ -1128,11 +1124,11 @@ const MobileApp: React.FC<MobileAppProps> = ({ children }) => {
 
       {/* Stock Modal */}
       {showStockModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div className="absolute inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-xl w-full max-w-sm mx-4">
             <div className="p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">{modalContent.title}</h3>
-              <p className="text-gray-600 mb-6">{modalContent.message}</p>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Verification Complete</h3>
+              <p className="text-gray-600 mb-6">Stock verification completed successfully!</p>
               <button
                 onClick={() => setShowStockModal(false)}
                 className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
