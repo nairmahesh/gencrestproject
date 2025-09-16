@@ -946,8 +946,8 @@ const Liquidation: React.FC = () => {
                             />
                           </div>
 
-                          {/* Retailer List */}
-                          {sku.retailerDetails && sku.retailerDetails.length > 0 && (
+                          {/* Retailer List */
+                          sku.retailerDetails && sku.retailerDetails.length > 0 && (
                             <div className="space-y-3">
                               <h6 className="font-medium text-gray-900">📋 Retailer Assignments</h6>
                               {sku.retailerDetails.map((retailer) => (
