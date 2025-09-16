@@ -55,73 +55,12 @@ const Liquidation: React.FC = () => {
   const [showVerifyModal, setShowVerifyModal] = useState(false);
   const [verificationStep, setVerificationStep] = useState<'overview' | 'stock-entry' | 'difference-tracking' | 'signature'>('overview');
   const [viewType, setViewType] = useState<'opening' | 'ytd' | 'liquidation' | 'balance'>('opening');
-  const [productSKUs, setProductSKUs] = useState<ProductSKU[]>([
-    {
-      id: '1',
-      productName: 'DAP (Di-Ammonium Phosphate)',
-      skuCode: 'DAP-25KG',
-      skuName: 'DAP 25kg Bag',
-      unit: 'Kg',
-      lastBalance: 150,
-      currentStock: 120,
-      difference: 0,
-      isVerified: false,
-      stockMovementType: '',
-      farmerQuantity: 0,
-      retailerDetails: []
-    },
-    {
-      id: '2',
-      productName: 'DAP (Di-Ammonium Phosphate)',
-      skuCode: 'DAP-50KG',
-      skuName: 'DAP 50kg Bag',
-      unit: 'Kg',
-      lastBalance: 100,
-      currentStock: 85,
-      difference: 0,
-      isVerified: false,
-      stockMovementType: '',
-      farmerQuantity: 0,
-      retailerDetails: []
-    },
-    {
-      id: '3',
-      productName: 'Urea',
-      skuCode: 'UREA-25KG',
-      skuName: 'Urea 25kg Bag',
-      unit: 'Kg',
-      lastBalance: 80,
-      currentStock: 80,
-      difference: 0,
-      isVerified: false,
-      stockMovementType: '',
-      farmerQuantity: 0,
-      retailerDetails: []
-    },
-    {
-      id: '4',
-      productName: 'NPK Complex',
-      skuCode: 'NPK-25KG',
-      skuName: 'NPK Complex 25kg Bag',
-      unit: 'Kg',
-      lastBalance: 60,
-      currentStock: 45,
-      difference: 0,
-      isVerified: false,
-      stockMovementType: '',
-      farmerQuantity: 0,
-      retailerDetails: []
-    }
-  ]);
+  const [productSKUs, setProductSKUs] = useState<ProductSKU[]>([]);
   const [pendingProducts, setPendingProducts] = useState(0);
   const [showAlert, setShowAlert] = useState(false);
   const [selectedSKU, setSelectedSKU] = useState<string | null>(null);
   const [retailerCount, setRetailerCount] = useState(1);
   const [newRetailer, setNewRetailer] = useState({ name: '', phone: '', address: '' });
-  const [pendingAlert, setPendingAlert] = useState('');
-  const [showESignModal, setShowESignModal] = useState(false);
-  const [signatureType, setSignatureType] = useState<'e-sign' | 'letterhead'>('e-sign');
-  const [hasAnyDifferences, setHasAnyDifferences] = useState(false);
 
   const [distributorEntries] = useState<DistributorEntry[]>([
     {
@@ -248,132 +187,6 @@ const Liquidation: React.FC = () => {
     setShowAlert(false);
     setSelectedSKU(null);
   };
-
-  const handleCurrentStockChange = (skuId: string, value: number) => {
-    setProductSKUs(prev => prev.map(sku => {
-      if (sku.id === skuId) {
-        const difference = sku.lastBalance - value;
-        return {
-          ...sku,
-          currentStock: value,
-          difference: difference,
-          isVerified: false,
-          stockMovementType: difference === 0 ? 'no-change' : '',
-          farmerQuantity: 0,
-          retailerDetails: []
-        };
-      }
-      return sku;
-    }));
-    
-    // Check if there are any differences
-    const updatedSKUs = productSKUs.map(sku => {
-      if (sku.id === skuId) {
-        const difference = sku.lastBalance - value;
-        return { ...sku, currentStock: value, difference };
-      }
-      return sku;
-    });
-    
-    const anyDifferences = updatedSKUs.some(sku => sku.difference !== 0);
-    setHasAnyDifferences(anyDifferences);
-  };
-
-  const checkPendingItems = () => {
-    const unverifiedCount = productSKUs.filter(sku => !sku.isVerified).length;
-    if (unverifiedCount > 0) {
-      setPendingAlert(`⚠️ There are ${unverifiedCount} Product & SKUs pending as per stock balance. Please verify all items before proceeding.`);
-      return false;
-    }
-    setPendingAlert('');
-    return true;
-  };
-
-  const handleProceedToSignature = () => {
-    if (!checkPendingItems()) {
-      return;
-    }
-    
-    // If no differences, only e-sign needed
-    if (!hasAnyDifferences) {
-      setSignatureType('e-sign');
-      setShowESignModal(true);
-    } else {
-      // If differences exist, need e-sign or letterhead declaration
-      setVerificationStep('signature');
-    }
-  };
-
-  const handleStockMovementTypeChange = (skuId: string, type: 'farmer' | 'retailer') => {
-    setProductSKUs(prev => prev.map(sku => {
-      if (sku.id === skuId) {
-        return {
-          ...sku,
-          stockMovementType: type,
-          farmerQuantity: type === 'farmer' ? sku.difference : 0,
-          retailerDetails: type === 'retailer' ? sku.retailerDetails : [],
-          isVerified: type === 'farmer' ? true : false
-        };
-      }
-      return sku;
-    }));
-  };
-
-  const handleRetailerDetailsChange = (skuId: string, retailers: RetailerDetail[]) => {
-    setProductSKUs(prev => prev.map(sku => {
-      if (sku.id === skuId) {
-        const totalAssigned = retailers.reduce((sum, r) => sum + r.quantity, 0);
-        return {
-          ...sku,
-          retailerDetails: retailers,
-          isVerified: totalAssigned === sku.difference
-        };
-      }
-      return sku;
-    }));
-  };
-
-  const handleFarmerQuantityChange = (skuId: string, quantity: number) => {
-    setProductSKUs(prev => prev.map(sku => {
-      if (sku.id === skuId) {
-        return {
-          ...sku,
-          farmerQuantity: quantity,
-          isVerified: quantity === sku.difference
-        };
-      }
-      return sku;
-    }));
-  };
-
-  const handleCompleteVerification = () => {
-    // Update liquidation data based on farmer sales
-    const totalFarmerSales = productSKUs
-      .filter(sku => sku.stockMovementType === 'farmer')
-      .reduce((sum, sku) => sum + sku.farmerQuantity, 0);
-    
-    if (totalFarmerSales > 0) {
-      // Add to liquidation count
-      console.log(`Adding ${totalFarmerSales} to liquidation count`);
-    }
-    
-    // Create retailer tracking tasks
-    const retailerAssignments = productSKUs
-      .filter(sku => sku.stockMovementType === 'retailer')
-      .flatMap(sku => sku.retailerDetails);
-    
-    if (retailerAssignments.length > 0) {
-      console.log('Creating retailer liquidation tracking tasks:', retailerAssignments);
-    }
-    
-    setShowVerifyModal(false);
-    setShowESignModal(false);
-    setVerificationStep('overview');
-  };
-
-  const getVerifiedCount = () => productSKUs.filter(sku => sku.isVerified).length;
-  const getTotalCount = () => productSKUs.length;
-  const getProgressPercentage = () => Math.round((getVerifiedCount() / getTotalCount()) * 100);
 
   const updateCurrentStock = (skuId: string, value: number) => {
     setProductSKUs(prev => prev.map(sku => {
@@ -992,34 +805,8 @@ const Liquidation: React.FC = () => {
                       Continue
                     </button>
                   </div>
-
-              {/* Action Buttons */}
-              {verificationStep === 'stock-entry' && getVerifiedCount() < getTotalCount() && (
-                <button
-                  onClick={() => setVerificationStep('difference-tracking')}
-                  disabled={getVerifiedCount() === 0}
-                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Next: Track Differences ({productSKUs.filter(sku => sku.difference !== 0).length})
-                </button>
-              )}
-              
-              {verificationStep === 'stock-entry' && getVerifiedCount() === getTotalCount() && (
-                <button
-                  onClick={handleProceedToSignature}
-                  className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-                >
-                  {hasAnyDifferences ? 'Proceed to Signature' : 'Complete with E-Sign'}
-                </button>
-              )}
-              
-              {pendingAlert && (
-                <div className="mt-4 p-4 bg-red-100 border border-red-300 rounded-lg">
-                  <p className="text-red-800 text-sm font-medium">{pendingAlert}</p>
                 </div>
               )}
-            </div>
-          )}
 
               {/* Step 3: Difference Tracking */}
               {verificationStep === 'difference-tracking' && (
@@ -1273,141 +1060,98 @@ const Liquidation: React.FC = () => {
               {/* Step 4: Signature/Verification */}
               {verificationStep === 'signature' && (
                 <div className="space-y-6">
-                  <div className="text-center">
-                    <h4 className="text-xl font-semibold text-gray-900 mb-2">📝 Verification & Signature</h4>
-                    <p className="text-gray-600">
-                      {hasAnyDifferences 
-                        ? 'Stock differences detected. E-Sign or Letterhead Declaration required.'
-                        : 'No differences found. Only E-Sign needed.'
-                      }
-                    </p>
-                  </div>
-
-                  <div className="bg-blue-50 rounded-xl p-6">
-                    <h5 className="text-lg font-semibold text-blue-800 mb-4">📋 Verification Summary</h5>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <h4 className="text-lg font-semibold text-gray-900">Verification & Signature</h4>
+                  
+                  {/* Summary */}
+                  <div className="bg-gray-50 rounded-lg p-6">
+                    <h5 className="font-semibold text-gray-900 mb-4">Verification Summary</h5>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
-                        <h6 className="font-medium text-gray-900 mb-2">🌾 Farmer Sales (Liquidation)</h6>
-                        {productSKUs.filter(sku => sku.stockMovementType === 'farmer').map(sku => (
-                          <div key={sku.id} className="text-sm text-gray-600">
-                            {sku.skuName}: {sku.farmerQuantity} {sku.unit}
-                          </div>
-                        ))}
-                        {productSKUs.filter(sku => sku.stockMovementType === 'farmer').length === 0 && (
-                          <p className="text-sm text-gray-500">No farmer sales</p>
-                        )}
+                        <h6 className="font-medium text-gray-700 mb-2">Products Verified</h6>
+                        <div className="space-y-2">
+                          {productSKUs.map((sku) => (
+                            <div key={sku.id} className="flex justify-between text-sm">
+                              <span>{sku.skuName}</span>
+                              <span className={sku.difference === 0 ? 'text-green-600' : 'text-orange-600'}>
+                                {sku.difference === 0 ? 'No Change' : `${Math.abs(sku.difference)} ${sku.unit} ${sku.soldTo}`}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                       
                       <div>
-                        <h6 className="font-medium text-gray-900 mb-2">🏪 Retailer Assignments</h6>
-                        {productSKUs.filter(sku => sku.stockMovementType === 'retailer').map(sku => (
-                          <div key={sku.id} className="text-sm text-gray-600">
-                            {sku.skuName}: {sku.retailerDetails.length} retailers, {sku.retailerDetails.reduce((sum, r) => sum + r.quantity, 0)} {sku.unit}
-                          </div>
-                        ))}
-                        {productSKUs.filter(sku => sku.stockMovementType === 'retailer').length === 0 && (
-                          <p className="text-sm text-gray-500">No retailer assignments</p>
-                        )}
+                        <h6 className="font-medium text-gray-700 mb-2">Audit Trail</h6>
+                        <div className="text-sm text-gray-600 space-y-1">
+                          <p>Date: {new Date().toLocaleDateString()}</p>
+                          <p>Time: {new Date().toLocaleTimeString()}</p>
+                          <p>Verified by: Rajesh Kumar (MDO001)</p>
+                          <p>Distributor: {getSelectedDistributor()?.distributorName}</p>
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex justify-center space-x-4">
+                  {/* Verification Options */}
+                  <div className="space-y-4">
+                    <h5 className="font-semibold text-gray-900">Choose Verification Method</h5>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="border-2 border-blue-500 bg-blue-50 rounded-lg p-6 cursor-pointer">
+                        <div className="text-center">
+                          <Signature className="w-12 h-12 text-blue-600 mx-auto mb-3" />
+                          <h6 className="font-semibold text-gray-900 mb-2">E-Signature</h6>
+                          <p className="text-sm text-gray-600">Digital signature verification</p>
+                        </div>
+                      </div>
+                      
+                      <div className="border-2 border-gray-200 hover:border-green-300 rounded-lg p-6 cursor-pointer">
+                        <div className="text-center">
+                          <FileText className="w-12 h-12 text-green-600 mx-auto mb-3" />
+                          <h6 className="font-semibold text-gray-900 mb-2">Letterhead Declaration</h6>
+                          <p className="text-sm text-gray-600">Upload signed letterhead</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Notifications */}
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <div className="flex items-start">
+                      <Alert className="w-5 h-5 text-yellow-600 mr-2 mt-0.5" />
+                      <div>
+                        <h6 className="font-medium text-yellow-800">Pending Tasks Generated</h6>
+                        <div className="text-sm text-yellow-700 mt-1">
+                          {productSKUs.filter(sku => sku.soldTo === 'retailer').length > 0 && (
+                            <p>• Retailer liquidation tracking notifications have been created</p>
+                          )}
+                          <p>• Stock verification completed and logged for audit</p>
+                          <p>• All changes tagged with timestamp and user details</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between">
+                    <button
+                      onClick={() => setVerificationStep('difference-tracking')}
+                      className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                    >
+                      Back
+                    </button>
                     <button
                       onClick={() => {
-                        setSignatureType('e-sign');
-                        setShowESignModal(true);
+                        alert('Stock verification completed successfully!\n\nAudit trail created with:\n- Date & Time stamp\n- User details\n- All stock changes\n- Retailer assignments\n- Farmer liquidations');
+                        closeModals();
                       }}
-                      className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center"
+                      className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center"
                     >
-                      <FileText className="w-4 h-4 mr-2" />
-                      E-Sign
+                      <CheckCircle className="w-4 h-4 mr-2" />
+                      Complete Verification
                     </button>
-                    
-                    {hasAnyDifferences && (
-                      <button
-                        onClick={() => {
-                          setSignatureType('letterhead');
-                          setShowESignModal(true);
-                        }}
-                        className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center"
-                      >
-                        <FileText className="w-4 h-4 mr-2" />
-                        Letterhead Declaration
-                      </button>
-                    )}
                   </div>
                 </div>
               )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* E-Sign/Letterhead Modal */}
-      {showESignModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl w-full max-w-md">
-            <div className="flex items-center justify-between p-6 border-b">
-              <h3 className="text-lg font-semibold text-gray-900">
-                {signatureType === 'e-sign' ? '✍️ E-Signature' : '📄 Letterhead Declaration'}
-              </h3>
-              <button
-                onClick={() => setShowESignModal(false)}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            
-            <div className="p-6">
-              <div className="text-center mb-6">
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <FileText className="w-8 h-8 text-blue-600" />
-                </div>
-                <h4 className="text-lg font-semibold text-gray-900 mb-2">
-                  {signatureType === 'e-sign' ? 'Digital Signature Required' : 'Letterhead Declaration Required'}
-                </h4>
-                <p className="text-gray-600 text-sm">
-                  {signatureType === 'e-sign' 
-                    ? 'Please provide your digital signature to complete the verification.'
-                    : 'Please upload your letterhead declaration to complete the verification.'
-                  }
-                </p>
-              </div>
-              
-              <div className="space-y-4">
-                {signatureType === 'e-sign' ? (
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-                    <p className="text-gray-500 mb-4">Signature pad would appear here</p>
-                    <button className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200">
-                      Clear Signature
-                    </button>
-                  </div>
-                ) : (
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-                    <p className="text-gray-500 mb-4">Upload letterhead declaration</p>
-                    <button className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200">
-                      Choose File
-                    </button>
-                  </div>
-                )}
-              </div>
-              
-              <div className="flex space-x-3 mt-6">
-                <button
-                  onClick={() => setShowESignModal(false)}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleCompleteVerification}
-                  className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-                >
-                  Complete Verification
-                </button>
-              </div>
             </div>
           </div>
         </div>
