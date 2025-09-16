@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import Header from './Header';
 import Sidebar from './Sidebar';
@@ -9,8 +9,19 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isLogin, setIslogin] = useState(true);
   const location = useLocation();
+  useEffect(() => {
+    if (location.pathname.includes('login')){
+      setIslogin(true);
+    }else{
+      setIslogin(false);
+    }
 
+  }, [location])
+  if(isLogin){
+    return <div className='min-h-screen bg-gray-50'>{children}</div>
+  }
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Desktop Sidebar */}

@@ -12,12 +12,14 @@ import Performance from './pages/Performance';
 import RetailerLiquidation from './pages/RetailerLiquidation';
 import MobileAppDesign from './pages/MobileAppDesign';
 import MobileAppPage from './pages/MobileAppPage';
+import Login from './pages/Login';
 
 function App() {
   return (
     <Layout>
       <Routes>
         <Route path="/" element={<Dashboard />} />
+        <Route path="/login" element={<Login />} />
         <Route path="/field-visits" element={<FieldVisits />} />
         <Route path="/sales-orders" element={<SalesOrders />} />
         <Route path="/liquidation" element={<Liquidation />} />

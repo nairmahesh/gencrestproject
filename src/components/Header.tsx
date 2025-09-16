@@ -1,5 +1,6 @@
 import React from 'react';
-import { Menu, Bell, Search, User } from 'lucide-react';
+import { Menu, Bell, Search } from 'lucide-react';
+import { getAvatarFromName, getUserDetails } from '../utils/authHelper';
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -35,11 +36,11 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
           </button>
           <div className="flex items-center space-x-3">
             <div className="hidden sm:block text-right">
-              <p className="text-sm font-medium text-gray-900">Rajesh Kumar</p>
-              <p className="text-xs text-gray-500">MDO - North Delhi</p>
+              <p className="text-sm font-medium text-gray-900">{getUserDetails('name')}</p>
+              <p className="text-xs text-gray-500">{getUserDetails('role')}-{getUserDetails('email')}</p>
             </div>
             <div className="h-8 w-8 bg-primary-500 rounded-full flex items-center justify-center">
-              <span className="text-white text-sm font-medium">RK</span>
+              <span className="text-white text-sm font-medium">{getAvatarFromName(getUserDetails('name'))}</span>
             </div>
           </div>
         </div>

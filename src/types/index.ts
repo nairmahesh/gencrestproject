@@ -1,12 +1,21 @@
+export interface LoginDTO{
+  email:string;
+  password:string;
+}
+
+export interface LoginResponse{
+  accessToken:string;
+  refreshToken:string;
+  user:User;
+}
+
 export interface User {
   id: string;
   name: string;
   role: 'MDO' | 'TSM' | 'RBH' | 'RMM' | 'ZH' | 'TMM';
-  territory: string;
-  state: string;
-  region: string;
-  zone: string;
-  phone: string;
+  assignedTerritories: string[];
+  assignedZones: string[];
+  assignedRegions:string[];
   email: string;
   reportingTo?: string;
   isActive: boolean;
