@@ -1,7 +1,34 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Package, TrendingUp, Users, Droplets, Eye, Edit, CheckCircle, AlertTriangle, Search, Filter, Download, Plus, Building, MapPin, Calendar, Phone, DollarSign, Target, BarChart3, Activity, Zap, Award, Clock, X, Save, Camera, FileText, FileSignature as Signature, Shield, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Package, TrendingUp, Users, Droplets, Eye, Edit, CheckCircle, AlertTriangle, Search, Filter, Download, Plus, Building, MapPin, Calendar, Phone, DollarSign, Target, BarChart3, Activity, Zap, Award, Clock, X, Save, Camera, FileText, FileSignature as Signature, Shield, ChevronRight, Minus, AlertCircle as Alert, UserPlus, Store } from 'lucide-react';
 import { useLiquidationCalculation } from '../hooks/useLiquidationCalculation';
+
+interface ProductSKU {
+  id: string;
+  productId: string;
+  productName: string;
+  productCode: string;
+  skuCode: string;
+  skuName: string;
+  unit: string;
+  lastBalance: number;
+  currentStock: number;
+  difference: number;
+  isVerified: boolean;
+  soldTo?: 'retailer' | 'farmer';
+  retailerDetails?: RetailerDetail[];
+  farmerQuantity?: number;
+}
+
+interface RetailerDetail {
+  id: string;
+  name: string;
+  code?: string;
+  phone?: string;
+  address?: string;
+  isNew: boolean;
+  quantity: number;
+}
 
 interface DistributorEntry {
   id: string;
@@ -26,7 +53,14 @@ const Liquidation: React.FC = () => {
   const [selectedDistributor, setSelectedDistributor] = useState<string | null>(null);
   const [showViewModal, setShowViewModal] = useState(false);
   const [showVerifyModal, setShowVerifyModal] = useState(false);
+  const [verificationStep, setVerificationStep] = useState<'overview' | 'stock-entry' | 'difference-tracking' | 'signature'>('overview');
   const [viewType, setViewType] = useState<'opening' | 'ytd' | 'liquidation' | 'balance'>('opening');
+  const [productSKUs, setProductSKUs] = useState<ProductSKU[]>([]);
+  const [pendingProducts, setPendingProducts] = useState(0);
+  const [showAlert, setShowAlert] = useState(false);
+  const [selectedSKU, setSelectedSKU] = useState<string | null>(null);
+  const [retailerCount, setRetailerCount] = useState(1);
+  const [newRetailer, setNewRetailer] = useState({ name: '', phone: '', address: '' });
 
   const [distributorEntries] = useState<DistributorEntry[]>([
     {
@@ -65,6 +99,64 @@ const Liquidation: React.FC = () => {
     }
   ]);
 
+  // Sample Product & SKU data for verification
+  const initializeProductSKUs = () => {
+    return [
+      {
+        id: '1',
+        productId: 'P001',
+        productName: 'DAP (Di-Ammonium Phosphate)',
+        productCode: 'FERT001',
+        skuCode: 'DAP-25KG',
+        skuName: 'DAP 25kg Bag',
+        unit: 'Kg',
+        lastBalance: 150,
+        currentStock: 0,
+        difference: 0,
+        isVerified: false
+      },
+      {
+        id: '2',
+        productId: 'P001',
+        productName: 'DAP (Di-Ammonium Phosphate)',
+        productCode: 'FERT001',
+        skuCode: 'DAP-50KG',
+        skuName: 'DAP 50kg Bag',
+        unit: 'Kg',
+        lastBalance: 100,
+        currentStock: 0,
+        difference: 0,
+        isVerified: false
+      },
+      {
+        id: '3',
+        productId: 'P002',
+        productName: 'Urea',
+        productCode: 'UREA001',
+        skuCode: 'UREA-25KG',
+        skuName: 'Urea 25kg Bag',
+        unit: 'Kg',
+        lastBalance: 80,
+        currentStock: 0,
+        difference: 0,
+        isVerified: false
+      },
+      {
+        id: '4',
+        productId: 'P003',
+        productName: 'NPK Complex',
+        productCode: 'NPK001',
+        skuCode: 'NPK-25KG',
+        skuName: 'NPK Complex 25kg Bag',
+        unit: 'Kg',
+        lastBalance: 60,
+        currentStock: 0,
+        difference: 0,
+        isVerified: false
+      }
+    ];
+  };
+
   const handleView = (distributorId: string, type: 'opening' | 'ytd' | 'liquidation' | 'balance') => {
     setSelectedDistributor(distributorId);
     setViewType(type);
@@ -73,8 +165,12 @@ const Liquidation: React.FC = () => {
 
   const handleVerify = (distributorId: string) => {
     setSelectedDistributor(distributorId);
+    setProductSKUs(initializeProductSKUs());
+    setVerificationStep('overview');
+    setPendingProducts(4); // Total number of SKUs
     setShowVerifyModal(true);
   };
+
 
   const handleGetSignature = (distributorId: string) => {
     console.log(`Get signature for distributor: ${distributorId}`);
@@ -84,7 +180,98 @@ const Liquidation: React.FC = () => {
   const closeModals = () => {
     setShowViewModal(false);
     setShowVerifyModal(false);
+    setVerificationStep('overview');
     setSelectedDistributor(null);
+    setProductSKUs([]);
+    setPendingProducts(0);
+    setShowAlert(false);
+    setSelectedSKU(null);
+  };
+
+  const updateCurrentStock = (skuId: string, value: number) => {
+    setProductSKUs(prev => prev.map(sku => {
+      if (sku.id === skuId) {
+        const difference = sku.lastBalance - value;
+        return {
+          ...sku,
+          currentStock: value,
+          difference,
+          isVerified: true
+        };
+      }
+      return sku;
+    }));
+    
+    // Update pending count
+    const remaining = productSKUs.filter(sku => sku.id !== skuId && !sku.isVerified).length;
+    setPendingProducts(remaining);
+  };
+
+  const proceedToNextStep = () => {
+    const unverified = productSKUs.filter(sku => !sku.isVerified);
+    if (unverified.length > 0) {
+      setShowAlert(true);
+      return;
+    }
+    
+    const hasChanges = productSKUs.some(sku => sku.difference !== 0);
+    if (hasChanges) {
+      setVerificationStep('difference-tracking');
+    } else {
+      setVerificationStep('signature');
+    }
+  };
+
+  const handleSoldToSelection = (skuId: string, soldTo: 'retailer' | 'farmer') => {
+    setProductSKUs(prev => prev.map(sku => 
+      sku.id === skuId ? { ...sku, soldTo } : sku
+    ));
+    setSelectedSKU(skuId);
+  };
+
+  const addRetailerDetail = (skuId: string) => {
+    const sku = productSKUs.find(s => s.id === skuId);
+    if (!sku) return;
+    
+    setProductSKUs(prev => prev.map(s => {
+      if (s.id === skuId) {
+        const retailerDetails = s.retailerDetails || [];
+        return {
+          ...s,
+          retailerDetails: [...retailerDetails, {
+            id: Date.now().toString(),
+            name: newRetailer.name || `Retailer ${retailerDetails.length + 1}`,
+            phone: newRetailer.phone,
+            address: newRetailer.address,
+            isNew: !newRetailer.phone, // Assume new if no phone provided
+            quantity: 0
+          }]
+        };
+      }
+      return s;
+    }));
+    
+    setNewRetailer({ name: '', phone: '', address: '' });
+  };
+
+  const updateRetailerQuantity = (skuId: string, retailerId: string, quantity: number) => {
+    setProductSKUs(prev => prev.map(sku => {
+      if (sku.id === skuId && sku.retailerDetails) {
+        return {
+          ...sku,
+          retailerDetails: sku.retailerDetails.map(retailer =>
+            retailer.id === retailerId ? { ...retailer, quantity } : retailer
+          )
+        };
+      }
+      return sku;
+    }));
+  };
+
+  const updateFarmerQuantity = (skuId: string, quantity: number) => {
+    setProductSKUs(prev => prev.map(sku => 
+      sku.id === skuId ? { ...sku, farmerQuantity: quantity } : sku
+    ));
   };
 
   const getSelectedDistributor = () => {
@@ -478,10 +665,10 @@ const Liquidation: React.FC = () => {
       {/* Verify Modal */}
       {showVerifyModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
+          <div className="bg-white rounded-xl w-full max-w-6xl max-h-[90vh] overflow-hidden">
             <div className="flex items-center justify-between p-6 border-b">
               <h3 className="text-lg font-semibold text-gray-900">
-                Liquidated to whom?
+                Stock Verification - {getSelectedDistributor()?.distributorName}
               </h3>
               <button
                 onClick={closeModals}
@@ -492,84 +679,392 @@ const Liquidation: React.FC = () => {
             </div>
             
             <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
-              <div className="mb-6">
-                <p className="text-sm text-gray-600 mb-4">
-                  DAP 25kg Bag - Quantity: 9 Kg
-                </p>
-                
-                {/* Transaction Type Selection */}
-                <h4 className="text-lg font-semibold text-gray-900 mb-4">Select Transaction Type</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                  <div className="p-6 rounded-xl border-2 border-gray-200 hover:border-green-300 cursor-pointer transition-all">
-                    <div className="text-center">
-                      <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Users className="w-8 h-8 text-green-600" />
+              {/* Alert for Pending Products */}
+              {showAlert && (
+                <div className="mb-6 p-4 bg-red-100 border border-red-300 rounded-lg">
+                  <div className="flex items-center">
+                    <Alert className="w-5 h-5 text-red-600 mr-2" />
+                    <span className="text-red-800 font-medium">
+                      There are {pendingProducts} Products & SKUs pending as per stock balance
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => setShowAlert(false)}
+                    className="mt-2 text-red-600 text-sm underline"
+                  >
+                    Continue anyway
+                  </button>
+                </div>
+              )}
+
+              {/* Step 1: Overview */}
+              {verificationStep === 'overview' && (
+                <div className="space-y-6">
+                  {/* Total Stats */}
+                  <div className="bg-gray-50 rounded-xl p-6">
+                    <h4 className="text-lg font-semibold text-gray-900 mb-4">Total Statistics</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                      <div className="text-center p-4 bg-orange-100 rounded-lg">
+                        <div className="text-2xl font-bold text-orange-600">390</div>
+                        <div className="text-sm text-orange-700">Total Last Balance</div>
                       </div>
-                      <h5 className="text-lg font-semibold text-gray-900 mb-2">Sold to Farmer</h5>
-                      <p className="text-sm text-gray-600">Direct liquidation</p>
+                      <div className="text-center p-4 bg-blue-100 rounded-lg">
+                        <div className="text-2xl font-bold text-blue-600">
+                          {productSKUs.reduce((sum, sku) => sum + sku.currentStock, 0)}
+                        </div>
+                        <div className="text-sm text-blue-700">Current Stock</div>
+                      </div>
+                      <div className="text-center p-4 bg-green-100 rounded-lg">
+                        <div className="text-2xl font-bold text-green-600">
+                          {productSKUs.reduce((sum, sku) => sum + Math.abs(sku.difference), 0)}
+                        </div>
+                        <div className="text-sm text-green-700">Total Difference</div>
+                      </div>
+                      <div className="text-center p-4 bg-purple-100 rounded-lg">
+                        <div className="text-2xl font-bold text-purple-600">
+                          {productSKUs.filter(sku => sku.isVerified).length}/{productSKUs.length}
+                        </div>
+                        <div className="text-sm text-purple-700">Verified</div>
+                      </div>
                     </div>
                   </div>
+
+                  <button
+                    onClick={() => setVerificationStep('stock-entry')}
+                    className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    Start Product & SKU Verification
+                  </button>
+                </div>
+              )}
+
+              {/* Step 2: Stock Entry */}
+              {verificationStep === 'stock-entry' && (
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-lg font-semibold text-gray-900">Product & SKU wise Stock Verification</h4>
+                    <div className="text-sm text-gray-600">
+                      Progress: {productSKUs.filter(sku => sku.isVerified).length}/{productSKUs.length}
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    {productSKUs.map((sku) => (
+                      <div key={sku.id} className={`border rounded-lg p-4 ${sku.isVerified ? 'bg-green-50 border-green-200' : 'bg-white border-gray-200'}`}>
+                        <div className="flex items-center justify-between mb-3">
+                          <div>
+                            <h5 className="font-semibold text-gray-900">{sku.productName}</h5>
+                            <p className="text-sm text-gray-600">{sku.skuName} ({sku.skuCode})</p>
+                          </div>
+                          {sku.isVerified && (
+                            <CheckCircle className="w-5 h-5 text-green-600" />
+                          )}
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                          <div className="text-center p-3 bg-orange-100 rounded-lg">
+                            <div className="text-lg font-bold text-orange-800">{sku.lastBalance}</div>
+                            <div className="text-xs text-orange-600">Last Balance (ERP)</div>
+                          </div>
+                          <div className="text-center p-3 bg-blue-100 rounded-lg">
+                            <input
+                              type="number"
+                              value={sku.currentStock}
+                              onChange={(e) => updateCurrentStock(sku.id, parseInt(e.target.value) || 0)}
+                              className="w-full text-center text-lg font-bold bg-transparent border-none outline-none text-blue-800"
+                              placeholder="Enter current stock"
+                            />
+                            <div className="text-xs text-blue-600">Current Stock</div>
+                          </div>
+                          <div className="text-center p-3 bg-gray-100 rounded-lg">
+                            <div className={`text-lg font-bold ${sku.difference > 0 ? 'text-red-800' : sku.difference < 0 ? 'text-green-800' : 'text-gray-800'}`}>
+                              {sku.difference > 0 ? '+' : ''}{sku.difference}
+                            </div>
+                            <div className="text-xs text-gray-600">Difference</div>
+                          </div>
+                          <div className="text-center p-3 bg-purple-100 rounded-lg">
+                            <div className="text-lg font-bold text-purple-800">{sku.unit}</div>
+                            <div className="text-xs text-purple-600">Unit</div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="flex justify-between">
+                    <button
+                      onClick={() => setVerificationStep('overview')}
+                      className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                    >
+                      Back
+                    </button>
+                    <button
+                      onClick={proceedToNextStep}
+                      className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    >
+                      Continue
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Step 3: Difference Tracking */}
+              {verificationStep === 'difference-tracking' && (
+                <div className="space-y-6">
+                  <h4 className="text-lg font-semibold text-gray-900">Track Stock Differences</h4>
                   
-                  <div className="p-6 rounded-xl border-2 border-blue-500 bg-blue-50 cursor-pointer transition-all">
-                    <div className="text-center">
-                      <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Building className="w-8 h-8 text-blue-600" />
+                  {productSKUs.filter(sku => sku.difference !== 0).map((sku) => (
+                    <div key={sku.id} className="border border-gray-200 rounded-lg p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <div>
+                          <h5 className="font-semibold text-gray-900">{sku.productName}</h5>
+                          <p className="text-sm text-gray-600">{sku.skuName} - Difference: {Math.abs(sku.difference)} {sku.unit}</p>
+                        </div>
                       </div>
-                      <h5 className="text-lg font-semibold text-gray-900 mb-2">Sold to Retailer</h5>
-                      <p className="text-sm text-gray-600">Requires retailer details</p>
+
+                      {/* Sold To Selection */}
+                      <div className="mb-6">
+                        <h6 className="font-medium text-gray-900 mb-3">Where was this stock sold?</h6>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div 
+                            className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                              sku.soldTo === 'retailer' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-blue-300'
+                            }`}
+                            onClick={() => handleSoldToSelection(sku.id, 'retailer')}
+                          >
+                            <div className="flex items-center">
+                              <Store className="w-6 h-6 text-blue-600 mr-3" />
+                              <div>
+                                <h6 className="font-medium text-gray-900">Sold to Retailer</h6>
+                                <p className="text-sm text-gray-600">Stock reassigned, not liquidation</p>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div 
+                            className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                              sku.soldTo === 'farmer' ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:border-green-300'
+                            }`}
+                            onClick={() => handleSoldToSelection(sku.id, 'farmer')}
+                          >
+                            <div className="flex items-center">
+                              <Users className="w-6 h-6 text-green-600 mr-3" />
+                              <div>
+                                <h6 className="font-medium text-gray-900">Sold to Farmer</h6>
+                                <p className="text-sm text-gray-600">Direct liquidation</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Retailer Details */}
+                      {sku.soldTo === 'retailer' && (
+                        <div className="bg-blue-50 rounded-lg p-4 mb-4">
+                          <div className="flex items-center justify-between mb-4">
+                            <h6 className="font-medium text-blue-900">Retailer Details</h6>
+                            <button
+                              onClick={() => addRetailerDetail(sku.id)}
+                              className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 flex items-center"
+                            >
+                              <UserPlus className="w-3 h-3 mr-1" />
+                              Add Retailer
+                            </button>
+                          </div>
+                          
+                          {/* New Retailer Form */}
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+                            <input
+                              type="text"
+                              placeholder="Retailer Name"
+                              value={newRetailer.name}
+                              onChange={(e) => setNewRetailer(prev => ({ ...prev, name: e.target.value }))}
+                              className="px-3 py-2 border border-blue-300 rounded-lg"
+                            />
+                            <input
+                              type="text"
+                              placeholder="Phone (optional)"
+                              value={newRetailer.phone}
+                              onChange={(e) => setNewRetailer(prev => ({ ...prev, phone: e.target.value }))}
+                              className="px-3 py-2 border border-blue-300 rounded-lg"
+                            />
+                            <input
+                              type="text"
+                              placeholder="Address (optional)"
+                              value={newRetailer.address}
+                              onChange={(e) => setNewRetailer(prev => ({ ...prev, address: e.target.value }))}
+                              className="px-3 py-2 border border-blue-300 rounded-lg"
+                            />
+                          </div>
+
+                          {/* Retailer List */}
+                          {sku.retailerDetails && sku.retailerDetails.length > 0 && (
+                            <div className="space-y-3">
+                              {sku.retailerDetails.map((retailer) => (
+                                <div key={retailer.id} className="bg-white rounded-lg p-3 border border-blue-200">
+                                  <div className="flex items-center justify-between">
+                                    <div>
+                                      <h6 className="font-medium text-gray-900">{retailer.name}</h6>
+                                      {retailer.phone && <p className="text-sm text-gray-600">{retailer.phone}</p>}
+                                      {retailer.isNew && <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">New</span>}
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                      <input
+                                        type="number"
+                                        placeholder="Quantity"
+                                        value={retailer.quantity}
+                                        onChange={(e) => updateRetailerQuantity(sku.id, retailer.id, parseInt(e.target.value) || 0)}
+                                        className="w-20 px-2 py-1 border border-gray-300 rounded text-center"
+                                      />
+                                      <span className="text-sm text-gray-600">{sku.unit}</span>
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                              
+                              <div className="text-sm text-blue-700 bg-blue-100 p-2 rounded">
+                                Total Assigned: {sku.retailerDetails.reduce((sum, r) => sum + r.quantity, 0)} / {Math.abs(sku.difference)} {sku.unit}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Farmer Details */}
+                      {sku.soldTo === 'farmer' && (
+                        <div className="bg-green-50 rounded-lg p-4">
+                          <h6 className="font-medium text-green-900 mb-3">Farmer Sale Details</h6>
+                          <div className="flex items-center space-x-4">
+                            <label className="text-sm font-medium text-green-700">Quantity sold to farmers:</label>
+                            <input
+                              type="number"
+                              value={sku.farmerQuantity || 0}
+                              onChange={(e) => updateFarmerQuantity(sku.id, parseInt(e.target.value) || 0)}
+                              max={Math.abs(sku.difference)}
+                              className="w-24 px-3 py-2 border border-green-300 rounded-lg text-center"
+                            />
+                            <span className="text-sm text-green-600">{sku.unit} (Max: {Math.abs(sku.difference)})</span>
+                          </div>
+                          <div className="text-sm text-green-700 mt-2">
+                            ✓ This will be tagged as "Distributor Farmer Liquidation"
+                          </div>
+                        </div>
+                      )}
                     </div>
+                  ))}
+
+                  <div className="flex justify-between">
+                    <button
+                      onClick={() => setVerificationStep('stock-entry')}
+                      className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                    >
+                      Back
+                    </button>
+                    <button
+                      onClick={() => setVerificationStep('signature')}
+                      className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    >
+                      Continue to Verification
+                    </button>
                   </div>
                 </div>
-                
-                {/* SKU Details */}
-                <div className="bg-gray-50 rounded-lg p-4 mb-6">
-                  <h5 className="font-semibold text-gray-900 mb-3">SKU Details</h5>
-                  <div className="grid grid-cols-3 gap-4 text-center">
-                    <div>
-                      <div className="text-sm text-gray-600 mb-1">Original Qty</div>
-                      <div className="text-2xl font-bold text-orange-600">35</div>
-                    </div>
-                    <div>
-                      <div className="text-sm text-gray-600 mb-1">New Qty</div>
-                      <div className="text-2xl font-bold text-blue-600">26</div>
-                    </div>
-                    <div>
-                      <div className="text-sm text-gray-600 mb-1">To be Liquidated</div>
-                      <div className="text-2xl font-bold text-green-600">9</div>
+              )}
+
+              {/* Step 4: Signature/Verification */}
+              {verificationStep === 'signature' && (
+                <div className="space-y-6">
+                  <h4 className="text-lg font-semibold text-gray-900">Verification & Signature</h4>
+                  
+                  {/* Summary */}
+                  <div className="bg-gray-50 rounded-lg p-6">
+                    <h5 className="font-semibold text-gray-900 mb-4">Verification Summary</h5>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <h6 className="font-medium text-gray-700 mb-2">Products Verified</h6>
+                        <div className="space-y-2">
+                          {productSKUs.map((sku) => (
+                            <div key={sku.id} className="flex justify-between text-sm">
+                              <span>{sku.skuName}</span>
+                              <span className={sku.difference === 0 ? 'text-green-600' : 'text-orange-600'}>
+                                {sku.difference === 0 ? 'No Change' : `${Math.abs(sku.difference)} ${sku.unit} ${sku.soldTo}`}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <h6 className="font-medium text-gray-700 mb-2">Audit Trail</h6>
+                        <div className="text-sm text-gray-600 space-y-1">
+                          <p>Date: {new Date().toLocaleDateString()}</p>
+                          <p>Time: {new Date().toLocaleTimeString()}</p>
+                          <p>Verified by: Rajesh Kumar (MDO001)</p>
+                          <p>Distributor: {getSelectedDistributor()?.distributorName}</p>
+                        </div>
+                      </div>
                     </div>
                   </div>
+
+                  {/* Verification Options */}
+                  <div className="space-y-4">
+                    <h5 className="font-semibold text-gray-900">Choose Verification Method</h5>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="border-2 border-blue-500 bg-blue-50 rounded-lg p-6 cursor-pointer">
+                        <div className="text-center">
+                          <Signature className="w-12 h-12 text-blue-600 mx-auto mb-3" />
+                          <h6 className="font-semibold text-gray-900 mb-2">E-Signature</h6>
+                          <p className="text-sm text-gray-600">Digital signature verification</p>
+                        </div>
+                      </div>
+                      
+                      <div className="border-2 border-gray-200 hover:border-green-300 rounded-lg p-6 cursor-pointer">
+                        <div className="text-center">
+                          <FileText className="w-12 h-12 text-green-600 mx-auto mb-3" />
+                          <h6 className="font-semibold text-gray-900 mb-2">Letterhead Declaration</h6>
+                          <p className="text-sm text-gray-600">Upload signed letterhead</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Notifications */}
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <div className="flex items-start">
+                      <Alert className="w-5 h-5 text-yellow-600 mr-2 mt-0.5" />
+                      <div>
+                        <h6 className="font-medium text-yellow-800">Pending Tasks Generated</h6>
+                        <div className="text-sm text-yellow-700 mt-1">
+                          {productSKUs.filter(sku => sku.soldTo === 'retailer').length > 0 && (
+                            <p>• Retailer liquidation tracking notifications have been created</p>
+                          )}
+                          <p>• Stock verification completed and logged for audit</p>
+                          <p>• All changes tagged with timestamp and user details</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between">
+                    <button
+                      onClick={() => setVerificationStep('difference-tracking')}
+                      className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                    >
+                      Back
+                    </button>
+                    <button
+                      onClick={() => {
+                        alert('Stock verification completed successfully!\n\nAudit trail created with:\n- Date & Time stamp\n- User details\n- All stock changes\n- Retailer assignments\n- Farmer liquidations');
+                        closeModals();
+                      }}
+                      className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center"
+                    >
+                      <CheckCircle className="w-4 h-4 mr-2" />
+                      Complete Verification
+                    </button>
+                  </div>
                 </div>
-                
-                {/* Quantity Input */}
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Quantity *
-                  </label>
-                  <input
-                    type="number"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Enter quantity"
-                  />
-                </div>
-              </div>
-            </div>
-            
-            <div className="flex justify-end space-x-3 p-6 border-t">
-              <button
-                onClick={closeModals}
-                className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => {
-                  alert('Liquidation details saved!');
-                  closeModals();
-                }}
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                Save Changes
-              </button>
+              )}
             </div>
           </div>
         </div>
