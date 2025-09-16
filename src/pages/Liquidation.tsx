@@ -176,14 +176,13 @@ const Liquidation: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div 
           className="bg-orange-50 rounded-xl p-6 border-l-4 border-orange-500 cursor-pointer hover:shadow-md transition-all duration-200"
-          onClick={() => handleView('1', 'opening')}
         >
           <div className="flex items-center justify-between mb-4">
-            <h4 className="text-lg font-semibold text-orange-800">Opening Stock</h4>
-            <button className="bg-orange-600 text-white px-3 py-1 rounded text-xs hover:bg-orange-700">
-              View
-            </button>
+            <div className="w-12 h-12 bg-orange-500 rounded-lg flex items-center justify-center">
+              <Package className="w-6 h-6 text-white" />
+            </div>
           </div>
+          <h4 className="text-lg font-semibold text-orange-800 mb-2">Opening Stock</h4>
           <div className="text-center">
             <div className="text-3xl font-bold text-orange-900 mb-1">32,660</div>
             <div className="text-sm text-orange-700 mb-2">Kg/Litre</div>
@@ -193,14 +192,13 @@ const Liquidation: React.FC = () => {
 
         <div 
           className="bg-blue-50 rounded-xl p-6 border-l-4 border-blue-500 cursor-pointer hover:shadow-md transition-all duration-200"
-          onClick={() => handleView('1', 'ytd')}
         >
           <div className="flex items-center justify-between mb-4">
-            <h4 className="text-lg font-semibold text-blue-800">YTD Net Sales</h4>
-            <button className="bg-blue-600 text-white px-3 py-1 rounded text-xs hover:bg-blue-700">
-              View
-            </button>
+            <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
+              <TrendingUp className="w-6 h-6 text-white" />
+            </div>
           </div>
+          <h4 className="text-lg font-semibold text-blue-800 mb-2">YTD Net Sales</h4>
           <div className="text-center">
             <div className="text-3xl font-bold text-blue-900 mb-1">13,303</div>
             <div className="text-sm text-blue-700 mb-2">Kg/Litre</div>
@@ -210,14 +208,13 @@ const Liquidation: React.FC = () => {
 
         <div 
           className="bg-green-50 rounded-xl p-6 border-l-4 border-green-500 cursor-pointer hover:shadow-md transition-all duration-200"
-          onClick={() => handleView('1', 'liquidation')}
         >
           <div className="flex items-center justify-between mb-4">
-            <h4 className="text-lg font-semibold text-green-800">Liquidation</h4>
-            <button className="bg-green-600 text-white px-3 py-1 rounded text-xs hover:bg-green-700">
-              View
-            </button>
+            <div className="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center">
+              <Droplets className="w-6 h-6 text-white" />
+            </div>
           </div>
+          <h4 className="text-lg font-semibold text-green-800 mb-2">Liquidation</h4>
           <div className="text-center">
             <div className="text-3xl font-bold text-green-900 mb-1">12,720</div>
             <div className="text-sm text-green-700 mb-2">Kg/Litre</div>
@@ -227,20 +224,13 @@ const Liquidation: React.FC = () => {
 
         <div 
           className="bg-purple-50 rounded-xl p-6 border-l-4 border-purple-500 cursor-pointer hover:shadow-md transition-all duration-200"
-          onClick={() => handleView('1', 'balance')}
         >
           <div className="flex items-center justify-between mb-4">
-            <h4 className="text-lg font-semibold text-purple-800">Balance Stock</h4>
-            <button 
-              className="bg-purple-600 text-white px-3 py-1 rounded text-xs hover:bg-purple-700"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleVerify('1');
-              }}
-            >
-              Verify
-            </button>
+            <div className="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center">
+              <Package className="w-6 h-6 text-white" />
+            </div>
           </div>
+          <h4 className="text-lg font-semibold text-purple-800 mb-2">Balance Stock</h4>
           <div className="text-center">
             <div className="text-3xl font-bold text-purple-900 mb-1">33,243</div>
             <div className="text-sm text-purple-700 mb-2">Kg/Litre</div>
