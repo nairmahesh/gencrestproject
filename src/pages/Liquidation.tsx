@@ -923,31 +923,9 @@ const Liquidation: React.FC = () => {
                               />
                             </div>
                           </div>
-                            <input
-                              type="text"
-                              placeholder="Retailer Name"
-                              value={newRetailer.name}
-                              onChange={(e) => setNewRetailer(prev => ({ ...prev, name: e.target.value }))}
-                              className="px-3 py-2 border border-blue-300 rounded-lg"
-                            />
-                            <input
-                              type="text"
-                              placeholder="Phone (optional)"
-                              value={newRetailer.phone}
-                              onChange={(e) => setNewRetailer(prev => ({ ...prev, phone: e.target.value }))}
-                              className="px-3 py-2 border border-blue-300 rounded-lg"
-                            />
-                            <input
-                              type="text"
-                              placeholder="Address (optional)"
-                              value={newRetailer.address}
-                              onChange={(e) => setNewRetailer(prev => ({ ...prev, address: e.target.value }))}
-                              className="px-3 py-2 border border-blue-300 rounded-lg"
-                            />
-                          </div>
 
                            {/* Retailer List */}
-                          sku.retailerDetails && sku.retailerDetails.length > 0 && (
+                          {sku.retailerDetails && sku.retailerDetails.length > 0 && (
                             <div className="space-y-3">
                               <h6 className="font-medium text-gray-900">📋 Retailer Assignments</h6>
                               {sku.retailerDetails.map((retailer) => (
@@ -1055,18 +1033,6 @@ const Liquidation: React.FC = () => {
                               • Added to total liquidation count immediately<br/>
                               • Logged with date/time stamp: {new Date().toLocaleString()}
                             </p>
-                          </div>
-                            <input
-                              type="number"
-                              value={sku.farmerQuantity || 0}
-                              onChange={(e) => updateFarmerQuantity(sku.id, parseInt(e.target.value) || 0)}
-                              max={Math.abs(sku.difference)}
-                              className="w-24 px-3 py-2 border border-green-300 rounded-lg text-center"
-                            />
-                            <span className="text-sm text-green-600">{sku.unit} (Max: {Math.abs(sku.difference)})</span>
-                          </div>
-                          <div className="text-sm text-green-700 mt-2">
-                            ✓ This will be tagged as "Distributor Farmer Liquidation"
                           </div>
                         </div>
                       )}
