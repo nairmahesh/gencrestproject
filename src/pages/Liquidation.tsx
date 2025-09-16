@@ -111,8 +111,8 @@ const Liquidation: React.FC = () => {
         skuName: 'DAP 25kg Bag',
         unit: 'Kg',
         lastBalance: 150,
-        currentStock: 0,
-        difference: 0,
+        currentStock: 120,
+        difference: 30,
         isVerified: false
       },
       {
@@ -124,8 +124,8 @@ const Liquidation: React.FC = () => {
         skuName: 'DAP 50kg Bag',
         unit: 'Kg',
         lastBalance: 100,
-        currentStock: 0,
-        difference: 0,
+        currentStock: 85,
+        difference: 15,
         isVerified: false
       },
       {
@@ -137,7 +137,7 @@ const Liquidation: React.FC = () => {
         skuName: 'Urea 25kg Bag',
         unit: 'Kg',
         lastBalance: 80,
-        currentStock: 0,
+        currentStock: 80,
         difference: 0,
         isVerified: false
       },
@@ -150,8 +150,8 @@ const Liquidation: React.FC = () => {
         skuName: 'NPK Complex 25kg Bag',
         unit: 'Kg',
         lastBalance: 60,
-        currentStock: 0,
-        difference: 0,
+        currentStock: 45,
+        difference: 15,
         isVerified: false
       }
     ];
