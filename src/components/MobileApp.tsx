@@ -879,6 +879,13 @@ const MobileApp: React.FC = () => {
                 <CheckCircle className="w-3 h-3 mr-1" />
                 Verify
               </button>
+              <button 
+                onClick={() => handleVerifyClick(item)}
+                className="flex-1 bg-green-600 text-white px-3 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center text-xs"
+              >
+                <CheckCircle className="w-3 h-3 mr-1" />
+                Verify
+              </button>
             </div>
           </div>
         ))}
