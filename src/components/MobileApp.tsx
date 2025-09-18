@@ -298,61 +298,33 @@ const MobileApp: React.FC<MobileAppProps> = () => {
                 </div>
               </div>
               <div className="flex items-center space-x-2">
-                <div className="w-6 h-6 bg-yellow-500 rounded-full flex items-center justify-center">
+                <button 
+                  onClick={() => alert('Financial alerts: 4 pending approvals')}
+                  className="w-6 h-6 bg-yellow-500 rounded-full flex items-center justify-center hover:bg-yellow-600 transition-colors"
+                >
                   <DollarSign className="w-3 h-3 text-white" />
-                </div>
-                <div className="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center relative">
+                </button>
+                <button 
+                  onClick={() => alert('System alerts: 4 warnings detected')}
+                  className="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center relative hover:bg-orange-600 transition-colors"
+                >
                   <AlertTriangle className="w-3 h-3 text-white" />
                   <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 text-white rounded-full text-xs flex items-center justify-center">4</span>
-                </div>
-                <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                </button>
+                <button 
+                  onClick={() => alert('Route tracking: 3 active routes')}
+                  className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors"
+                >
                   <Route className="w-3 h-3 text-white" />
-                </div>
+                </button>
                 <button 
                   onClick={() => setShowCriticalAlerts(true)}
-                  className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center relative"
+                  className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center relative hover:bg-red-600 transition-colors"
                 >
                   <Bell className="w-3 h-3 text-white" />
                   <span className="absolute -top-1 -right-1 w-3 h-3 bg-white text-red-500 rounded-full text-xs flex items-center justify-center font-bold">3</span>
                 </button>
               </div>
-            </div>
-          </div>
-
-          {/* Critical Alerts Section - Always Visible */}
-          <div className="bg-white rounded-xl p-4 shadow-sm border-l-4 border-red-500">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center space-x-2">
-                <AlertTriangle className="w-4 h-4 text-red-600" />
-                <h3 className="font-semibold text-sm text-red-800">Critical Alerts</h3>
-                <span className="w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center">
-                  {activeAlerts.length} Active
-                </span>
-              </div>
-              <button 
-                onClick={() => setShowCriticalAlerts(true)}
-                className="text-red-600 text-xs font-medium"
-              >
-                View All
-              </button>
-            </div>
-            
-            <div className="space-y-2">
-              {activeAlerts.slice(0, 2).map((alert) => (
-                <div key={alert.id} className={`p-2 rounded-lg border ${getAlertColor(alert.severity)}`}>
-                  <div className="flex items-center space-x-2 mb-1">
-                    {getAlertIcon(alert.type)}
-                    <span className="font-medium text-xs">{alert.userName}</span>
-                    <span className={`px-1 py-0.5 rounded text-xs ${
-                      alert.severity === 'high' ? 'bg-red-500 text-white' : 'bg-orange-500 text-white'
-                    }`}>
-                      {alert.severity} priority
-                    </span>
-                    <span className="text-xs opacity-75">2 mins ago</span>
-                  </div>
-                  <p className="text-xs">{alert.description}</p>
-                </div>
-              ))}
             </div>
           </div>
         </div>
