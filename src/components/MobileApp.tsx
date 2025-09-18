@@ -39,8 +39,8 @@ import {
   Route,
   Shield,
   ShoppingCart,
-  ChevronRight,
-  ArrowLeft
+  ArrowLeft,
+  ChevronRight
 } from 'lucide-react';
 
 interface CriticalAlert {
@@ -70,6 +70,7 @@ const MobileApp: React.FC<MobileAppProps> = () => {
   const [selectedView, setSelectedView] = useState<'overview' | 'team' | 'exceptions'>('overview');
   const [showCriticalAlerts, setShowCriticalAlerts] = useState(false);
   const [selectedAlertCategory, setSelectedAlertCategory] = useState('All');
+  const [showTravelModal, setShowTravelModal] = useState(false);
 
   const { distributorMetrics } = useLiquidationCalculation();
 
@@ -301,7 +302,7 @@ const MobileApp: React.FC<MobileAppProps> = () => {
               </div>
               <div className="flex items-center space-x-2">
                 <button 
-                  onClick={() => alert('Financial alerts: 4 pending approvals')}
+                  onClick={() => setShowTravelModal(true)}
                   className="w-6 h-6 bg-yellow-500 rounded-full flex items-center justify-center hover:bg-yellow-600 transition-colors"
                 >
                   <DollarSign className="w-3 h-3 text-white" />
@@ -659,53 +660,9 @@ const MobileApp: React.FC<MobileAppProps> = () => {
             </div>
           </div>
 
-          {/* TSM Personal Travel */}
-          <div className="mb-4 bg-purple-50 rounded-lg p-3 border border-purple-200">
-            <h4 className="font-semibold text-sm text-purple-900 mb-3">Your Travel (Sandeep Kumar)</h4>
-            <div className="grid grid-cols-2 gap-3 mb-3">
-              <div className="text-center p-2 bg-white rounded">
-                <div className="text-lg font-bold text-purple-600">285</div>
-                <div className="text-xs text-purple-600">Your KMs</div>
-              </div>
-              <div className="text-center p-2 bg-white rounded">
-                <div className="text-lg font-bold text-green-600">₹3,420</div>
-                <div className="text-xs text-green-600">Your Claim</div>
-              </div>
-            </div>
-            
-            <div className="space-y-2">
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-purple-700">Fuel Cost:</span>
-                <span className="font-semibold">₹1,710</span>
-              </div>
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-purple-700">Daily Allowance:</span>
-                <span className="font-semibold">₹1,710</span>
-              </div>
-              <div className="border-t border-purple-200 pt-2">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-semibold text-purple-900">Your Total:</span>
-                  <span className="font-bold text-purple-600">₹3,420</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
           {/* Recent Activities */}
           <div className="bg-white rounded-lg p-4 shadow-sm">
             <h3 className="font-semibold mb-3">Recent Activities</h3>
-              {/* TSM's own travel first */}
-              <div className="bg-purple-50 rounded-lg p-3 border border-purple-200">
-                <div className="flex justify-between items-center mb-1">
-                  <span className="text-sm font-medium text-purple-900">Sandeep Kumar (You)</span>
-                  <span className="text-xs text-purple-600">Jan 21</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-xs text-purple-700">Delhi → Regional Office (35 km)</span>
-                  <span className="text-sm font-semibold text-purple-600">₹420</span>
-                </div>
-              </div>
-              
             <div className="space-y-3">
               <div className="flex items-center space-x-3">
                 <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
@@ -1034,7 +991,120 @@ const MobileApp: React.FC<MobileAppProps> = () => {
     </div>
   );
 
-  // Critical Alerts Modal
+  // Travel Reimbursement Modal
+  const renderTravelReimbursementModal = () => (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl w-full max-w-sm max-h-[80vh] overflow-hidden">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-4 text-white">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => setShowTravelModal(false)}
+                className="p-1 hover:bg-white hover:bg-opacity-20 rounded-full transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4 text-white" />
+              </button>
+              <div>
+                <h3 className="text-lg font-semibold">Team Travel</h3>
+                <p className="text-sm opacity-90">Reimbursement</p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-1">
+              <DollarSign className="w-4 h-4" />
+              <AlertTriangle className="w-4 h-4" />
+              <Route className="w-4 h-4" />
+              <Bell className="w-4 h-4" />
+            </div>
+          </div>
+        </div>
+        
+        <div className="p-4 overflow-y-auto max-h-[60vh]">
+          {/* Stats Cards */}
+          <div className="grid grid-cols-2 gap-3 mb-4">
+            <div className="bg-blue-50 rounded-lg p-3 text-center">
+              <div className="text-2xl font-bold text-blue-600">1895</div>
+              <div className="text-xs text-blue-600">Total KMs</div>
+            </div>
+            <div className="bg-green-50 rounded-lg p-3 text-center">
+              <div className="text-2xl font-bold text-green-600">1850</div>
+              <div className="text-xs text-green-600">Approved KMs</div>
+            </div>
+          </div>
+
+          {/* Pending Approval Alert */}
+          <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-4">
+            <div className="flex items-center space-x-2 mb-2">
+              <AlertTriangle className="w-4 h-4 text-orange-600" />
+              <span className="font-semibold text-sm text-orange-800">Pending Approval</span>
+            </div>
+            <p className="text-sm text-orange-700">45 KMs awaiting team approval</p>
+          </div>
+
+          {/* Cost Breakdown */}
+          <div className="mb-4">
+            <h4 className="font-semibold text-sm text-gray-900 mb-3">Cost Breakdown (Team)</h4>
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600">Total Fuel Cost:</span>
+                <span className="font-semibold text-gray-900">₹8,527</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600">Total Daily Allowance:</span>
+                <span className="font-semibold text-gray-900">₹12,000</span>
+              </div>
+              <div className="border-t border-gray-200 pt-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-semibold text-gray-900">Total Team Claim:</span>
+                  <span className="font-bold text-green-600">₹20,527</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Team Recent Days */}
+          <div>
+            <h4 className="font-semibold text-sm text-gray-900 mb-3">Team Recent Days</h4>
+            <div className="space-y-2">
+              <div className="bg-gray-50 rounded-lg p-3">
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-sm font-medium text-gray-900">Rajesh Kumar</span>
+                  <span className="text-xs text-gray-500">Jan 20</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-gray-600">Delhi → Gurgaon (45 km)</span>
+                  <span className="text-sm font-semibold text-green-600">₹540</span>
+                </div>
+              </div>
+              
+              <div className="bg-gray-50 rounded-lg p-3">
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-sm font-medium text-gray-900">Priya Sharma</span>
+                  <span className="text-xs text-gray-500">Jan 19</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-gray-600">Delhi → Noida (32 km)</span>
+                  <span className="text-sm font-semibold text-green-600">₹384</span>
+                </div>
+              </div>
+              
+              <div className="bg-gray-50 rounded-lg p-3">
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-sm font-medium text-gray-900">Amit Singh</span>
+                  <span className="text-xs text-gray-500">Jan 18</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-gray-600">Delhi → Faridabad (28 km)</span>
+                  <span className="text-sm font-semibold text-yellow-600">₹336</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
@@ -1113,6 +1183,12 @@ const MobileApp: React.FC<MobileAppProps> = () => {
           </button>
         </div>
       </div>
+
+      {/* Critical Alerts Modal */}
+      {showCriticalAlerts && renderCriticalAlertsModal()}
+      
+      {/* Travel Reimbursement Modal */}
+      {showTravelModal && renderTravelReimbursementModal()}
     </div>
   );
 };
