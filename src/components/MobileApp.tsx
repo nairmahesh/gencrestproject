@@ -725,6 +725,7 @@ const MobileApp: React.FC<MobileAppProps> = () => {
                 </div>
               </div>
             </div>
+          </div>
 
           {/* Key Metrics */}
           <div className="grid grid-cols-2 gap-3">
@@ -962,6 +963,10 @@ const MobileApp: React.FC<MobileAppProps> = () => {
                 <button 
                   onClick={() => handleVerifyClick(distributor)}
                   className="text-xs text-green-600 underline mt-1"
+                >
+                  Verify
+                </button>
+              </div>
             </div>
           </div>
         ))}
