@@ -534,7 +534,7 @@ const Liquidation: React.FC = () => {
                                 <p className="text-xs text-gray-500">Date: {new Date(invoice.invoiceDate).toLocaleDateString()}</p>
                               </div>
                               
-                              {/* Single line layout: SKU Name - Current Stock - Physical Stock */}
+                              {/* Single line layout: Current Stock - Physical Stock */}
                               <div className="flex items-center space-x-6">
                                 {/* Current Stock */}
                                 <div className="text-center">
