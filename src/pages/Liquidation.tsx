@@ -64,9 +64,7 @@ const Liquidation: React.FC = () => {
     { id: '1', name: '', quantities: {} }
   ]);
   const [verificationData, setVerificationData] = useState({
-    currentStock: 0,
-    physicalStock: 0,
-    variance: 0,
+    skuVerifications: {} as { [skuCode: string]: { current: number; physical: number; variance: number } },
     reason: '',
     verifiedBy: user?.name || 'User'
   });
@@ -263,30 +261,53 @@ const Liquidation: React.FC = () => {
 
   const handleVerifyClick = (item: any) => {
     setSelectedItem(item);
+    
+    // Initialize SKU verification data
+    const skuData = getSKUData(item.id);
+    const skuVerifications: { [skuCode: string]: { current: number; physical: number; variance: number } } = {};
+    
+    skuData.forEach(sku => {
+      skuVerifications[sku.skuCode] = {
+        current: sku.currentStock,
+        physical: sku.currentStock,
+        variance: 0
+      };
+    });
+    
     setVerificationData({
-      currentStock: item.metrics.balanceStock.volume,
-      physicalStock: item.metrics.balanceStock.volume,
-      variance: 0,
+      skuVerifications,
       reason: '',
       verifiedBy: user?.name || 'User'
     });
     setShowVerifyModal(true);
   };
 
-  const handleStockChange = (field: 'currentStock' | 'physicalStock', value: number) => {
-    const newData = { ...verificationData, [field]: value };
-    newData.variance = newData.physicalStock - newData.currentStock;
-    setVerificationData(newData);
+  const handleSKUStockChange = (skuCode: string, field: 'current' | 'physical', value: number) => {
+    setVerificationData(prev => {
+      const newVerifications = { ...prev.skuVerifications };
+      newVerifications[skuCode] = { ...newVerifications[skuCode], [field]: value };
+      newVerifications[skuCode].variance = newVerifications[skuCode].physical - newVerifications[skuCode].current;
+      
+      return {
+        ...prev,
+        skuVerifications: newVerifications
+      };
+    });
   };
 
   const handleVerifySubmit = () => {
+    const totalVariance = Object.values(verificationData.skuVerifications)
+      .reduce((sum, sku) => sum + Math.abs(sku.variance), 0);
+    
     console.log('Stock verification submitted:', {
       itemId: selectedItem.id,
-      ...verificationData,
+      skuVerifications: verificationData.skuVerifications,
+      reason: verificationData.reason,
+      totalVariance,
       timestamp: new Date().toISOString()
     });
     
-    alert(`Stock verified for ${selectedItem.distributorName}!\nVariance: ${verificationData.variance} ${selectedItem.metrics.balanceStock.volume > 1000 ? 'Kg' : 'L'}`);
+    alert(`Stock verified for ${selectedItem.distributorName}!\nTotal Variance: ${totalVariance} units across ${Object.keys(verificationData.skuVerifications).length} SKUs`);
     setShowVerifyModal(false);
     setSelectedItem(null);
   };
@@ -1043,7 +1064,7 @@ const Liquidation: React.FC = () => {
       {/* Stock Verification Modal */}
       {showVerifyModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl w-full max-w-md">
+          <div className="bg-white rounded-xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
             <div className="flex items-center justify-between p-4 border-b">
               <h3 className="text-lg font-semibold text-gray-900">Stock Verification</h3>
               <button
@@ -1054,66 +1075,93 @@ const Liquidation: React.FC = () => {
               </button>
             </div>
             
-            <div className="p-4 space-y-4">
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
               {selectedItem && (
-                <>
+                <div className="space-y-6">
                   <div className="bg-gray-50 rounded-lg p-3">
                     <h4 className="font-semibold text-gray-900">{selectedItem.distributorName}</h4>
                     <p className="text-sm text-gray-600">{selectedItem.distributorCode} • {selectedItem.territory}</p>
                   </div>
                   
-                  <div className="space-y-3">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Current Stock (System)
-                      </label>
-                      <input
-                        type="number"
-                        value={verificationData.currentStock}
-                        onChange={(e) => handleStockChange('currentStock', parseInt(e.target.value) || 0)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                        placeholder="Enter current stock"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Physical Stock (Verified)
-                      </label>
-                      <input
-                        type="number"
-                        value={verificationData.physicalStock}
-                        onChange={(e) => handleStockChange('physicalStock', parseInt(e.target.value) || 0)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                        placeholder="Enter physical stock"
-                      />
-                    </div>
-                    
-                    {verificationData.variance !== 0 && (
-                      <div className={`p-3 rounded-lg ${verificationData.variance > 0 ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium">Variance:</span>
-                          <span className={`font-bold ${verificationData.variance > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                            {verificationData.variance > 0 ? '+' : ''}{verificationData.variance} {selectedItem.metrics.balanceStock.volume > 1000 ? 'Kg' : 'L'}
-                          </span>
+                  {/* SKU-wise Verification */}
+                  <div>
+                    <h4 className="text-lg font-semibold text-gray-900 mb-4">SKU-wise Stock Verification</h4>
+                    <div className="space-y-4">
+                      {getSKUData(selectedItem.id).map((sku) => (
+                        <div key={sku.skuCode} className="bg-white rounded-lg border border-gray-200 p-4">
+                          <div className="flex items-center justify-between mb-3">
+                            <div>
+                              <h5 className="font-semibold text-gray-900">{sku.skuName}</h5>
+                              <p className="text-sm text-gray-600">SKU: {sku.skuCode} | Invoice: {sku.invoiceNumber}</p>
+                              <p className="text-xs text-gray-500">Date: {new Date(sku.invoiceDate).toLocaleDateString()}</p>
+                            </div>
+                          </div>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Current Stock (System)
+                              </label>
+                              <input
+                                type="number"
+                                value={verificationData.skuVerifications[sku.skuCode]?.current || sku.currentStock}
+                                onChange={(e) => handleSKUStockChange(sku.skuCode, 'current', parseInt(e.target.value) || 0)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                placeholder="Enter current stock"
+                              />
+                            </div>
+                            
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Physical Stock (Verified)
+                              </label>
+                              <input
+                                type="number"
+                                value={verificationData.skuVerifications[sku.skuCode]?.physical || sku.currentStock}
+                                onChange={(e) => handleSKUStockChange(sku.skuCode, 'physical', parseInt(e.target.value) || 0)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                placeholder="Enter physical stock"
+                              />
+                            </div>
+                          </div>
+                          
+                          {verificationData.skuVerifications[sku.skuCode]?.variance !== 0 && (
+                            <div className={`mt-3 p-3 rounded-lg ${
+                              (verificationData.skuVerifications[sku.skuCode]?.variance || 0) > 0 
+                                ? 'bg-green-50 border border-green-200' 
+                                : 'bg-red-50 border border-red-200'
+                            }`}>
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm font-medium">Variance for {sku.skuCode}:</span>
+                                <span className={`font-bold ${
+                                  (verificationData.skuVerifications[sku.skuCode]?.variance || 0) > 0 
+                                    ? 'text-green-600' 
+                                    : 'text-red-600'
+                                }`}>
+                                  {(verificationData.skuVerifications[sku.skuCode]?.variance || 0) > 0 ? '+' : ''}
+                                  {verificationData.skuVerifications[sku.skuCode]?.variance || 0} {sku.unit}
+                                </span>
+                              </div>
+                            </div>
+                          )}
                         </div>
-                      </div>
-                    )}
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Reason for Variance (if any)
-                      </label>
-                      <textarea
-                        value={verificationData.reason}
-                        onChange={(e) => setVerificationData(prev => ({ ...prev, reason: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                        rows={3}
-                        placeholder="Explain any stock variance..."
-                      />
+                      ))}
                     </div>
                   </div>
-                </>
+                    
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Overall Reason for Variance (if any)
+                    </label>
+                    <textarea
+                      value={verificationData.reason}
+                      onChange={(e) => setVerificationData(prev => ({ ...prev, reason: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      rows={3}
+                      placeholder="Explain any stock variance across SKUs..."
+                    />
+                  </div>
+                </div>
               )}
             </div>
             
