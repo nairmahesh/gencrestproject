@@ -1,886 +1,394 @@
 import React, { useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import { useLiquidationCalculation } from '../hooks/useLiquidationCalculation';
 import { 
   Home, 
-  MapPin, 
-  CheckSquare, 
+  Users, 
+  ShoppingCart, 
   Droplets, 
-  FileText,
-  User,
-  Calendar,
-  Package,
-  TrendingUp,
-  Target,
-  Building,
-  Search,
-  Filter,
-  Eye,
+  FileText, 
+  Bell, 
+  DollarSign, 
+  AlertTriangle, 
+  Route,
+  ArrowLeft,
+  ChevronRight,
   CheckCircle,
-  X,
-  Save,
-  Plus,
-  Minus,
+  Clock,
+  MapPin,
+  Calendar,
+  Target,
+  TrendingUp,
+  Package,
+  Building,
+  User,
   Phone,
   Mail,
   Navigation,
-  Clock,
-  DollarSign,
-  Camera,
-  Upload,
-  Users,
-  AlertTriangle,
-  Award,
-  Activity,
-  BarChart3,
-  Bell,
-  Battery,
-  MapPinOff,
-  Route,
-  Shield,
-  ShoppingCart,
-  ArrowLeft,
-  ChevronRight
+  Car,
+  Plus,
+  Filter,
+  Search,
+  Eye,
+  Edit,
+  X
 } from 'lucide-react';
+import { useLiquidationCalculation } from '../hooks/useLiquidationCalculation';
 
-interface CriticalAlert {
-  id: string;
-  type: 'location' | 'battery' | 'boundary' | 'route_deviation';
-  title: string;
-  description: string;
-  severity: 'high' | 'medium' | 'low';
-  timestamp: string;
-  userId: string;
-  userName: string;
-  isActive: boolean;
-  duration?: string;
-  distance?: string;
-}
-
-interface MobileAppProps {}
-
-const MobileApp: React.FC<MobileAppProps> = () => {
-  const { user } = useAuth();
+const MobileApp: React.FC = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [showVerifyModal, setShowVerifyModal] = useState(false);
-  const [showViewModal, setShowViewModal] = useState(false);
-  const [selectedDistributor, setSelectedDistributor] = useState<any>(null);
-  const [selectedMetric, setSelectedMetric] = useState<string>('');
-  const [verificationData, setVerificationData] = useState<any>({});
-  const [selectedView, setSelectedView] = useState<'overview' | 'team' | 'exceptions'>('overview');
   const [showCriticalAlerts, setShowCriticalAlerts] = useState(false);
   const [selectedAlertCategory, setSelectedAlertCategory] = useState('All');
   const [showTravelModal, setShowTravelModal] = useState(false);
 
   const { distributorMetrics } = useLiquidationCalculation();
 
-  // Critical Alerts Data
-  const criticalAlerts: CriticalAlert[] = [
+  const criticalAlerts = [
     {
-      id: 'CA001',
-      type: 'location',
-      title: 'Priya Sharma',
-      description: 'Location services disabled for 15 mins',
-      severity: 'high',
-      timestamp: '2024-01-20T14:25:00Z',
-      userId: 'MDO002',
-      userName: 'Priya Sharma',
-      isActive: true,
-      duration: '15 mins'
+      id: '1',
+      type: 'Stock Variance',
+      message: 'GREEN AGRO: 25kg difference detected',
+      severity: 'High',
+      time: '2 hours ago',
+      module: 'Liquidation'
     },
     {
-      id: 'CA002',
-      type: 'battery',
-      title: 'Rajesh Kumar',
-      description: 'Battery at 18% during active visit',
-      severity: 'medium',
-      timestamp: '2024-01-20T14:20:00Z',
-      userId: 'MDO001',
-      userName: 'Rajesh Kumar',
-      isActive: true
+      id: '2',
+      type: 'Route Deviation',
+      message: 'MDO deviated from planned route',
+      severity: 'Medium',
+      time: '4 hours ago',
+      module: 'Field Visits'
     },
     {
-      id: 'CA003',
-      type: 'boundary',
-      title: 'Rajesh Kumar',
-      description: '2.5km outside territory boundary',
-      severity: 'high',
-      timestamp: '2024-01-20T14:15:00Z',
-      userId: 'MDO001',
-      userName: 'Rajesh Kumar',
-      isActive: true,
-      distance: '2.5km'
+      id: '3',
+      type: 'Missing Proof',
+      message: '3 visits without photos',
+      severity: 'High',
+      time: '6 hours ago',
+      module: 'Field Visits'
     },
     {
-      id: 'CA004',
-      type: 'route_deviation',
-      title: 'Vijay Verma',
-      description: 'Route deviation of 30.2 km detected',
-      severity: 'high',
-      timestamp: '2024-01-20T14:10:00Z',
-      userId: 'MDO003',
-      userName: 'Vijay Verma',
-      isActive: true,
-      distance: '30.2 km'
+      id: '4',
+      type: 'Payment Overdue',
+      message: 'Ram Kumar: ₹25,000 overdue',
+      severity: 'High',
+      time: '1 day ago',
+      module: 'Collections'
     }
   ];
 
-  const getAlertIcon = (type: CriticalAlert['type']) => {
-    switch (type) {
-      case 'location': return <MapPinOff className="w-4 h-4" />;
-      case 'battery': return <Battery className="w-4 h-4" />;
-      case 'boundary': return <Shield className="w-4 h-4" />;
-      case 'route_deviation': return <Route className="w-4 h-4" />;
-      default: return <AlertTriangle className="w-4 h-4" />;
-    }
-  };
-
-  const getAlertColor = (severity: CriticalAlert['severity']) => {
-    switch (severity) {
-      case 'high': return 'bg-red-100 text-red-800 border-red-200';
-      case 'medium': return 'bg-orange-100 text-orange-800 border-orange-200';
-      case 'low': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
-  };
-
-  const getAlertCategoryColor = (category: string) => {
-    switch (category) {
-      case 'Location': return 'bg-red-100 text-red-800';
-      case 'Battery': return 'bg-orange-100 text-orange-800';
-      case 'Geofence': return 'bg-purple-100 text-purple-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const activeAlerts = criticalAlerts.filter(alert => alert.isActive);
   const filteredAlerts = selectedAlertCategory === 'All' 
-    ? activeAlerts 
-    : activeAlerts.filter(alert => {
-        switch (selectedAlertCategory) {
-          case 'Location': return alert.type === 'location';
-          case 'Battery': return alert.type === 'battery';
-          case 'Geofence': return alert.type === 'boundary' || alert.type === 'route_deviation';
-          default: return true;
-        }
-      });
-
-  // Sample MDO data for TSM
-  const mdoStats = [
-    {
-      id: 'MDO001',
-      name: 'Rajesh Kumar',
-      employeeCode: 'MDO001',
-      territory: 'North Delhi',
-      ytdActivities: { planned: 540, done: 456, percentage: 84 },
-      monthlyActivities: { planned: 45, done: 38, pending: 7, pendingPercentage: 16, completedPercentage: 84 },
-      exceptions: [
-        { id: 'EX001', type: 'route_deviation', description: 'Route deviation on Jan 18', severity: 'Medium', date: '2024-01-18', status: 'Open' },
-        { id: 'EX002', type: 'missing_proof', description: 'Missing visit photos', severity: 'High', date: '2024-01-19', status: 'Open' }
-      ],
-      performance: { visitCompliance: 85, targetAchievement: 88, liquidationRate: 72 },
-      regionEffort: { territory: 'North Delhi', activitiesCompleted: 38, hoursSpent: 342, visitCount: 28 }
-    },
-    {
-      id: 'MDO002',
-      name: 'Amit Singh',
-      employeeCode: 'MDO002',
-      territory: 'South Delhi',
-      ytdActivities: { planned: 540, done: 432, percentage: 80 },
-      monthlyActivities: { planned: 45, done: 36, pending: 9, pendingPercentage: 20, completedPercentage: 80 },
-      exceptions: [
-        { id: 'EX003', type: 'insufficient_hours', description: 'Only 7.5 hours on Jan 17', severity: 'High', date: '2024-01-17', status: 'Open' }
-      ],
-      performance: { visitCompliance: 82, targetAchievement: 85, liquidationRate: 68 },
-      regionEffort: { territory: 'South Delhi', activitiesCompleted: 36, hoursSpent: 324, visitCount: 26 }
-    },
-    {
-      id: 'MDO003',
-      name: 'Priya Verma',
-      employeeCode: 'MDO003',
-      territory: 'East Delhi',
-      ytdActivities: { planned: 540, done: 486, percentage: 90 },
-      monthlyActivities: { planned: 45, done: 41, pending: 4, pendingPercentage: 9, completedPercentage: 91 },
-      exceptions: [],
-      performance: { visitCompliance: 92, targetAchievement: 94, liquidationRate: 78 },
-      regionEffort: { territory: 'East Delhi', activitiesCompleted: 41, hoursSpent: 369, visitCount: 32 }
-    }
-  ];
-
-  // TSM personal stats
-  const tsmPersonalStats = {
-    ytdActivities: { planned: 240, done: 216, percentage: 90 },
-    monthlyActivities: { planned: 20, done: 18, pending: 2, pendingPercentage: 10, completedPercentage: 90 },
-    teamManagement: {
-      totalMDOs: mdoStats.length,
-      activeMDOs: mdoStats.length,
-      topPerformers: mdoStats.filter(m => m.performance.targetAchievement >= 90).length,
-      needsAttention: mdoStats.filter(m => m.exceptions.length > 0).length
-    },
-    approvals: { pending: 5, approved: 23, rejected: 2 }
-  };
-
-  // Team aggregates
-  const teamAggregates = {
-    ytdActivities: {
-      planned: mdoStats.reduce((sum, mdo) => sum + mdo.ytdActivities.planned, 0),
-      done: mdoStats.reduce((sum, mdo) => sum + mdo.ytdActivities.done, 0),
-      percentage: Math.round((mdoStats.reduce((sum, mdo) => sum + mdo.ytdActivities.done, 0) / mdoStats.reduce((sum, mdo) => sum + mdo.ytdActivities.planned, 0)) * 100)
-    },
-    monthlyActivities: {
-      planned: mdoStats.reduce((sum, mdo) => sum + mdo.monthlyActivities.planned, 0),
-      done: mdoStats.reduce((sum, mdo) => sum + mdo.monthlyActivities.done, 0),
-      pending: mdoStats.reduce((sum, mdo) => sum + mdo.monthlyActivities.pending, 0),
-      pendingPercentage: Math.round((mdoStats.reduce((sum, mdo) => sum + mdo.monthlyActivities.pending, 0) / mdoStats.reduce((sum, mdo) => sum + mdo.monthlyActivities.planned, 0)) * 100),
-      completedPercentage: Math.round((mdoStats.reduce((sum, mdo) => sum + mdo.monthlyActivities.done, 0) / mdoStats.reduce((sum, mdo) => sum + mdo.monthlyActivities.planned, 0)) * 100)
-    },
-    totalExceptions: mdoStats.reduce((sum, mdo) => sum + mdo.exceptions.length, 0),
-    averagePerformance: Math.round(mdoStats.reduce((sum, mdo) => sum + mdo.performance.targetAchievement, 0) / mdoStats.length)
-  };
-
-  const allExceptions = mdoStats.flatMap(mdo => mdo.exceptions);
-
-  const getExceptionColor = (type: string) => {
-    switch (type) {
-      case 'route_deviation': return 'bg-yellow-100 text-yellow-800';
-      case 'insufficient_hours': return 'bg-red-100 text-red-800';
-      case 'missing_proof': return 'bg-orange-100 text-orange-800';
-      case 'late_submission': return 'bg-purple-100 text-purple-800';
-      case 'target_miss': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
+    ? criticalAlerts 
+    : criticalAlerts.filter(alert => alert.module === selectedAlertCategory);
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
-      case 'High': return 'text-red-600';
-      case 'Medium': return 'text-yellow-600';
-      case 'Low': return 'text-green-600';
-      default: return 'text-gray-600';
+      case 'High': return 'text-red-600 bg-red-100';
+      case 'Medium': return 'text-yellow-600 bg-yellow-100';
+      case 'Low': return 'text-green-600 bg-green-100';
+      default: return 'text-gray-600 bg-gray-100';
     }
-  };
-
-  // Sample data for mobile app
-  const distributors = distributorMetrics.map(d => ({
-    id: d.id,
-    name: d.distributorName,
-    code: d.distributorCode,
-    territory: d.territory,
-    region: d.region,
-    status: d.status,
-    priority: d.priority,
-    metrics: d.metrics
-  }));
-
-  const handleVerifyClick = (distributor: any) => {
-    setSelectedDistributor(distributor);
-    setShowVerifyModal(true);
-  };
-
-  const handleViewClick = (distributor: any, metric: string) => {
-    setSelectedDistributor(distributor);
-    setSelectedMetric(metric);
-    setShowViewModal(true);
   };
 
   const renderDashboard = () => (
     <div className="p-4 space-y-4">
-      {/* Header with Critical Alerts */}
-      {user?.role === 'TSM' ? (
+      {/* Header */}
+      <div className="bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl p-4 text-white">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="flex items-center space-x-2 mb-1">
+              <div className="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                <span className="text-white font-bold text-sm">SK</span>
+              </div>
+              <div>
+                <h2 className="font-bold">Sandeep</h2>
+                <p className="text-sm opacity-90">Kumar</p>
+              </div>
+            </div>
+            <p className="text-xs opacity-80">TSM - Delhi Region</p>
+          </div>
+          <div className="flex items-center space-x-2">
+            <button 
+              onClick={() => setShowTravelModal(true)}
+              className="w-6 h-6 bg-yellow-500 rounded-full flex items-center justify-center hover:bg-yellow-600 transition-colors relative"
+            >
+              <DollarSign className="w-3 h-3 text-white" />
+              <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 text-white rounded-full text-xs flex items-center justify-center">4</span>
+            </button>
+            <button 
+              onClick={() => setShowCriticalAlerts(true)}
+              className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center hover:bg-red-600 transition-colors relative"
+            >
+              <AlertTriangle className="w-3 h-3 text-white" />
+              <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 text-white rounded-full text-xs flex items-center justify-center">3</span>
+            </button>
+            <button className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors">
+              <Route className="w-3 h-3 text-white" />
+            </button>
+            <button className="w-6 h-6 bg-gray-500 rounded-full flex items-center justify-center hover:bg-gray-600 transition-colors relative">
+              <Bell className="w-3 h-3 text-white" />
+              <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 text-white rounded-full text-xs flex items-center justify-center">3</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-2 gap-3">
+        <div className="bg-purple-500 rounded-lg p-4 text-white">
+          <h3 className="text-sm opacity-90 mb-1">Team Members</h3>
+          <div className="text-2xl font-bold">8</div>
+          <p className="text-xs opacity-80">6 active today</p>
+        </div>
+        <div className="bg-pink-500 rounded-lg p-4 text-white">
+          <h3 className="text-sm opacity-90 mb-1">Today's Visits</h3>
+          <div className="text-2xl font-bold">24</div>
+          <p className="text-xs opacity-80">18 completed</p>
+        </div>
+      </div>
+
+      {/* Live Meetings Section */}
+      <div className="bg-white rounded-lg p-4 shadow-sm">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center space-x-2">
+            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+            <h3 className="font-semibold text-sm text-gray-900">Live Meetings</h3>
+          </div>
+          <div className="flex items-center space-x-2">
+            <span className="text-green-600 font-semibold text-sm">2 Active</span>
+            <button className="text-gray-400">
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+        
         <div className="space-y-3">
-          {/* TSM Header with Icons */}
-          <div className="bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl p-4 text-white">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">SK</span>
-                </div>
-                <div>
-                  <h2 className="text-base font-bold">Sandeep Kumar</h2>
-                  <p className="text-xs opacity-90">TSM - Delhi Region</p>
-                </div>
-              </div>
+          {/* Rajesh Kumar Meeting */}
+          <div className="bg-green-50 rounded-lg p-3 border border-green-200">
+            <div className="flex items-center justify-between mb-2">
               <div className="flex items-center space-x-2">
-                <button 
-                  onClick={() => setShowTravelModal(true)}
-                  className="w-6 h-6 bg-yellow-500 rounded-full flex items-center justify-center hover:bg-yellow-600 transition-colors"
-                >
-                  <DollarSign className="w-3 h-3 text-white" />
-                </button>
-                <button 
-                  onClick={() => alert('System alerts: 4 warnings detected')}
-                  className="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center relative hover:bg-orange-600 transition-colors"
-                >
-                  <AlertTriangle className="w-3 h-3 text-white" />
-                  <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 text-white rounded-full text-xs flex items-center justify-center">4</span>
-                </button>
-                <button 
-                  onClick={() => alert('Route tracking: 3 active routes')}
-                  className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors"
-                >
-                  <Route className="w-3 h-3 text-white" />
-                </button>
-                <button 
-                  onClick={() => setShowCriticalAlerts(true)}
-                  className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center relative hover:bg-red-600 transition-colors"
-                >
-                  <Bell className="w-3 h-3 text-white" />
-                  <span className="absolute -top-1 -right-1 w-3 h-3 bg-white text-red-500 rounded-full text-xs flex items-center justify-center font-bold">3</span>
-                </button>
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span className="font-semibold text-sm text-gray-900">Rajesh Kumar</span>
               </div>
+              <div className="text-right">
+                <div className="text-green-600 font-semibold text-sm">25 min</div>
+                <div className="text-xs text-gray-500">Started 10:45 AM</div>
+              </div>
+            </div>
+            <div className="text-xs text-gray-600">
+              <p className="font-medium">Ram Kumar Farm</p>
+              <p>Green Valley, Sector 12</p>
+            </div>
+          </div>
+
+          {/* Priya Sharma Meeting */}
+          <div className="bg-green-50 rounded-lg p-3 border border-green-200">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span className="font-semibold text-sm text-gray-900">Priya Sharma</span>
+              </div>
+              <div className="text-right">
+                <div className="text-green-600 font-semibold text-sm">15 min</div>
+                <div className="text-xs text-gray-500">Started 11:20 AM</div>
+              </div>
+            </div>
+            <div className="text-xs text-gray-600">
+              <p className="font-medium">Sunrise Agro Store</p>
+              <p>Market Road, Anand</p>
             </div>
           </div>
         </div>
-      ) : (
-        <div className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl p-4 text-white">
-          <h2 className="text-lg font-bold mb-1">Good Morning!</h2>
-          <p className="text-sm opacity-90">Today's Activities</p>
-          <div className="flex justify-between items-end mt-3">
-            <div>
-              <div className="text-2xl font-bold">8</div>
-              <div className="text-xs opacity-80">Visits Planned</div>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="bg-white rounded-lg p-4 shadow-sm">
+        <h3 className="font-semibold text-sm text-gray-900 mb-3">Quick Actions</h3>
+        <div className="grid grid-cols-4 gap-3">
+          <button className="bg-blue-500 text-white p-3 rounded-lg flex flex-col items-center">
+            <Plus className="w-5 h-5 mb-1" />
+            <span className="text-xs">Visit</span>
+          </button>
+          <button className="bg-green-500 text-white p-3 rounded-lg flex flex-col items-center">
+            <MapPin className="w-5 h-5 mb-1" />
+            <span className="text-xs">Track</span>
+          </button>
+          <button className="bg-purple-500 text-white p-3 rounded-lg flex flex-col items-center">
+            <Target className="w-5 h-5 mb-1" />
+            <span className="text-xs">Plan</span>
+          </button>
+          <button className="bg-orange-500 text-white p-3 rounded-lg flex flex-col items-center">
+            <FileText className="w-5 h-5 mb-1" />
+            <span className="text-xs">Report</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Team Performance */}
+      <div className="bg-white rounded-lg p-4 shadow-sm">
+        <h3 className="font-semibold text-sm text-gray-900 mb-3">Team Performance</h3>
+        <div className="space-y-3">
+          <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                <User className="w-4 h-4 text-blue-600" />
+              </div>
+              <div>
+                <p className="font-medium text-sm">Rajesh Kumar</p>
+                <p className="text-xs text-gray-600">North Delhi</p>
+              </div>
             </div>
             <div className="text-right">
-              <div className="text-lg font-bold">3</div>
-              <div className="text-xs opacity-80">Completed</div>
+              <p className="text-sm font-semibold text-green-600">88%</p>
+              <p className="text-xs text-gray-500">Target</p>
+            </div>
+          </div>
+          
+          <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                <User className="w-4 h-4 text-purple-600" />
+              </div>
+              <div>
+                <p className="font-medium text-sm">Priya Sharma</p>
+                <p className="text-xs text-gray-600">South Delhi</p>
+              </div>
+            </div>
+            <div className="text-right">
+              <p className="text-sm font-semibold text-green-600">92%</p>
+              <p className="text-xs text-gray-500">Target</p>
             </div>
           </div>
         </div>
-      )}
-
-      {/* TSM Navigation Tabs */}
-      {user?.role === 'TSM' && (
-        <div className="bg-white rounded-lg p-2 shadow-sm">
-          <div className="flex space-x-1">
-            <button
-              onClick={() => setSelectedView('overview')}
-              className={`flex-1 py-2 px-3 rounded-lg text-xs transition-colors ${
-                selectedView === 'overview'
-                  ? 'bg-purple-600 text-white'
-                  : 'text-gray-600'
-              }`}
-            >
-              Overview
-            </button>
-            <button
-              onClick={() => setSelectedView('team')}
-              className={`flex-1 py-2 px-3 rounded-lg text-xs transition-colors ${
-                selectedView === 'team'
-                  ? 'bg-purple-600 text-white'
-                  : 'text-gray-600'
-              }`}
-            >
-              Team
-            </button>
-            <button
-              onClick={() => setSelectedView('exceptions')}
-              className={`flex-1 py-2 px-3 rounded-lg text-xs transition-colors relative ${
-                selectedView === 'exceptions'
-                  ? 'bg-purple-600 text-white'
-                  : 'text-gray-600'
-              }`}
-            >
-              Exceptions
-              {allExceptions.length > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white rounded-full text-xs flex items-center justify-center">
-                  {allExceptions.length}
-                </span>
-              )}
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* TSM Content */}
-      {user?.role === 'TSM' ? (
-        <>
-          {selectedView === 'overview' && (
-            <div className="space-y-4">
-              {/* MDO Team Performance First */}
-              <div className="grid grid-cols-1 gap-4">
-                <div className="bg-white rounded-lg p-4 shadow-sm">
-                  <h3 className="font-semibold text-base mb-3 flex items-center">
-                    <Users className="w-4 h-4 mr-2 text-blue-600" />
-                    MDO Team Performance
-                  </h3>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="text-center p-3 bg-blue-50 rounded-lg">
-                      <div className="text-lg font-bold text-blue-800">{teamAggregates.ytdActivities.percentage}%</div>
-                      <div className="text-xs text-blue-600">YTD Achievement</div>
-                      <div className="text-xs text-gray-500">{teamAggregates.ytdActivities.done}/{teamAggregates.ytdActivities.planned}</div>
-                    </div>
-                    <div className="text-center p-3 bg-green-50 rounded-lg">
-                      <div className="text-lg font-bold text-green-800">{teamAggregates.monthlyActivities.completedPercentage}%</div>
-                      <div className="text-xs text-green-600">Monthly Progress</div>
-                      <div className="text-xs text-gray-500">{teamAggregates.monthlyActivities.done}/{teamAggregates.monthlyActivities.planned}</div>
-                    </div>
-                  </div>
-                  
-                  {/* MDO Summary Stats */}
-                  <div className="grid grid-cols-2 gap-3 mt-4">
-                    <div className="bg-white rounded-lg p-3 border text-center">
-                      <div className="text-lg font-bold text-blue-600">{tsmPersonalStats.teamManagement.totalMDOs}</div>
-                      <div className="text-xs text-gray-600">Total MDOs</div>
-                    </div>
-                    <div className="bg-white rounded-lg p-3 border text-center">
-                      <div className="text-lg font-bold text-green-600">{tsmPersonalStats.teamManagement.topPerformers}</div>
-                      <div className="text-xs text-gray-600">Top Performers</div>
-                    </div>
-                    <div className="bg-white rounded-lg p-3 border text-center">
-                      <div className="text-lg font-bold text-red-600">{tsmPersonalStats.teamManagement.needsAttention}</div>
-                      <div className="text-xs text-gray-600">Need Attention</div>
-                    </div>
-                    <div className="bg-white rounded-lg p-3 border text-center">
-                      <div className="text-lg font-bold text-purple-600">{teamAggregates.averagePerformance}%</div>
-                      <div className="text-xs text-gray-600">Avg Performance</div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* TSM Personal Performance Second */}
-                <div className="bg-white rounded-lg p-4 shadow-sm">
-                  <h3 className="font-semibold text-sm mb-3 flex items-center">
-                    <Target className="w-4 h-4 mr-2 text-purple-600" />
-                    Your Performance
-                  </h3>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="text-center p-3 bg-purple-50 rounded-lg">
-                      <div className="text-lg font-bold text-purple-800">{tsmPersonalStats.ytdActivities.percentage}%</div>
-                      <div className="text-xs text-purple-600">YTD Achievement</div>
-                      <div className="text-xs text-gray-500">{tsmPersonalStats.ytdActivities.done}/{tsmPersonalStats.ytdActivities.planned}</div>
-                    </div>
-                    <div className="text-center p-3 bg-orange-50 rounded-lg">
-                      <div className="text-lg font-bold text-orange-800">{tsmPersonalStats.monthlyActivities.completedPercentage}%</div>
-                      <div className="text-xs text-orange-600">Monthly Progress</div>
-                      <div className="text-xs text-gray-500">{tsmPersonalStats.monthlyActivities.done}/{tsmPersonalStats.monthlyActivities.planned}</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Exceptions Alert */}
-              {allExceptions.length > 0 && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center space-x-2">
-                      <AlertTriangle className="w-4 h-4 text-red-600" />
-                      <h3 className="font-semibold text-red-800 text-sm">Active Exceptions ({allExceptions.length})</h3>
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    {allExceptions.slice(0, 2).map((exception) => (
-                      <div key={exception.id} className="bg-white rounded p-2 border border-red-200">
-                        <p className="text-xs font-medium text-gray-900">{exception.description}</p>
-                        <p className="text-xs text-gray-600">{exception.mdoName}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {selectedView === 'team' && (
-            <div className="space-y-3">
-              {mdoStats.map((mdo) => (
-                <div key={mdo.id} className="bg-white rounded-lg p-4 shadow-sm">
-                  <div className="flex items-center justify-between mb-3">
-                    <div>
-                      <h3 className="font-semibold text-sm">{mdo.name}</h3>
-                      <p className="text-xs text-gray-600">{mdo.employeeCode} • {mdo.territory}</p>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-sm font-bold text-purple-600">{mdo.performance.targetAchievement}%</div>
-                      <div className="text-xs text-gray-600">Target</div>
-                    </div>
-                  </div>
-
-                  {/* YTD vs Monthly */}
-                  <div className="grid grid-cols-2 gap-3 mb-3">
-                    <div className="bg-blue-50 rounded p-2 text-center">
-                      <div className="text-sm font-bold text-blue-800">{mdo.ytdActivities.percentage}%</div>
-                      <div className="text-xs text-blue-600">YTD</div>
-                      <div className="text-xs text-gray-500">{mdo.ytdActivities.done}/{mdo.ytdActivities.planned}</div>
-                    </div>
-                    <div className="bg-green-50 rounded p-2 text-center">
-                      <div className="text-sm font-bold text-green-800">{mdo.monthlyActivities.completedPercentage}%</div>
-                      <div className="text-xs text-green-600">Monthly</div>
-                      <div className="text-xs text-gray-500">{mdo.monthlyActivities.done}/{mdo.monthlyActivities.planned}</div>
-                    </div>
-                  </div>
-
-                  {/* Region Effort */}
-                  <div className="bg-gray-50 rounded p-2 mb-3">
-                    <div className="text-xs text-gray-600 mb-1">Region Effort - {mdo.regionEffort.territory}</div>
-                    <div className="grid grid-cols-3 gap-2 text-center">
-                      <div>
-                        <div className="text-sm font-bold">{mdo.regionEffort.activitiesCompleted}</div>
-                        <div className="text-xs text-gray-600">Activities</div>
-                      </div>
-                      <div>
-                        <div className="text-sm font-bold">{mdo.regionEffort.hoursSpent}</div>
-                        <div className="text-xs text-gray-600">Hours</div>
-                      </div>
-                      <div>
-                        <div className="text-sm font-bold">{mdo.regionEffort.visitCount}</div>
-                        <div className="text-xs text-gray-600">Visits</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Exceptions */}
-                  {mdo.exceptions.length > 0 && (
-                    <div className="bg-red-50 rounded p-2">
-                      <div className="text-xs text-red-800 font-medium mb-1">
-                        {mdo.exceptions.length} Exception{mdo.exceptions.length !== 1 ? 's' : ''}
-                      </div>
-                      {mdo.exceptions.slice(0, 1).map((ex) => (
-                        <div key={ex.id} className="text-xs text-red-700">
-                          {ex.description}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-
-          {selectedView === 'exceptions' && (
-            <div className="space-y-3">
-              <div className="bg-white rounded-lg p-4 shadow-sm">
-                <h3 className="font-semibold text-sm mb-3">Exception Summary</h3>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-red-50 rounded p-2 text-center">
-                    <div className="text-sm font-bold text-red-800">{allExceptions.filter(e => e.type === 'route_deviation').length}</div>
-                    <div className="text-xs text-red-600">Route Issues</div>
-                  </div>
-                  <div className="bg-orange-50 rounded p-2 text-center">
-                    <div className="text-sm font-bold text-orange-800">{allExceptions.filter(e => e.type === 'insufficient_hours').length}</div>
-                    <div className="text-xs text-orange-600">Hour Issues</div>
-                  </div>
-                  <div className="bg-yellow-50 rounded p-2 text-center">
-                    <div className="text-sm font-bold text-yellow-800">{allExceptions.filter(e => e.type === 'missing_proof').length}</div>
-                    <div className="text-xs text-yellow-600">Missing Proofs</div>
-                  </div>
-                  <div className="bg-purple-50 rounded p-2 text-center">
-                    <div className="text-sm font-bold text-purple-800">{allExceptions.filter(e => e.type === 'late_submission').length}</div>
-                    <div className="text-xs text-purple-600">Late Submissions</div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                {allExceptions.map((exception) => (
-                  <div key={exception.id} className="bg-white rounded-lg p-3 shadow-sm">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center space-x-2">
-                        <AlertTriangle className={`w-4 h-4 ${getSeverityColor(exception.severity)}`} />
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getExceptionColor(exception.type)}`}>
-                          {exception.type.replace('_', ' ')}
-                        </span>
-                      </div>
-                      <span className={`text-xs font-medium ${getSeverityColor(exception.severity)}`}>
-                        {exception.severity}
-                      </span>
-                    </div>
-                    <p className="text-xs font-medium text-gray-900 mb-1">{exception.description}</p>
-                    <p className="text-xs text-gray-600">{exception.mdoName} • {new Date(exception.date).toLocaleDateString()}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Live Meetings Section */}
-          <div className="bg-white rounded-lg p-4 shadow-sm">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <h3 className="font-semibold text-sm text-gray-900">Live Meetings</h3>
-              </div>
-              <div className="flex items-center space-x-2">
-                <span className="text-green-600 font-semibold text-sm">2 Active</span>
-                <button className="text-gray-400">
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-            
-            <div className="space-y-3">
-              {/* Rajesh Kumar Meeting */}
-              <div className="bg-green-50 rounded-lg p-3 border border-green-200">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span className="font-semibold text-sm text-gray-900">Rajesh Kumar</span>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-green-600 font-semibold text-sm">25 min</div>
-                    <div className="text-xs text-gray-500">Started 10:45 AM</div>
-                  </div>
-                </div>
-                <div className="text-xs text-gray-600">
-                  <p className="font-medium">Ram Kumar Farm</p>
-                  <p>Green Valley, Sector 12</p>
-                </div>
-              </div>
-
-              {/* Priya Sharma Meeting */}
-              <div className="bg-green-50 rounded-lg p-3 border border-green-200">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span className="font-semibold text-sm text-gray-900">Priya Sharma</span>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-green-600 font-semibold text-sm">15 min</div>
-                    <div className="text-xs text-gray-500">Started 11:20 AM</div>
-                  </div>
-                </div>
-                <div className="text-xs text-gray-600">
-                  <p className="font-medium">Sunrise Agro Store</p>
-                  <p>Market Road, Anand</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </>
-      ) : (
-        <>
-          {/* Regular Dashboard for non-TSM users */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="bg-white rounded-lg p-3 shadow-sm">
-              <div className="text-lg font-bold text-blue-600">85%</div>
-              <div className="text-xs text-gray-600">Visit Target</div>
-            </div>
-            <div className="bg-white rounded-lg p-3 shadow-sm">
-              <div className="text-lg font-bold text-green-600">₹4.2L</div>
-              <div className="text-xs text-gray-600">Sales MTD</div>
-            </div>
-          </div>
-
-          {/* Recent Activities */}
-          <div className="bg-white rounded-lg p-4 shadow-sm">
-            <h3 className="font-semibold mb-3">Recent Activities</h3>
-            <div className="space-y-3">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                  <CheckCircle className="w-4 h-4 text-green-600" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium">Visit completed</p>
-                  <p className="text-xs text-gray-600">SRI RAMA SEEDS - 2 hours ago</p>
-                </div>
-              </div>
-              
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                  <Package className="w-4 h-4 text-blue-600" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium">New order received</p>
-                  <p className="text-xs text-gray-600">Green Agro - ₹45,000</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </>
-      )}
+      </div>
     </div>
   );
 
   const renderTracker = () => (
     <div className="p-4 space-y-4">
-      <h2 className="text-lg font-bold">Activity Tracker</h2>
-      <div className="bg-white rounded-lg p-4 shadow-sm">
-        <p className="text-gray-600">Track your daily activities and routes</p>
+      <h2 className="text-lg font-bold text-gray-900">Team Tracker</h2>
+      
+      <div className="space-y-3">
+        {[
+          { name: 'Rajesh Kumar', location: 'Green Valley', status: 'Active', time: '2h 15m' },
+          { name: 'Priya Sharma', location: 'Market Road', status: 'Active', time: '1h 45m' },
+          { name: 'Amit Singh', location: 'Industrial Area', status: 'Break', time: '15m' },
+        ].map((member, index) => (
+          <div key={index} className="bg-white rounded-lg p-4 shadow-sm">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className={`w-3 h-3 rounded-full ${
+                  member.status === 'Active' ? 'bg-green-500' : 'bg-yellow-500'
+                }`}></div>
+                <div>
+                  <p className="font-medium text-sm">{member.name}</p>
+                  <p className="text-xs text-gray-600">{member.location}</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-sm font-semibold">{member.time}</p>
+                <p className="text-xs text-gray-500">{member.status}</p>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
 
   const renderTasks = () => (
     <div className="p-4 space-y-4">
-      <h2 className="text-lg font-bold">Tasks</h2>
-      <div className="bg-white rounded-lg p-4 shadow-sm">
-        <p className="text-gray-600">Manage your pending tasks</p>
+      <h2 className="text-lg font-bold text-gray-900">Orders</h2>
+      
+      <div className="space-y-3">
+        {[
+          { id: 'SO-001', customer: 'Ram Kumar', amount: '₹45,000', status: 'Pending' },
+          { id: 'SO-002', customer: 'Green Agro', amount: '₹32,000', status: 'Approved' },
+          { id: 'SO-003', customer: 'Suresh Traders', amount: '₹28,000', status: 'Delivered' },
+        ].map((order, index) => (
+          <div key={index} className="bg-white rounded-lg p-4 shadow-sm">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium text-sm">{order.id}</p>
+                <p className="text-xs text-gray-600">{order.customer}</p>
+              </div>
+              <div className="text-right">
+                <p className="text-sm font-semibold">{order.amount}</p>
+                <span className={`text-xs px-2 py-1 rounded-full ${
+                  order.status === 'Delivered' ? 'bg-green-100 text-green-800' :
+                  order.status === 'Approved' ? 'bg-blue-100 text-blue-800' :
+                  'bg-yellow-100 text-yellow-800'
+                }`}>
+                  {order.status}
+                </span>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
 
   const renderLiquidation = () => (
     <div className="p-4 space-y-4">
-      <h2 className="text-lg font-bold mb-4">Stock Liquidation</h2>
+      <h2 className="text-lg font-bold text-gray-900">Liquidation</h2>
       
-      {/* Distributor Cards */}
-      <div className="space-y-4">
-        {distributors.map((distributor) => (
+      <div className="grid grid-cols-2 gap-3 mb-4">
+        <div className="bg-orange-50 rounded-lg p-3 text-center">
+          <div className="text-lg font-bold text-orange-600">32,660</div>
+          <div className="text-xs text-orange-600">Opening Stock</div>
+        </div>
+        <div className="bg-green-50 rounded-lg p-3 text-center">
+          <div className="text-lg font-bold text-green-600">28%</div>
+          <div className="text-xs text-green-600">Liquidation Rate</div>
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        {distributorMetrics.slice(0, 3).map((distributor) => (
           <div key={distributor.id} className="bg-white rounded-lg p-4 shadow-sm">
-            <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center justify-between mb-2">
               <div>
-                <h3 className="font-semibold text-sm">{distributor.name}</h3>
-                <p className="text-xs text-gray-600">{distributor.code} • {distributor.territory}</p>
+                <p className="font-medium text-sm">{distributor.distributorName}</p>
+                <p className="text-xs text-gray-600">{distributor.distributorCode}</p>
               </div>
-              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                distributor.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-              }`}>
-                {distributor.status}
-              </span>
-            </div>
-
-            {/* Metrics Grid */}
-            <div className="grid grid-cols-2 gap-2 mb-3">
-              <div className="bg-orange-50 rounded p-2 text-center">
-                <div className="text-sm font-bold text-orange-800">{distributor.metrics.openingStock.volume}</div>
-                <div className="text-xs text-orange-600">Opening</div>
-              </div>
-              <div className="bg-blue-50 rounded p-2 text-center">
-                <div className="text-sm font-bold text-blue-800">{distributor.metrics.ytdNetSales.volume}</div>
-                <div className="text-xs text-blue-600">YTD Sales</div>
-              </div>
-              <div className="bg-green-50 rounded p-2 text-center">
-                <div className="text-sm font-bold text-green-800">{distributor.metrics.liquidation.volume}</div>
-                <div className="text-xs text-green-600">Liquidation</div>
-              </div>
-              <div className="bg-purple-50 rounded p-2 text-center">
-                <div className="text-sm font-bold text-purple-800">{distributor.metrics.balanceStock.volume}</div>
-                <div className="text-xs text-purple-600">Balance</div>
+              <div className="text-right">
+                <p className="text-sm font-semibold text-purple-600">{distributor.metrics.liquidationPercentage}%</p>
+                <p className="text-xs text-gray-500">Liquidation</p>
               </div>
             </div>
-
-            {/* Progress Bar */}
-            <div className="mb-3">
-              <div className="flex justify-between text-xs text-gray-600 mb-1">
-                <span>Liquidation %</span>
-                <span>{distributor.metrics.liquidationPercentage}%</span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div 
-                  className="bg-gradient-to-r from-green-500 to-blue-500 h-2 rounded-full" 
-                  style={{ width: `${Math.min(100, distributor.metrics.liquidationPercentage)}%` }}
-                ></div>
-              </div>
-            </div>
-
-            {/* Action Button */}
-            <div className="flex space-x-2">
-              <button 
-                onClick={() => handleVerifyClick(distributor)}
-                className="flex-1 bg-green-600 text-white py-2 px-3 rounded-lg text-sm flex items-center justify-center"
-              >
-                <CheckCircle className="w-3 h-3 mr-1 inline" />
-                Verify
-              </button>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div 
+                className="bg-purple-600 h-2 rounded-full" 
+                style={{ width: `${distributor.metrics.liquidationPercentage}%` }}
+              ></div>
             </div>
           </div>
         ))}
       </div>
-
-      {/* Verification Modal */}
-      {showVerifyModal && selectedDistributor && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl w-full max-w-sm max-h-[80vh] overflow-hidden">
-            <div className="bg-blue-100 p-4 border-b">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="font-semibold">{selectedDistributor.name}</h3>
-                  <p className="text-sm text-gray-600">{selectedDistributor.code}</p>
-                </div>
-                <button
-                  onClick={() => setShowVerifyModal(false)}
-                  className="p-1 hover:bg-blue-200 rounded-full"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-            
-            <div className="p-4 overflow-y-auto">
-              <h4 className="font-semibold mb-4">Stock Verification</h4>
-              
-              <div className="space-y-4">
-                <div className="bg-blue-50 rounded-lg p-3">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium">DAP 25kg Bag</span>
-                    <span className="text-xs bg-blue-600 text-white px-2 py-1 rounded">DAP-25KG</span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="text-xs text-gray-600">System Stock</label>
-                      <input
-                        type="number"
-                        value="105"
-                        readOnly
-                        className="w-full px-2 py-1 border rounded text-sm bg-gray-50"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-xs text-gray-600">Physical Stock</label>
-                      <input
-                        type="number"
-                        placeholder="105"
-                        className="w-full px-2 py-1 border rounded text-sm"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-green-50 rounded-lg p-3">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium">DAP 50kg Bag</span>
-                    <span className="text-xs bg-green-600 text-white px-2 py-1 rounded">DAP-50KG</span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="text-xs text-gray-600">System Stock</label>
-                      <input
-                        type="number"
-                        value="105"
-                        readOnly
-                        className="w-full px-2 py-1 border rounded text-sm bg-gray-50"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-xs text-gray-600">Physical Stock</label>
-                      <input
-                        type="number"
-                        placeholder="105"
-                        className="w-full px-2 py-1 border rounded text-sm"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <div className="flex space-x-3 p-4 border-t">
-              <button
-                onClick={() => setShowVerifyModal(false)}
-                className="flex-1 py-2 border border-gray-300 rounded-lg text-sm"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => {
-                  alert(`Stock verified for ${selectedDistributor.name}!`);
-                  setShowVerifyModal(false);
-                }}
-                className="flex-1 py-2 bg-green-600 text-white rounded-lg text-sm"
-              >
-                Verify
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 
   const renderReports = () => (
     <div className="p-4 space-y-4">
-      <h2 className="text-lg font-bold">Reports</h2>
-      <div className="bg-white rounded-lg p-4 shadow-sm">
-        <p className="text-gray-600">Generate and view reports</p>
+      <h2 className="text-lg font-bold text-gray-900">More</h2>
+      
+      <div className="grid grid-cols-2 gap-3">
+        <button className="bg-white rounded-lg p-4 shadow-sm text-center">
+          <FileText className="w-6 h-6 text-blue-600 mx-auto mb-2" />
+          <p className="text-sm font-medium">Reports</p>
+        </button>
+        <button className="bg-white rounded-lg p-4 shadow-sm text-center">
+          <Users className="w-6 h-6 text-green-600 mx-auto mb-2" />
+          <p className="text-sm font-medium">Contacts</p>
+        </button>
+        <button className="bg-white rounded-lg p-4 shadow-sm text-center">
+          <Calendar className="w-6 h-6 text-purple-600 mx-auto mb-2" />
+          <p className="text-sm font-medium">Planning</p>
+        </button>
+        <button className="bg-white rounded-lg p-4 shadow-sm text-center">
+          <Car className="w-6 h-6 text-orange-600 mx-auto mb-2" />
+          <p className="text-sm font-medium">Travel</p>
+        </button>
       </div>
     </div>
   );
@@ -888,104 +396,65 @@ const MobileApp: React.FC<MobileAppProps> = () => {
   // Critical Alerts Modal
   const renderCriticalAlertsModal = () => (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl w-full max-w-md max-h-[80vh] overflow-hidden">
-        <div className="bg-red-50 p-4 border-b border-red-200">
+      <div className="bg-white rounded-xl w-full max-w-sm max-h-[80vh] overflow-hidden">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-red-600 to-orange-600 p-4 text-white">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <AlertTriangle className="w-5 h-5 text-red-600" />
-              <h3 className="text-lg font-semibold text-red-800">Critical Alerts</h3>
-              <span className="w-6 h-6 bg-red-500 text-white rounded-full text-xs flex items-center justify-center">
-                {activeAlerts.length}
-              </span>
+              <button
+                onClick={() => setShowCriticalAlerts(false)}
+                className="p-1 hover:bg-white hover:bg-opacity-20 rounded-full transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4 text-white" />
+              </button>
+              <div>
+                <h3 className="text-lg font-semibold">Critical Alerts</h3>
+                <p className="text-sm opacity-90">{criticalAlerts.length} active alerts</p>
+              </div>
             </div>
-            <button
-              onClick={() => setShowCriticalAlerts(false)}
-              className="p-1 hover:bg-red-100 rounded-full transition-colors"
-            >
-              <X className="w-4 h-4 text-red-600" />
-            </button>
+            <AlertTriangle className="w-6 h-6" />
           </div>
         </div>
         
-        {/* Alert Categories */}
-        <div className="p-4 border-b border-gray-200">
-          <div className="flex space-x-2 overflow-x-auto">
-            <button
-              onClick={() => setSelectedAlertCategory('All')}
-              className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
-                selectedAlertCategory === 'All' ? 'bg-red-600 text-white' : 'bg-gray-100 text-gray-700'
-              }`}
+        <div className="p-4">
+          {/* Filter */}
+          <div className="mb-4">
+            <select
+              value={selectedAlertCategory}
+              onChange={(e) => setSelectedAlertCategory(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-red-500 focus:border-transparent"
             >
-              All
-            </button>
-            <button
-              onClick={() => setSelectedAlertCategory('Location')}
-              className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
-                selectedAlertCategory === 'Location' ? 'bg-red-600 text-white' : getAlertCategoryColor('Location')
-              }`}
-            >
-              Location
-            </button>
-            <button
-              onClick={() => setSelectedAlertCategory('Battery')}
-              className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
-                selectedAlertCategory === 'Battery' ? 'bg-red-600 text-white' : getAlertCategoryColor('Battery')
-              }`}
-            >
-              Battery
-            </button>
-            <button
-              onClick={() => setSelectedAlertCategory('Geofence')}
-              className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
-                selectedAlertCategory === 'Geofence' ? 'bg-red-600 text-white' : getAlertCategoryColor('Geofence')
-              }`}
-            >
-              Geofence
-            </button>
+              <option value="All">All Modules</option>
+              <option value="Liquidation">Liquidation</option>
+              <option value="Field Visits">Field Visits</option>
+              <option value="Collections">Collections</option>
+            </select>
           </div>
-        </div>
-        
-        <div className="p-4 overflow-y-auto max-h-[50vh]">
-          <div className="space-y-3">
+          
+          <div className="space-y-3 max-h-60 overflow-y-auto">
             {filteredAlerts.map((alert) => (
-              <div key={alert.id} className={`p-3 rounded-lg border ${getAlertColor(alert.severity)}`}>
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center space-x-2">
-                    {getAlertIcon(alert.type)}
-                    <span className="font-medium text-sm">{alert.userName}</span>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      alert.severity === 'high' ? 'bg-red-500 text-white' :
-                      alert.severity === 'medium' ? 'bg-orange-500 text-white' :
-                      'bg-yellow-500 text-white'
-                    }`}>
-                      {alert.severity} priority
-                    </span>
+              <div key={alert.id} className="border border-gray-200 rounded-lg p-3">
+                <div className="flex items-start justify-between mb-2">
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-2 mb-1">
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getSeverityColor(alert.severity)}`}>
+                        {alert.severity}
+                      </span>
+                      <span className="text-xs text-gray-500">{alert.module}</span>
+                    </div>
+                    <h4 className="font-medium text-sm text-gray-900">{alert.type}</h4>
+                    <p className="text-xs text-gray-600 mt-1">{alert.message}</p>
                   </div>
-                  <span className="text-xs text-gray-500">
-                    2 mins ago
-                  </span>
                 </div>
-                
-                <p className="text-sm mb-3">{alert.description}</p>
-                
-                <div className="flex space-x-2">
-                  <button className="flex-1 bg-purple-600 text-white py-2 px-3 rounded-lg text-xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-gray-500">{alert.time}</span>
+                  <button className="text-blue-600 text-xs hover:text-blue-800">
                     View Details
-                  </button>
-                  <button className="flex-1 bg-gray-500 text-white py-2 px-3 rounded-lg text-xs">
-                    Mark Resolved
                   </button>
                 </div>
               </div>
             ))}
           </div>
-          
-          {filteredAlerts.length === 0 && (
-            <div className="text-center py-8">
-              <CheckCircle className="w-8 h-8 text-green-500 mx-auto mb-2" />
-              <p className="text-sm text-gray-500">No active alerts in this category</p>
-            </div>
-          )}
         </div>
       </div>
     </div>
@@ -1062,10 +531,54 @@ const MobileApp: React.FC<MobileAppProps> = () => {
             </div>
           </div>
 
+          {/* TSM Personal Travel */}
+          <div className="mb-4 bg-purple-50 rounded-lg p-3 border border-purple-200">
+            <h4 className="font-semibold text-sm text-purple-900 mb-3">Your Travel (Sandeep Kumar)</h4>
+            <div className="grid grid-cols-2 gap-3 mb-3">
+              <div className="text-center p-2 bg-white rounded">
+                <div className="text-lg font-bold text-purple-600">285</div>
+                <div className="text-xs text-purple-600">Your KMs</div>
+              </div>
+              <div className="text-center p-2 bg-white rounded">
+                <div className="text-lg font-bold text-green-600">₹3,420</div>
+                <div className="text-xs text-green-600">Your Claim</div>
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-purple-700">Fuel Cost:</span>
+                <span className="font-semibold">₹1,710</span>
+              </div>
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-purple-700">Daily Allowance:</span>
+                <span className="font-semibold">₹1,710</span>
+              </div>
+              <div className="border-t border-purple-200 pt-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-semibold text-purple-900">Your Total:</span>
+                  <span className="font-bold text-purple-600">₹3,420</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Team Recent Days */}
           <div>
             <h4 className="font-semibold text-sm text-gray-900 mb-3">Team Recent Days</h4>
             <div className="space-y-2">
+              {/* TSM's own travel first */}
+              <div className="bg-purple-50 rounded-lg p-3 border border-purple-200">
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-sm font-medium text-purple-900">Sandeep Kumar (You)</span>
+                  <span className="text-xs text-purple-600">Jan 21</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-purple-700">Delhi → Regional Office (35 km)</span>
+                  <span className="text-sm font-semibold text-purple-600">₹420</span>
+                </div>
+              </div>
+              
               <div className="bg-gray-50 rounded-lg p-3">
                 <div className="flex justify-between items-center mb-1">
                   <span className="text-sm font-medium text-gray-900">Rajesh Kumar</span>
@@ -1107,8 +620,6 @@ const MobileApp: React.FC<MobileAppProps> = () => {
 
   const renderContent = () => {
     switch (activeTab) {
-      case 'dashboard':
-        return renderDashboard();
       case 'tracker':
         return renderTracker();
       case 'tasks':
