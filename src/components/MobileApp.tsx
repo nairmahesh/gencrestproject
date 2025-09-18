@@ -552,16 +552,15 @@ const MobileApp: React.FC<MobileAppProps> = () => {
                                 {/* Current Stock */}
                                 <div>
                                   <p className="text-xs text-gray-600 mb-1">Current Stock</p>
-                                      className="w-full px-1 py-1 border border-gray-300 rounded text-center text-xs"
-                                      readOnly
                                   <input
                                     type="number"
                                     value={verificationData.skuVerifications?.[verificationKey]?.current || invoice.currentStock}
                                     onChange={(e) => handleSKUStockChange(sku.skuCode, invoice.invoiceNumber, 'current', parseInt(e.target.value) || 0)}
                                     className="w-full px-2 py-1 border border-gray-300 rounded text-center text-sm"
+                                    readOnly
+                                  />
                                 </div>
                                 
-                                <div className="grid grid-cols-3 gap-2">
                                 <div>
                                   <p className="text-xs text-gray-600 mb-1">Physical Stock</p>
                                   <input
