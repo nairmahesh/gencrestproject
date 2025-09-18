@@ -343,13 +343,6 @@ const MobileApp: React.FC<MobileAppProps> = () => {
             </div>
             
             <div className="flex space-x-2">
-              <button 
-                onClick={() => handleVerifyClick(distributor)}
-                className="flex-1 bg-green-600 text-white py-2 px-3 rounded-lg text-sm flex items-center justify-center"
-              >
-                <CheckCircle className="w-3 h-3 mr-1 inline" />
-                Verify
-              </button>
             </div>
           </div>
         ))}

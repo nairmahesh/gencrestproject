@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import TSMDashboard from '../components/TSMDashboard';
 import RoleBasedAccess from '../components/RoleBasedAccess';
 import { useLiquidationCalculation } from '../hooks/useLiquidationCalculation';
 import { 
@@ -62,7 +63,7 @@ const Dashboard: React.FC = () => {
   const [selectedModule, setSelectedModule] = useState('All');
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedMetric, setSelectedMetric] = useState<string>('');
-  const { user } = useAuth();
+  const { user, hasPermission } = useAuth();
   
   // Use dynamic liquidation calculation hook
   const { 
@@ -81,6 +82,11 @@ const Dashboard: React.FC = () => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
+
+  // Show TSM-specific dashboard if user is TSM
+  if (user?.role === 'TSM') {
+    return <TSMDashboard />;
+  }
 
   // Sample product and SKU data
   const productData: ProductDetail[] = [
