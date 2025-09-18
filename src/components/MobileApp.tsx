@@ -20,15 +20,23 @@ import {
   Edit,
   CheckCircle,
   Clock,
-  Plus
+  Plus,
+  FileText,
+  MoreHorizontal,
+  Download,
+  BarChart3,
+  PieChart,
+  Activity,
+  Settings,
+  Car,
+  Award
 } from 'lucide-react';
 
 const MobileApp: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('home');
+  const [activeTab, setActiveTab] = useState('dashboard');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedType, setSelectedType] = useState('All Types');
   const [selectedRegion, setSelectedRegion] = useState('All Regions');
-  const [showFilters, setShowFilters] = useState(false);
 
   // Sample liquidation data
   const liquidationData = [
@@ -213,6 +221,381 @@ const MobileApp: React.FC = () => {
     </div>
   );
 
+  const renderTracker = () => (
+    <div className="p-4 space-y-4">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-bold text-gray-900">Activity Tracker</h2>
+          <p className="text-sm text-gray-600">Track your monthly and annual activities</p>
+        </div>
+      </div>
+
+      {/* Activity Summary Cards */}
+      <div className="space-y-4">
+        {/* Monthly Activities */}
+        <div className="bg-white rounded-xl p-4 shadow-sm">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-semibold text-gray-900">Monthly Activities</h3>
+            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+              <Calendar className="w-5 h-5 text-blue-600" />
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-3 mb-3">
+            <div className="text-center p-3 bg-orange-50 rounded-lg">
+              <div className="text-xl font-bold text-orange-800">45</div>
+              <div className="text-xs text-orange-600">Planned</div>
+            </div>
+            <div className="text-center p-3 bg-green-50 rounded-lg">
+              <div className="text-xl font-bold text-green-800">38</div>
+              <div className="text-xs text-green-600">Done</div>
+            </div>
+          </div>
+          
+          <div>
+            <div className="flex justify-between text-sm text-gray-600 mb-2">
+              <span>Progress</span>
+              <span>84%</span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className="bg-blue-600 h-2 rounded-full" style={{ width: '84%' }}></div>
+            </div>
+          </div>
+        </div>
+
+        {/* Annual Activities */}
+        <div className="bg-white rounded-xl p-4 shadow-sm">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-semibold text-gray-900">Annual Activities</h3>
+            <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+              <TrendingUp className="w-5 h-5 text-purple-600" />
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-3 mb-3">
+            <div className="text-center p-3 bg-orange-50 rounded-lg">
+              <div className="text-xl font-bold text-orange-800">540</div>
+              <div className="text-xs text-orange-600">Planned</div>
+            </div>
+            <div className="text-center p-3 bg-green-50 rounded-lg">
+              <div className="text-xl font-bold text-green-800">456</div>
+              <div className="text-xs text-green-600">Done</div>
+            </div>
+          </div>
+          
+          <div>
+            <div className="flex justify-between text-sm text-gray-600 mb-2">
+              <span>Progress</span>
+              <span>84%</span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className="bg-purple-600 h-2 rounded-full" style={{ width: '84%' }}></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Quick Stats */}
+      <div className="grid grid-cols-2 gap-3">
+        <div className="bg-white rounded-xl p-3 shadow-sm text-center">
+          <div className="text-lg font-bold text-blue-600">3</div>
+          <div className="text-xs text-gray-600">Pending Tasks</div>
+        </div>
+        <div className="bg-white rounded-xl p-3 shadow-sm text-center">
+          <div className="text-lg font-bold text-green-600">2</div>
+          <div className="text-xs text-gray-600">Scheduled</div>
+        </div>
+        <div className="bg-white rounded-xl p-3 shadow-sm text-center">
+          <div className="text-lg font-bold text-yellow-600">1</div>
+          <div className="text-xs text-gray-600">In Progress</div>
+        </div>
+        <div className="bg-white rounded-xl p-3 shadow-sm text-center">
+          <div className="text-lg font-bold text-purple-600">5</div>
+          <div className="text-xs text-gray-600">Completed</div>
+        </div>
+      </div>
+
+      {/* Recent Activities */}
+      <div className="bg-white rounded-xl p-4 shadow-sm">
+        <h3 className="font-semibold mb-3">Recent Activities</h3>
+        <div className="space-y-3">
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+              <CheckCircle className="w-4 h-4 text-green-600" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-medium">Visit completed</p>
+              <p className="text-xs text-gray-500">SRI RAMA SEEDS - 2 hours ago</p>
+            </div>
+          </div>
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+              <Calendar className="w-4 h-4 text-blue-600" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-medium">Meeting scheduled</p>
+              <p className="text-xs text-gray-500">Ram Kumar - Tomorrow 10:00 AM</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderTasks = () => (
+    <div className="p-4 space-y-4">
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-bold text-gray-900">Tasks</h2>
+        <button className="bg-purple-600 text-white px-3 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center text-sm">
+          <Plus className="w-4 h-4 mr-1" />
+          Add Task
+        </button>
+      </div>
+      
+      <div className="space-y-3">
+        <div className="bg-white rounded-lg p-4 shadow-sm">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="font-semibold text-gray-900">Visit SRI RAMA SEEDS</h3>
+            <span className="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs">High</span>
+          </div>
+          <p className="text-sm text-gray-600 mb-2">Stock verification and liquidation tracking</p>
+          <div className="flex items-center justify-between text-xs text-gray-500">
+            <div className="flex items-center">
+              <Clock className="w-3 h-3 mr-1" />
+              <span>Due: Jan 22, 2024</span>
+            </div>
+            <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full">Pending</span>
+          </div>
+        </div>
+        
+        <div className="bg-white rounded-lg p-4 shadow-sm">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="font-semibold text-gray-900">Monthly Sales Report</h3>
+            <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs">Medium</span>
+          </div>
+          <p className="text-sm text-gray-600 mb-2">Prepare and submit monthly sales performance report</p>
+          <div className="flex items-center justify-between text-xs text-gray-500">
+            <div className="flex items-center">
+              <Clock className="w-3 h-3 mr-1" />
+              <span>Due: Jan 25, 2024</span>
+            </div>
+            <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full">In Progress</span>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg p-4 shadow-sm">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="font-semibold text-gray-900">Product Training</h3>
+            <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Low</span>
+          </div>
+          <p className="text-sm text-gray-600 mb-2">Attend new product training session</p>
+          <div className="flex items-center justify-between text-xs text-gray-500">
+            <div className="flex items-center">
+              <CheckCircle className="w-3 h-3 mr-1" />
+              <span>Completed: Jan 20, 2024</span>
+            </div>
+            <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full">Completed</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderReports = () => (
+    <div className="p-4 space-y-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-bold text-gray-900">Reports</h2>
+          <p className="text-sm text-gray-600">Generate and view reports</p>
+        </div>
+      </div>
+
+      {/* Report Categories */}
+      <div className="grid grid-cols-2 gap-3">
+        <div className="bg-white rounded-xl p-4 shadow-sm text-center">
+          <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
+            <BarChart3 className="w-6 h-6 text-blue-600" />
+          </div>
+          <h3 className="font-semibold text-gray-900 mb-1">Sales Report</h3>
+          <p className="text-xs text-gray-600 mb-3">Monthly sales performance</p>
+          <button className="w-full bg-blue-600 text-white py-2 px-3 rounded-lg text-xs hover:bg-blue-700">
+            Generate
+          </button>
+        </div>
+
+        <div className="bg-white rounded-xl p-4 shadow-sm text-center">
+          <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
+            <MapPin className="w-6 h-6 text-green-600" />
+          </div>
+          <h3 className="font-semibold text-gray-900 mb-1">Visit Report</h3>
+          <p className="text-xs text-gray-600 mb-3">Field visit summary</p>
+          <button className="w-full bg-green-600 text-white py-2 px-3 rounded-lg text-xs hover:bg-green-700">
+            Generate
+          </button>
+        </div>
+
+        <div className="bg-white rounded-xl p-4 shadow-sm text-center">
+          <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-2">
+            <Droplets className="w-6 h-6 text-purple-600" />
+          </div>
+          <h3 className="font-semibold text-gray-900 mb-1">Liquidation</h3>
+          <p className="text-xs text-gray-600 mb-3">Stock liquidation report</p>
+          <button className="w-full bg-purple-600 text-white py-2 px-3 rounded-lg text-xs hover:bg-purple-700">
+            Generate
+          </button>
+        </div>
+
+        <div className="bg-white rounded-xl p-4 shadow-sm text-center">
+          <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-2">
+            <Award className="w-6 h-6 text-orange-600" />
+          </div>
+          <h3 className="font-semibold text-gray-900 mb-1">Performance</h3>
+          <p className="text-xs text-gray-600 mb-3">Monthly performance</p>
+          <button className="w-full bg-orange-600 text-white py-2 px-3 rounded-lg text-xs hover:bg-orange-700">
+            Generate
+          </button>
+        </div>
+      </div>
+
+      {/* Recent Reports */}
+      <div className="bg-white rounded-xl p-4 shadow-sm">
+        <h3 className="font-semibold mb-3">Recent Reports</h3>
+        <div className="space-y-3">
+          <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                <FileText className="w-4 h-4 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-sm font-medium">Sales Report - January</p>
+                <p className="text-xs text-gray-500">Generated 2 days ago</p>
+              </div>
+            </div>
+            <button className="text-blue-600 hover:text-blue-800">
+              <Download className="w-4 h-4" />
+            </button>
+          </div>
+          
+          <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                <FileText className="w-4 h-4 text-green-600" />
+              </div>
+              <div>
+                <p className="text-sm font-medium">Visit Report - Week 3</p>
+                <p className="text-xs text-gray-500">Generated 5 days ago</p>
+              </div>
+            </div>
+            <button className="text-green-600 hover:text-green-800">
+              <Download className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderMore = () => (
+    <div className="p-4 space-y-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-bold text-gray-900">More</h2>
+          <p className="text-sm text-gray-600">Additional features and settings</p>
+        </div>
+      </div>
+
+      {/* Additional Features */}
+      <div className="space-y-3">
+        <div className="bg-white rounded-xl p-4 shadow-sm">
+          <h3 className="font-semibold mb-3">Features</h3>
+          <div className="space-y-3">
+            <button className="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                  <MapPin className="w-4 h-4 text-blue-600" />
+                </div>
+                <div className="text-left">
+                  <p className="text-sm font-medium">Field Visits</p>
+                  <p className="text-xs text-gray-500">Manage customer visits</p>
+                </div>
+              </div>
+              <span className="text-gray-400">›</span>
+            </button>
+            
+            <button className="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                  <ShoppingCart className="w-4 h-4 text-green-600" />
+                </div>
+                <div className="text-left">
+                  <p className="text-sm font-medium">Sales Orders</p>
+                  <p className="text-xs text-gray-500">Manage customer orders</p>
+                </div>
+              </div>
+              <span className="text-gray-400">›</span>
+            </button>
+            
+            <button className="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                  <Users className="w-4 h-4 text-purple-600" />
+                </div>
+                <div className="text-left">
+                  <p className="text-sm font-medium">Contacts</p>
+                  <p className="text-xs text-gray-500">Manage dealer network</p>
+                </div>
+              </div>
+              <span className="text-gray-400">›</span>
+            </button>
+            
+            <button className="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
+                  <Car className="w-4 h-4 text-orange-600" />
+                </div>
+                <div className="text-left">
+                  <p className="text-sm font-medium">Travel & Expenses</p>
+                  <p className="text-xs text-gray-500">Track travel claims</p>
+                </div>
+              </div>
+              <span className="text-gray-400">›</span>
+            </button>
+            
+            <button className="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
+                  <Award className="w-4 h-4 text-yellow-600" />
+                </div>
+                <div className="text-left">
+                  <p className="text-sm font-medium">Performance</p>
+                  <p className="text-xs text-gray-500">View performance metrics</p>
+                </div>
+              </div>
+              <span className="text-gray-400">›</span>
+            </button>
+          </div>
+        </div>
+        
+        <div className="bg-white rounded-xl p-4 shadow-sm">
+          <h3 className="font-semibold mb-3">Settings</h3>
+          <button className="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                <Settings className="w-4 h-4 text-gray-600" />
+              </div>
+              <div className="text-left">
+                <p className="text-sm font-medium">App Settings</p>
+                <p className="text-xs text-gray-500">Preferences and configuration</p>
+              </div>
+            </div>
+            <span className="text-gray-400">›</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
   const renderLiquidation = () => (
     <div className="p-4 space-y-4">
       {/* Header */}
@@ -256,57 +639,41 @@ const MobileApp: React.FC = () => {
 
       {/* NEW DROPDOWN FILTERS SECTION */}
       <div className="bg-white rounded-xl p-4 shadow-sm">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="font-semibold text-gray-900">Search & Filters</h3>
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors relative"
-          >
-            <Filter className="w-4 h-4 text-gray-600" />
-            {(selectedType !== 'All Types' || selectedRegion !== 'All Regions') && (
-              <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full text-xs text-white flex items-center justify-center">
-                •
-              </span>
-            )}
-          </button>
-        </div>
-        
+        <h3 className="font-semibold mb-3 text-gray-900">Filters</h3>
         <div className="space-y-3">
-          {/* Search */}
-          <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">Search:</label>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <input
-                type="text"
-                placeholder="Search distributors, retailers..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm bg-white"
-              />
+          {/* One Line Search Section for Mobile */}
+          <div className="space-y-3">
+            {/* Search from Name */}
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Search from Name:</label>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <input
+                  type="text"
+                  placeholder="Search distributors, retailers..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm bg-white"
+                />
+              </div>
             </div>
-          </div>
-          
-          {/* Type Filter */}
-          <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">Type:</label>
-            <select
-              value={selectedType}
-              onChange={(e) => setSelectedType(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm bg-white"
-            >
-              <option value="All Types">All</option>
-              <option value="Distributor">Distributor</option>
-              <option value="Retailer">Retailer</option>
-            </select>
-          </div>
-          
-          {/* Expandable Filters */}
-          {showFilters && (
-            <div className="border-t pt-3 space-y-3">
-              {/* Region Filter */}
+            
+            {/* Filter Dropdowns in one row */}
+            <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Region:</label>
+                <label className="block text-xs font-medium text-gray-700 mb-1">Search - Distributor/Retailer:</label>
+                <select
+                  value={selectedType}
+                  onChange={(e) => setSelectedType(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm bg-white"
+                >
+                  <option value="All Types">All</option>
+                  <option value="Distributor">Distributor</option>
+                  <option value="Retailer">Retailer</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">Select Region:</label>
                 <select
                   value={selectedRegion}
                   onChange={(e) => setSelectedRegion(e.target.value)}
@@ -319,56 +686,21 @@ const MobileApp: React.FC = () => {
                   <option value="Chennai">Chennai</option>
                 </select>
               </div>
-              
-              {/* Active Filters Display */}
-              {(selectedType !== 'All Types' || selectedRegion !== 'All Regions') && (
-                <div>
-                  <p className="text-xs font-medium text-gray-700 mb-2">Active Filters:</p>
-                  <div className="flex flex-wrap gap-1">
-                    {selectedType !== 'All Types' && (
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                        {selectedType}
-                        <button
-                          onClick={() => setSelectedType('All Types')}
-                          className="ml-1 hover:bg-black hover:bg-opacity-10 rounded-full p-0.5"
-                        >
-                          <X className="w-2 h-2" />
-                        </button>
-                      </span>
-                    )}
-                    {selectedRegion !== 'All Regions' && (
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                        {selectedRegion}
-                        <button
-                          onClick={() => setSelectedRegion('All Regions')}
-                          className="ml-1 hover:bg-black hover:bg-opacity-10 rounded-full p-0.5"
-                        >
-                          <X className="w-2 h-2" />
-                        </button>
-                      </span>
-                    )}
-                  </div>
-                </div>
-              )}
-              
-              {/* Clear Filters */}
-              {(selectedType !== 'All Types' || selectedRegion !== 'All Regions') && (
-                <button
-                  onClick={clearFilters}
-                  className="w-full px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center justify-center text-sm border border-red-300"
-                >
-                  <X className="w-4 h-4 mr-1" />
-                  Clear All Filters
-                </button>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
-              </div>
             </div>
           </div>
           
+          {/* Clear Filters */}
+          {(selectedType !== 'All Types' || selectedRegion !== 'All Regions' || searchTerm) && (
+            <button
+              onClick={clearFilters}
+              className="w-full px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center justify-center text-sm border border-red-300"
+            >
+              <X className="w-4 h-4 mr-1" />
+              Clear Filters
+            </button>
+          )}
+        </div>
+      </div>
 
       {/* Results Summary */}
       <div className="text-sm text-gray-600 px-1">
@@ -473,338 +805,16 @@ const MobileApp: React.FC = () => {
     </div>
   );
 
-  const renderTracker = () => (
-    <div className="p-4 space-y-4">
-      {/* Header */}
-      <div>
-        <h2 className="text-xl font-bold text-gray-900">Activity Tracker</h2>
-        <p className="text-sm text-gray-600">Track your monthly and annual activities</p>
-      </div>
-
-      {/* Activity Summary Cards */}
-      <div className="grid grid-cols-1 gap-4">
-        {/* Monthly Activities */}
-        <div className="bg-white rounded-xl p-4 shadow-sm">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="font-semibold text-gray-900">Monthly Activities</h3>
-            <Calendar className="w-6 h-6 text-blue-600" />
-          </div>
-          
-          <div className="grid grid-cols-2 gap-3 mb-3">
-            <div className="text-center p-3 bg-orange-50 rounded-lg">
-              <div className="text-xl font-bold text-orange-800">45</div>
-              <div className="text-xs text-orange-600">Planned</div>
-            </div>
-            <div className="text-center p-3 bg-green-50 rounded-lg">
-              <div className="text-xl font-bold text-green-800">38</div>
-              <div className="text-xs text-green-600">Done</div>
-            </div>
-          </div>
-          
-          <div>
-            <div className="flex justify-between text-sm text-gray-600 mb-1">
-              <span>Progress</span>
-              <span>84%</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div className="bg-blue-600 h-2 rounded-full" style={{ width: '84%' }}></div>
-            </div>
-          </div>
-        </div>
-
-        {/* Annual Activities */}
-        <div className="bg-white rounded-xl p-4 shadow-sm">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="font-semibold text-gray-900">Annual Activities</h3>
-            <TrendingUp className="w-6 h-6 text-purple-600" />
-          </div>
-          
-          <div className="grid grid-cols-2 gap-3 mb-3">
-            <div className="text-center p-3 bg-orange-50 rounded-lg">
-              <div className="text-xl font-bold text-orange-800">540</div>
-              <div className="text-xs text-orange-600">Planned</div>
-            </div>
-            <div className="text-center p-3 bg-green-50 rounded-lg">
-              <div className="text-xl font-bold text-green-800">456</div>
-              <div className="text-xs text-green-600">Done</div>
-            </div>
-          </div>
-          
-          <div>
-            <div className="flex justify-between text-sm text-gray-600 mb-1">
-              <span>Progress</span>
-              <span>84%</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div className="bg-purple-600 h-2 rounded-full" style={{ width: '84%' }}></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Quick Stats */}
-      <div className="grid grid-cols-2 gap-3">
-        <div className="bg-white rounded-xl p-3 shadow-sm text-center">
-          <div className="text-lg font-bold text-blue-600">8</div>
-          <div className="text-xs text-gray-600">Pending Tasks</div>
-        </div>
-        <div className="bg-white rounded-xl p-3 shadow-sm text-center">
-          <div className="text-lg font-bold text-green-600">12</div>
-          <div className="text-xs text-gray-600">Completed</div>
-        </div>
-        <div className="bg-white rounded-xl p-3 shadow-sm text-center">
-          <div className="text-lg font-bold text-yellow-600">3</div>
-          <div className="text-xs text-gray-600">In Progress</div>
-        </div>
-        <div className="bg-white rounded-xl p-3 shadow-sm text-center">
-          <div className="text-lg font-bold text-purple-600">5</div>
-          <div className="text-xs text-gray-600">Scheduled</div>
-        </div>
-      </div>
-
-      {/* Recent Activities */}
-      <div className="bg-white rounded-xl p-4 shadow-sm">
-        <h3 className="font-semibold mb-3">Recent Activities</h3>
-        <div className="space-y-3">
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-              <CheckCircle className="w-4 h-4 text-green-600" />
-            </div>
-            <div className="flex-1">
-              <p className="text-sm font-medium">Visit completed</p>
-              <p className="text-xs text-gray-500">SRI RAMA SEEDS - 2 hours ago</p>
-            </div>
-          </div>
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-              <Calendar className="w-4 h-4 text-blue-600" />
-            </div>
-            <div className="flex-1">
-              <p className="text-sm font-medium">Meeting scheduled</p>
-              <p className="text-xs text-gray-500">Ram Kumar - Tomorrow 10 AM</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderTasks = () => (
-    <div className="p-4 space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold text-gray-900">Tasks</h2>
-        <button className="bg-purple-600 text-white px-3 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center text-sm">
-          <Plus className="w-4 h-4 mr-1" />
-          Add Task
-        </button>
-      </div>
-      
-      {/* Sample Task Items */}
-      <div className="space-y-3">
-        <div className="bg-white rounded-lg p-4 shadow-sm">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="font-semibold text-gray-900">Visit SRI RAMA SEEDS</h3>
-            <span className="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs">High</span>
-          </div>
-          <p className="text-sm text-gray-600 mb-2">Stock verification and liquidation tracking</p>
-          <div className="flex items-center justify-between text-xs text-gray-500">
-            <div className="flex items-center">
-              <Clock className="w-3 h-3 mr-1" />
-              <span>Due: Jan 22, 2024</span>
-            </div>
-            <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full">Pending</span>
-          </div>
-        </div>
-        
-        <div className="bg-white rounded-lg p-4 shadow-sm">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="font-semibold text-gray-900">Monthly Sales Report</h3>
-            <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs">Medium</span>
-          </div>
-          <p className="text-sm text-gray-600 mb-2">Prepare and submit monthly sales performance report</p>
-          <div className="flex items-center justify-between text-xs text-gray-500">
-            <div className="flex items-center">
-              <Clock className="w-3 h-3 mr-1" />
-              <span>Due: Jan 25, 2024</span>
-            </div>
-            <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full">In Progress</span>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg p-4 shadow-sm">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="font-semibold text-gray-900">Product Training</h3>
-            <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Low</span>
-          </div>
-          <p className="text-sm text-gray-600 mb-2">Attend new product training session</p>
-          <div className="flex items-center justify-between text-xs text-gray-500">
-            <div className="flex items-center">
-              <Clock className="w-3 h-3 mr-1" />
-              <span>Due: Jan 20, 2024</span>
-            </div>
-            <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full">Completed</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderReports = () => (
-    <div className="p-4 space-y-4">
-      <div>
-        <h2 className="text-xl font-bold text-gray-900">Reports</h2>
-        <p className="text-sm text-gray-600">Generate and view your performance reports</p>
-      </div>
-
-      {/* Report Categories */}
-      <div className="grid grid-cols-2 gap-3">
-        <div className="bg-white rounded-xl p-4 shadow-sm text-center">
-          <TrendingUp className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-          <h3 className="font-semibold text-gray-900 mb-1">Sales Report</h3>
-          <p className="text-xs text-gray-600 mb-3">Monthly sales performance</p>
-          <button className="w-full bg-blue-100 text-blue-700 py-2 rounded-lg text-xs">
-            Generate
-          </button>
-        </div>
-
-        <div className="bg-white rounded-xl p-4 shadow-sm text-center">
-          <MapPin className="w-8 h-8 text-green-600 mx-auto mb-2" />
-          <h3 className="font-semibold text-gray-900 mb-1">Visit Report</h3>
-          <p className="text-xs text-gray-600 mb-3">Field visit summary</p>
-          <button className="w-full bg-green-100 text-green-700 py-2 rounded-lg text-xs">
-            Generate
-          </button>
-        </div>
-
-        <div className="bg-white rounded-xl p-4 shadow-sm text-center">
-          <Droplets className="w-8 h-8 text-purple-600 mx-auto mb-2" />
-          <h3 className="font-semibold text-gray-900 mb-1">Liquidation Report</h3>
-          <p className="text-xs text-gray-600 mb-3">Stock liquidation status</p>
-          <button className="w-full bg-purple-100 text-purple-700 py-2 rounded-lg text-xs">
-            Generate
-          </button>
-        </div>
-
-        <div className="bg-white rounded-xl p-4 shadow-sm text-center">
-          <Target className="w-8 h-8 text-orange-600 mx-auto mb-2" />
-          <h3 className="font-semibold text-gray-900 mb-1">Performance Report</h3>
-          <p className="text-xs text-gray-600 mb-3">Overall performance</p>
-          <button className="w-full bg-orange-100 text-orange-700 py-2 rounded-lg text-xs">
-            Generate
-          </button>
-        </div>
-      </div>
-
-      {/* Recent Reports */}
-      <div className="bg-white rounded-xl p-4 shadow-sm">
-        <h3 className="font-semibold mb-3">Recent Reports</h3>
-        <div className="space-y-3">
-          <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-            <div>
-              <p className="text-sm font-medium">January Sales Report</p>
-              <p className="text-xs text-gray-500">Generated on Jan 15, 2024</p>
-            </div>
-            <button className="text-blue-600 text-xs">Download</button>
-          </div>
-          <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-            <div>
-              <p className="text-sm font-medium">Weekly Visit Summary</p>
-              <p className="text-xs text-gray-500">Generated on Jan 12, 2024</p>
-            </div>
-            <button className="text-blue-600 text-xs">Download</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderMore = () => (
-    <div className="p-4 space-y-4">
-      <div>
-        <h2 className="text-xl font-bold text-gray-900">More Options</h2>
-        <p className="text-sm text-gray-600">Additional features and settings</p>
-      </div>
-
-      {/* Menu Options */}
-      <div className="space-y-3">
-        <div className="bg-white rounded-xl p-4 shadow-sm">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-              <MapPin className="w-5 h-5 text-blue-600" />
-            </div>
-            <div className="flex-1">
-              <h3 className="font-semibold text-gray-900">Field Visits</h3>
-              <p className="text-xs text-gray-600">Manage your field visits</p>
-            </div>
-            <div className="text-gray-400">›</div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl p-4 shadow-sm">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-              <ShoppingCart className="w-5 h-5 text-green-600" />
-            </div>
-            <div className="flex-1">
-              <h3 className="font-semibold text-gray-900">Sales Orders</h3>
-              <p className="text-xs text-gray-600">View and manage orders</p>
-            </div>
-            <div className="text-gray-400">›</div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl p-4 shadow-sm">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-              <Users className="w-5 h-5 text-purple-600" />
-            </div>
-            <div className="flex-1">
-              <h3 className="font-semibold text-gray-900">Contacts</h3>
-              <p className="text-xs text-gray-600">Manage dealer contacts</p>
-            </div>
-            <div className="text-gray-400">›</div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl p-4 shadow-sm">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
-              <CreditCard className="w-5 h-5 text-orange-600" />
-            </div>
-            <div className="flex-1">
-              <h3 className="font-semibold text-gray-900">Travel & Expenses</h3>
-              <p className="text-xs text-gray-600">Submit expense claims</p>
-            </div>
-            <div className="text-gray-400">›</div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl p-4 shadow-sm">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-              <TrendingUp className="w-5 h-5 text-red-600" />
-            </div>
-            <div className="flex-1">
-              <h3 className="font-semibold text-gray-900">Performance</h3>
-              <p className="text-xs text-gray-600">View performance metrics</p>
-            </div>
-            <div className="text-gray-400">›</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
   const renderTabContent = () => {
     switch (activeTab) {
-      case 'home':
+      case 'dashboard':
         return renderDashboard();
       case 'tracker':
         return renderTracker();
-      case 'tasks':
-        return renderTasks();
       case 'liquidation':
         return renderLiquidation();
+      case 'tasks':
+        return renderTasks();
       case 'reports':
         return renderReports();
       case 'more':
@@ -842,24 +852,24 @@ const MobileApp: React.FC = () => {
       <div className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-sm bg-white border-t border-gray-200">
         <div className="flex justify-around py-2">
           {[
-            { id: 'home', icon: Home, label: 'Home' },
-            { id: 'tracker', icon: Target, label: 'Tracker' },
+            { id: 'dashboard', icon: Home, label: 'Home' },
+            { id: 'tracker', icon: TrendingUp, label: 'Tracker' },
             { id: 'tasks', icon: CheckCircle, label: 'Tasks' },
             { id: 'liquidation', icon: Droplets, label: 'Liquidation' },
-            { id: 'reports', icon: TrendingUp, label: 'Reports' },
-            { id: 'more', icon: Menu, label: '•••' },
+            { id: 'reports', icon: FileText, label: 'Reports' },
+            { id: 'more', icon: MoreHorizontal, label: '•••' },
           ].map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex flex-col items-center py-2 px-2 rounded-lg transition-colors ${
+              className={`flex flex-col items-center py-1 px-2 rounded-lg transition-colors ${
                 activeTab === tab.id
                   ? 'text-purple-600 bg-purple-50'
                   : 'text-gray-600 hover:text-purple-600'
               }`}
             >
               <tab.icon className="w-4 h-4 mb-1" />
-              <span className="text-xs text-center">{tab.label}</span>
+              <span className="text-xs">{tab.label}</span>
             </button>
           ))}
         </div>
