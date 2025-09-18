@@ -141,10 +141,48 @@ const MobileApp: React.FC = () => {
 
   const handleVerifyClick = (item: any) => {
     setSelectedItem(item);
+    
+    // Initialize verification data for multiple invoices
+    const getSKUData = (distributorId: string) => {
+      return [
+        {
+          skuCode: 'DAP-25KG',
+          skuName: 'DAP 25kg Bag',
+          unit: 'Kg',
+          invoices: [
+            { invoiceNumber: 'INV-2024-001', invoiceDate: '2024-08-01', currentStock: 50, batchNumber: 'BATCH-001' },
+            { invoiceNumber: 'INV-2024-002', invoiceDate: '2024-08-07', currentStock: 30, batchNumber: 'BATCH-002' },
+            { invoiceNumber: 'INV-2024-003', invoiceDate: '2024-08-10', currentStock: 25, batchNumber: 'BATCH-003' }
+          ]
+        },
+        {
+          skuCode: 'DAP-50KG',
+          skuName: 'DAP 50kg Bag',
+          unit: 'Kg',
+          invoices: [
+            { invoiceNumber: 'INV-2024-004', invoiceDate: '2024-08-01', currentStock: 40, batchNumber: 'BATCH-004' },
+            { invoiceNumber: 'INV-2024-005', invoiceDate: '2024-08-07', currentStock: 35, batchNumber: 'BATCH-005' }
+          ]
+        }
+      ];
+    };
+    
+    const skuData = getSKUData(item.id);
+    const skuVerifications: Record<string, { current: number; physical: number; variance: number }> = {};
+    
+    skuData.forEach(sku => {
+      sku.invoices.forEach(invoice => {
+        const key = `${sku.skuCode}-${invoice.invoiceNumber}`;
+        skuVerifications[key] = {
+          current: invoice.currentStock,
+          physical: 0,
+          variance: -invoice.currentStock
+        };
+      });
+    });
+    
     setVerificationData({
-      currentStock: item.metrics.balanceStock.volume,
-      physicalStock: item.metrics.balanceStock.volume,
-      variance: 0,
+      skuVerifications,
       reason: '',
       verifiedBy: user?.name || 'User'
     });
@@ -152,20 +190,37 @@ const MobileApp: React.FC = () => {
   };
 
   const handleStockChange = (field: 'currentStock' | 'physicalStock', value: number) => {
-    const newData = { ...verificationData, [field]: value };
-    newData.variance = newData.physicalStock - newData.currentStock;
-    setVerificationData(newData);
+    // This function is now handled by handleSKUStockChange for mobile
+    console.log('Stock change:', field, value);
+  };
+
+  const handleSKUStockChange = (skuCode: string, invoiceNumber: string, field: 'current' | 'physical', value: number) => {
+    setVerificationData(prev => {
+      const updated = { ...prev };
+      const key = `${skuCode}-${invoiceNumber}`;
+      if (!updated.skuVerifications[key]) {
+        updated.skuVerifications[key] = { current: 0, physical: 0, variance: 0 };
+      }
+      
+      updated.skuVerifications[key][field] = value;
+      updated.skuVerifications[key].variance = 
+        updated.skuVerifications[key].physical - updated.skuVerifications[key].current;
+      
+      return updated;
+    });
   };
 
   const handleVerifySubmit = () => {
-    // In a real app, this would update the backend
+    if (!selectedItem) return;
+    
     console.log('Stock verification submitted:', {
-      itemId: selectedItem.id,
-      ...verificationData,
+      distributorId: selectedItem.id,
+      distributorName: selectedItem.distributorName,
+      verificationData,
       timestamp: new Date().toISOString()
     });
     
-    alert(`Stock verified for ${selectedItem.distributorName}!\nVariance: ${verificationData.variance} ${selectedItem.metrics.balanceStock.volume > 1000 ? 'Kg' : 'L'}`);
+    alert(`Stock verified for ${selectedItem.distributorName}!`);
     setShowVerifyModal(false);
     setSelectedItem(null);
   };
@@ -922,55 +977,188 @@ const MobileApp: React.FC = () => {
                 <p className="text-sm text-gray-600">{selectedItem.distributorCode} • {selectedItem.territory}</p>
               </div>
               
-              <div className="space-y-3">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Current Stock (System)
-                  </label>
-                  <input
-                    type="number"
-                    value={verificationData.currentStock}
-                    onChange={(e) => handleStockChange('currentStock', parseInt(e.target.value) || 0)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    placeholder="Enter current stock"
-                  />
+            {/* SKU-wise verification for mobile */}
+            <div className="space-y-4">
+              <h4 className="font-semibold text-gray-900">SKU-wise Verification</h4>
+              
+              {/* DAP 25kg Bag */}
+              <div className="bg-white rounded-lg p-3 border border-gray-200">
+                <h5 className="font-semibold text-gray-900 mb-3">DAP 25kg Bag</h5>
+                
+                {/* Invoice 1 - 1st Aug */}
+                <div className="mb-3 pb-3 border-b border-gray-100">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs text-gray-600">INV-2024-001 | 1st Aug | Batch-001</span>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <div className="text-center">
+                      <p className="text-xs text-gray-600 mb-1">Current</p>
+                      <input
+                        type="number"
+                        value={50}
+                        className="w-16 px-2 py-1 border border-gray-300 rounded text-center text-sm"
+                        readOnly
+                      />
+                    </div>
+                    <div className="text-center">
+                      <p className="text-xs text-gray-600 mb-1">Physical</p>
+                      <input
+                        type="number"
+                        placeholder="Enter"
+                        className="w-16 px-2 py-1 border border-gray-300 rounded text-center text-sm focus:ring-2 focus:ring-purple-500"
+                      />
+                    </div>
+                    <span className="text-xs text-gray-600">Kg</span>
+                  </div>
                 </div>
                 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Physical Stock (Verified)
-                  </label>
-                  <input
-                    type="number"
-                    value={verificationData.physicalStock}
-                    onChange={(e) => handleStockChange('physicalStock', parseInt(e.target.value) || 0)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    placeholder="Enter physical stock"
-                  />
+                {/* Invoice 2 - 7th Aug */}
+                <div className="mb-3 pb-3 border-b border-gray-100">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs text-gray-600">INV-2024-002 | 7th Aug | Batch-002</span>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <div className="text-center">
+                      <p className="text-xs text-gray-600 mb-1">Current</p>
+                      <input
+                        type="number"
+                        value={30}
+                        className="w-16 px-2 py-1 border border-gray-300 rounded text-center text-sm"
+                        readOnly
+                      />
+                    </div>
+                    <div className="text-center">
+                      <p className="text-xs text-gray-600 mb-1">Physical</p>
+                      <input
+                        type="number"
+                        placeholder="Enter"
+                        className="w-16 px-2 py-1 border border-gray-300 rounded text-center text-sm focus:ring-2 focus:ring-purple-500"
+                      />
+                    </div>
+                    <span className="text-xs text-gray-600">Kg</span>
+                  </div>
                 </div>
                 
-                {verificationData.variance !== 0 && (
-                  <div className={`p-3 rounded-lg ${verificationData.variance > 0 ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">Variance:</span>
-                      <span className={`font-bold ${verificationData.variance > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                        {verificationData.variance > 0 ? '+' : ''}{verificationData.variance} {selectedItem.metrics.balanceStock.volume > 1000 ? 'Kg' : 'L'}
-                      </span>
+                {/* Invoice 3 - 10th Aug */}
+                <div className="mb-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs text-gray-600">INV-2024-003 | 10th Aug | Batch-003</span>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <div className="text-center">
+                      <p className="text-xs text-gray-600 mb-1">Current</p>
+                      <input
+                        type="number"
+                        value={25}
+                        className="w-16 px-2 py-1 border border-gray-300 rounded text-center text-sm"
+                        readOnly
+                      />
+                    </div>
+                    <div className="text-center">
+                      <p className="text-xs text-gray-600 mb-1">Physical</p>
+                      <input
+                        type="number"
+                        placeholder="Enter"
+                        className="w-16 px-2 py-1 border border-gray-300 rounded text-center text-sm focus:ring-2 focus:ring-purple-500"
+                      />
+                    </div>
+                    <span className="text-xs text-gray-600">Kg</span>
                     </div>
                   </div>
                 )}
                 
+                {/* SKU Total */}
+                <div className="pt-3 border-t border-gray-200">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-medium">Total:</span>
+                    <div className="flex items-center space-x-2">
+                      <span>System: 105 Kg</span>
+                      <span>Physical: 0 Kg</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* DAP 50kg Bag */}
+              <div className="bg-white rounded-lg p-3 border border-gray-200">
+                <h5 className="font-semibold text-gray-900 mb-3">DAP 50kg Bag</h5>
+                
+                {/* Invoice 1 - 1st Aug */}
+                <div className="mb-3 pb-3 border-b border-gray-100">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs text-gray-600">INV-2024-004 | 1st Aug | Batch-004</span>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <div className="text-center">
+                      <p className="text-xs text-gray-600 mb-1">Current</p>
+                      <input
+                        type="number"
+                        value={40}
+                        className="w-16 px-2 py-1 border border-gray-300 rounded text-center text-sm"
+                        readOnly
+                      />
+                    </div>
+                    <div className="text-center">
+                      <p className="text-xs text-gray-600 mb-1">Physical</p>
+                      <input
+                        type="number"
+                        placeholder="Enter"
+                        className="w-16 px-2 py-1 border border-gray-300 rounded text-center text-sm focus:ring-2 focus:ring-purple-500"
+                      />
+                    </div>
+                    <span className="text-xs text-gray-600">Kg</span>
+                  </div>
+                </div>
+                
+                {/* Invoice 2 - 7th Aug */}
+                <div className="mb-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs text-gray-600">INV-2024-005 | 7th Aug | Batch-005</span>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <div className="text-center">
+                      <p className="text-xs text-gray-600 mb-1">Current</p>
+                      <input
+                        type="number"
+                        value={35}
+                        className="w-16 px-2 py-1 border border-gray-300 rounded text-center text-sm"
+                        readOnly
+                      />
+                    </div>
+                    <div className="text-center">
+                      <p className="text-xs text-gray-600 mb-1">Physical</p>
+                      <input
+                        type="number"
+                        placeholder="Enter"
+                        className="w-16 px-2 py-1 border border-gray-300 rounded text-center text-sm focus:ring-2 focus:ring-purple-500"
+                      />
+                    </div>
+                    <span className="text-xs text-gray-600">Kg</span>
+                  </div>
+                </div>
+                
+                {/* SKU Total */}
+                <div className="pt-3 border-t border-gray-200">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-medium">Total:</span>
+                    <div className="flex items-center space-x-2">
+                      <span>System: 75 Kg</span>
+                      <span>Physical: 0 Kg</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Reason for Variance (if any)
-                  </label>
+                  Verification Remarks
                   <textarea
                     value={verificationData.reason}
                     onChange={(e) => setVerificationData(prev => ({ ...prev, reason: e.target.value }))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                     rows={3}
                     placeholder="Explain any stock variance..."
-                  />
+                  placeholder="Add verification remarks..."
                 </div>
               </div>
             </>
