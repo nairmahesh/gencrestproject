@@ -857,90 +857,6 @@ const MobileApp: React.FC<MobileAppProps> = () => {
   );
 
   // Critical Alerts Modal
-  const renderContent = () => {
-    switch (activeTab) {
-      case 'dashboard':
-        return renderDashboard();
-      case 'tracker':
-        return renderTracker();
-      case 'tasks':
-        return renderTasks();
-      case 'liquidation':
-        return renderLiquidation();
-      case 'reports':
-        return renderReports();
-      default:
-        return renderDashboard();
-    }
-  };
-
-  return (
-    <div className="max-w-sm mx-auto bg-gray-100 min-h-screen relative">
-      {/* Content */}
-      <div className="pb-20">
-        {renderContent()}
-      </div>
-
-      {/* Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2">
-        <div className="flex justify-around">
-          <button
-            onClick={() => setActiveTab('dashboard')}
-            className={`flex flex-col items-center py-2 px-3 rounded-lg transition-colors ${
-              activeTab === 'dashboard' ? 'text-purple-600 bg-purple-50' : 'text-gray-600'
-            }`}
-          >
-            <Home className="w-5 h-5 mb-1" />
-            <span className="text-xs">Home</span>
-          </button>
-          
-          <button
-            onClick={() => setActiveTab('tracker')}
-            className={`flex flex-col items-center py-2 px-3 rounded-lg transition-colors ${
-              activeTab === 'tracker' ? 'text-purple-600 bg-purple-50' : 'text-gray-600'
-            }`}
-          >
-            <Users className="w-5 h-5 mb-1" />
-            <span className="text-xs">Team</span>
-          </button>
-          
-          <button
-            onClick={() => setActiveTab('tasks')}
-            className={`flex flex-col items-center py-2 px-3 rounded-lg transition-colors ${
-              activeTab === 'tasks' ? 'text-purple-600 bg-purple-50' : 'text-gray-600'
-            }`}
-          >
-            <ShoppingCart className="w-5 h-5 mb-1" />
-            <span className="text-xs">Orders</span>
-          </button>
-          
-          <button
-            onClick={() => setActiveTab('liquidation')}
-            className={`flex flex-col items-center py-2 px-3 rounded-lg transition-colors ${
-              activeTab === 'liquidation' ? 'text-purple-600 bg-purple-50' : 'text-gray-600'
-            }`}
-          >
-            <Droplets className="w-5 h-5 mb-1" />
-            <span className="text-xs">Liquidation</span>
-          </button>
-          
-          <button
-            onClick={() => setActiveTab('reports')}
-            className={`flex flex-col items-center py-2 px-3 rounded-lg transition-colors ${
-              activeTab === 'reports' ? 'text-purple-600 bg-purple-50' : 'text-gray-600'
-            }`}
-          >
-            <FileText className="w-5 h-5 mb-1" />
-            <span className="text-xs">More</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Critical Alerts Modal */}
-      {showCriticalAlerts && renderCriticalAlertsModal()}
-    </div>
-  );
-
   const renderCriticalAlertsModal = () => (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl w-full max-w-md max-h-[80vh] overflow-hidden">
@@ -1041,6 +957,88 @@ const MobileApp: React.FC<MobileAppProps> = () => {
               <p className="text-sm text-gray-500">No active alerts in this category</p>
             </div>
           )}
+        </div>
+      </div>
+    </div>
+  );
+
+  // Critical Alerts Modal
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'dashboard':
+        return renderDashboard();
+      case 'tracker':
+        return renderTracker();
+      case 'tasks':
+        return renderTasks();
+      case 'liquidation':
+        return renderLiquidation();
+      case 'reports':
+        return renderReports();
+      default:
+        return renderDashboard();
+    }
+  };
+
+  return (
+    <div className="max-w-sm mx-auto bg-gray-100 min-h-screen relative">
+      {/* Content */}
+      <div className="pb-20">
+        {renderContent()}
+      </div>
+
+      {/* Bottom Navigation */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2">
+        <div className="flex justify-around">
+          <button
+            onClick={() => setActiveTab('dashboard')}
+            className={`flex flex-col items-center py-2 px-3 rounded-lg transition-colors ${
+              activeTab === 'dashboard' ? 'text-purple-600 bg-purple-50' : 'text-gray-600'
+            }`}
+          >
+            <Home className="w-5 h-5 mb-1" />
+            <span className="text-xs">Home</span>
+          </button>
+          
+          <button
+            onClick={() => setActiveTab('tracker')}
+            className={`flex flex-col items-center py-2 px-3 rounded-lg transition-colors ${
+              activeTab === 'tracker' ? 'text-purple-600 bg-purple-50' : 'text-gray-600'
+            }`}
+          >
+            <Users className="w-5 h-5 mb-1" />
+            <span className="text-xs">Team</span>
+          </button>
+          
+          <button
+            onClick={() => setActiveTab('tasks')}
+            className={`flex flex-col items-center py-2 px-3 rounded-lg transition-colors ${
+              activeTab === 'tasks' ? 'text-purple-600 bg-purple-50' : 'text-gray-600'
+            }`}
+          >
+            <ShoppingCart className="w-5 h-5 mb-1" />
+            <span className="text-xs">Orders</span>
+          </button>
+          
+          <button
+            onClick={() => setActiveTab('liquidation')}
+            className={`flex flex-col items-center py-2 px-3 rounded-lg transition-colors ${
+              activeTab === 'liquidation' ? 'text-purple-600 bg-purple-50' : 'text-gray-600'
+            }`}
+          >
+            <Droplets className="w-5 h-5 mb-1" />
+            <span className="text-xs">Liquidation</span>
+          </button>
+          
+          <button
+            onClick={() => setActiveTab('reports')}
+            className={`flex flex-col items-center py-2 px-3 rounded-lg transition-colors ${
+              activeTab === 'reports' ? 'text-purple-600 bg-purple-50' : 'text-gray-600'
+            }`}
+          >
+            <FileText className="w-5 h-5 mb-1" />
+            <span className="text-xs">More</span>
+          </button>
         </div>
       </div>
     </div>
