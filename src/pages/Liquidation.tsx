@@ -56,6 +56,7 @@ const Liquidation: React.FC = () => {
   const [selectedMetric, setSelectedMetric] = useState<string>('');
   const [showSKUModal, setShowSKUModal] = useState(false);
   const [showRetailerModal, setShowRetailerModal] = useState(false);
+  const [showStockUpdateModal, setShowStockUpdateModal] = useState(false);
   const [selectedSKU, setSelectedSKU] = useState<SKUData | null>(null);
   const [stockReduction, setStockReduction] = useState<{ [skuCode: string]: number }>({});
   const [saleType, setSaleType] = useState<'farmer' | 'retailer' | ''>('');
@@ -315,9 +316,11 @@ const Liquidation: React.FC = () => {
   const handleSKUStockUpdate = (skuCode: string, newStock: number, originalStock: number) => {
     const reduction = originalStock - newStock;
     if (reduction > 0) {
+      setSelectedSKU(getSKUData(selectedItem.id).find(sku => sku.skuCode === skuCode) || null);
       setStockReduction(prev => ({ ...prev, [skuCode]: reduction }));
       setSaleType('');
-      setShowRetailerModal(true);
+      setShowSKUModal(false); // Close SKU modal first
+      setTimeout(() => setShowStockUpdateModal(true), 100); // Open stock update modal
     }
   };
 
@@ -810,19 +813,20 @@ const Liquidation: React.FC = () => {
                         <div className="flex items-center justify-center space-x-2">
                           <input
                             type="number"
-                            value={sku.currentStock}
-                            onChange={(e) => {
-                              const newStock = parseInt(e.target.value) || 0;
-                              if (newStock < sku.currentStock) {
-                                handleSKUStockUpdate(sku.skuCode, newStock, sku.currentStock);
-                              }
-                            }}
+                            defaultValue={sku.currentStock}
+                            id={`stock-${sku.skuCode}`}
                             className="w-16 text-center text-lg font-bold text-purple-800 bg-transparent border-b-2 border-purple-300 focus:border-purple-500 outline-none"
                           />
                         </div>
                         <div className="text-xs text-purple-600">{sku.unit}</div>
                         <button
-                          onClick={() => handleSKUStockUpdate(sku.skuCode, sku.currentStock - 1, sku.currentStock)}
+                          onClick={() => {
+                            const input = document.getElementById(`stock-${sku.skuCode}`) as HTMLInputElement;
+                            const newStock = parseInt(input.value) || 0;
+                            if (newStock !== sku.currentStock) {
+                              handleSKUStockUpdate(sku.skuCode, newStock, sku.currentStock);
+                            }
+                          }}
                           className="mt-2 bg-purple-600 text-white px-2 py-1 rounded text-xs hover:bg-purple-700"
                         >
                           Update Stock
@@ -852,19 +856,22 @@ const Liquidation: React.FC = () => {
         </div>
       )}
 
-      {/* Retailer Distribution Modal */}
-      {showRetailerModal && (
+      {/* Stock Update Modal (replaces retailer modal when updating from SKU view) */}
+      {showStockUpdateModal && selectedSKU && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
             <div className="flex items-center justify-between p-6 border-b">
               <div>
-                <h3 className="text-xl font-semibold text-gray-900">Stock Reduction - Where did it go?</h3>
+                <h3 className="text-xl font-semibold text-gray-900">Stock Update - {selectedSKU.skuName}</h3>
                 <p className="text-sm text-gray-600 mt-1">
-                  {Object.keys(stockReduction).map(sku => `${sku}: ${stockReduction[sku]} units`).join(', ')}
+                  Reduction: {stockReduction[selectedSKU.skuCode]} {selectedSKU.unit} | Invoice: {selectedSKU.invoiceNumber}
                 </p>
               </div>
               <button
-                onClick={() => setShowRetailerModal(false)}
+                onClick={() => {
+                  setShowStockUpdateModal(false);
+                  setShowSKUModal(true); // Return to SKU modal
+                }}
                 className="p-2 hover:bg-gray-100 rounded-full transition-colors"
               >
                 <X className="w-5 h-5" />
@@ -874,7 +881,9 @@ const Liquidation: React.FC = () => {
             <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
               {/* Sale Type Selection */}
               <div className="mb-6">
-                <h4 className="text-lg font-semibold text-gray-900 mb-4">Where was this stock sold?</h4>
+                <h4 className="text-lg font-semibold text-gray-900 mb-4">
+                  Where was this {selectedSKU.skuName} sold?
+                </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div 
                     className={`p-6 rounded-xl border-2 cursor-pointer transition-all ${
@@ -994,18 +1003,14 @@ const Liquidation: React.FC = () => {
                   {/* Summary */}
                   <div className="mt-6 bg-white rounded-lg p-4">
                     <h6 className="font-semibold text-gray-900 mb-3">Distribution Summary</h6>
-                    <div className="space-y-2">
-                      {Object.keys(stockReduction).map(skuCode => (
-                        <div key={skuCode} className="flex justify-between text-sm">
-                          <span className="text-gray-600">{skuCode}:</span>
-                          <span className="font-medium">
-                            {getTotalRetailerQuantity(skuCode)} / {stockReduction[skuCode]} units
-                            {getTotalRetailerQuantity(skuCode) === stockReduction[skuCode] && (
-                              <CheckCircle className="w-4 h-4 text-green-600 inline ml-1" />
-                            )}
-                          </span>
-                        </div>
-                      ))}
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">{selectedSKU.skuCode}:</span>
+                      <span className="font-medium">
+                        {getTotalRetailerQuantity(selectedSKU.skuCode)} / {stockReduction[selectedSKU.skuCode]} {selectedSKU.unit}
+                        {getTotalRetailerQuantity(selectedSKU.skuCode) === stockReduction[selectedSKU.skuCode] && (
+                          <CheckCircle className="w-4 h-4 text-green-600 inline ml-1" />
+                        )}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -1015,26 +1020,26 @@ const Liquidation: React.FC = () => {
               {saleType === 'farmer' && (
                 <div className="bg-green-50 rounded-xl p-6">
                   <h5 className="text-lg font-semibold text-green-800 mb-4">Farmer Sale Details</h5>
-                  <div className="space-y-3">
-                    {Object.keys(stockReduction).map(skuCode => (
-                      <div key={skuCode} className="bg-white rounded-lg p-3">
-                        <div className="flex justify-between items-center">
-                          <span className="font-medium text-gray-900">{skuCode}</span>
-                          <span className="text-lg font-bold text-green-600">
-                            {stockReduction[skuCode]} units
-                          </span>
-                        </div>
-                        <p className="text-sm text-green-700">✅ This counts as liquidation</p>
+                  <div className="bg-white rounded-lg p-3">
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium text-gray-900">{selectedSKU.skuCode}</span>
+                      <span className="text-lg font-bold text-green-600">
+                        {stockReduction[selectedSKU.skuCode]} {selectedSKU.unit}
+                      </span>
+                    </div>
+                    <p className="text-sm text-green-700">✅ This counts as liquidation</p>
+                    <p className="text-xs text-gray-600">Invoice: {selectedSKU.invoiceNumber}</p>
                       </div>
-                    ))}
-                  </div>
                 </div>
               )}
             </div>
             
             <div className="flex justify-end space-x-3 p-6 border-t">
               <button
-                onClick={() => setShowRetailerModal(false)}
+                onClick={() => {
+                  setShowStockUpdateModal(false);
+                  setShowSKUModal(true); // Return to SKU modal
+                }}
                 className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
               >
                 Cancel
@@ -1043,13 +1048,14 @@ const Liquidation: React.FC = () => {
                 onClick={() => {
                   // Process the stock reduction
                   console.log('Stock reduction processed:', {
+                    skuCode: selectedSKU.skuCode,
                     saleType,
                     stockReduction,
                     retailers: saleType === 'retailer' ? retailers.slice(0, retailerCount) : null
                   });
-                  alert('Stock movement recorded successfully!');
-                  setShowRetailerModal(false);
-                  setShowSKUModal(false);
+                  alert(`Stock movement recorded for ${selectedSKU.skuCode}!`);
+                  setShowStockUpdateModal(false);
+                  setShowSKUModal(true); // Return to SKU modal
                 }}
                 disabled={!saleType}
                 className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
@@ -1089,26 +1095,21 @@ const Liquidation: React.FC = () => {
                     <div className="space-y-4">
                       {getSKUData(selectedItem.id).map((sku) => (
                         <div key={sku.skuCode} className="bg-white rounded-lg border border-gray-200 p-4">
-                          <div className="flex items-center justify-between mb-3">
-                            <div>
-                              <h5 className="font-semibold text-gray-900">{sku.skuName}</h5>
-                              <p className="text-sm text-gray-600">SKU: {sku.skuCode} | Invoice: {sku.invoiceNumber}</p>
-                              <p className="text-xs text-gray-500">Date: {new Date(sku.invoiceDate).toLocaleDateString()}</p>
-                            </div>
-                          </div>
-                          
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                               <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Current Stock (System)
+                                Quantity for {selectedSKU.skuCode}
                               </label>
                               <input
                                 type="number"
-                                value={verificationData.skuVerifications[sku.skuCode]?.current || sku.currentStock}
-                                onChange={(e) => handleSKUStockChange(sku.skuCode, 'current', parseInt(e.target.value) || 0)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                                placeholder="Enter current stock"
+                                value={retailer.quantities[selectedSKU.skuCode] || 0}
+                                onChange={(e) => handleRetailerQuantityChange(index, selectedSKU.skuCode, parseInt(e.target.value) || 0)}
+                                max={stockReduction[selectedSKU.skuCode]}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                placeholder="Enter quantity"
                               />
+                              <p className="text-xs text-gray-500 mt-1">
+                                Available: {stockReduction[selectedSKU.skuCode]} {selectedSKU.unit}
+                              </p>
                             </div>
                             
                             <div>
@@ -1136,11 +1137,9 @@ const Liquidation: React.FC = () => {
                                 <span className={`font-bold ${
                                   (verificationData.skuVerifications[sku.skuCode]?.variance || 0) > 0 
                                     ? 'text-green-600' 
-                                    : 'text-red-600'
-                                }`}>
-                                  {(verificationData.skuVerifications[sku.skuCode]?.variance || 0) > 0 ? '+' : ''}
+                            {getTotalRetailerQuantity(selectedSKU.skuCode) > stockReduction[selectedSKU.skuCode] && (
                                   {verificationData.skuVerifications[sku.skuCode]?.variance || 0} {sku.unit}
-                                </span>
+                                ⚠️ Total quantity cannot exceed available stock ({stockReduction[selectedSKU.skuCode]} {selectedSKU.unit})
                               </div>
                             </div>
                           )}
