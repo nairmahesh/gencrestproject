@@ -580,11 +580,8 @@ const Liquidation: React.FC = () => {
                   <div key={product.skuCode} className="bg-gray-50 rounded-xl p-6">
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center space-x-3">
-                        <span className={`px-4 py-2 rounded-lg text-sm font-medium ${getSKUColor(product.skuCode)}`}>
-                          {product.skuName}
-                        </span>
-                        <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">
-                          SKU: {product.skuCode}
+                        <span className={`px-4 py-2 rounded-lg text-sm font-medium ${getSKUColor(sku.skuCode)}`}>
+                          {sku.skuName} - {sku.skuCode}
                         </span>
                       </div>
                     </div>
