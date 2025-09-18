@@ -352,25 +352,6 @@ const MobileApp: React.FC<MobileAppProps> = () => {
     </div>
   );
 
-  const handleSKUStockChange = (skuCode: string, invoiceNumber: string, field: 'current' | 'physical', value: number) => {
-    setVerificationData((prev: any) => {
-      const updated = { ...prev };
-      const key = `${skuCode}-${invoiceNumber}`;
-      if (!updated.skuVerifications) {
-        updated.skuVerifications = {};
-      }
-      if (!updated.skuVerifications[key]) {
-        updated.skuVerifications[key] = { current: 0, physical: 0, variance: 0 };
-      }
-      
-      updated.skuVerifications[key][field] = value;
-      updated.skuVerifications[key].variance = 
-        updated.skuVerifications[key].physical - updated.skuVerifications[key].current;
-      
-      return updated;
-    });
-  };
-
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
