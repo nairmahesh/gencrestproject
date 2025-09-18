@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import RoleBasedAccess from '../components/RoleBasedAccess';
-import { Calendar, Target, Users, Plus, CheckCircle, Clock, AlertCircle, MapPin, ArrowLeft, ChevronDown } from 'lucide-react';
+import { Calendar, Target, Users, Plus, CheckCircle, Clock, AlertCircle, MapPin, ArrowLeft, ChevronDown, X } from 'lucide-react';
 import { ActivityPlan, PlannedActivity } from '../types';
 import { RouteTracker } from '../components/RouteTracker';
 
@@ -349,6 +349,9 @@ export const Planning: React.FC = () => {
                       <option>March 2024</option>
                       <option>April 2024</option>
                     </select>
+                  </div>
+                </div>
+                
                 {/* Activity Categories */}
                 <div>
                   <h4 className="text-lg font-semibold text-gray-900 mb-4">Activity Categories</h4>
@@ -375,7 +378,7 @@ export const Planning: React.FC = () => {
                     ))}
                   </div>
                 </div>
-                  </div>
+                
                 {/* Targets Section */}
                 <div>
                   <h4 className="text-lg font-semibold text-gray-900 mb-4">Monthly Targets</h4>
@@ -434,7 +437,7 @@ export const Planning: React.FC = () => {
           </div>
         </div>
       )}
-                </div>
+
       {/* Click outside to close dropdown */}
       {showCreateDropdown && (
         <div 
