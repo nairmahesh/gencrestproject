@@ -1,95 +1,109 @@
-/**
- * File: src/pages/Login.tsx
- * Created by Vinod, vinodkotagiri@icloud.com
- *
- * Purpose:
- * Login page for all roles (MDO, SO, TSM, HO, ADMIN).
- * Uses backend /api/auth/login and stores JWT tokens in localStorage.
- */
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../auth/AuthContext';
 
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import api from "../utils/api";
-import type { User } from "../types";
-import { LoginUser } from "../services/axios";
+const Login: React.FC = () => {
+  const [email, setEmail] = useState('mdo1@example.com');
+  const [password, setPassword] = useState('password123');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-interface LoginResponse {
- accessToken: string;
- refreshToken: string;
- user: User;
-}
+   const { login } = useAuth(); 
+  const navigate = useNavigate();
 
-export default function Login() {
- const navigate = useNavigate();
- const [email, setEmail] = useState("");
- const [password, setPassword] = useState("");
- const [loading, setLoading] = useState(false);
- const [error, setError] = useState<string | null>(null);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    try {
+     await login({ email, password });
+      navigate('/');
+    } catch (err) {
+     console.log(err);
+      setError('Failed to login. Please check your credentials.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
- async function handleLogin(e: React.FormEvent) {
-  e.preventDefault();
-  setLoading(true);
-  setError(null);
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-xl shadow-lg">
+        <div className="text-center">
+          <img
+            src="/Gencrest logo copy.png"
+            alt="Gencrest"
+            className="w-32 mx-auto mb-4"
+          />
+          <h2 className="text-2xl font-bold text-gray-900">
+            Welcome Back
+          </h2>
+          <p className="mt-2 text-sm text-gray-600">
+            Sign in to continue to your dashboard
+          </p>
+        </div>
+        <form className="space-y-6" onSubmit={handleSubmit}>
+          <div>
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Email address
+            </label>
+            <div className="mt-1">
+              <input
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-purple-500 focus:border-purple-500"
+              />
+            </div>
+          </div>
 
-  try {
-   const data = await LoginUser({ email, password })
-   if (!data) {
-    setError("Login failed");
-    return
-   }
-   localStorage.setItem("accessToken", data!.accessToken);
-   localStorage.setItem("refreshToken", data!.refreshToken);
-   localStorage.setItem("user", JSON.stringify(data!.user));
-   navigate("/dashboard");
-  } catch (err: any) {
-   setError(err.response?.data?.error || "Login failed");
-  } finally {
-   setLoading(false);
-  }
- }
+          <div>
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Password
+            </label>
+            <div className="mt-1">
+              <input
+                id="password"
+                name="password"
+                type="password"
+                autoComplete="current-password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-purple-500 focus:border-purple-500"
+              />
+            </div>
+          </div>
 
- return (
-  <div className="flex items-center justify-center h-screen bg-gray-100">
-   <form
-    onSubmit={handleLogin}
-    className="bg-white shadow-lg rounded-lg p-8 w-96"
-   >
-    <h1 className="text-2xl font-bold mb-6 text-center text-blue-700">
-     Gencrest Login
-    </h1>
+          {error && (
+            <div className="p-3 text-sm text-red-700 bg-red-100 rounded-md">
+              {error}
+            </div>
+          )}
 
-    {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
-
-    <div className="mb-4">
-     <label className="block text-sm font-medium mb-1">Email</label>
-     <input
-      type="email"
-      value={email}
-      onChange={(e) => setEmail(e.target.value)}
-      className="w-full border rounded px-3 py-2"
-      required
-     />
+          <div>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50"
+            >
+              {loading ? 'Signing in...' : 'Sign in'}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
+  );
+};
 
-    <div className="mb-6">
-     <label className="block text-sm font-medium mb-1">Password</label>
-     <input
-      type="password"
-      value={password}
-      onChange={(e) => setPassword(e.target.value)}
-      className="w-full border rounded px-3 py-2"
-      required
-     />
-    </div>
-
-    <button
-     type="submit"
-     disabled={loading}
-     className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
-    >
-     {loading ? "Logging in..." : "Login"}
-    </button>
-   </form>
-  </div>
- );
-}
+export default Login;
