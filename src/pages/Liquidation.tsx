@@ -723,58 +723,59 @@ const Dashboard: React.FC = () => {
               View Details <ChevronRight className="w-4 h-4 ml-1" />
             </button>
             <div className="text-xs text-gray-500 mt-2">Last updated: Jan 20, 2024</div>
-                          {/* Invoice entries for this SKU */}
-                          <div className="space-y-3">
-                            <div className="grid grid-cols-3 gap-4 text-sm font-medium text-gray-700 border-b pb-2">
-                              <div>Invoice Details</div>
-                              <div className="text-center">Current Stock</div>
-                              <div className="text-center">Physical Stock</div>
-                            </div>
-                            
-                            {/* Sample invoices for this SKU */}
-                            <div className="grid grid-cols-3 gap-4 items-center py-2">
-                              <div>
-                                <p className="font-medium text-gray-900">Invoice: INV-2024-001</p>
-                                <p className="text-sm text-gray-600">Date: 1/15/2024</p>
-                              </div>
-                              <div className="text-center">
-                                <input
-                                  type="number"
-                                  value={Math.floor(sku.volume / 2)}
-                                  readOnly
-                                  className="w-20 px-3 py-2 border border-gray-300 rounded-lg text-center bg-gray-50"
-                                />
-                              </div>
-                              <div className="text-center">
-                                <input
-                                  type="number"
-                                  placeholder="Enter count"
-                                  className="w-20 px-3 py-2 border border-gray-300 rounded-lg text-center focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                />
-                              </div>
-                            </div>
-                            
-                            <div className="grid grid-cols-3 gap-4 items-center py-2">
-                              <div>
-                                <p className="font-medium text-gray-900">Invoice: INV-2024-002</p>
-                                <p className="text-sm text-gray-600">Date: 1/20/2024</p>
-                              </div>
-                              <div className="text-center">
-                                <input
-                                  type="number"
-                                  value={Math.floor(sku.volume / 2)}
-                                  readOnly
-                                  className="w-20 px-3 py-2 border border-gray-300 rounded-lg text-center bg-gray-50"
-                                />
-                              </div>
-                              <div className="text-center">
-                                <input
-                                  type="number"
-                                  placeholder="Enter count"
-                                  className="w-20 px-3 py-2 border border-gray-300 rounded-lg text-center focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                />
-                              </div>
-                            </div>
+            {/* Invoice entries for this SKU */}
+            <div className="space-y-3">
+              <div className="grid grid-cols-3 gap-4 text-sm font-medium text-gray-700 border-b pb-2">
+                <div>Invoice Details</div>
+                <div className="text-center">Current Stock</div>
+                <div className="text-center">Physical Stock</div>
+              </div>
+              
+              {/* Sample invoices for this SKU */}
+              <div className="grid grid-cols-3 gap-4 items-center py-2">
+                <div>
+                  <p className="font-medium text-gray-900">Invoice: INV-2024-001</p>
+                  <p className="text-sm text-gray-600">Date: 1/15/2024</p>
+                </div>
+                <div className="text-center">
+                  <input
+                    type="number"
+                    value={Math.floor(productData[0].skus[0].volume / 2)}
+                    readOnly
+                    className="w-20 px-3 py-2 border border-gray-300 rounded-lg text-center bg-gray-50"
+                  />
+                </div>
+                <div className="text-center">
+                  <input
+                    type="number"
+                    placeholder="Enter count"
+                    className="w-20 px-3 py-2 border border-gray-300 rounded-lg text-center focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-3 gap-4 items-center py-2">
+                <div>
+                  <p className="font-medium text-gray-900">Invoice: INV-2024-002</p>
+                  <p className="text-sm text-gray-600">Date: 1/20/2024</p>
+                </div>
+                <div className="text-center">
+                  <input
+                    type="number"
+                    value={Math.floor(productData[0].skus[0].volume / 2)}
+                    readOnly
+                    className="w-20 px-3 py-2 border border-gray-300 rounded-lg text-center bg-gray-50"
+                  />
+                </div>
+                <div className="text-center">
+                  <input
+                    type="number"
+                    placeholder="Enter count"
+                    className="w-20 px-3 py-2 border border-gray-300 rounded-lg text-center focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
 
           <div 
@@ -861,16 +862,14 @@ const Dashboard: React.FC = () => {
                 <activity.icon className={`w-4 h-4 ${activity.color}`} />
               </div>
               <div className="flex-1 min-w-0">
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
+                <p className="text-sm font-medium text-gray-900">{activity.title}</p>
+                <p className="text-sm text-gray-600">{activity.description}</p>
+                <p className="text-xs text-gray-500 mt-1">{activity.time}</p>
               </div>
             </div>
-          </div>
+          ))}
         </div>
-      )}
+      </div>
     </div>
   );
 };
