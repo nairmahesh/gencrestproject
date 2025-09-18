@@ -6,9 +6,7 @@ import {
   Droplets, 
   Users, 
   Calendar,
-  CreditCard,
   TrendingUp,
-  Menu,
   Bell,
   Search,
   Package,
@@ -23,11 +21,6 @@ import {
   Plus,
   FileText,
   MoreHorizontal,
-  Download,
-  BarChart3,
-  PieChart,
-  Activity,
-  Settings,
   Car,
   Award
 } from 'lucide-react';
@@ -37,6 +30,7 @@ const MobileApp: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedType, setSelectedType] = useState('All Types');
   const [selectedRegion, setSelectedRegion] = useState('All Regions');
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
 
   // Sample liquidation data
   const liquidationData = [
