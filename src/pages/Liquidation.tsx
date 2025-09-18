@@ -193,7 +193,7 @@ const Liquidation: React.FC = () => {
               skuCode: sku.skuCode,
               skuName: sku.skuName,
               unit: sku.unit,
-              volume: inv.currentStock * 0.5,
+              volume: Math.round(inv.currentStock * 0.5),
               value: (inv.currentStock * 0.5 * 1350) / 100000,
               unitPrice: 1350
             }))

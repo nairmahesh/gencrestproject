@@ -85,11 +85,11 @@ export const useLiquidationCalculation = () => {
       status: 'Active',
       priority: 'High',
       metrics: {
-        openingStock: { volume: 40, value: 13.80 },
-        ytdNetSales: { volume: 310, value: 13.95 },
-        liquidation: { volume: 140, value: 9.30 },
-        balanceStock: { volume: 210, value: 18.45 },
-        liquidationPercentage: 40,
+        openingStock: { volume: 212, value: 2.86 },
+        ytdNetSales: { volume: 84, value: 1.13 },
+        liquidation: { volume: 212, value: 2.86 },
+        balanceStock: { volume: 84, value: 1.13 },
+        liquidationPercentage: 72,
         lastUpdated: new Date().toISOString()
       }
     },
