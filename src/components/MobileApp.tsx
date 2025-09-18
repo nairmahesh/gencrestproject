@@ -38,7 +38,9 @@ import {
   MapPinOff,
   Route,
   Shield,
-  ShoppingCart
+  ShoppingCart,
+  ChevronRight,
+  ArrowLeft
 } from 'lucide-react';
 
 interface CriticalAlert {
