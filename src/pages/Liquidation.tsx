@@ -120,13 +120,23 @@ const Liquidation: React.FC = () => {
   const getMetricData = (metric: string, distributorId: string) => {
     const distributor = distributorMetrics.find(d => d.id === distributorId);
     if (!distributor) return { title: '', subtitle: '', data: [] };
+    
+    const skuData = getSKUData(distributorId);
 
     switch (metric) {
       case 'opening':
+        const totalOpeningVolume = skuData.reduce((sum, sku) => 
+          sum + sku.invoices.reduce((invSum, inv) => invSum + Math.round(inv.currentStock * 0.4), 0), 0
+        );
+        const totalOpeningValue = skuData.reduce((sum, sku) => 
+          sum + sku.invoices.reduce((invSum, inv) => invSum + ((inv.currentStock * 0.4 * 1350) / 100000), 0), 0
+        );
         return {
           title: `Opening Stock - ${distributor.distributorName}`,
           subtitle: 'SKU-wise opening stock breakdown',
-          data: getSKUData(distributorId).map(sku => ({
+          totalVolume: totalOpeningVolume,
+          totalValue: totalOpeningValue,
+          data: skuData.map(sku => ({
             ...sku,
             skus: sku.invoices.map(inv => ({
               skuCode: sku.skuCode,
@@ -139,10 +149,18 @@ const Liquidation: React.FC = () => {
           }))
         };
       case 'sales':
+        const totalSalesVolume = skuData.reduce((sum, sku) => 
+          sum + sku.invoices.reduce((invSum, inv) => invSum + Math.round(inv.currentStock * 1.8), 0), 0
+        );
+        const totalSalesValue = skuData.reduce((sum, sku) => 
+          sum + sku.invoices.reduce((invSum, inv) => invSum + ((inv.currentStock * 1.8 * 1350) / 100000), 0), 0
+        );
         return {
           title: `YTD Net Sales - ${distributor.distributorName}`,
           subtitle: 'SKU-wise sales performance',
-          data: getSKUData(distributorId).map(sku => ({
+          totalVolume: totalSalesVolume,
+          totalValue: totalSalesValue,
+          data: skuData.map(sku => ({
             ...sku,
             skus: sku.invoices.map(inv => ({
               skuCode: sku.skuCode,
@@ -155,10 +173,18 @@ const Liquidation: React.FC = () => {
           }))
         };
       case 'liquidation':
+        const totalLiquidationVolume = skuData.reduce((sum, sku) => 
+          sum + sku.invoices.reduce((invSum, inv) => invSum + Math.round(inv.currentStock * 0.5), 0), 0
+        );
+        const totalLiquidationValue = skuData.reduce((sum, sku) => 
+          sum + sku.invoices.reduce((invSum, inv) => invSum + ((inv.currentStock * 0.5 * 1350) / 100000), 0), 0
+        );
         return {
           title: `Liquidation - ${distributor.distributorName}`,
           subtitle: 'SKU-wise liquidation breakdown',
-          data: getSKUData(distributorId).map(sku => ({
+          totalVolume: totalLiquidationVolume,
+          totalValue: totalLiquidationValue,
+          data: skuData.map(sku => ({
             ...sku,
             skus: sku.invoices.map(inv => ({
               skuCode: sku.skuCode,
@@ -171,7 +197,7 @@ const Liquidation: React.FC = () => {
           }))
         };
       default:
-        return { title: '', subtitle: '', data: [] };
+        return { title: '', subtitle: '', totalVolume: 0, totalValue: 0, data: [] };
     }
   };
 
@@ -582,22 +608,18 @@ const Liquidation: React.FC = () => {
                 {/* Total Summary at Top */}
                 <div className="bg-gray-50 rounded-xl p-6">
                   <h4 className="text-lg font-semibold text-gray-900 mb-4">
-                    Total {selectedMetric === 'opening' ? 'Opening Stock' : selectedMetric === 'sales' ? 'YTD Sales' : selectedMetric === 'liquidation' ? 'Liquidation' : 'Stock'}
+                    Total {selectedMetric === 'opening' ? 'Opening Stock' : selectedMetric === 'sales' ? 'YTD Net Sales' : selectedMetric === 'liquidation' ? 'Liquidation' : 'Stock'}
                   </h4>
                   <div className="grid grid-cols-2 gap-6">
                     <div className="text-center">
                       <div className="text-3xl font-bold text-gray-900">
-                        {selectedMetric === 'opening' ? '42' : 
-                         selectedMetric === 'sales' ? '310' : 
-                         selectedMetric === 'liquidation' ? '140' : '210'}
+                        {getMetricData(selectedMetric, selectedDistributorId).totalVolume}
                       </div>
                       <div className="text-sm text-gray-600">Total Volume (Kg/Litre)</div>
                     </div>
                     <div className="text-center">
                       <div className="text-3xl font-bold text-gray-900">
-                        ₹{selectedMetric === 'opening' ? '13.80' : 
-                           selectedMetric === 'sales' ? '13.95' : 
-                           selectedMetric === 'liquidation' ? '9.30' : '18.45'}L
+                        ₹{getMetricData(selectedMetric, selectedDistributorId).totalValue.toFixed(2)}L
                       </div>
                       <div className="text-sm text-gray-600">Total Value</div>
                     </div>
@@ -685,12 +707,12 @@ const Liquidation: React.FC = () => {
                                 {selectedMetric === 'opening' && (
                                   <>
                                     <div className="text-center">
-                                      <div className="px-3 py-2 border border-orange-300 bg-orange-50 text-orange-800 rounded-lg text-center font-semibold">
+                                      <div className="px-3 py-2 border border-orange-300 bg-orange-50 text-orange-800 rounded-lg font-semibold">
                                         {openingStock}
                                       </div>
                                     </div>
                                     <div className="text-center">
-                                      <div className="px-3 py-2 border border-gray-300 bg-gray-50 rounded-lg text-center">
+                                      <div className="px-3 py-2 border border-gray-300 bg-gray-50 rounded-lg">
                                         {invoice.currentStock}
                                       </div>
                                     </div>
@@ -700,12 +722,12 @@ const Liquidation: React.FC = () => {
                                 {selectedMetric === 'sales' && (
                                   <>
                                     <div className="text-center">
-                                      <div className="px-3 py-2 border border-gray-300 bg-gray-50 rounded-lg text-center">
+                                      <div className="px-3 py-2 border border-gray-300 bg-gray-50 rounded-lg">
                                         {invoice.currentStock}
                                       </div>
                                     </div>
                                     <div className="text-center">
-                                      <div className="px-3 py-2 border border-blue-300 bg-blue-50 text-blue-800 rounded-lg text-center font-semibold">
+                                      <div className="px-3 py-2 border border-blue-300 bg-blue-50 text-blue-800 rounded-lg font-semibold">
                                         ₹{salesValue}L
                                       </div>
                                     </div>
@@ -715,12 +737,12 @@ const Liquidation: React.FC = () => {
                                 {selectedMetric === 'liquidation' && (
                                   <>
                                     <div className="text-center">
-                                      <div className="px-3 py-2 border border-gray-300 bg-gray-50 rounded-lg text-center">
+                                      <div className="px-3 py-2 border border-gray-300 bg-gray-50 rounded-lg">
                                         {invoice.currentStock}
                                       </div>
                                     </div>
                                     <div className="text-center">
-                                      <div className="px-3 py-2 border border-green-300 bg-green-50 text-green-800 rounded-lg text-center font-semibold">
+                                      <div className="px-3 py-2 border border-green-300 bg-green-50 text-green-800 rounded-lg font-semibold">
                                         {liquidatedQty}
                                       </div>
                                     </div>
