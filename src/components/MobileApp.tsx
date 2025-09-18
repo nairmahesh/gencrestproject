@@ -32,8 +32,27 @@ import {
   AlertTriangle,
   Award,
   Activity,
-  BarChart3
+  BarChart3,
+  Bell,
+  Battery,
+  MapPinOff,
+  Route,
+  Shield
 } from 'lucide-react';
+
+interface CriticalAlert {
+  id: string;
+  type: 'location' | 'battery' | 'boundary' | 'route_deviation';
+  title: string;
+  description: string;
+  severity: 'high' | 'medium' | 'low';
+  timestamp: string;
+  userId: string;
+  userName: string;
+  isActive: boolean;
+  duration?: string;
+  distance?: string;
+}
 
 interface MobileAppProps {}
 
@@ -46,8 +65,101 @@ const MobileApp: React.FC<MobileAppProps> = () => {
   const [selectedMetric, setSelectedMetric] = useState<string>('');
   const [verificationData, setVerificationData] = useState<any>({});
   const [selectedView, setSelectedView] = useState<'overview' | 'team' | 'exceptions'>('overview');
+  const [showCriticalAlerts, setShowCriticalAlerts] = useState(false);
+  const [selectedAlertCategory, setSelectedAlertCategory] = useState('All');
 
   const { distributorMetrics } = useLiquidationCalculation();
+
+  // Critical Alerts Data
+  const criticalAlerts: CriticalAlert[] = [
+    {
+      id: 'CA001',
+      type: 'location',
+      title: 'Priya Sharma',
+      description: 'Location services disabled for 15 mins',
+      severity: 'high',
+      timestamp: '2024-01-20T14:25:00Z',
+      userId: 'MDO002',
+      userName: 'Priya Sharma',
+      isActive: true,
+      duration: '15 mins'
+    },
+    {
+      id: 'CA002',
+      type: 'battery',
+      title: 'Rajesh Kumar',
+      description: 'Battery at 18% during active visit',
+      severity: 'medium',
+      timestamp: '2024-01-20T14:20:00Z',
+      userId: 'MDO001',
+      userName: 'Rajesh Kumar',
+      isActive: true
+    },
+    {
+      id: 'CA003',
+      type: 'boundary',
+      title: 'Rajesh Kumar',
+      description: '2.5km outside territory boundary',
+      severity: 'high',
+      timestamp: '2024-01-20T14:15:00Z',
+      userId: 'MDO001',
+      userName: 'Rajesh Kumar',
+      isActive: true,
+      distance: '2.5km'
+    },
+    {
+      id: 'CA004',
+      type: 'route_deviation',
+      title: 'Vijay Verma',
+      description: 'Route deviation of 30.2 km detected',
+      severity: 'high',
+      timestamp: '2024-01-20T14:10:00Z',
+      userId: 'MDO003',
+      userName: 'Vijay Verma',
+      isActive: true,
+      distance: '30.2 km'
+    }
+  ];
+
+  const getAlertIcon = (type: CriticalAlert['type']) => {
+    switch (type) {
+      case 'location': return <MapPinOff className="w-4 h-4" />;
+      case 'battery': return <Battery className="w-4 h-4" />;
+      case 'boundary': return <Shield className="w-4 h-4" />;
+      case 'route_deviation': return <Route className="w-4 h-4" />;
+      default: return <AlertTriangle className="w-4 h-4" />;
+    }
+  };
+
+  const getAlertColor = (severity: CriticalAlert['severity']) => {
+    switch (severity) {
+      case 'high': return 'bg-red-100 text-red-800 border-red-200';
+      case 'medium': return 'bg-orange-100 text-orange-800 border-orange-200';
+      case 'low': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
+  const getAlertCategoryColor = (category: string) => {
+    switch (category) {
+      case 'Location': return 'bg-red-100 text-red-800';
+      case 'Battery': return 'bg-orange-100 text-orange-800';
+      case 'Geofence': return 'bg-purple-100 text-purple-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const activeAlerts = criticalAlerts.filter(alert => alert.isActive);
+  const filteredAlerts = selectedAlertCategory === 'All' 
+    ? activeAlerts 
+    : activeAlerts.filter(alert => {
+        switch (selectedAlertCategory) {
+          case 'Location': return alert.type === 'location';
+          case 'Battery': return alert.type === 'battery';
+          case 'Geofence': return alert.type === 'boundary' || alert.type === 'route_deviation';
+          default: return true;
+        }
+      });
 
   // Sample MDO data for TSM
   const mdoStats = [
@@ -306,19 +418,78 @@ const MobileApp: React.FC<MobileAppProps> = () => {
     <div className="p-4 space-y-4">
       {/* Header */}
       {user?.role === 'TSM' ? (
-        <div className="bg-gradient-to-r from-green-600 to-blue-600 rounded-xl p-4 text-white">
-          <h2 className="text-lg font-bold mb-1">TSM Dashboard</h2>
-          <p className="text-sm opacity-90">{user?.name}</p>
-          <div className="flex justify-between items-end mt-3">
-            <div>
-              <div className="text-2xl font-bold">{teamAggregates.monthlyActivities.done}</div>
-              <div className="text-xs opacity-80">Team Activities Done</div>
-            </div>
-            <div className="text-right">
-              <div className="text-lg font-bold">{tsmPersonalStats.monthlyActivities.done}</div>
-              <div className="text-xs opacity-80">Your Activities</div>
+        <div className="space-y-3">
+          <div className="bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl p-4 text-white">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">SK</span>
+                </div>
+                <div>
+                  <h2 className="text-base font-bold">Sandeep Kumar</h2>
+                  <p className="text-xs opacity-90">TSM - Delhi Region</p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-6 h-6 bg-yellow-500 rounded-full flex items-center justify-center">
+                  <DollarSign className="w-3 h-3 text-white" />
+                </div>
+                <div className="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center relative">
+                  <AlertTriangle className="w-3 h-3 text-white" />
+                  <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 text-white rounded-full text-xs flex items-center justify-center">4</span>
+                </div>
+                <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                  <Route className="w-3 h-3 text-white" />
+                </div>
+                <button 
+                  onClick={() => setShowCriticalAlerts(true)}
+                  className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center relative"
+                >
+                  <Bell className="w-3 h-3 text-white" />
+                  <span className="absolute -top-1 -right-1 w-3 h-3 bg-white text-red-500 rounded-full text-xs flex items-center justify-center font-bold">3</span>
+                </button>
+              </div>
             </div>
           </div>
+
+          {/* Critical Alerts Section */}
+          {activeAlerts.length > 0 && (
+            <div className="bg-white rounded-xl p-4 shadow-sm border-l-4 border-red-500">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center space-x-2">
+                  <AlertTriangle className="w-4 h-4 text-red-600" />
+                  <h3 className="font-semibold text-sm text-red-800">Critical Alerts</h3>
+                  <span className="w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center">
+                    {activeAlerts.length}
+                  </span>
+                </div>
+                <button 
+                  onClick={() => setShowCriticalAlerts(true)}
+                  className="text-red-600 text-xs font-medium"
+                >
+                  View All
+                </button>
+              </div>
+              
+              <div className="space-y-2">
+                {activeAlerts.slice(0, 2).map((alert) => (
+                  <div key={alert.id} className={`p-2 rounded-lg border ${getAlertColor(alert.severity)}`}>
+                    <div className="flex items-center space-x-2 mb-1">
+                      {getAlertIcon(alert.type)}
+                      <span className="font-medium text-xs">{alert.userName}</span>
+                      <span className="text-xs opacity-75">
+                        {new Date(alert.timestamp).toLocaleTimeString('en-IN', { 
+                          hour: '2-digit', 
+                          minute: '2-digit' 
+                        })}
+                      </span>
+                    </div>
+                    <p className="text-xs">{alert.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       ) : (
         <div className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl p-4 text-white">
@@ -621,6 +792,115 @@ const MobileApp: React.FC<MobileAppProps> = () => {
           </div>
         </>
       )}
+    </div>
+  );
+
+  // Critical Alerts Modal
+  const renderCriticalAlertsModal = () => (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl w-full max-w-md max-h-[80vh] overflow-hidden">
+        <div className="bg-red-50 p-4 border-b border-red-200">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <AlertTriangle className="w-5 h-5 text-red-600" />
+              <h3 className="text-lg font-semibold text-red-800">Critical Alerts</h3>
+              <span className="w-6 h-6 bg-red-500 text-white rounded-full text-xs flex items-center justify-center">
+                {activeAlerts.length}
+              </span>
+            </div>
+            <button
+              onClick={() => setShowCriticalAlerts(false)}
+              className="p-1 hover:bg-red-100 rounded-full transition-colors"
+            >
+              <X className="w-4 h-4 text-red-600" />
+            </button>
+          </div>
+        </div>
+        
+        {/* Alert Categories */}
+        <div className="p-4 border-b border-gray-200">
+          <div className="flex space-x-2 overflow-x-auto">
+            <button
+              onClick={() => setSelectedAlertCategory('All')}
+              className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
+                selectedAlertCategory === 'All' ? 'bg-red-600 text-white' : 'bg-gray-100 text-gray-700'
+              }`}
+            >
+              All
+            </button>
+            <button
+              onClick={() => setSelectedAlertCategory('Location')}
+              className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
+                selectedAlertCategory === 'Location' ? 'bg-red-600 text-white' : getAlertCategoryColor('Location')
+              }`}
+            >
+              Location
+            </button>
+            <button
+              onClick={() => setSelectedAlertCategory('Battery')}
+              className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
+                selectedAlertCategory === 'Battery' ? 'bg-red-600 text-white' : getAlertCategoryColor('Battery')
+              }`}
+            >
+              Battery
+            </button>
+            <button
+              onClick={() => setSelectedAlertCategory('Geofence')}
+              className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
+                selectedAlertCategory === 'Geofence' ? 'bg-red-600 text-white' : getAlertCategoryColor('Geofence')
+              }`}
+            >
+              Geofence
+            </button>
+          </div>
+        </div>
+        
+        <div className="p-4 overflow-y-auto max-h-[50vh]">
+          <div className="space-y-3">
+            {filteredAlerts.map((alert) => (
+              <div key={alert.id} className={`p-3 rounded-lg border ${getAlertColor(alert.severity)}`}>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center space-x-2">
+                    {getAlertIcon(alert.type)}
+                    <span className="font-medium text-sm">{alert.userName}</span>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      alert.severity === 'high' ? 'bg-red-500 text-white' :
+                      alert.severity === 'medium' ? 'bg-orange-500 text-white' :
+                      'bg-yellow-500 text-white'
+                    }`}>
+                      {alert.severity} priority
+                    </span>
+                  </div>
+                  <span className="text-xs text-gray-500">
+                    {new Date(alert.timestamp).toLocaleTimeString('en-IN', { 
+                      hour: '2-digit', 
+                      minute: '2-digit' 
+                    })}
+                  </span>
+                </div>
+                
+                <p className="text-sm mb-3">{alert.description}</p>
+                
+                <div className="flex space-x-2">
+                  <button className="flex-1 bg-purple-600 text-white py-2 px-3 rounded-lg text-xs">
+                    View Details
+                  </button>
+                  <button className="flex-1 bg-gray-500 text-white py-2 px-3 rounded-lg text-xs">
+                    Mark Resolved
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          {filteredAlerts.length === 0 && (
+            <div className="text-center py-8">
+              <CheckCircle className="w-8 h-8 text-green-500 mx-auto mb-2" />
+              <p className="text-sm text-gray-500">No active alerts in this category</p>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 
@@ -1350,6 +1630,9 @@ const MobileApp: React.FC<MobileAppProps> = () => {
           ))}
         </div>
       </div>
+
+      {/* Critical Alerts Modal */}
+      {showCriticalAlerts && renderCriticalAlertsModal()}
     </div>
   );
 };
