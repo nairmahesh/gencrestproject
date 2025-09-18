@@ -240,7 +240,9 @@ const Liquidation: React.FC = () => {
 
       {/* Filters with Tag System */}
       <div className="bg-white rounded-xl p-6 card-shadow">
-        <div className="flex flex-col sm:flex-row gap-4">
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold text-gray-900">Filters</h3>
+          <div className="flex flex-col sm:flex-row gap-4">
           {/* Search Bar */}
           <div className="flex-1">
             <div className="relative">
@@ -256,8 +258,8 @@ const Liquidation: React.FC = () => {
           </div>
           
           {/* Type Filter */}
-          <div className="flex items-center space-x-2">
-            <label className="text-sm font-medium text-gray-700">Type:</label>
+          <div className="min-w-[150px]">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Type:</label>
             <select
               value={selectedTags.find(tag => ['Distributor', 'Retailer'].includes(tag)) || 'All'}
               onChange={(e) => {
@@ -267,7 +269,7 @@ const Liquidation: React.FC = () => {
                 }
                 setSelectedTags(newTags);
               }}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             >
               <option value="All">All</option>
               <option value="Distributor">Distributor</option>
@@ -276,8 +278,8 @@ const Liquidation: React.FC = () => {
           </div>
           
           {/* Region Filter */}
-          <div className="flex items-center space-x-2">
-            <label className="text-sm font-medium text-gray-700">Region:</label>
+          <div className="min-w-[150px]">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Region:</label>
             <select
               value={selectedTags.find(tag => ['Delhi NCR', 'Mumbai', 'Bangalore', 'Chennai'].includes(tag)) || 'All'}
               onChange={(e) => {
@@ -287,7 +289,7 @@ const Liquidation: React.FC = () => {
                 }
                 setSelectedTags(newTags);
               }}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             >
               <option value="All">All Regions</option>
               <option value="Delhi NCR">Delhi NCR</option>
@@ -301,12 +303,13 @@ const Liquidation: React.FC = () => {
           {selectedTags.length > 0 && (
             <button
               onClick={clearAllTags}
-              className="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center"
+              className="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center border border-red-300"
             >
               <X className="w-4 h-4 mr-1" />
               Clear
             </button>
           )}
+          </div>
         </div>
       </div>
 
