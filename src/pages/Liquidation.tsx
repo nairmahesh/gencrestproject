@@ -23,6 +23,26 @@ import {
 import { useLiquidationCalculation } from '../hooks/useLiquidationCalculation';
 import { useAuth } from '../contexts/AuthContext';
 
+interface SKUData {
+  skuCode: string;
+  skuName: string;
+  unit: string;
+  invoiceDate: string;
+  invoiceNumber: string;
+  openingStock: number;
+  ytdSales: number;
+  liquidation: number;
+  currentStock: number;
+  unitPrice: number;
+  totalValue: number;
+}
+
+interface RetailerDistribution {
+  id: string;
+  name: string;
+  quantities: { [skuCode: string]: number };
+}
+
 const Liquidation: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -34,6 +54,15 @@ const Liquidation: React.FC = () => {
   const [showViewModal, setShowViewModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [selectedMetric, setSelectedMetric] = useState<string>('');
+  const [showSKUModal, setShowSKUModal] = useState(false);
+  const [showRetailerModal, setShowRetailerModal] = useState(false);
+  const [selectedSKU, setSelectedSKU] = useState<SKUData | null>(null);
+  const [stockReduction, setStockReduction] = useState<{ [skuCode: string]: number }>({});
+  const [saleType, setSaleType] = useState<'farmer' | 'retailer' | ''>('');
+  const [retailerCount, setRetailerCount] = useState(1);
+  const [retailers, setRetailers] = useState<RetailerDistribution[]>([
+    { id: '1', name: '', quantities: {} }
+  ]);
   const [verificationData, setVerificationData] = useState({
     currentStock: 0,
     physicalStock: 0,
@@ -173,10 +202,63 @@ const Liquidation: React.FC = () => {
     setSelectedTags([]);
   };
 
+  // Sample SKU data for distributors
+  const getSKUData = (distributorId: string): SKUData[] => {
+    return [
+      {
+        skuCode: 'DAP-25KG',
+        skuName: 'DAP 25kg Bag',
+        unit: 'Kg',
+        invoiceDate: '2024-01-15',
+        invoiceNumber: 'INV-2024-001',
+        openingStock: 20,
+        ytdSales: 155,
+        liquidation: 70,
+        currentStock: 105,
+        unitPrice: 1350,
+        totalValue: 141750
+      },
+      {
+        skuCode: 'DAP-50KG',
+        skuName: 'DAP 50kg Bag',
+        unit: 'Kg',
+        invoiceDate: '2024-01-15',
+        invoiceNumber: 'INV-2024-001',
+        openingStock: 20,
+        ytdSales: 155,
+        liquidation: 70,
+        currentStock: 105,
+        unitPrice: 2700,
+        totalValue: 283500
+      },
+      {
+        skuCode: 'UREA-25KG',
+        skuName: 'Urea 25kg Bag',
+        unit: 'Kg',
+        invoiceDate: '2024-01-16',
+        invoiceNumber: 'INV-2024-002',
+        openingStock: 0,
+        ytdSales: 0,
+        liquidation: 0,
+        currentStock: 0,
+        unitPrice: 600,
+        totalValue: 0
+      }
+    ];
+  };
+
   const handleViewClick = (metric: string, item?: any) => {
-    setSelectedMetric(metric);
-    setSelectedItem(item);
-    setShowViewModal(true);
+    if (item) {
+      // Show SKU-wise details for specific distributor
+      setSelectedItem(item);
+      setSelectedMetric(metric);
+      setShowSKUModal(true);
+    } else {
+      // Show overall metrics
+      setSelectedMetric(metric);
+      setSelectedItem(null);
+      setShowViewModal(true);
+    }
   };
 
   const handleVerifyClick = (item: any) => {
@@ -207,6 +289,42 @@ const Liquidation: React.FC = () => {
     alert(`Stock verified for ${selectedItem.distributorName}!\nVariance: ${verificationData.variance} ${selectedItem.metrics.balanceStock.volume > 1000 ? 'Kg' : 'L'}`);
     setShowVerifyModal(false);
     setSelectedItem(null);
+  };
+
+  const handleSKUStockUpdate = (skuCode: string, newStock: number, originalStock: number) => {
+    const reduction = originalStock - newStock;
+    if (reduction > 0) {
+      setStockReduction(prev => ({ ...prev, [skuCode]: reduction }));
+      setSaleType('');
+      setShowRetailerModal(true);
+    }
+  };
+
+  const handleRetailerCountChange = (count: number) => {
+    setRetailerCount(count);
+    const newRetailers: RetailerDistribution[] = [];
+    for (let i = 0; i < count; i++) {
+      newRetailers.push({
+        id: (i + 1).toString(),
+        name: retailers[i]?.name || '',
+        quantities: retailers[i]?.quantities || {}
+      });
+    }
+    setRetailers(newRetailers);
+  };
+
+  const handleRetailerQuantityChange = (retailerIndex: number, skuCode: string, quantity: number) => {
+    setRetailers(prev => 
+      prev.map((retailer, index) => 
+        index === retailerIndex 
+          ? { ...retailer, quantities: { ...retailer.quantities, [skuCode]: quantity } }
+          : retailer
+      )
+    );
+  };
+
+  const getTotalRetailerQuantity = (skuCode: string) => {
+    return retailers.reduce((sum, retailer) => sum + (retailer.quantities[skuCode] || 0), 0);
   };
 
   const getTagColor = (tag: string) => {
@@ -600,6 +718,323 @@ const Liquidation: React.FC = () => {
                   )}
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* SKU Details Modal */}
+      {showSKUModal && selectedItem && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl w-full max-w-6xl max-h-[90vh] overflow-hidden">
+            <div className="flex items-center justify-between p-6 border-b">
+              <div>
+                <h3 className="text-xl font-semibold text-gray-900">
+                  {selectedMetric === 'opening' ? 'Opening Stock' :
+                   selectedMetric === 'sales' ? 'YTD Net Sales' :
+                   selectedMetric === 'liquidation' ? 'Liquidation' :
+                   'Balance Stock'} - SKU Details
+                </h3>
+                <p className="text-sm text-gray-600 mt-1">
+                  {selectedItem.distributorName} ({selectedItem.distributorCode})
+                </p>
+              </div>
+              <button
+                onClick={() => setShowSKUModal(false)}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+              <div className="space-y-6">
+                {getSKUData(selectedItem.id).map((sku) => (
+                  <div key={sku.skuCode} className="bg-gray-50 rounded-xl p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <h4 className="text-lg font-semibold text-gray-900">{sku.skuName}</h4>
+                        <p className="text-sm text-gray-600">SKU: {sku.skuCode} | Unit: {sku.unit}</p>
+                        <p className="text-sm text-gray-500">
+                          Invoice: {sku.invoiceNumber} | Date: {new Date(sku.invoiceDate).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-lg font-bold text-gray-900">₹{sku.unitPrice.toLocaleString()}</p>
+                        <p className="text-sm text-gray-600">per {sku.unit}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                      <div className="bg-orange-50 rounded-lg p-4 text-center">
+                        <h5 className="text-sm font-medium text-orange-700 mb-2">Opening Stock</h5>
+                        <div className="text-xl font-bold text-orange-800">{sku.openingStock}</div>
+                        <div className="text-xs text-orange-600">{sku.unit}</div>
+                      </div>
+                      
+                      <div className="bg-blue-50 rounded-lg p-4 text-center">
+                        <h5 className="text-sm font-medium text-blue-700 mb-2">YTD Sales</h5>
+                        <div className="text-xl font-bold text-blue-800">{sku.ytdSales}</div>
+                        <div className="text-xs text-blue-600">{sku.unit}</div>
+                      </div>
+                      
+                      <div className="bg-green-50 rounded-lg p-4 text-center">
+                        <h5 className="text-sm font-medium text-green-700 mb-2">Liquidation</h5>
+                        <div className="text-xl font-bold text-green-800">{sku.liquidation}</div>
+                        <div className="text-xs text-green-600">{sku.unit}</div>
+                      </div>
+                      
+                      <div className="bg-purple-50 rounded-lg p-4 text-center">
+                        <h5 className="text-sm font-medium text-purple-700 mb-2">Current Stock</h5>
+                        <div className="flex items-center justify-center space-x-2">
+                          <input
+                            type="number"
+                            value={sku.currentStock}
+                            onChange={(e) => {
+                              const newStock = parseInt(e.target.value) || 0;
+                              if (newStock < sku.currentStock) {
+                                handleSKUStockUpdate(sku.skuCode, newStock, sku.currentStock);
+                              }
+                            }}
+                            className="w-16 text-center text-lg font-bold text-purple-800 bg-transparent border-b-2 border-purple-300 focus:border-purple-500 outline-none"
+                          />
+                        </div>
+                        <div className="text-xs text-purple-600">{sku.unit}</div>
+                        <button
+                          onClick={() => handleSKUStockUpdate(sku.skuCode, sku.currentStock - 1, sku.currentStock)}
+                          className="mt-2 bg-purple-600 text-white px-2 py-1 rounded text-xs hover:bg-purple-700"
+                        >
+                          Update Stock
+                        </button>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-4">
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <span className="text-gray-600">Total Value:</span>
+                          <span className="font-semibold ml-2">₹{sku.totalValue.toLocaleString()}</span>
+                        </div>
+                        <div>
+                          <span className="text-gray-600">Liquidation %:</span>
+                          <span className="font-semibold ml-2">
+                            {Math.round((sku.liquidation / (sku.openingStock + sku.ytdSales)) * 100)}%
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Retailer Distribution Modal */}
+      {showRetailerModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
+            <div className="flex items-center justify-between p-6 border-b">
+              <div>
+                <h3 className="text-xl font-semibold text-gray-900">Stock Reduction - Where did it go?</h3>
+                <p className="text-sm text-gray-600 mt-1">
+                  {Object.keys(stockReduction).map(sku => `${sku}: ${stockReduction[sku]} units`).join(', ')}
+                </p>
+              </div>
+              <button
+                onClick={() => setShowRetailerModal(false)}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+              {/* Sale Type Selection */}
+              <div className="mb-6">
+                <h4 className="text-lg font-semibold text-gray-900 mb-4">Where was this stock sold?</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div 
+                    className={`p-6 rounded-xl border-2 cursor-pointer transition-all ${
+                      saleType === 'farmer' 
+                        ? 'border-green-500 bg-green-50' 
+                        : 'border-gray-200 hover:border-green-300'
+                    }`}
+                    onClick={() => setSaleType('farmer')}
+                  >
+                    <div className="text-center">
+                      <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Users className="w-8 h-8 text-green-600" />
+                      </div>
+                      <h5 className="text-lg font-semibold text-gray-900 mb-2">Sold to Farmer</h5>
+                      <p className="text-sm text-gray-600">Direct liquidation (counts as liquidation)</p>
+                    </div>
+                  </div>
+                  
+                  <div 
+                    className={`p-6 rounded-xl border-2 cursor-pointer transition-all ${
+                      saleType === 'retailer' 
+                        ? 'border-blue-500 bg-blue-50' 
+                        : 'border-gray-200 hover:border-blue-300'
+                    }`}
+                    onClick={() => setSaleType('retailer')}
+                  >
+                    <div className="text-center">
+                      <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Building className="w-8 h-8 text-blue-600" />
+                      </div>
+                      <h5 className="text-lg font-semibold text-gray-900 mb-2">Sold to Retailer(s)</h5>
+                      <p className="text-sm text-gray-600">Transfer to retailers (not liquidation yet)</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Retailer Details */}
+              {saleType === 'retailer' && (
+                <div className="bg-blue-50 rounded-xl p-6 mb-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h5 className="text-lg font-semibold text-blue-800">Retailer Distribution</h5>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-sm text-blue-700">How many retailers?</span>
+                      <select
+                        value={retailerCount}
+                        onChange={(e) => handleRetailerCountChange(parseInt(e.target.value))}
+                        className="px-3 py-1 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      >
+                        {[1,2,3,4,5].map(num => (
+                          <option key={num} value={num}>{num}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    {retailers.slice(0, retailerCount).map((retailer, index) => (
+                      <div key={retailer.id} className="bg-white rounded-lg p-4 border border-blue-200">
+                        <div className="flex items-center justify-between mb-3">
+                          <h6 className="font-semibold text-gray-900">Retailer {index + 1}</h6>
+                        </div>
+                        
+                        <div className="mb-3">
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Retailer Name
+                          </label>
+                          <input
+                            type="text"
+                            value={retailer.name}
+                            onChange={(e) => {
+                              setRetailers(prev => 
+                                prev.map((r, i) => 
+                                  i === index ? { ...r, name: e.target.value } : r
+                                )
+                              );
+                            }}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                            placeholder="Enter retailer name"
+                          />
+                        </div>
+                        
+                        <div className="space-y-3">
+                          <h6 className="text-sm font-medium text-gray-700">SKU-wise Quantities:</h6>
+                          {Object.keys(stockReduction).map(skuCode => (
+                            <div key={skuCode} className="grid grid-cols-2 gap-3">
+                              <div className="text-sm">
+                                <span className="font-medium">{skuCode}:</span>
+                                <span className="text-gray-600 ml-1">
+                                  (Available: {stockReduction[skuCode]} units)
+                                </span>
+                              </div>
+                              <input
+                                type="number"
+                                value={retailer.quantities[skuCode] || 0}
+                                onChange={(e) => handleRetailerQuantityChange(index, skuCode, parseInt(e.target.value) || 0)}
+                                max={stockReduction[skuCode]}
+                                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+                                placeholder="Quantity"
+                              />
+                            </div>
+                          ))}
+                        </div>
+                        
+                        {/* Validation */}
+                        {Object.keys(stockReduction).some(skuCode => 
+                          getTotalRetailerQuantity(skuCode) > stockReduction[skuCode]
+                        ) && (
+                          <div className="mt-3 p-2 bg-red-100 border border-red-300 rounded text-sm text-red-800">
+                            ⚠️ Total quantities cannot exceed available stock
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  
+                  {/* Summary */}
+                  <div className="mt-6 bg-white rounded-lg p-4">
+                    <h6 className="font-semibold text-gray-900 mb-3">Distribution Summary</h6>
+                    <div className="space-y-2">
+                      {Object.keys(stockReduction).map(skuCode => (
+                        <div key={skuCode} className="flex justify-between text-sm">
+                          <span className="text-gray-600">{skuCode}:</span>
+                          <span className="font-medium">
+                            {getTotalRetailerQuantity(skuCode)} / {stockReduction[skuCode]} units
+                            {getTotalRetailerQuantity(skuCode) === stockReduction[skuCode] && (
+                              <CheckCircle className="w-4 h-4 text-green-600 inline ml-1" />
+                            )}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Farmer Sale */}
+              {saleType === 'farmer' && (
+                <div className="bg-green-50 rounded-xl p-6">
+                  <h5 className="text-lg font-semibold text-green-800 mb-4">Farmer Sale Details</h5>
+                  <div className="space-y-3">
+                    {Object.keys(stockReduction).map(skuCode => (
+                      <div key={skuCode} className="bg-white rounded-lg p-3">
+                        <div className="flex justify-between items-center">
+                          <span className="font-medium text-gray-900">{skuCode}</span>
+                          <span className="text-lg font-bold text-green-600">
+                            {stockReduction[skuCode]} units
+                          </span>
+                        </div>
+                        <p className="text-sm text-green-700">✅ This counts as liquidation</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            <div className="flex justify-end space-x-3 p-6 border-t">
+              <button
+                onClick={() => setShowRetailerModal(false)}
+                className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  // Process the stock reduction
+                  console.log('Stock reduction processed:', {
+                    saleType,
+                    stockReduction,
+                    retailers: saleType === 'retailer' ? retailers.slice(0, retailerCount) : null
+                  });
+                  alert('Stock movement recorded successfully!');
+                  setShowRetailerModal(false);
+                  setShowSKUModal(false);
+                }}
+                disabled={!saleType}
+                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+              >
+                Save Changes
+              </button>
             </div>
           </div>
         </div>
