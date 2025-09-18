@@ -19,11 +19,11 @@ interface SidebarProps {
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: Home },
+  { name: 'MDO Module', href: '/mdo-module', icon: Calendar },
   { name: 'Field Visits', href: '/field-visits', icon: MapPin },
   { name: 'Sales Orders', href: '/sales-orders', icon: ShoppingCart },
   { name: 'Liquidation', href: '/liquidation', icon: Droplets },
   { name: 'Contacts', href: '/contacts', icon: Users },
-  { name: 'MDO Module', href: '/mdo-module', icon: Calendar },
   { name: 'Mobile App Design', href: '/mobile-design', icon: Smartphone },
   { name: 'Mobile App', href: '/mobile', icon: Smartphone },
 ];
