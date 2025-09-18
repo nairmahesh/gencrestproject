@@ -1,417 +1,956 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../contexts/AuthContext';
+import RoleBasedAccess from '../components/RoleBasedAccess';
+import { useLiquidationCalculation } from '../hooks/useLiquidationCalculation';
 import { 
-  ArrowLeft, 
-  Package, 
+  Calendar, 
+  MapPin, 
   TrendingUp, 
-  Droplets, 
+  Users, 
+  CheckCircle, 
+  Clock, 
+  AlertTriangle,
+  DollarSign,
   Target,
+  Award,
+  Bell,
+  Activity,
+  BarChart3,
+  PieChart,
+  ArrowUp,
+  ArrowDown,
+  Package,
+  Droplets,
   Building,
   Search,
   Filter,
   Eye,
-  CheckCircle,
+  Edit,
+  ShoppingCart,
+  Phone,
+  Car,
+  FileText,
+  Navigation,
   X,
   ChevronRight
 } from 'lucide-react';
-import { useLiquidationCalculation } from '../hooks/useLiquidationCalculation';
+import { useNavigate } from 'react-router-dom';
 
-const Liquidation: React.FC = () => {
-  const navigate = useNavigate();
+interface ProductDetail {
+  id: string;
+  productCode: string;
+  productName: string;
+  category: string;
+  skus: SKUDetail[];
+  totalVolume: number;
+  totalValue: number;
+}
+
+interface SKUDetail {
+  id: string;
+  skuCode: string;
+  skuName: string;
+  unit: string;
+  volume: number;
+  value: number;
+  unitPrice: number;
+}
+
+const Dashboard: React.FC = () => {
+  const [currentTime, setCurrentTime] = useState(new Date());
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedStatus, setSelectedStatus] = useState('All');
-  const [showVerifyModal, setShowVerifyModal] = useState(false);
-  const [selectedDistributor, setSelectedDistributor] = useState<any>(null);
+  const [selectedModule, setSelectedModule] = useState('All');
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [selectedMetric, setSelectedMetric] = useState<string>('');
+  const { user } = useAuth();
   
+  // Use dynamic liquidation calculation hook
   const { 
     overallMetrics, 
     distributorMetrics, 
-    getPerformanceMetrics 
+    getPerformanceMetrics,
+    getFarmerSalesTracking,
+    BUSINESS_RULES
   } = useLiquidationCalculation();
+  
+  const navigate = useNavigate();
+  const performanceMetrics = getPerformanceMetrics();
+  const farmerSalesTracking = getFarmerSalesTracking();
 
-  const handleVerifyClick = (distributor: any) => {
-    setSelectedDistributor(distributor);
-    setShowVerifyModal(true);
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Sample product and SKU data
+  const productData: ProductDetail[] = [
+    {
+      id: 'P001',
+      productCode: 'FERT001',
+      productName: 'DAP (Di-Ammonium Phosphate)',
+      category: 'Fertilizers',
+      totalVolume: 15000,
+      totalValue: 18.50,
+      skus: [
+        {
+          id: 'S001',
+          skuCode: 'DAP-25KG',
+          skuName: 'DAP 25kg Bag',
+          unit: 'Kg',
+          volume: 7500,
+          value: 9.25,
+          unitPrice: 1350
+        },
+        {
+          id: 'S002',
+          skuCode: 'DAP-50KG',
+          skuName: 'DAP 50kg Bag',
+          unit: 'Kg',
+          volume: 7500,
+          value: 9.25,
+          unitPrice: 2700
+        }
+      ]
+    },
+    {
+      id: 'P002',
+      productCode: 'UREA001',
+      productName: 'Urea',
+      category: 'Fertilizers',
+      totalVolume: 12000,
+      totalValue: 14.40,
+      skus: [
+        {
+          id: 'S003',
+          skuCode: 'UREA-25KG',
+          skuName: 'Urea 25kg Bag',
+          unit: 'Kg',
+          volume: 6000,
+          value: 7.20,
+          unitPrice: 600
+        },
+        {
+          id: 'S004',
+          skuCode: 'UREA-50KG',
+          skuName: 'Urea 50kg Bag',
+          unit: 'Kg',
+          volume: 6000,
+          value: 7.20,
+          unitPrice: 1200
+        }
+      ]
+    },
+    {
+      id: 'P003',
+      productCode: 'NPK001',
+      productName: 'NPK Complex',
+      category: 'Fertilizers',
+      totalVolume: 10000,
+      totalValue: 16.00,
+      skus: [
+        {
+          id: 'S005',
+          skuCode: 'NPK-25KG',
+          skuName: 'NPK Complex 25kg Bag',
+          unit: 'Kg',
+          volume: 5000,
+          value: 8.00,
+          unitPrice: 800
+        },
+        {
+          id: 'S006',
+          skuCode: 'NPK-50KG',
+          skuName: 'NPK Complex 50kg Bag',
+          unit: 'Kg',
+          volume: 5000,
+          value: 8.00,
+          unitPrice: 1600
+        }
+      ]
+    },
+    {
+      id: 'P004',
+      productCode: 'MOP001',
+      productName: 'MOP (Muriate of Potash)',
+      category: 'Fertilizers',
+      totalVolume: 8000,
+      totalValue: 12.80,
+      skus: [
+        {
+          id: 'S007',
+          skuCode: 'MOP-25KG',
+          skuName: 'MOP 25kg Bag',
+          unit: 'Kg',
+          volume: 4000,
+          value: 6.40,
+          unitPrice: 800
+        },
+        {
+          id: 'S008',
+          skuCode: 'MOP-50KG',
+          skuName: 'MOP 50kg Bag',
+          unit: 'Kg',
+          volume: 4000,
+          value: 6.40,
+          unitPrice: 1600
+        }
+      ]
+    },
+    {
+      id: 'P005',
+      productCode: 'SSP001',
+      productName: 'SSP (Single Super Phosphate)',
+      category: 'Fertilizers',
+      totalVolume: 6000,
+      totalValue: 9.60,
+      skus: [
+        {
+          id: 'S009',
+          skuCode: 'SSP-25KG',
+          skuName: 'SSP 25kg Bag',
+          unit: 'Kg',
+          volume: 3000,
+          value: 4.80,
+          unitPrice: 400
+        },
+        {
+          id: 'S010',
+          skuCode: 'SSP-50KG',
+          skuName: 'SSP 50kg Bag',
+          unit: 'Kg',
+          volume: 3000,
+          value: 4.80,
+          unitPrice: 800
+        }
+      ]
+    },
+    {
+      id: 'P006',
+      productCode: 'PEST001',
+      productName: 'Insecticide',
+      category: 'Pesticides',
+      totalVolume: 2000,
+      totalValue: 8.00,
+      skus: [
+        {
+          id: 'S011',
+          skuCode: 'PEST-500ML',
+          skuName: 'Insecticide 500ml',
+          unit: 'Litre',
+          volume: 1000,
+          value: 4.00,
+          unitPrice: 200
+        },
+        {
+          id: 'S012',
+          skuCode: 'PEST-1L',
+          skuName: 'Insecticide 1L',
+          unit: 'Litre',
+          volume: 1000,
+          value: 4.00,
+          unitPrice: 400
+        }
+      ]
+    },
+    {
+      id: 'P007',
+      productCode: 'HERB001',
+      productName: 'Herbicide',
+      category: 'Pesticides',
+      totalVolume: 1500,
+      totalValue: 7.50,
+      skus: [
+        {
+          id: 'S013',
+          skuCode: 'HERB-500ML',
+          skuName: 'Herbicide 500ml',
+          unit: 'Litre',
+          volume: 750,
+          value: 3.75,
+          unitPrice: 250
+        },
+        {
+          id: 'S014',
+          skuCode: 'HERB-1L',
+          skuName: 'Herbicide 1L',
+          unit: 'Litre',
+          volume: 750,
+          value: 3.75,
+          unitPrice: 500
+        }
+      ]
+    },
+    {
+      id: 'P008',
+      productCode: 'FUNG001',
+      productName: 'Fungicide',
+      category: 'Pesticides',
+      totalVolume: 1200,
+      totalValue: 6.00,
+      skus: [
+        {
+          id: 'S015',
+          skuCode: 'FUNG-500ML',
+          skuName: 'Fungicide 500ml',
+          unit: 'Litre',
+          volume: 600,
+          value: 3.00,
+          unitPrice: 300
+        },
+        {
+          id: 'S016',
+          skuCode: 'FUNG-1L',
+          skuName: 'Fungicide 1L',
+          unit: 'Litre',
+          volume: 600,
+          value: 3.00,
+          unitPrice: 600
+        }
+      ]
+    },
+    {
+      id: 'P009',
+      productCode: 'SEED001',
+      productName: 'Hybrid Seeds',
+      category: 'Seeds',
+      totalVolume: 800,
+      totalValue: 12.00,
+      skus: [
+        {
+          id: 'S017',
+          skuCode: 'SEED-1KG',
+          skuName: 'Hybrid Seeds 1kg Pack',
+          unit: 'Kg',
+          volume: 400,
+          value: 6.00,
+          unitPrice: 750
+        },
+        {
+          id: 'S018',
+          skuCode: 'SEED-5KG',
+          skuName: 'Hybrid Seeds 5kg Pack',
+          unit: 'Kg',
+          volume: 400,
+          value: 6.00,
+          unitPrice: 3750
+        }
+      ]
+    },
+    {
+      id: 'P010',
+      productCode: 'MICRO001',
+      productName: 'Micronutrients',
+      category: 'Fertilizers',
+      totalVolume: 500,
+      totalValue: 5.00,
+      skus: [
+        {
+          id: 'S019',
+          skuCode: 'MICRO-1KG',
+          skuName: 'Micronutrients 1kg Pack',
+          unit: 'Kg',
+          volume: 250,
+          value: 2.50,
+          unitPrice: 500
+        },
+        {
+          id: 'S020',
+          skuCode: 'MICRO-5KG',
+          skuName: 'Micronutrients 5kg Pack',
+          unit: 'Kg',
+          volume: 250,
+          value: 2.50,
+          unitPrice: 2500
+        }
+      ]
+    }
+  ];
+
+  const getMetricData = (metric: string) => {
+    switch (metric) {
+      case 'opening':
+        return {
+          title: 'Opening Stock Details',
+          subtitle: 'Product & SKU wise opening stock breakdown',
+          data: productData.map(p => ({
+            ...p,
+            skus: p.skus.map(s => ({ ...s, volume: s.volume * 0.4, value: s.value * 0.4 }))
+          }))
+        };
+      case 'sales':
+        return {
+          title: 'YTD Net Sales Details',
+          subtitle: 'Product & SKU wise sales performance',
+          data: productData.map(p => ({
+            ...p,
+            skus: p.skus.map(s => ({ ...s, volume: s.volume * 1.8, value: s.value * 1.8 }))
+          }))
+        };
+      case 'liquidation':
+        return {
+          title: 'Liquidation Details',
+          subtitle: 'Product & SKU wise liquidation breakdown',
+          data: productData.map(p => ({
+            ...p,
+            skus: p.skus.map(s => ({ ...s, volume: s.volume * 0.5, value: s.value * 0.5 }))
+          }))
+        };
+      case 'balance':
+        return {
+          title: 'Balance Stock Details',
+          subtitle: 'Product & SKU wise remaining stock',
+          data: productData.map(p => ({
+            ...p,
+            skus: p.skus.map(s => ({ ...s, volume: s.volume * 2.6, value: s.value * 2.6 }))
+          }))
+        };
+      default:
+        return { title: '', subtitle: '', data: [] };
+    }
   };
 
-  const getSKUData = (distributorId: string) => {
-    return [
-      {
-        skuCode: 'DAP-25KG',
-        skuName: 'DAP 25kg Bag',
-        unit: 'Kg',
-        invoices: [
-          {
-            invoiceNumber: 'INV-2024-001',
-            invoiceDate: '2024-01-15',
-            currentStock: 105,
-            batchNumber: 'BATCH-001'
-          },
-          {
-            invoiceNumber: 'INV-2024-002', 
-            invoiceDate: '2024-01-15',
-            currentStock: 105,
-            batchNumber: 'BATCH-002'
-          }
-        ]
-      },
-      {
-        skuCode: 'DAP-50KG',
-        skuName: 'DAP 50kg Bag',
-        unit: 'Kg',
-        invoices: [
-          {
-            invoiceNumber: 'INV-2024-001',
-            invoiceDate: '2024-01-15',
-            currentStock: 105,
-            batchNumber: 'BATCH-003'
-          },
-          {
-            invoiceNumber: 'INV-2024-002',
-            invoiceDate: '2024-01-15',
-            currentStock: 105,
-            batchNumber: 'BATCH-004'
-          }
-        ]
-      }
-    ];
+  const handleMetricClick = (metric: string) => {
+    setSelectedMetric(metric);
+    setShowDetailModal(true);
   };
 
-  const filteredDistributors = distributorMetrics.filter(distributor => {
-    const matchesSearch = distributor.distributorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         distributor.distributorCode.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = selectedStatus === 'All' || distributor.status === selectedStatus;
-    return matchesSearch && matchesStatus;
-  });
+  // Overall Dashboard Stats from All Modules
+  const overallStats = {
+    // Field Visits Module
+    fieldVisits: {
+      todayPlanned: 8,
+      todayCompleted: 3,
+      weeklyTarget: 35,
+      weeklyCompleted: 28,
+      completionRate: 80
+    },
+    
+    // Sales Orders Module  
+    salesOrders: {
+      monthlyTarget: 500000, // Rs. 5 Lakhs
+      monthlyAchieved: 420000, // Rs. 4.2 Lakhs
+      achievementRate: 84,
+      pendingOrders: 12,
+      totalOrders: 45
+    },
+    
+    // Liquidation Module (TABLE 1 Format)
+    liquidation: overallMetrics,
+    
+    // Contacts Module
+    contacts: {
+      totalDistributors: performanceMetrics.totalDistributors,
+      totalRetailers: 45,
+      activeContacts: performanceMetrics.activeDistributors + 45,
+      newThisMonth: 8
+    },
+    
+    // Travel & Expenses
+    travel: {
+      monthlyBudget: 25000,
+      monthlySpent: 18500,
+      pendingClaims: 3,
+      approvedAmount: 15000
+    },
+    
+    // Performance & Targets
+    performance: {
+      overallScore: performanceMetrics.averageLiquidationRate,
+      visitTarget: 85,
+      salesTarget: 84,
+      liquidationTarget: performanceMetrics.targetAchievementRate
+    }
+  };
+
+  const moduleCards = [
+    {
+      title: 'Field Visits',
+      icon: MapPin,
+      color: 'bg-blue-500',
+      bgColor: 'bg-blue-50',
+      borderColor: 'border-blue-200',
+      stats: [
+        { label: 'Today Planned', value: overallStats.fieldVisits.todayPlanned, unit: 'visits' },
+        { label: 'Today Completed', value: overallStats.fieldVisits.todayCompleted, unit: 'visits' },
+        { label: 'Weekly Progress', value: `${overallStats.fieldVisits.weeklyCompleted}/${overallStats.fieldVisits.weeklyTarget}`, unit: 'visits' },
+        { label: 'Completion Rate', value: overallStats.fieldVisits.completionRate, unit: '%' }
+      ],
+      route: '/field-visits'
+    },
+    {
+      title: 'Sales Orders',
+      icon: ShoppingCart,
+      color: 'bg-green-500',
+      bgColor: 'bg-green-50',
+      borderColor: 'border-green-200',
+      stats: [
+        { label: 'Monthly Target', value: '₹5.0L', unit: '' },
+        { label: 'Monthly Achieved', value: '₹4.2L', unit: '' },
+        { label: 'Achievement Rate', value: overallStats.salesOrders.achievementRate, unit: '%' },
+        { label: 'Pending Orders', value: overallStats.salesOrders.pendingOrders, unit: 'orders' }
+      ],
+      route: '/sales-orders'
+    },
+    {
+      title: 'Contacts Management',
+      icon: Users,
+      color: 'bg-purple-500',
+      bgColor: 'bg-purple-50',
+      borderColor: 'border-purple-200',
+      stats: [
+        { label: 'Total Distributors', value: overallStats.contacts.totalDistributors, unit: '' },
+        { label: 'Total Retailers', value: overallStats.contacts.totalRetailers, unit: '' },
+        { label: 'Active Contacts', value: overallStats.contacts.activeContacts, unit: '' },
+        { label: 'New This Month', value: overallStats.contacts.newThisMonth, unit: '' }
+      ],
+      route: '/contacts'
+    },
+    {
+      title: 'Travel & Expenses',
+      icon: Car,
+      color: 'bg-orange-500',
+      bgColor: 'bg-orange-50',
+      borderColor: 'border-orange-200',
+      stats: [
+        { label: 'Monthly Budget', value: '₹25K', unit: '' },
+        { label: 'Monthly Spent', value: '₹18.5K', unit: '' },
+        { label: 'Pending Claims', value: overallStats.travel.pendingClaims, unit: 'claims' },
+        { label: 'Approved Amount', value: '₹15K', unit: '' }
+      ],
+      route: '/travel'
+    },
+    {
+      title: 'Performance & Targets',
+      icon: Target,
+      color: 'bg-indigo-500',
+      bgColor: 'bg-indigo-50',
+      borderColor: 'border-indigo-200',
+      stats: [
+        { label: 'Overall Score', value: overallStats.performance.overallScore, unit: '%' },
+        { label: 'Visit Target', value: overallStats.performance.visitTarget, unit: '%' },
+        { label: 'Sales Target', value: overallStats.performance.salesTarget, unit: '%' },
+        { label: 'Liquidation Target', value: overallStats.performance.liquidationTarget, unit: '%' }
+      ],
+      route: '/performance'
+    },
+    {
+      title: 'Planning & Targets',
+      icon: Calendar,
+      color: 'bg-teal-500',
+      bgColor: 'bg-teal-50',
+      borderColor: 'border-teal-200',
+      stats: [
+        { label: 'Active Plans', value: 3, unit: 'plans' },
+        { label: 'This Week', value: 12, unit: 'activities' },
+        { label: 'Completed', value: 8, unit: 'activities' },
+        { label: 'Success Rate', value: 92, unit: '%' }
+      ],
+      route: '/planning'
+    }
+  ];
+
+  const recentActivities = [
+    {
+      id: '1',
+      type: 'visit_completed',
+      title: 'Visit completed at SRI RAMA SEEDS',
+      description: 'Stock verification and liquidation tracking',
+      time: '2 hours ago',
+      icon: CheckCircle,
+      color: 'text-green-600',
+      module: 'Field Visits'
+    },
+    {
+      id: '2',
+      type: 'order_received',
+      title: 'New order received',
+      description: 'Green Agro Store - ₹45,000 order',
+      time: '4 hours ago',
+      icon: ShoppingCart,
+      color: 'text-blue-600',
+      module: 'Sales Orders'
+    },
+    {
+      id: '3',
+      type: 'stock_variance',
+      title: 'Stock variance detected',
+      description: 'GREEN AGRO: 25kg difference found',
+      time: '6 hours ago',
+      icon: AlertTriangle,
+      color: 'text-yellow-600',
+      module: 'Liquidation'
+    },
+    {
+      id: '4',
+      type: 'travel_claim',
+      title: 'Travel claim submitted',
+      description: 'Delhi to Hyderabad - ₹2,500',
+      time: '1 day ago',
+      icon: Car,
+      color: 'text-purple-600',
+      module: 'Travel'
+    }
+  ];
+
+  const filteredActivities = selectedModule === 'All' 
+    ? recentActivities 
+    : recentActivities.filter(activity => activity.module === selectedModule);
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <button 
-            onClick={() => navigate('/')}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
+      {/* Header Section */}
+      <div className="gradient-bg rounded-2xl p-6 text-white">
+        <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Stock Liquidation</h1>
-            <p className="text-gray-600 mt-1">Track and manage distributor stock liquidation</p>
+            <h1 className="text-2xl font-bold mb-2">Good Morning, {user?.name.split(' ')[0] || 'User'}!</h1>
+            <p className="text-white/90">
+              {currentTime.toLocaleDateString('en-IN', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+              })}
+            </p>
+            <p className="text-white/80 text-sm mt-1">
+              {currentTime.toLocaleTimeString('en-IN', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+              })}
+            </p>
+            <p className="text-white/80 text-xs mt-1">
+              {user?.role} - {user?.territory || user?.region || user?.zone || 'Head Office'}
+            </p>
+          </div>
+          <div className="text-right">
+            <div className="text-3xl font-bold">{overallStats.fieldVisits.todayPlanned}</div>
+            <div className="text-white/90 text-sm">Visits planned</div>
+            <div className="text-white/80 text-xs mt-1">
+              {overallStats.fieldVisits.todayCompleted} Completed
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Overall Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-orange-50 rounded-xl p-6 border-l-4 border-orange-500">
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-orange-500 rounded-lg flex items-center justify-center">
-              <Package className="w-6 h-6 text-white" />
-            </div>
-          </div>
-          <h4 className="text-lg font-semibold text-gray-900 mb-2">Opening Stock</h4>
-          <div className="text-3xl font-bold text-gray-900 mb-1">{overallMetrics.openingStock.volume.toLocaleString()}</div>
-          <div className="text-sm text-gray-600 mb-2">Kg/Litre</div>
-          <div className="text-sm text-gray-500 mb-3">Value: ₹{overallMetrics.openingStock.value.toFixed(2)}L</div>
-          <button className="text-orange-600 text-sm font-medium hover:text-orange-700 flex items-center">
-            View Details <ChevronRight className="w-4 h-4 ml-1" />
-          </button>
-          <div className="text-xs text-gray-500 mt-2">Last updated: 15 Sept 2025, 10:00 pm</div>
+      {/* Quick Stats Overview */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="bg-white rounded-xl p-4 card-shadow text-center">
+          <div className="text-2xl font-bold text-blue-600">{overallStats.fieldVisits.completionRate}%</div>
+          <div className="text-sm text-gray-600">Visit Target</div>
         </div>
-
-        <div className="bg-blue-50 rounded-xl p-6 border-l-4 border-blue-500">
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
-              <TrendingUp className="w-6 h-6 text-white" />
-            </div>
-          </div>
-          <h4 className="text-lg font-semibold text-gray-900 mb-2">YTD Net Sales</h4>
-          <div className="text-3xl font-bold text-gray-900 mb-1">{overallMetrics.ytdNetSales.volume.toLocaleString()}</div>
-          <div className="text-sm text-gray-600 mb-2">Kg/Litre</div>
-          <div className="text-sm text-gray-500 mb-3">Value: ₹{overallMetrics.ytdNetSales.value.toFixed(2)}L</div>
-          <button className="text-blue-600 text-sm font-medium hover:text-blue-700 flex items-center">
-            View Details <ChevronRight className="w-4 h-4 ml-1" />
-          </button>
-          <div className="text-xs text-gray-500 mt-2">Last updated: 15 Sept 2025, 10:00 pm</div>
+        <div className="bg-white rounded-xl p-4 card-shadow text-center">
+          <div className="text-2xl font-bold text-green-600">₹4.2L</div>
+          <div className="text-sm text-gray-600">Sales MTD</div>
         </div>
-
-        <div className="bg-green-50 rounded-xl p-6 border-l-4 border-green-500">
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center">
-              <Droplets className="w-6 h-6 text-white" />
-            </div>
-          </div>
-          <h4 className="text-lg font-semibold text-gray-900 mb-2">Liquidation</h4>
-          <div className="text-3xl font-bold text-gray-900 mb-1">{overallMetrics.liquidation.volume.toLocaleString()}</div>
-          <div className="text-sm text-gray-600 mb-2">Kg/Litre</div>
-          <div className="text-sm text-gray-500 mb-3">Value: ₹{overallMetrics.liquidation.value.toFixed(2)}L</div>
-          <button className="text-green-600 text-sm font-medium hover:text-green-700 flex items-center">
-            View Details <ChevronRight className="w-4 h-4 ml-1" />
-          </button>
-          <div className="text-xs text-gray-500 mt-2">Last updated: Jan 20, 2024</div>
+        <div className="bg-white rounded-xl p-4 card-shadow text-center">
+          <div className="text-2xl font-bold text-purple-600">28%</div>
+          <div className="text-sm text-gray-600">Avg Liquidation</div>
         </div>
-
-        <div className="bg-purple-50 rounded-xl p-6 border-l-4 border-purple-500">
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center">
-              <Target className="w-6 h-6 text-white" />
-            </div>
-          </div>
-          <h4 className="text-lg font-semibold text-gray-900 mb-2">Liquidation Rate</h4>
-          <div className="text-3xl font-bold text-gray-900 mb-1">{overallMetrics.liquidationPercentage}%</div>
-          <div className="text-sm text-gray-600 mb-2">Overall</div>
-          <div className="text-sm text-gray-500 mb-3">Performance</div>
-          <button className="text-purple-600 text-sm font-medium hover:text-purple-700 flex items-center">
-            View Details <ChevronRight className="w-4 h-4 ml-1" />
-          </button>
-          <div className="text-xs text-gray-500 mt-2">Last updated: Jan 20, 2024</div>
+        <div className="bg-white rounded-xl p-4 card-shadow text-center">
+          <div className="text-2xl font-bold text-orange-600">{overallStats.contacts.totalDistributors}</div>
+          <div className="text-sm text-gray-600">Distributors</div>
         </div>
       </div>
 
-      {/* Summary Info */}
-      <div className="flex items-center justify-between text-sm text-gray-600 bg-white rounded-lg p-4 card-shadow">
-        <span>Showing {filteredDistributors.length} of {distributorMetrics.length} distributors</span>
-        <div className="flex items-center space-x-4">
-          <span>Active: {distributorMetrics.filter(d => d.status === 'Active').length}</span>
-          <span>High Priority: {distributorMetrics.filter(d => d.priority === 'High').length}</span>
-        </div>
-      </div>
-
-      {/* Search and Filters */}
-      <div className="bg-white rounded-xl p-6 card-shadow">
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="flex-1">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <input
-                type="text"
-                placeholder="Search distributors..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              />
-            </div>
+      {/* Stock Liquidation Overview */}
+      <div className="bg-white rounded-xl p-6 shadow-lg">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h3 className="text-xl font-semibold text-gray-900">Stock Liquidation Overview</h3>
+            <p className="text-sm text-gray-600 mt-1">Last updated: 15 Sept 2025, 10:00 pm</p>
           </div>
-          <div className="flex items-center space-x-4">
-            <select
-              value={selectedStatus}
-              onChange={(e) => setSelectedStatus(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-            >
-              <option value="All">All Status</option>
-              <option value="Active">Active</option>
-              <option value="Inactive">Inactive</option>
-            </select>
-            <button className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50">
-              <Filter className="w-4 h-4 text-gray-600" />
-            </button>
-          </div>
+          <button 
+            onClick={() => handleMetricClick('overview')}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center"
+          >
+            <Eye className="w-4 h-4 mr-2" />
+            View Details
+          </button>
         </div>
-      </div>
 
-      {/* Distributors List */}
-      <div className="space-y-4">
-        {filteredDistributors.map((distributor) => (
-          <div key={distributor.id} className="bg-white rounded-xl p-6 card-shadow">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div 
+            className="bg-orange-50 rounded-xl p-6 border-l-4 border-orange-500 cursor-pointer hover:shadow-md transition-all duration-200"
+            onClick={() => handleMetricClick('opening')}
+          >
             <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-                  <Building className="w-6 h-6 text-purple-600" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-semibold text-gray-900">{distributor.distributorName}</h3>
-                  <p className="text-gray-600">{distributor.distributorCode} • {distributor.territory}</p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-2">
-                <span className="px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                  Distributor
-                </span>
-                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  distributor.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                }`}>
-                  {distributor.status}
-                </span>
-                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  distributor.priority === 'High' ? 'bg-red-100 text-red-800' :
-                  distributor.priority === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
-                  'bg-green-100 text-green-800'
-                }`}>
-                  {distributor.priority}
-                </span>
+              <div className="w-12 h-12 bg-orange-500 rounded-lg flex items-center justify-center">
+                <Package className="w-6 h-6 text-white" />
               </div>
             </div>
-
-            {/* Distributor Metrics */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-              <div className="bg-orange-50 rounded-lg p-4 text-center border border-orange-200">
-                <div className="text-sm text-orange-600 mb-1">Opening Stock</div>
-                <div className="text-xl font-bold text-orange-800">{distributor.metrics.openingStock.volume}</div>
-                <div className="text-xs text-orange-600">{distributor.metrics.openingStock.value.toFixed(2)}L</div>
-              </div>
-              
-              <div className="bg-blue-50 rounded-lg p-4 text-center border border-blue-200">
-                <div className="text-sm text-blue-600 mb-1">YTD Sales</div>
-                <div className="text-xl font-bold text-blue-800">{distributor.metrics.ytdNetSales.volume}</div>
-                <div className="text-xs text-blue-600">{distributor.metrics.ytdNetSales.value.toFixed(2)}L</div>
-              </div>
-              
-              <div className="bg-green-50 rounded-lg p-4 text-center border border-green-200">
-                <div className="text-sm text-green-600 mb-1">Liquidation</div>
-                <div className="text-xl font-bold text-green-800">{distributor.metrics.liquidation.volume}</div>
-                <div className="text-xs text-green-600">{distributor.metrics.liquidation.value.toFixed(2)}L</div>
-              </div>
-              
-              <div className="bg-purple-50 rounded-lg p-4 text-center border border-purple-200">
-                <div className="text-sm text-purple-600 mb-1">Rate</div>
-                <div className="text-xl font-bold text-purple-800">{distributor.metrics.liquidationPercentage}%</div>
-                <div className="text-xs text-purple-600">Performance</div>
-              </div>
-            </div>
-
-            {/* Progress Bar */}
-            <div className="mb-4">
-              <div className="flex justify-between text-sm text-gray-600 mb-2">
-                <span>Liquidation Progress</span>
-                <span>{distributor.metrics.liquidationPercentage}%</span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-3">
-                <div 
-                  className="bg-gradient-to-r from-purple-500 to-blue-500 h-3 rounded-full transition-all duration-500" 
-                  style={{ width: `${distributor.metrics.liquidationPercentage}%` }}
-                ></div>
-              </div>
-            </div>
-
-            {/* Location and Update Info */}
-            <div className="flex items-center justify-between text-sm text-gray-600 mb-4">
-              <div className="flex items-center space-x-4">
-                <span>{distributor.region} • {distributor.zone}</span>
-                <span>Updated: {new Date(distributor.metrics.lastUpdated).toLocaleDateString()}</span>
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex space-x-3">
-              <button className="bg-purple-100 text-purple-700 px-4 py-2 rounded-lg hover:bg-purple-200 transition-colors flex items-center">
-                <Eye className="w-4 h-4 mr-2" />
-                View Details
-              </button>
-              <button 
-                onClick={() => handleVerifyClick(distributor)}
-                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center"
-              >
-                <CheckCircle className="w-4 h-4 mr-2" />
-                Verify Stock
-              </button>
-            </div>
-
-            {/* Remarks */}
-            <div className="mt-4 text-sm text-gray-600">
-              <span className="font-medium">Remarks:</span> Good progress on liquidation
-            </div>
+            <h4 className="text-lg font-semibold text-gray-900 mb-2">Opening Stock</h4>
+            <div className="text-3xl font-bold text-gray-900 mb-1">32,660</div>
+            <div className="text-sm text-gray-600 mb-2">Kg/Litre</div>
+            <div className="text-sm text-gray-500 mb-3">Value: ₹190.00L</div>
+            <button className="text-orange-600 text-sm font-medium hover:text-orange-700 flex items-center">
+              View Details <ChevronRight className="w-4 h-4 ml-1" />
+            </button>
+            <div className="text-xs text-gray-500 mt-2">Last updated: 15 Sept 2025, 10:00 pm</div>
           </div>
-        ))}
+
+          <div 
+            className="bg-blue-50 rounded-xl p-6 border-l-4 border-blue-500 cursor-pointer hover:shadow-md transition-all duration-200"
+            onClick={() => handleMetricClick('sales')}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
+                <TrendingUp className="w-6 h-6 text-white" />
+              </div>
+            </div>
+            <h4 className="text-lg font-semibold text-gray-900 mb-2">YTD Net Sales</h4>
+            <div className="text-3xl font-bold text-gray-900 mb-1">13,303</div>
+            <div className="text-sm text-gray-600 mb-2">Kg/Litre</div>
+            <div className="text-sm text-gray-500 mb-3">Value: ₹43.70L</div>
+            <button className="text-blue-600 text-sm font-medium hover:text-blue-700 flex items-center">
+              View Details <ChevronRight className="w-4 h-4 ml-1" />
+            </button>
+            <div className="text-xs text-gray-500 mt-2">Last updated: 15 Sept 2025, 10:00 pm</div>
+          </div>
+
+          <div 
+            className="bg-green-50 rounded-xl p-6 border-l-4 border-green-500 cursor-pointer hover:shadow-md transition-all duration-200"
+            onClick={() => handleMetricClick('liquidation')}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center">
+                <Droplets className="w-6 h-6 text-white" />
+              </div>
+            </div>
+            <h4 className="text-lg font-semibold text-gray-900 mb-2">Liquidation</h4>
+            <div className="text-3xl font-bold text-gray-900 mb-1">12,720</div>
+            <div className="text-sm text-gray-600 mb-2">Kg/Litre</div>
+            <div className="text-sm text-gray-500 mb-3">Value: ₹55.52L</div>
+            <button className="text-green-600 text-sm font-medium hover:text-green-700 flex items-center">
+              View Details <ChevronRight className="w-4 h-4 ml-1" />
+            </button>
+            <div className="text-xs text-gray-500 mt-2">Last updated: Jan 20, 2024</div>
+          </div>
+
+          <div 
+            className="bg-purple-50 rounded-xl p-6 border-l-4 border-purple-500 cursor-pointer hover:shadow-md transition-all duration-200"
+            onClick={() => handleMetricClick('rate')}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center">
+                <Target className="w-6 h-6 text-white" />
+              </div>
+            </div>
+            <h4 className="text-lg font-semibold text-gray-900 mb-2">Liquidation Rate</h4>
+            <div className="text-3xl font-bold text-gray-900 mb-1">28%</div>
+            <div className="text-sm text-gray-600 mb-2">Overall</div>
+            <div className="text-sm text-gray-500 mb-3">Performance</div>
+            <button className="text-purple-600 text-sm font-medium hover:text-purple-700 flex items-center">
+              View Details <ChevronRight className="w-4 h-4 ml-1" />
+            </button>
+            <div className="text-xs text-gray-500 mt-2">Last updated: Jan 20, 2024</div>
+          </div>
+        </div>
       </div>
 
-      {/* Stock Verification Modal */}
-      {showVerifyModal && selectedDistributor && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
-            {/* Blue Header */}
-            <div className="bg-blue-100 p-6 border-b">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-xl font-semibold text-gray-900">{selectedDistributor.distributorName}</h3>
-                  <p className="text-sm text-gray-600">{selectedDistributor.distributorCode} • {selectedDistributor.territory}</p>
+      {/* Module Cards - All Sections */}
+      <div className="space-y-6">
+        <h3 className="text-xl font-semibold text-gray-900">Module Overview</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {moduleCards.map((module, index) => (
+            <div 
+              key={index} 
+              className={`${module.bgColor} ${module.borderColor} border rounded-xl p-6 card-hover cursor-pointer`}
+              onClick={() => navigate(module.route)}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h4 className="font-semibold text-gray-900">{module.title}</h4>
+                <div className={`w-10 h-10 ${module.color} rounded-full flex items-center justify-center`}>
+                  <module.icon className="w-5 h-5 text-white" />
                 </div>
-                <button
-                  onClick={() => setShowVerifyModal(false)}
-                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                >
-                  <X className="w-5 h-5" />
-                </button>
               </div>
-            </div>
-            
-            <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
-              <h4 className="text-lg font-semibold text-gray-900 mb-6">SKU-wise Stock Verification</h4>
               
-              <div className="space-y-8">
-                {getSKUData(selectedDistributor.id).map((sku) => (
-                  <div key={sku.skuCode}>
-                    {/* SKU Header */}
-                    <div className="mb-4">
-                      <h5 className="text-lg font-semibold text-gray-900">{sku.skuName}</h5>
-                      {sku.skuCode !== 'DAP-25KG' && (
-                        <p className="text-sm text-gray-600">SKU: {sku.skuCode}</p>
-                      )}
+              <div className="grid grid-cols-2 gap-4">
+                {module.stats.map((stat, statIndex) => (
+                  <div key={statIndex} className="text-center">
+                    <div className="text-lg font-bold text-gray-900">
+                      {stat.value}{stat.unit}
                     </div>
-                    
-                    {/* Column Headers */}
-                    <div className="grid grid-cols-3 gap-6 mb-4">
-                      <div></div>
-                      <div className="text-center">
-                        <h6 className="font-semibold text-gray-900">Current Stock (System)</h6>
-                      </div>
-                      <div className="text-center">
-                        <h6 className="font-semibold text-gray-900">Physical Stock (Verified)</h6>
-                      </div>
-                    </div>
-                    
-                    {/* Invoice Rows */}
-                    <div className="space-y-3">
-                      {sku.invoices.map((invoice, index) => (
-                        <div key={`${sku.skuCode}-${invoice.invoiceNumber}`} className="grid grid-cols-3 gap-6 items-center py-3 border-b border-gray-200">
-                          {/* Invoice Details */}
-                          <div>
-                            <p className="font-medium text-gray-900">Invoice: {invoice.invoiceNumber}</p>
-                            <p className="text-sm text-gray-600">Date: {new Date(invoice.invoiceDate).toLocaleDateString()}</p>
-                          </div>
-                          
-                          {/* Current Stock */}
-                          <div className="text-center">
-                            <input
-                              type="number"
-                              value={invoice.currentStock}
-                              readOnly
-                              className="w-24 px-3 py-2 border border-gray-300 rounded-lg text-center bg-gray-50"
-                            />
-                          </div>
-                          
-                          {/* Physical Stock */}
-                          <div className="text-center">
-                            <input
-                              type="number"
-                              placeholder="105"
-                              className="w-24 px-3 py-2 border border-gray-300 rounded-lg text-center focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+                    <div className="text-xs text-gray-600">{stat.label}</div>
                   </div>
                 ))}
               </div>
             </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Recent Activities */}
+      <div className="bg-white rounded-xl p-6 card-shadow">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+            <Activity className="w-5 h-5 text-purple-600 mr-2" />
+            Recent Activities
+          </h3>
+          <select
+            value={selectedModule}
+            onChange={(e) => setSelectedModule(e.target.value)}
+            className="px-3 py-1 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          >
+            <option value="All">All Modules</option>
+            <option value="Field Visits">Field Visits</option>
+            <option value="Sales Orders">Sales Orders</option>
+            <option value="Liquidation">Liquidation</option>
+            <option value="Travel">Travel</option>
+          </select>
+        </div>
+        <div className="space-y-4">
+          {filteredActivities.map((activity) => (
+            <div key={activity.id} className="flex items-start space-x-3">
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                activity.color === 'text-green-600' ? 'bg-green-100' :
+                activity.color === 'text-blue-600' ? 'bg-blue-100' :
+                activity.color === 'text-yellow-600' ? 'bg-yellow-100' :
+                'bg-purple-100'
+              }`}>
+                <activity.icon className={`w-4 h-4 ${activity.color}`} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-medium text-gray-900">{activity.title}</p>
+                  <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                    {activity.module}
+                  </span>
+                </div>
+                <p className="text-sm text-gray-600">{activity.description}</p>
+                <p className="text-xs text-gray-500 mt-1">{activity.time}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Product & SKU Details Modal */}
+      {showDetailModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl w-full max-w-6xl max-h-[90vh] overflow-hidden">
+            <div className="flex items-center justify-between p-6 border-b">
+              <div>
+                <h3 className="text-xl font-semibold text-gray-900">{getMetricData(selectedMetric).title}</h3>
+                <p className="text-sm text-gray-600 mt-1">{getMetricData(selectedMetric).subtitle}</p>
+              </div>
+              <button
+                onClick={() => setShowDetailModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
             
-            <div className="flex justify-end space-x-3 p-6 border-t">
-              <button
-                onClick={() => setShowVerifyModal(false)}
-                className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => {
-                  alert(`Stock verified for ${selectedDistributor.distributorName}!`);
-                  setShowVerifyModal(false);
-                }}
-                className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-              >
-                Verify Stock
-              </button>
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+              <div className="space-y-6">
+                {/* DAP 25kg Bag Section */}
+                <div>
+                  <h4 className="text-lg font-semibold text-gray-900 mb-4">DAP 25kg Bag</h4>
+                  
+                  <div className="space-y-4">
+                    {/* Invoice 1 */}
+                    <div className="grid grid-cols-3 gap-6 items-center py-3 border-b border-gray-200">
+                      <div>
+                        <p className="font-medium text-gray-900">Invoice: INV-2024-001</p>
+                        <p className="text-sm text-gray-600">Date: 1/15/2024</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-sm text-gray-600 mb-2">Current Stock (System)</p>
+                        <input
+                          type="number"
+                          value={105}
+                          readOnly
+                          className="w-24 px-3 py-2 border border-gray-300 rounded-lg text-center bg-gray-50"
+                        />
+                      </div>
+                      <div className="text-center">
+                        <p className="text-sm text-gray-600 mb-2">Physical Stock (Verified)</p>
+                        <input
+                          type="number"
+                          placeholder="105"
+                          className="w-24 px-3 py-2 border border-gray-300 rounded-lg text-center focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Invoice 2 */}
+                    <div className="grid grid-cols-3 gap-6 items-center py-3 border-b border-gray-200">
+                      <div>
+                        <p className="font-medium text-gray-900">Invoice: INV-2024-001</p>
+                        <p className="text-sm text-gray-600">Date: 1/15/2024</p>
+                      </div>
+                      <div className="text-center">
+                        <input
+                          type="number"
+                          value={105}
+                          readOnly
+                          className="w-24 px-3 py-2 border border-gray-300 rounded-lg text-center bg-gray-50"
+                        />
+                      </div>
+                      <div className="text-center">
+                        <input
+                          type="number"
+                          placeholder="105"
+                          className="w-24 px-3 py-2 border border-gray-300 rounded-lg text-center focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* DAP 50kg Bag Section */}
+                <div>
+                  <h4 className="text-lg font-semibold text-gray-900 mb-4">DAP 50kg Bag</h4>
+                  <p className="text-sm text-gray-600 mb-4">SKU: DAP-50KG</p>
+                  
+                  <div className="space-y-4">
+                    {/* Invoice 1 */}
+                    <div className="grid grid-cols-3 gap-6 items-center py-3 border-b border-gray-200">
+                      <div>
+                        <p className="font-medium text-gray-900">Invoice: INV-2024-001</p>
+                        <p className="text-sm text-gray-600">Date: 1/15/2024</p>
+                      </div>
+                      <div className="text-center">
+                        <input
+                          type="number"
+                          value={105}
+                          readOnly
+                          className="w-24 px-3 py-2 border border-gray-300 rounded-lg text-center bg-gray-50"
+                        />
+                      </div>
+                      <div className="text-center">
+                        <input
+                          type="number"
+                          placeholder="105"
+                          className="w-24 px-3 py-2 border border-gray-300 rounded-lg text-center focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Invoice 2 */}
+                    <div className="grid grid-cols-3 gap-6 items-center py-3 border-b border-gray-200">
+                      <div>
+                        <p className="font-medium text-gray-900">Invoice: INV-2024-001</p>
+                        <p className="text-sm text-gray-600">Date: 1/15/2024</p>
+                      </div>
+                      <div className="text-center">
+                        <input
+                          type="number"
+                          value={105}
+                          readOnly
+                          className="w-24 px-3 py-2 border border-gray-300 rounded-lg text-center bg-gray-50"
+                        />
+                      </div>
+                      <div className="text-center">
+                        <input
+                          type="number"
+                          placeholder="105"
+                          className="w-24 px-3 py-2 border border-gray-300 rounded-lg text-center focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -420,4 +959,4 @@ const Liquidation: React.FC = () => {
   );
 };
 
-export default Liquidation;
+export default Dashboard;
