@@ -49,7 +49,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
           />
         </div>
         {onClose && (
-          <button onClick={onClose} className="lg:hidden p-2 rounded-md text-gray-600 hover:text-gray-900">
+          <button onClick={onClose} className=" p-2 rounded-md text-gray-600 hover:text-gray-900">
             <X className="h-6 w-6" />
           </button>
         )}

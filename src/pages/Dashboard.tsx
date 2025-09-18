@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useLiquidationCalculation } from '../hooks/useLiquidationCalculation';
-import { 
-  Calendar, 
-  MapPin, 
-  TrendingUp, 
-  Users, 
-  CheckCircle, 
-  Clock, 
+import {
+  Calendar,
+  MapPin,
+  TrendingUp,
+  Users,
+  CheckCircle,
+  Clock,
   AlertTriangle,
   DollarSign,
   Target,
@@ -33,6 +33,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { api } from '../services/api';
 
 interface ProductDetail {
   id: string;
@@ -54,25 +55,76 @@ interface SKUDetail {
   unitPrice: number;
 }
 
+interface MdoSummary {
+  total: number;
+  planned: number;
+  done: number;
+  cancelled: number;
+  pending: number;
+  percentCompleted: number;
+}
+
+interface LiquidationMetrics {
+  openingStock: { volume: number; value: number };
+  ytdNetSales: { volume: number; value: number };
+  liquidation: { volume: number; value: number };
+  balanceStock: { volume: number; value: number };
+  liquidationPercentage: number;
+}
+
+interface Distributor {
+  _id: string;
+  name: string;
+  code: string;
+  openingStock: number; // Assuming the API returns these directly now
+  currentStock: number; // This will be part of the detailed view later
+  // Add other relevant fields from your backend model if needed
+}
+
 const Dashboard: React.FC = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedModule, setSelectedModule] = useState('All');
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedMetric, setSelectedMetric] = useState<string>('');
-  
+
+  const [mdoSummary, setMdoSummary] = useState<MdoSummary | null>(null);
+  const [loadingSummary, setLoadingSummary] = useState(true);
+
   // Use dynamic liquidation calculation hook
-  const { 
-    overallMetrics, 
-    distributorMetrics, 
+  const {
+    overallMetrics,
+    distributorMetrics,
     getPerformanceMetrics,
     getFarmerSalesTracking,
     BUSINESS_RULES
   } = useLiquidationCalculation();
-  
+
   const navigate = useNavigate();
   const performanceMetrics = getPerformanceMetrics();
   const farmerSalesTracking = getFarmerSalesTracking();
+
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+
+    // Fetch MDO Summary data
+    const fetchMdoSummary = async () => {
+      try {
+        const data = await api.getMdoSummary();
+        setMdoSummary(data.summary);
+      } catch (error) {
+        console.error("Error fetching MDO summary:", error);
+        // Handle error, maybe show a toast notification
+      } finally {
+        setLoadingSummary(false);
+      }
+    };
+
+    fetchMdoSummary();
+
+    return () => clearInterval(timer);
+  }, []);
+
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -421,7 +473,7 @@ const Dashboard: React.FC = () => {
       weeklyCompleted: 28,
       completionRate: 80
     },
-    
+
     // Sales Orders Module  
     salesOrders: {
       monthlyTarget: 500000, // Rs. 5 Lakhs
@@ -430,10 +482,10 @@ const Dashboard: React.FC = () => {
       pendingOrders: 12,
       totalOrders: 45
     },
-    
+
     // Liquidation Module (TABLE 1 Format)
     liquidation: overallMetrics,
-    
+
     // Contacts Module
     contacts: {
       totalDistributors: performanceMetrics.totalDistributors,
@@ -441,7 +493,7 @@ const Dashboard: React.FC = () => {
       activeContacts: performanceMetrics.activeDistributors + 45,
       newThisMonth: 8
     },
-    
+
     // Travel & Expenses
     travel: {
       monthlyBudget: 25000,
@@ -449,7 +501,7 @@ const Dashboard: React.FC = () => {
       pendingClaims: 3,
       approvedAmount: 15000
     },
-    
+
     // Performance & Targets
     performance: {
       overallScore: performanceMetrics.averageLiquidationRate,
@@ -589,8 +641,8 @@ const Dashboard: React.FC = () => {
     }
   ];
 
-  const filteredActivities = selectedModule === 'All' 
-    ? recentActivities 
+  const filteredActivities = selectedModule === 'All'
+    ? recentActivities
     : recentActivities.filter(activity => activity.module === selectedModule);
 
   return (
@@ -601,21 +653,32 @@ const Dashboard: React.FC = () => {
           <div>
             <h1 className="text-2xl font-bold mb-2">Good Morning, Rajesh!</h1>
             <p className="text-white/90">
-              {currentTime.toLocaleDateString('en-IN', { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
+              {currentTime.toLocaleDateString('en-IN', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
               })}
             </p>
             <p className="text-white/80 text-sm mt-1">
-              {currentTime.toLocaleTimeString('en-IN', { 
-                hour: '2-digit', 
-                minute: '2-digit' 
+              {currentTime.toLocaleTimeString('en-IN', {
+                hour: '2-digit',
+                minute: '2-digit'
               })}
             </p>
           </div>
           <div className="text-right">
+             {loadingSummary ? (
+               <div className="text-3xl font-bold animate-pulse">--</div>
+            ) : (
+              <>
+                <div className="text-3xl font-bold">{mdoSummary?.total || 0}</div>
+                <div className="text-white/90 text-sm">Activities this month</div>
+                <div className="text-white/80 text-xs mt-1">
+                  {mdoSummary?.done || 0} Completed
+                </div>
+              </>
+            )}
             <div className="text-3xl font-bold">{overallStats.fieldVisits.todayPlanned}</div>
             <div className="text-white/90 text-sm">Visits planned</div>
             <div className="text-white/80 text-xs mt-1">
@@ -652,7 +715,7 @@ const Dashboard: React.FC = () => {
             <h3 className="text-xl font-semibold text-gray-900">Stock Liquidation Overview</h3>
             <p className="text-sm text-gray-600 mt-1">Last updated: 15 Sept 2025, 10:00 pm</p>
           </div>
-          <button 
+          <button
             onClick={() => handleMetricClick('overview')}
             className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center"
           >
@@ -662,7 +725,7 @@ const Dashboard: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div 
+          <div
             className="bg-orange-50 rounded-xl p-6 border-l-4 border-orange-500 cursor-pointer hover:shadow-md transition-all duration-200"
             onClick={() => handleMetricClick('opening')}
           >
@@ -681,7 +744,7 @@ const Dashboard: React.FC = () => {
             <div className="text-xs text-gray-500 mt-2">Last updated: Jan 20, 2024</div>
           </div>
 
-          <div 
+          <div
             className="bg-blue-50 rounded-xl p-6 border-l-4 border-blue-500 cursor-pointer hover:shadow-md transition-all duration-200"
             onClick={() => handleMetricClick('sales')}
           >
@@ -700,7 +763,7 @@ const Dashboard: React.FC = () => {
             <div className="text-xs text-gray-500 mt-2">Last updated: Jan 20, 2024</div>
           </div>
 
-          <div 
+          <div
             className="bg-green-50 rounded-xl p-6 border-l-4 border-green-500 cursor-pointer hover:shadow-md transition-all duration-200"
             onClick={() => handleMetricClick('liquidation')}
           >
@@ -719,7 +782,7 @@ const Dashboard: React.FC = () => {
             <div className="text-xs text-gray-500 mt-2">Last updated: Jan 20, 2024</div>
           </div>
 
-          <div 
+          <div
             className="bg-purple-50 rounded-xl p-6 border-l-4 border-purple-500 cursor-pointer hover:shadow-md transition-all duration-200"
             onClick={() => handleMetricClick('rate')}
           >
@@ -745,8 +808,8 @@ const Dashboard: React.FC = () => {
         <h3 className="text-xl font-semibold text-gray-900">Module Overview</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {moduleCards.map((module, index) => (
-            <div 
-              key={index} 
+            <div
+              key={index}
               className={`${module.bgColor} ${module.borderColor} border rounded-xl p-6 card-hover cursor-pointer`}
               onClick={() => navigate(module.route)}
             >
@@ -756,7 +819,7 @@ const Dashboard: React.FC = () => {
                   <module.icon className="w-5 h-5 text-white" />
                 </div>
               </div>
-              
+
               <div className="grid grid-cols-2 gap-3">
                 {module.stats.map((stat, statIndex) => (
                   <div key={statIndex} className="text-center">
@@ -794,12 +857,11 @@ const Dashboard: React.FC = () => {
         <div className="space-y-4">
           {filteredActivities.map((activity) => (
             <div key={activity.id} className="flex items-start space-x-3">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                activity.color === 'text-green-600' ? 'bg-green-100' :
-                activity.color === 'text-blue-600' ? 'bg-blue-100' :
-                activity.color === 'text-yellow-600' ? 'bg-yellow-100' :
-                'bg-purple-100'
-              }`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${activity.color === 'text-green-600' ? 'bg-green-100' :
+                  activity.color === 'text-blue-600' ? 'bg-blue-100' :
+                    activity.color === 'text-yellow-600' ? 'bg-yellow-100' :
+                      'bg-purple-100'
+                }`}>
                 <activity.icon className={`w-4 h-4 ${activity.color}`} />
               </div>
               <div className="flex-1 min-w-0">
@@ -833,7 +895,7 @@ const Dashboard: React.FC = () => {
                 <X className="w-5 h-5" />
               </button>
             </div>
-            
+
             <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
               <div className="space-y-6">
                 {getMetricData(selectedMetric).data.map((product) => (
@@ -848,7 +910,7 @@ const Dashboard: React.FC = () => {
                         <p className="text-sm text-gray-600">₹{product.totalValue.toFixed(2)}L</p>
                       </div>
                     </div>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {product.skus.map((sku) => (
                         <div key={sku.id} className="bg-white rounded-lg p-4 border border-gray-200">
@@ -858,7 +920,7 @@ const Dashboard: React.FC = () => {
                               {sku.skuCode}
                             </span>
                           </div>
-                          
+
                           <div className="grid grid-cols-3 gap-3 text-sm">
                             <div className="text-center">
                               <p className="text-gray-600">Volume</p>

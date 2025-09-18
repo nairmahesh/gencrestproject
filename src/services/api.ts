@@ -72,6 +72,7 @@ export const api = {
   const data = await response.json();
   localStorage.setItem('accessToken', data.accessToken);
   localStorage.setItem('refreshToken', data.refreshToken);
+  localStorage.setItem('user', JSON.stringify(data.user));
   return data;
  },
 
@@ -80,6 +81,23 @@ export const api = {
   await fetchWithAuth('/auth/logout', { method: 'POST' });
   localStorage.removeItem('accessToken');
   localStorage.removeItem('refreshToken');
+  localStorage.removeItem('user');
+ },
+
+ getUserProfile: async () => {
+  const token=getAuthToken();
+  if(token===null) return;
+  const response = await fetch(`${API_BASE_URL}/auth/me`, {
+   method: 'GET',
+   headers: {
+    'Authorization': `Bearer ${token}`,
+   }
+  });
+  if (!response.ok) {
+   throw new Error('Login failed');
+  }
+  const data = await response.json();
+  return data.user;
  },
 
  getDistributors: async () => {
@@ -90,5 +108,15 @@ export const api = {
   return response.json();
  },
 
- // Add more API methods here as we integrate them...
+ getMdoSummary: async (month?: string) => {
+    let url = '/mdo/activities/summary';
+    if (month) {
+      url += `?month=${month}`; // e.g., month = "2025-09"
+    }
+    const response = await fetchWithAuth(url);
+    if (!response.ok) {
+      throw new Error('Failed to fetch MDO summary');
+    }
+    return response.json();
+  },
 };
