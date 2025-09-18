@@ -599,9 +599,6 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Role Banner */}
-      <RoleBanner />
-
       {/* Header Section */}
       <div className="gradient-bg rounded-2xl p-6 text-white">
         <div className="flex items-center justify-between">
