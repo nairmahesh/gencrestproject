@@ -1,504 +1,839 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../contexts/AuthContext';
+import RoleBasedAccess from '../components/RoleBasedAccess';
+import { useLiquidationCalculation } from '../hooks/useLiquidationCalculation';
 import { 
-  Droplets, 
-  Package, 
+  Calendar, 
+  MapPin, 
   TrendingUp, 
-  Target, 
-  Search, 
-  Filter, 
-  Eye, 
+  Users, 
   CheckCircle, 
+  Clock, 
+  AlertTriangle,
+  DollarSign,
+  Target,
+  Award,
+  Bell,
+  Activity,
+  BarChart3,
+  PieChart,
+  ArrowUp,
+  ArrowDown,
+  Package,
+  Droplets,
   Building,
-  MapPin,
-  Calendar,
-  ArrowLeft,
+  Search,
+  Filter,
+  Eye,
+  Edit,
+  ShoppingCart,
+  Phone,
+  Car,
+  FileText,
+  Navigation,
   X,
-  Save,
-  AlertTriangle
+  ChevronRight
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
-interface SKUInvoice {
-  invoiceNumber: string;
-  invoiceDate: string;
-  currentStock: number;
-  batchNumber: string;
+interface ProductDetail {
+  id: string;
+  productCode: string;
+  productName: string;
+  category: string;
+  skus: SKUDetail[];
+  totalVolume: number;
+  totalValue: number;
 }
 
-interface SKUData {
+interface SKUDetail {
+  id: string;
   skuCode: string;
   skuName: string;
   unit: string;
-  invoices: SKUInvoice[];
+  volume: number;
+  value: number;
+  unitPrice: number;
 }
 
-interface LiquidationEntry {
-  id: string;
-  distributorName: string;
-  distributorCode: string;
-  territory: string;
-  region: string;
-  zone: string;
-  status: 'Active' | 'Inactive';
-  priority: 'High' | 'Medium' | 'Low';
-  metrics: {
-    openingStock: { volume: number; value: number };
-    ytdNetSales: { volume: number; value: number };
-    liquidation: { volume: number; value: number };
-    balanceStock: { volume: number; value: number };
-    liquidationPercentage: number;
-    lastUpdated: string;
-  };
-}
-
-interface VerificationData {
-  skuVerifications: Record<string, { current: number; physical: number; variance: number }>;
-  verifiedBy: string;
-  verificationDate: string;
-  remarks: string;
-}
-
-const Liquidation: React.FC = () => {
-  const navigate = useNavigate();
+const Dashboard: React.FC = () => {
+  const [currentTime, setCurrentTime] = useState(new Date());
   const [searchTerm, setSearchTerm] = useState('');
-  const [searchTag, setSearchTag] = useState('');
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [showVerifyModal, setShowVerifyModal] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<LiquidationEntry | null>(null);
-  const [verificationData, setVerificationData] = useState<VerificationData>({
-    skuVerifications: {},
-    verifiedBy: 'Current User',
-    verificationDate: new Date().toISOString(),
-    remarks: ''
-  });
+  const [selectedModule, setSelectedModule] = useState('All');
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [selectedMetric, setSelectedMetric] = useState<string>('');
+  const { user } = useAuth();
+  
+  // Use dynamic liquidation calculation hook
+  const { 
+    overallMetrics, 
+    distributorMetrics, 
+    getPerformanceMetrics,
+    getFarmerSalesTracking,
+    BUSINESS_RULES
+  } = useLiquidationCalculation();
+  
+  const navigate = useNavigate();
+  const performanceMetrics = getPerformanceMetrics();
+  const farmerSalesTracking = getFarmerSalesTracking();
 
-  const liquidationData: LiquidationEntry[] = [
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Sample product and SKU data
+  const productData: ProductDetail[] = [
     {
-      id: 'DIST001',
-      distributorName: 'SRI RAMA SEEDS AND PESTICIDES',
-      distributorCode: '1325',
-      territory: 'North Delhi',
-      region: 'Delhi NCR',
-      zone: 'North Zone',
-      status: 'Active',
-      priority: 'High',
-      metrics: {
-        openingStock: { volume: 40, value: 13.80 },
-        ytdNetSales: { volume: 310, value: 13.95 },
-        liquidation: { volume: 140, value: 9.30 },
-        balanceStock: { volume: 210, value: 18.45 },
-        liquidationPercentage: 40,
-        lastUpdated: new Date().toISOString()
-      }
+      id: 'P001',
+      productCode: 'FERT001',
+      productName: 'DAP (Di-Ammonium Phosphate)',
+      category: 'Fertilizers',
+      totalVolume: 15000,
+      totalValue: 18.50,
+      skus: [
+        {
+          id: 'S001',
+          skuCode: 'DAP-25KG',
+          skuName: 'DAP 25kg Bag',
+          unit: 'Kg',
+          volume: 7500,
+          value: 9.25,
+          unitPrice: 1350
+        },
+        {
+          id: 'S002',
+          skuCode: 'DAP-50KG',
+          skuName: 'DAP 50kg Bag',
+          unit: 'Kg',
+          volume: 7500,
+          value: 9.25,
+          unitPrice: 2700
+        }
+      ]
     },
     {
-      id: 'DIST002',
-      distributorName: 'Ram Kumar Distributors',
-      distributorCode: 'DLR001',
-      territory: 'Green Valley',
-      region: 'Delhi NCR',
-      zone: 'North Zone',
-      status: 'Active',
-      priority: 'Medium',
-      metrics: {
-        openingStock: { volume: 15000, value: 18.75 },
-        ytdNetSales: { volume: 6500, value: 8.13 },
-        liquidation: { volume: 6200, value: 7.75 },
-        balanceStock: { volume: 15300, value: 19.13 },
-        liquidationPercentage: 29,
-        lastUpdated: new Date().toISOString()
-      }
+      id: 'P002',
+      productCode: 'UREA001',
+      productName: 'Urea',
+      category: 'Fertilizers',
+      totalVolume: 12000,
+      totalValue: 14.40,
+      skus: [
+        {
+          id: 'S003',
+          skuCode: 'UREA-25KG',
+          skuName: 'Urea 25kg Bag',
+          unit: 'Kg',
+          volume: 6000,
+          value: 7.20,
+          unitPrice: 600
+        },
+        {
+          id: 'S004',
+          skuCode: 'UREA-50KG',
+          skuName: 'Urea 50kg Bag',
+          unit: 'Kg',
+          volume: 6000,
+          value: 7.20,
+          unitPrice: 1200
+        }
+      ]
     },
     {
-      id: 'DIST003',
-      distributorName: 'Green Agro Solutions',
-      distributorCode: 'GAS001',
-      territory: 'Sector 8',
-      region: 'Delhi NCR',
-      zone: 'North Zone',
-      status: 'Active',
-      priority: 'Low',
-      metrics: {
-        openingStock: { volume: 17620, value: 21.70 },
-        ytdNetSales: { volume: 6493, value: 6.57 },
-        liquidation: { volume: 6380, value: 7.22 },
-        balanceStock: { volume: 17733, value: 21.05 },
-        liquidationPercentage: 26,
-        lastUpdated: new Date().toISOString()
-      }
+      id: 'P003',
+      productCode: 'NPK001',
+      productName: 'NPK Complex',
+      category: 'Fertilizers',
+      totalVolume: 10000,
+      totalValue: 16.00,
+      skus: [
+        {
+          id: 'S005',
+          skuCode: 'NPK-25KG',
+          skuName: 'NPK Complex 25kg Bag',
+          unit: 'Kg',
+          volume: 5000,
+          value: 8.00,
+          unitPrice: 800
+        },
+        {
+          id: 'S006',
+          skuCode: 'NPK-50KG',
+          skuName: 'NPK Complex 50kg Bag',
+          unit: 'Kg',
+          volume: 5000,
+          value: 8.00,
+          unitPrice: 1600
+        }
+      ]
+    },
+    {
+      id: 'P004',
+      productCode: 'MOP001',
+      productName: 'MOP (Muriate of Potash)',
+      category: 'Fertilizers',
+      totalVolume: 8000,
+      totalValue: 12.80,
+      skus: [
+        {
+          id: 'S007',
+          skuCode: 'MOP-25KG',
+          skuName: 'MOP 25kg Bag',
+          unit: 'Kg',
+          volume: 4000,
+          value: 6.40,
+          unitPrice: 800
+        },
+        {
+          id: 'S008',
+          skuCode: 'MOP-50KG',
+          skuName: 'MOP 50kg Bag',
+          unit: 'Kg',
+          volume: 4000,
+          value: 6.40,
+          unitPrice: 1600
+        }
+      ]
+    },
+    {
+      id: 'P005',
+      productCode: 'SSP001',
+      productName: 'SSP (Single Super Phosphate)',
+      category: 'Fertilizers',
+      totalVolume: 6000,
+      totalValue: 9.60,
+      skus: [
+        {
+          id: 'S009',
+          skuCode: 'SSP-25KG',
+          skuName: 'SSP 25kg Bag',
+          unit: 'Kg',
+          volume: 3000,
+          value: 4.80,
+          unitPrice: 400
+        },
+        {
+          id: 'S010',
+          skuCode: 'SSP-50KG',
+          skuName: 'SSP 50kg Bag',
+          unit: 'Kg',
+          volume: 3000,
+          value: 4.80,
+          unitPrice: 800
+        }
+      ]
+    },
+    {
+      id: 'P006',
+      productCode: 'PEST001',
+      productName: 'Insecticide',
+      category: 'Pesticides',
+      totalVolume: 2000,
+      totalValue: 8.00,
+      skus: [
+        {
+          id: 'S011',
+          skuCode: 'PEST-500ML',
+          skuName: 'Insecticide 500ml',
+          unit: 'Litre',
+          volume: 1000,
+          value: 4.00,
+          unitPrice: 200
+        },
+        {
+          id: 'S012',
+          skuCode: 'PEST-1L',
+          skuName: 'Insecticide 1L',
+          unit: 'Litre',
+          volume: 1000,
+          value: 4.00,
+          unitPrice: 400
+        }
+      ]
+    },
+    {
+      id: 'P007',
+      productCode: 'HERB001',
+      productName: 'Herbicide',
+      category: 'Pesticides',
+      totalVolume: 1500,
+      totalValue: 7.50,
+      skus: [
+        {
+          id: 'S013',
+          skuCode: 'HERB-500ML',
+          skuName: 'Herbicide 500ml',
+          unit: 'Litre',
+          volume: 750,
+          value: 3.75,
+          unitPrice: 250
+        },
+        {
+          id: 'S014',
+          skuCode: 'HERB-1L',
+          skuName: 'Herbicide 1L',
+          unit: 'Litre',
+          volume: 750,
+          value: 3.75,
+          unitPrice: 500
+        }
+      ]
+    },
+    {
+      id: 'P008',
+      productCode: 'FUNG001',
+      productName: 'Fungicide',
+      category: 'Pesticides',
+      totalVolume: 1200,
+      totalValue: 6.00,
+      skus: [
+        {
+          id: 'S015',
+          skuCode: 'FUNG-500ML',
+          skuName: 'Fungicide 500ml',
+          unit: 'Litre',
+          volume: 600,
+          value: 3.00,
+          unitPrice: 300
+        },
+        {
+          id: 'S016',
+          skuCode: 'FUNG-1L',
+          skuName: 'Fungicide 1L',
+          unit: 'Litre',
+          volume: 600,
+          value: 3.00,
+          unitPrice: 600
+        }
+      ]
+    },
+    {
+      id: 'P009',
+      productCode: 'SEED001',
+      productName: 'Hybrid Seeds',
+      category: 'Seeds',
+      totalVolume: 800,
+      totalValue: 12.00,
+      skus: [
+        {
+          id: 'S017',
+          skuCode: 'SEED-1KG',
+          skuName: 'Hybrid Seeds 1kg Pack',
+          unit: 'Kg',
+          volume: 400,
+          value: 6.00,
+          unitPrice: 750
+        },
+        {
+          id: 'S018',
+          skuCode: 'SEED-5KG',
+          skuName: 'Hybrid Seeds 5kg Pack',
+          unit: 'Kg',
+          volume: 400,
+          value: 6.00,
+          unitPrice: 3750
+        }
+      ]
+    },
+    {
+      id: 'P010',
+      productCode: 'MICRO001',
+      productName: 'Micronutrients',
+      category: 'Fertilizers',
+      totalVolume: 500,
+      totalValue: 5.00,
+      skus: [
+        {
+          id: 'S019',
+          skuCode: 'MICRO-1KG',
+          skuName: 'Micronutrients 1kg Pack',
+          unit: 'Kg',
+          volume: 250,
+          value: 2.50,
+          unitPrice: 500
+        },
+        {
+          id: 'S020',
+          skuCode: 'MICRO-5KG',
+          skuName: 'Micronutrients 5kg Pack',
+          unit: 'Kg',
+          volume: 250,
+          value: 2.50,
+          unitPrice: 2500
+        }
+      ]
     }
   ];
 
-  const getSKUData = (distributorId: string): SKUData[] => {
-    // Sample SKU data with multiple invoices for same SKU
-    const skuData: SKUData[] = [
-      {
-        skuCode: 'DAP-25KG',
-        skuName: 'DAP 25kg Bag',
-        unit: 'Kg',
-        invoices: [
-          {
-            invoiceNumber: 'INV-2024-001',
-            invoiceDate: '2024-08-01',
-            currentStock: 50,
-            batchNumber: 'BATCH-001'
-          },
-          {
-            invoiceNumber: 'INV-2024-002',
-            invoiceDate: '2024-08-07',
-            currentStock: 30,
-            batchNumber: 'BATCH-002'
-          },
-          {
-            invoiceNumber: 'INV-2024-003',
-            invoiceDate: '2024-08-10',
-            currentStock: 25,
-            batchNumber: 'BATCH-003'
-          }
-        ]
-      },
-      {
-        skuCode: 'DAP-50KG',
-        skuName: 'DAP 50kg Bag',
-        unit: 'Kg',
-        invoices: [
-          {
-            invoiceNumber: 'INV-2024-004',
-            invoiceDate: '2024-08-01',
-            currentStock: 40,
-            batchNumber: 'BATCH-004'
-          },
-          {
-            invoiceNumber: 'INV-2024-005',
-            invoiceDate: '2024-08-07',
-            currentStock: 35,
-            batchNumber: 'BATCH-005'
-          }
-        ]
-      }
-    ];
-    return skuData;
-  };
-
-  const handleVerifyClick = (item: LiquidationEntry) => {
-    setSelectedItem(item);
-    
-    // Initialize SKU verifications for multiple invoices
-    const skuData = getSKUData(item.id);
-    const skuVerifications: Record<string, { current: number; physical: number; variance: number }> = {};
-    
-    skuData.forEach(sku => {
-      sku.invoices.forEach(invoice => {
-        const key = `${sku.skuCode}-${invoice.invoiceNumber}`;
-        skuVerifications[key] = {
-          current: invoice.currentStock,
-          physical: 0,
-          variance: -invoice.currentStock // Initial variance (0 - current)
+  const getMetricData = (metric: string) => {
+    switch (metric) {
+      case 'opening':
+        return {
+          title: 'Opening Stock Details',
+          subtitle: 'Product & SKU wise opening stock breakdown',
+          data: productData.map(p => ({
+            ...p,
+            skus: p.skus.map(s => ({ ...s, volume: s.volume * 0.4, value: s.value * 0.4 }))
+          }))
         };
-      });
-    });
-
-    setVerificationData({
-      skuVerifications,
-      verifiedBy: 'Current User',
-      verificationDate: new Date().toISOString(),
-      remarks: ''
-    });
-    
-    setShowVerifyModal(true);
-  };
-
-  const handleSKUStockChange = (skuCode: string, invoiceNumber: string, field: 'current' | 'physical', value: number) => {
-    setVerificationData(prev => {
-      const updated = { ...prev };
-      const key = `${skuCode}-${invoiceNumber}`;
-      if (!updated.skuVerifications[key]) {
-        updated.skuVerifications[key] = { current: 0, physical: 0, variance: 0 };
-      }
-      
-      updated.skuVerifications[key][field] = value;
-      updated.skuVerifications[key].variance = 
-        updated.skuVerifications[key].physical - updated.skuVerifications[key].current;
-      
-      return updated;
-    });
-  };
-
-  const handleVerifySubmit = () => {
-    if (!selectedItem) return;
-    
-    console.log('Stock verification submitted:', {
-      distributorId: selectedItem.id,
-      distributorName: selectedItem.distributorName,
-      verificationData,
-      timestamp: new Date().toISOString()
-    });
-    
-    alert(`Stock verified for ${selectedItem.distributorName}!`);
-    setShowVerifyModal(false);
-    setSelectedItem(null);
-  };
-
-  const clearAllTags = () => {
-    setSelectedTags([]);
-  };
-
-  const getStatusColor = (status: string) => {
-    return status === 'Active' ? 'text-green-600 bg-green-100' : 'text-red-600 bg-red-100';
-  };
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'High': return 'text-red-600 bg-red-100';
-      case 'Medium': return 'text-yellow-600 bg-yellow-100';
-      case 'Low': return 'text-green-600 bg-green-100';
-      default: return 'text-gray-600 bg-gray-100';
+      case 'sales':
+        return {
+          title: 'YTD Net Sales Details',
+          subtitle: 'Product & SKU wise sales performance',
+          data: productData.map(p => ({
+            ...p,
+            skus: p.skus.map(s => ({ ...s, volume: s.volume * 1.8, value: s.value * 1.8 }))
+          }))
+        };
+      case 'liquidation':
+        return {
+          title: 'Liquidation Details',
+          subtitle: 'Product & SKU wise liquidation breakdown',
+          data: productData.map(p => ({
+            ...p,
+            skus: p.skus.map(s => ({ ...s, volume: s.volume * 0.5, value: s.value * 0.5 }))
+          }))
+        };
+      case 'balance':
+        return {
+          title: 'Balance Stock Details',
+          subtitle: 'Product & SKU wise remaining stock',
+          data: productData.map(p => ({
+            ...p,
+            skus: p.skus.map(s => ({ ...s, volume: s.volume * 2.6, value: s.value * 2.6 }))
+          }))
+        };
+      default:
+        return { title: '', subtitle: '', data: [] };
     }
   };
 
-  const filteredData = liquidationData.filter(item => {
-    const matchesSearch = item.distributorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         item.distributorCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         item.territory.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesSearch;
-  });
+  const handleMetricClick = (metric: string) => {
+    setSelectedMetric(metric);
+    setShowDetailModal(true);
+  };
+
+  // Overall Dashboard Stats from All Modules
+  const overallStats = {
+    // Field Visits Module
+    fieldVisits: {
+      todayPlanned: 8,
+      todayCompleted: 3,
+      weeklyTarget: 35,
+      weeklyCompleted: 28,
+      completionRate: 80
+    },
+    
+    // Sales Orders Module  
+    salesOrders: {
+      monthlyTarget: 500000, // Rs. 5 Lakhs
+      monthlyAchieved: 420000, // Rs. 4.2 Lakhs
+      achievementRate: 84,
+      pendingOrders: 12,
+      totalOrders: 45
+    },
+    
+    // Liquidation Module (TABLE 1 Format)
+    liquidation: overallMetrics,
+    
+    // Contacts Module
+    contacts: {
+      totalDistributors: performanceMetrics.totalDistributors,
+      totalRetailers: 45,
+      activeContacts: performanceMetrics.activeDistributors + 45,
+      newThisMonth: 8
+    },
+    
+    // Travel & Expenses
+    travel: {
+      monthlyBudget: 25000,
+      monthlySpent: 18500,
+      pendingClaims: 3,
+      approvedAmount: 15000
+    },
+    
+    // Performance & Targets
+    performance: {
+      overallScore: performanceMetrics.averageLiquidationRate,
+      visitTarget: 85,
+      salesTarget: 84,
+      liquidationTarget: performanceMetrics.targetAchievementRate
+    }
+  };
+
+  const moduleCards = [
+    {
+      title: 'Field Visits',
+      icon: MapPin,
+      color: 'bg-blue-500',
+      bgColor: 'bg-blue-50',
+      borderColor: 'border-blue-200',
+      stats: [
+        { label: 'Today Planned', value: overallStats.fieldVisits.todayPlanned, unit: 'visits' },
+        { label: 'Today Completed', value: overallStats.fieldVisits.todayCompleted, unit: 'visits' },
+        { label: 'Weekly Progress', value: `${overallStats.fieldVisits.weeklyCompleted}/${overallStats.fieldVisits.weeklyTarget}`, unit: 'visits' },
+        { label: 'Completion Rate', value: overallStats.fieldVisits.completionRate, unit: '%' }
+      ],
+      route: '/field-visits'
+    },
+    {
+      title: 'Sales Orders',
+      icon: ShoppingCart,
+      color: 'bg-green-500',
+      bgColor: 'bg-green-50',
+      borderColor: 'border-green-200',
+      stats: [
+        { label: 'Monthly Target', value: '₹5.0L', unit: '' },
+        { label: 'Monthly Achieved', value: '₹4.2L', unit: '' },
+        { label: 'Achievement Rate', value: overallStats.salesOrders.achievementRate, unit: '%' },
+        { label: 'Pending Orders', value: overallStats.salesOrders.pendingOrders, unit: 'orders' }
+      ],
+      route: '/sales-orders'
+    },
+    {
+      title: 'Contacts Management',
+      icon: Users,
+      color: 'bg-purple-500',
+      bgColor: 'bg-purple-50',
+      borderColor: 'border-purple-200',
+      stats: [
+        { label: 'Total Distributors', value: overallStats.contacts.totalDistributors, unit: '' },
+        { label: 'Total Retailers', value: overallStats.contacts.totalRetailers, unit: '' },
+        { label: 'Active Contacts', value: overallStats.contacts.activeContacts, unit: '' },
+        { label: 'New This Month', value: overallStats.contacts.newThisMonth, unit: '' }
+      ],
+      route: '/contacts'
+    },
+    {
+      title: 'Travel & Expenses',
+      icon: Car,
+      color: 'bg-orange-500',
+      bgColor: 'bg-orange-50',
+      borderColor: 'border-orange-200',
+      stats: [
+        { label: 'Monthly Budget', value: '₹25K', unit: '' },
+        { label: 'Monthly Spent', value: '₹18.5K', unit: '' },
+        { label: 'Pending Claims', value: overallStats.travel.pendingClaims, unit: 'claims' },
+        { label: 'Approved Amount', value: '₹15K', unit: '' }
+      ],
+      route: '/travel'
+    },
+    {
+      title: 'Performance & Targets',
+      icon: Target,
+      color: 'bg-indigo-500',
+      bgColor: 'bg-indigo-50',
+      borderColor: 'border-indigo-200',
+      stats: [
+        { label: 'Overall Score', value: overallStats.performance.overallScore, unit: '%' },
+        { label: 'Visit Target', value: overallStats.performance.visitTarget, unit: '%' },
+        { label: 'Sales Target', value: overallStats.performance.salesTarget, unit: '%' },
+        { label: 'Liquidation Target', value: overallStats.performance.liquidationTarget, unit: '%' }
+      ],
+      route: '/performance'
+    },
+    {
+      title: 'Planning & Targets',
+      icon: Calendar,
+      color: 'bg-teal-500',
+      bgColor: 'bg-teal-50',
+      borderColor: 'border-teal-200',
+      stats: [
+        { label: 'Active Plans', value: 3, unit: 'plans' },
+        { label: 'This Week', value: 12, unit: 'activities' },
+        { label: 'Completed', value: 8, unit: 'activities' },
+        { label: 'Success Rate', value: 92, unit: '%' }
+      ],
+      route: '/planning'
+    }
+  ];
+
+  const recentActivities = [
+    {
+      id: '1',
+      type: 'visit_completed',
+      title: 'Visit completed at SRI RAMA SEEDS',
+      description: 'Stock verification and liquidation tracking',
+      time: '2 hours ago',
+      icon: CheckCircle,
+      color: 'text-green-600',
+      module: 'Field Visits'
+    },
+    {
+      id: '2',
+      type: 'order_received',
+      title: 'New order received',
+      description: 'Green Agro Store - ₹45,000 order',
+      time: '4 hours ago',
+      icon: ShoppingCart,
+      color: 'text-blue-600',
+      module: 'Sales Orders'
+    },
+    {
+      id: '3',
+      type: 'stock_variance',
+      title: 'Stock variance detected',
+      description: 'GREEN AGRO: 25kg difference found',
+      time: '6 hours ago',
+      icon: AlertTriangle,
+      color: 'text-yellow-600',
+      module: 'Liquidation'
+    },
+    {
+      id: '4',
+      type: 'travel_claim',
+      title: 'Travel claim submitted',
+      description: 'Delhi to Hyderabad - ₹2,500',
+      time: '1 day ago',
+      icon: Car,
+      color: 'text-purple-600',
+      module: 'Travel'
+    }
+  ];
+
+  const filteredActivities = selectedModule === 'All' 
+    ? recentActivities 
+    : recentActivities.filter(activity => activity.module === selectedModule);
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <button 
-            onClick={() => navigate('/')}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
+      {/* Header Section */}
+      <div className="gradient-bg rounded-2xl p-6 text-white">
+        <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Stock Liquidation</h1>
-            <p className="text-gray-600 mt-1">Track and manage distributor stock liquidation</p>
+            <h1 className="text-2xl font-bold mb-2">Good Morning, {user?.name.split(' ')[0] || 'User'}!</h1>
+            <p className="text-white/90">
+              {currentTime.toLocaleDateString('en-IN', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+              })}
+            </p>
+            <p className="text-white/80 text-sm mt-1">
+              {currentTime.toLocaleTimeString('en-IN', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+              })}
+            </p>
+            <p className="text-white/80 text-xs mt-1">
+              {user?.role} - {user?.territory || user?.region || user?.zone || 'Head Office'}
+            </p>
+          </div>
+          <div className="text-right">
+            <div className="text-3xl font-bold">{overallStats.fieldVisits.todayPlanned}</div>
+            <div className="text-white/90 text-sm">Visits planned</div>
+            <div className="text-white/80 text-xs mt-1">
+              {overallStats.fieldVisits.todayCompleted} Completed
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Overall Stock Liquidation */}
+      {/* Quick Stats Overview */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="bg-white rounded-xl p-4 card-shadow text-center">
+          <div className="text-2xl font-bold text-blue-600">{overallStats.fieldVisits.completionRate}%</div>
+          <div className="text-sm text-gray-600">Visit Target</div>
+        </div>
+        <div className="bg-white rounded-xl p-4 card-shadow text-center">
+          <div className="text-2xl font-bold text-green-600">₹4.2L</div>
+          <div className="text-sm text-gray-600">Sales MTD</div>
+        </div>
+        <div className="bg-white rounded-xl p-4 card-shadow text-center">
+          <div className="text-2xl font-bold text-purple-600">28%</div>
+          <div className="text-sm text-gray-600">Avg Liquidation</div>
+        </div>
+        <div className="bg-white rounded-xl p-4 card-shadow text-center">
+          <div className="text-2xl font-bold text-orange-600">{overallStats.contacts.totalDistributors}</div>
+          <div className="text-sm text-gray-600">Distributors</div>
+        </div>
+      </div>
+
+      {/* Stock Liquidation Overview */}
       <div className="bg-white rounded-xl p-6 shadow-lg">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h3 className="text-xl font-semibold text-gray-900">Overall Stock Liquidation</h3>
-            <p className="text-sm text-gray-600 mt-1">Last updated: 9/18/2025</p>
+            <h3 className="text-xl font-semibold text-gray-900">Stock Liquidation Overview</h3>
+            <p className="text-sm text-gray-600 mt-1">Last updated: 15 Sept 2025, 10:00 pm</p>
           </div>
-          <div className="text-right">
-            <div className="text-3xl font-bold text-purple-600">28%</div>
-            <div className="text-sm text-purple-600">Liquidation Rate</div>
-          </div>
+          <button 
+            onClick={() => handleMetricClick('overview')}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center"
+          >
+            <Eye className="w-4 h-4 mr-2" />
+            View Details
+          </button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div className="bg-orange-50 rounded-xl p-6 border-l-4 border-orange-500">
-            <div className="w-12 h-12 bg-orange-500 rounded-lg flex items-center justify-center mb-4">
-              <Package className="w-6 h-6 text-white" />
+          <div 
+            className="bg-orange-50 rounded-xl p-6 border-l-4 border-orange-500 cursor-pointer hover:shadow-md transition-all duration-200"
+            onClick={() => handleMetricClick('opening')}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-orange-500 rounded-lg flex items-center justify-center">
+                <Package className="w-6 h-6 text-white" />
+              </div>
             </div>
             <h4 className="text-lg font-semibold text-gray-900 mb-2">Opening Stock</h4>
-            <div className="space-y-2">
-              <div className="text-2xl font-bold text-orange-800">32,660</div>
-              <div className="text-sm text-orange-600">Kg/Litre</div>
-              <div className="text-base font-semibold text-orange-700">₹40.55L</div>
-            </div>
+            <div className="text-3xl font-bold text-gray-900 mb-1">32,660</div>
+            <div className="text-sm text-gray-600 mb-2">Kg/Litre</div>
+            <div className="text-sm text-gray-500 mb-3">Value: ₹190.00L</div>
+            <button className="text-orange-600 text-sm font-medium hover:text-orange-700 flex items-center">
+              View Details <ChevronRight className="w-4 h-4 ml-1" />
+            </button>
+            <div className="text-xs text-gray-500 mt-2">Last updated: Jan 20, 2024</div>
           </div>
 
-          <div className="bg-blue-50 rounded-xl p-6 border-l-4 border-blue-500">
-            <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center mb-4">
-              <TrendingUp className="w-6 h-6 text-white" />
+          <div 
+            className="bg-blue-50 rounded-xl p-6 border-l-4 border-blue-500 cursor-pointer hover:shadow-md transition-all duration-200"
+            onClick={() => handleMetricClick('sales')}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
+                <TrendingUp className="w-6 h-6 text-white" />
+              </div>
             </div>
             <h4 className="text-lg font-semibold text-gray-900 mb-2">YTD Net Sales</h4>
-            <div className="space-y-2">
-              <div className="text-2xl font-bold text-blue-800">23,303</div>
-              <div className="text-sm text-blue-600">Kg/Litre</div>
-              <div className="text-base font-semibold text-blue-700">₹27.36L</div>
-            </div>
+            <div className="text-3xl font-bold text-gray-900 mb-1">13,303</div>
+            <div className="text-sm text-gray-600 mb-2">Kg/Litre</div>
+            <div className="text-sm text-gray-500 mb-3">Value: ₹43.70L</div>
+            <button className="text-blue-600 text-sm font-medium hover:text-blue-700 flex items-center">
+              View Details <ChevronRight className="w-4 h-4 ml-1" />
+            </button>
+            <div className="text-xs text-gray-500 mt-2">Last updated: Jan 20, 2024</div>
           </div>
 
-          <div className="bg-green-50 rounded-xl p-6 border-l-4 border-green-500">
-            <div className="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center mb-4">
-              <Droplets className="w-6 h-6 text-white" />
+          <div 
+            className="bg-green-50 rounded-xl p-6 border-l-4 border-green-500 cursor-pointer hover:shadow-md transition-all duration-200"
+            onClick={() => handleMetricClick('liquidation')}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center">
+                <Droplets className="w-6 h-6 text-white" />
+              </div>
             </div>
             <h4 className="text-lg font-semibold text-gray-900 mb-2">Liquidation</h4>
-            <div className="space-y-2">
-              <div className="text-2xl font-bold text-green-800">12,720</div>
-              <div className="text-sm text-green-600">Kg/Litre</div>
-              <div className="text-base font-semibold text-green-700">₹16.55L</div>
-            </div>
-          </div>
-
-          <div className="bg-purple-50 rounded-xl p-6 border-l-4 border-purple-500">
-            <div className="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center mb-4">
-              <Target className="w-6 h-6 text-white" />
-            </div>
-            <h4 className="text-lg font-semibold text-gray-900 mb-2">Balance Stock</h4>
-            <div className="space-y-2">
-              <div className="text-2xl font-bold text-purple-800">43,243</div>
-              <div className="text-sm text-purple-600">Kg/Litre</div>
-              <div className="text-base font-semibold text-purple-700">₹51.36L</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Search and Filters */}
-      <div className="bg-white rounded-xl p-6 card-shadow">
-        <div className="flex flex-col sm:flex-row gap-4">
-          {/* Main Search */}
-          <div className="flex-1">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <input
-                type="text"
-                placeholder="Search distributors, codes, territories..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              />
-            </div>
-          </div>
-          
-          {/* Tag Search */}
-          <div className="flex-1">
-            <div className="relative">
-              <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <input
-                type="text"
-                placeholder="Search tags..."
-                value={searchTag}
-                onChange={(e) => setSearchTag(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              />
-            </div>
-          </div>
-          
-          {/* Clear All Button */}
-          {selectedTags.length > 0 && (
-            <button
-              onClick={clearAllTags}
-              className="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center"
-            >
-              <X className="w-4 h-4 mr-1" />
-              Clear All
+            <div className="text-3xl font-bold text-gray-900 mb-1">12,720</div>
+            <div className="text-sm text-gray-600 mb-2">Kg/Litre</div>
+            <div className="text-sm text-gray-500 mb-3">Value: ₹55.52L</div>
+            <button className="text-green-600 text-sm font-medium hover:text-green-700 flex items-center">
+              View Details <ChevronRight className="w-4 h-4 ml-1" />
             </button>
-          )}
-        </div>
-      </div>
-
-      {/* Results Summary */}
-      <div className="flex items-center justify-between text-sm text-gray-600">
-        <span>Showing {filteredData.length} of {liquidationData.length} distributors</span>
-        <div className="flex items-center space-x-4">
-          <span>Active: {filteredData.filter(d => d.status === 'Active').length}</span>
-          <span>High Priority: {filteredData.filter(d => d.priority === 'High').length}</span>
-        </div>
-      </div>
-
-      {/* Distributors List */}
-      <div className="space-y-4">
-        {filteredData.map((item) => (
-          <div key={item.id} className="bg-white rounded-xl p-6 card-shadow card-hover">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-                  <Building className="w-6 h-6 text-purple-600" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-gray-900">{item.distributorName}</h3>
-                  <p className="text-sm text-gray-600">{item.distributorCode} • {item.territory}</p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-2">
-                <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(item.status)}`}>
-                  {item.status}
-                </span>
-                <span className={`px-3 py-1 rounded-full text-xs font-medium ${getPriorityColor(item.priority)}`}>
-                  {item.priority}
-                </span>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-4">
-              <div className="text-center p-3 bg-orange-50 rounded-lg">
-                <div className="text-lg font-bold text-orange-800">{item.metrics.openingStock.volume.toLocaleString()}</div>
-                <div className="text-xs text-orange-600">Opening Stock</div>
-                <div className="text-xs text-orange-700">₹{item.metrics.openingStock.value.toFixed(2)}L</div>
-              </div>
-              <div className="text-center p-3 bg-blue-50 rounded-lg">
-                <div className="text-lg font-bold text-blue-800">{item.metrics.ytdNetSales.volume.toLocaleString()}</div>
-                <div className="text-xs text-blue-600">YTD Sales</div>
-                <div className="text-xs text-blue-700">₹{item.metrics.ytdNetSales.value.toFixed(2)}L</div>
-              </div>
-              <div className="text-center p-3 bg-green-50 rounded-lg">
-                <div className="text-lg font-bold text-green-800">{item.metrics.liquidation.volume.toLocaleString()}</div>
-                <div className="text-xs text-green-600">Liquidation</div>
-                <div className="text-xs text-green-700">₹{item.metrics.liquidation.value.toFixed(2)}L</div>
-              </div>
-              <div className="text-center p-3 bg-purple-50 rounded-lg">
-                <div className="text-lg font-bold text-purple-800">{item.metrics.balanceStock.volume.toLocaleString()}</div>
-                <div className="text-xs text-purple-600">Balance Stock</div>
-                <div className="text-xs text-purple-700">₹{item.metrics.balanceStock.value.toFixed(2)}L</div>
-              </div>
-            </div>
-
-            <div className="mb-4">
-              <div className="flex justify-between text-sm text-gray-600 mb-2">
-                <span>Liquidation Progress</span>
-                <span>{item.metrics.liquidationPercentage}%</span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div 
-                  className="bg-purple-600 h-2 rounded-full transition-all duration-300" 
-                  style={{ width: `${Math.min(item.metrics.liquidationPercentage, 100)}%` }}
-                ></div>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between text-sm text-gray-600 mb-4">
-              <div className="flex items-center space-x-4">
-                <span className="flex items-center">
-                  <MapPin className="w-3 h-3 mr-1" />
-                  {item.region} • {item.zone}
-                </span>
-                <span className="flex items-center">
-                  <Calendar className="w-3 h-3 mr-1" />
-                  Updated: {new Date(item.metrics.lastUpdated).toLocaleDateString()}
-                </span>
-              </div>
-            </div>
-
-            <div className="flex space-x-3">
-              <button className="bg-purple-100 text-purple-700 px-4 py-2 rounded-lg hover:bg-purple-200 transition-colors flex items-center">
-                <Eye className="w-4 h-4 mr-2" />
-                View Details
-              </button>
-              <button 
-                onClick={() => handleVerifyClick(item)}
-                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center"
-              >
-                <CheckCircle className="w-4 h-4 mr-2" />
-                Verify Stock
-              </button>
-            </div>
+            <div className="text-xs text-gray-500 mt-2">Last updated: Jan 20, 2024</div>
           </div>
-        ))}
+
+          <div 
+            className="bg-purple-50 rounded-xl p-6 border-l-4 border-purple-500 cursor-pointer hover:shadow-md transition-all duration-200"
+            onClick={() => handleMetricClick('rate')}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center">
+                <Target className="w-6 h-6 text-white" />
+              </div>
+            </div>
+            <h4 className="text-lg font-semibold text-gray-900 mb-2">Liquidation Rate</h4>
+            <div className="text-3xl font-bold text-gray-900 mb-1">28%</div>
+            <div className="text-sm text-gray-600 mb-2">Overall</div>
+            <div className="text-sm text-gray-500 mb-3">Performance</div>
+            <button className="text-purple-600 text-sm font-medium hover:text-purple-700 flex items-center">
+              View Details <ChevronRight className="w-4 h-4 ml-1" />
+            </button>
+            <div className="text-xs text-gray-500 mt-2">Last updated: Jan 20, 2024</div>
+          </div>
+        </div>
       </div>
 
-      {/* Stock Verification Modal */}
-      {showVerifyModal && selectedItem && (
+      {/* Module Cards - All Sections */}
+      <div className="space-y-6">
+        <h3 className="text-xl font-semibold text-gray-900">Module Overview</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {moduleCards.map((module, index) => (
+            <div 
+              key={index} 
+              className={`${module.bgColor} ${module.borderColor} border rounded-xl p-6 card-hover cursor-pointer`}
+              onClick={() => navigate(module.route)}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h4 className="font-semibold text-gray-900">{module.title}</h4>
+                <div className={`w-10 h-10 ${module.color} rounded-full flex items-center justify-center`}>
+                  <module.icon className="w-5 h-5 text-white" />
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-3">
+                {module.stats.map((stat, statIndex) => (
+                  <div key={statIndex} className="text-center">
+                    <div className="text-lg font-bold text-gray-900">
+                      {stat.value} {stat.unit}
+                    </div>
+                    <div className="text-xs text-gray-600">{stat.label}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Recent Activities */}
+      <div className="bg-white rounded-xl p-6 card-shadow">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+            <Activity className="w-5 h-5 text-purple-600 mr-2" />
+            Recent Activities
+          </h3>
+          <select
+            value={selectedModule}
+            onChange={(e) => setSelectedModule(e.target.value)}
+            className="px-3 py-1 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          >
+            <option value="All">All Modules</option>
+            <option value="Field Visits">Field Visits</option>
+            <option value="Sales Orders">Sales Orders</option>
+            <option value="Liquidation">Liquidation</option>
+            <option value="Travel">Travel</option>
+          </select>
+        </div>
+        <div className="space-y-4">
+          {filteredActivities.map((activity) => (
+            <div key={activity.id} className="flex items-start space-x-3">
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                activity.color === 'text-green-600' ? 'bg-green-100' :
+                activity.color === 'text-blue-600' ? 'bg-blue-100' :
+                activity.color === 'text-yellow-600' ? 'bg-yellow-100' :
+                'bg-purple-100'
+              }`}>
+                <activity.icon className={`w-4 h-4 ${activity.color}`} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-medium text-gray-900">{activity.title}</p>
+                  <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                    {activity.module}
+                  </span>
+                </div>
+                <p className="text-sm text-gray-600">{activity.description}</p>
+                <p className="text-xs text-gray-500 mt-1">{activity.time}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Product & SKU Details Modal */}
+      {showDetailModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
+          <div className="bg-white rounded-xl w-full max-w-6xl max-h-[90vh] overflow-hidden">
             <div className="flex items-center justify-between p-6 border-b">
               <div>
-                <h3 className="text-xl font-semibold text-gray-900">Stock Verification</h3>
-                <p className="text-sm text-gray-600 mt-1">{selectedItem.distributorName} ({selectedItem.distributorCode})</p>
+                <h3 className="text-xl font-semibold text-gray-900">{getMetricData(selectedMetric).title}</h3>
+                <p className="text-sm text-gray-600 mt-1">{getMetricData(selectedMetric).subtitle}</p>
               </div>
               <button
-                onClick={() => setShowVerifyModal(false)}
+                onClick={() => setShowDetailModal(false)}
                 className="p-2 hover:bg-gray-100 rounded-full transition-colors"
               >
                 <X className="w-5 h-5" />
@@ -506,163 +841,57 @@ const Liquidation: React.FC = () => {
             </div>
             
             <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
-              <div>
-                <h4 className="text-lg font-semibold text-gray-900 mb-4">SKU-wise Stock Verification</h4>
-                <div className="space-y-6">
-                  {getSKUData(selectedItem.id).map((sku) => (
-                    <div key={sku.skuCode} className="bg-gray-50 rounded-xl p-4">
-                      {/* SKU Header */}
-                      <div className="mb-4">
-                        <h5 className="text-lg font-semibold text-gray-900 mb-2">{sku.skuName}</h5>
-                        <p className="text-sm text-gray-600">SKU Code: {sku.skuCode}</p>
+              <div className="space-y-6">
+                {getMetricData(selectedMetric).data.map((product) => (
+                  <div key={product.id} className="bg-gray-50 rounded-xl p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <h4 className="text-lg font-semibold text-gray-900">{product.productName}</h4>
+                        <p className="text-sm text-gray-600">Code: {product.productCode} | Category: {product.category}</p>
                       </div>
-                      
-                      {/* Invoice-wise verification */}
-                      <div className="space-y-3">
-                        {sku.invoices.map((invoice) => {
-                          const verificationKey = `${sku.skuCode}-${invoice.invoiceNumber}`;
-                          const variance = (verificationData.skuVerifications[verificationKey]?.variance || 0);
-                          
-                          return (
-                            <div key={invoice.invoiceNumber} className="bg-white rounded-lg border border-gray-200 p-4">
-                              {/* Invoice Info */}
-                              <div className="mb-3">
-                                <div className="flex items-center justify-between">
-                                  <p className="text-sm font-medium text-gray-900">Invoice: {invoice.invoiceNumber}</p>
-                                  <p className="text-xs text-gray-500">Batch: {invoice.batchNumber}</p>
-                                </div>
-                                <p className="text-xs text-gray-500">Date: {new Date(invoice.invoiceDate).toLocaleDateString()}</p>
-                              </div>
-                              
-                              {/* Single line layout: SKU Name - Current Stock - Physical Stock */}
-                              <div className="grid grid-cols-3 gap-4 items-center">
-                                {/* SKU Name */}
-                                <div>
-                                  <p className="font-medium text-gray-900">{sku.skuName}</p>
-                                </div>
-                                
-                                {/* Current Stock */}
-                                <div className="text-center">
-                                  <p className="text-sm text-gray-600 mb-1">Current Stock (System)</p>
-                                  <input
-                                    type="number"
-                                    value={verificationData.skuVerifications[verificationKey]?.current || invoice.currentStock}
-                                    onChange={(e) => handleSKUStockChange(sku.skuCode, invoice.invoiceNumber, 'current', parseInt(e.target.value) || 0)}
-                                    className="w-20 px-2 py-1 border border-gray-300 rounded text-center text-sm"
-                                    readOnly
-                                  />
-                                </div>
-                                
-                                {/* Physical Stock */}
-                                <div className="text-center">
-                                  <p className="text-sm text-gray-600 mb-1">Physical Stock (Verified)</p>
-                                  <input
-                                    type="number"
-                                    value={verificationData.skuVerifications[verificationKey]?.physical || ''}
-                                    onChange={(e) => handleSKUStockChange(sku.skuCode, invoice.invoiceNumber, 'physical', parseInt(e.target.value) || 0)}
-                                    className="w-20 px-2 py-1 border border-gray-300 rounded text-center text-sm focus:ring-2 focus:ring-purple-500"
-                                    placeholder="Enter count"
-                                  />
-                                </div>
-                              </div>
-                              
-                              {/* Variance Display */}
-                              {variance !== 0 && (
-                                <div className={`mt-3 p-3 rounded-lg ${
-                                  variance > 0 
-                                    ? 'bg-green-50 border border-green-200' 
-                                    : 'bg-red-50 border border-red-200'
-                                }`}>
-                                  <div className="flex items-center justify-between">
-                                    <span className="text-sm font-medium">Variance:</span>
-                                    <span className={`font-bold ${
-                                      variance > 0 ? 'text-green-600' : 'text-red-600'
-                                    }`}>
-                                      {variance > 0 ? '+' : ''}{variance} {sku.unit}
-                                    </span>
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                      
-                      {/* SKU Total Summary */}
-                      <div className="mt-4 pt-4 border-t border-gray-200">
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="font-medium text-gray-900">SKU Total:</span>
-                          <div className="flex items-center space-x-4">
-                            <span className="text-gray-600">
-                              System: {sku.invoices.reduce((sum, inv) => sum + inv.currentStock, 0)} {sku.unit}
-                            </span>
-                            <span className="text-gray-600">
-                              Physical: {sku.invoices.reduce((sum, inv) => {
-                                const key = `${sku.skuCode}-${inv.invoiceNumber}`;
-                                return sum + (verificationData.skuVerifications[key]?.physical || 0);
-                              }, 0)} {sku.unit}
-                            </span>
-                            <span className={`font-bold ${
-                              sku.invoices.reduce((sum, inv) => {
-                                const key = `${sku.skuCode}-${inv.invoiceNumber}`;
-                                return sum + (verificationData.skuVerifications[key]?.variance || 0);
-                              }, 0) >= 0 ? 'text-green-600' : 'text-red-600'
-                            }`}>
-                              Variance: {sku.invoices.reduce((sum, inv) => {
-                                const key = `${sku.skuCode}-${inv.invoiceNumber}`;
-                                return sum + (verificationData.skuVerifications[key]?.variance || 0);
-                              }, 0)} {sku.unit}
-                            </span>
-                          </div>
-                        </div>
+                      <div className="text-right">
+                        <p className="text-lg font-bold text-gray-900">{product.totalVolume.toLocaleString()} Kg/L</p>
+                        <p className="text-sm text-gray-600">₹{product.totalValue.toFixed(2)}L</p>
                       </div>
                     </div>
-                  ))}
-                </div>
-                
-                {/* Remarks Section */}
-                <div className="mt-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Verification Remarks
-                  </label>
-                  <textarea
-                    value={verificationData.remarks}
-                    onChange={(e) => setVerificationData(prev => ({ ...prev, remarks: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    rows={3}
-                    placeholder="Add any remarks about the stock verification..."
-                  />
-                </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {product.skus.map((sku) => (
+                        <div key={sku.id} className="bg-white rounded-lg p-4 border border-gray-200">
+                          <div className="flex items-center justify-between mb-2">
+                            <h5 className="font-medium text-gray-900">{sku.skuName}</h5>
+                            <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                              {sku.skuCode}
+                            </span>
+                          </div>
+                          
+                          <div className="grid grid-cols-3 gap-3 text-sm">
+                            <div className="text-center">
+                              <p className="text-gray-600">Volume</p>
+                              <p className="font-semibold">{sku.volume.toLocaleString()}</p>
+                              <p className="text-xs text-gray-500">{sku.unit}</p>
+                            </div>
+                            <div className="text-center">
+                              <p className="text-gray-600">Value</p>
+                              <p className="font-semibold">₹{sku.value.toFixed(2)}L</p>
+                            </div>
+                            <div className="text-center">
+                              <p className="text-gray-600">Unit Price</p>
+                              <p className="font-semibold">₹{sku.unitPrice}</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
-            
-            <div className="flex justify-end space-x-3 p-6 border-t">
-              <button
-                onClick={() => setShowVerifyModal(false)}
-                className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleVerifySubmit}
-                className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center"
-              >
-                <Save className="w-4 h-4 mr-2" />
-                Verify Stock
-              </button>
-            </div>
           </div>
-        </div>
-      )}
-
-      {filteredData.length === 0 && (
-        <div className="text-center py-12">
-          <Droplets className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-500">No liquidation data found</p>
         </div>
       )}
     </div>
   );
 };
 
-export default Liquidation;
+export default Dashboard;
