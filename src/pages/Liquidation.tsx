@@ -561,7 +561,121 @@ const Liquidation: React.FC = () => {
       {showDetailModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl w-full max-w-6xl max-h-[90vh] overflow-hidden">
-            <div className="flex items-center justify-between p-6 border-b">
+            {/* Blue Header */}
+            <div className="bg-blue-100 p-6 border-b">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-xl font-semibold text-gray-900">{getMetricData(selectedMetric, selectedDistributorId).title}</h3>
+                  <p className="text-gray-600">{getMetricData(selectedMetric, selectedDistributorId).subtitle}</p>
+                </div>
+                <button
+                  onClick={() => setShowDetailModal(false)}
+                  className="p-2 hover:bg-blue-200 rounded-full transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+            
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+              <h4 className="text-lg font-semibold text-gray-900 mb-6">SKU-wise {selectedMetric === 'opening' ? 'Opening Stock' : selectedMetric === 'sales' ? 'Sales' : selectedMetric === 'liquidation' ? 'Liquidation' : 'Stock'} Details</h4>
+              
+              <div className="space-y-8">
+                {getSKUData(selectedDistributorId).map((sku) => (
+                  <div key={sku.skuCode}>
+                    {/* SKU Header with Color Tag */}
+                    <div className="flex items-center space-x-3 mb-4">
+                      <span className={`px-4 py-2 rounded-lg text-sm font-medium ${getSKUColor(sku.skuCode)}`}>
+                        {sku.skuName}
+                      </span>
+                      <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">
+                        SKU: {sku.skuCode}
+                      </span>
+                    </div>
+                    
+                    {/* Column Headers */}
+                    <div className="grid grid-cols-3 gap-6 mb-4">
+                      <div className="text-left">
+                        <h5 className="font-semibold text-gray-900">Invoice Details</h5>
+                      </div>
+                      <div className="text-center">
+                        <h5 className="font-semibold text-gray-900">Current Stock (System)</h5>
+                      </div>
+                      <div className="text-center">
+                        <h5 className="font-semibold text-gray-900">
+                          {selectedMetric === 'opening' ? 'Opening Stock' : 
+                           selectedMetric === 'sales' ? 'Sales Volume' : 
+                           selectedMetric === 'liquidation' ? 'Liquidated Qty' : 'Stock'}
+                        </h5>
+                      </div>
+                    </div>
+                    
+                    {/* Invoice Rows */}
+                    <div className="space-y-3">
+                      {sku.invoices.map((invoice, index) => {
+                        // Calculate display value based on metric type
+                        let displayValue = invoice.currentStock;
+                        if (selectedMetric === 'opening') {
+                          displayValue = Math.round(invoice.currentStock * 0.4);
+                        } else if (selectedMetric === 'sales') {
+                          displayValue = Math.round(invoice.currentStock * 1.8);
+                        } else if (selectedMetric === 'liquidation') {
+                          displayValue = Math.round(invoice.currentStock * 0.5);
+                        }
+                        
+                        return (
+                          <div key={index} className="grid grid-cols-3 gap-6 items-center py-3 border-b border-gray-200">
+                            <div>
+                              <p className="font-medium text-gray-900">Invoice: {invoice.invoiceNumber}</p>
+                              <p className="text-sm text-gray-600">Date: {new Date(invoice.invoiceDate).toLocaleDateString()}</p>
+                              <p className="text-xs text-gray-500">Batch: {invoice.batchNumber}</p>
+                            </div>
+                            <div className="text-center">
+                              <input
+                                type="number"
+                                value={invoice.currentStock}
+                                readOnly
+                                className="w-24 px-3 py-2 border border-gray-300 rounded-lg text-center bg-gray-50"
+                              />
+                            </div>
+                            <div className="text-center">
+                              <input
+                                type="number"
+                                value={displayValue}
+                                readOnly
+                                className={`w-24 px-3 py-2 border rounded-lg text-center ${
+                                  selectedMetric === 'opening' ? 'border-orange-300 bg-orange-50 text-orange-800' :
+                                  selectedMetric === 'sales' ? 'border-blue-300 bg-blue-50 text-blue-800' :
+                                  selectedMetric === 'liquidation' ? 'border-green-300 bg-green-50 text-green-800' :
+                                  'border-gray-300 bg-gray-50'
+                                }`}
+                              />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            <div className="flex justify-end space-x-3 p-6 border-t">
+              <button
+                onClick={() => setShowDetailModal(false)}
+                className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Liquidation;
               <div>
                 <h3 className="text-xl font-semibold text-gray-900">{getMetricData(selectedMetric, selectedDistributorId).title}</h3>
                 <p className="text-sm text-gray-600 mt-1">{getMetricData(selectedMetric, selectedDistributorId).subtitle}</p>
