@@ -22,8 +22,6 @@ const Liquidation: React.FC = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('All');
-  const [showDetailModal, setShowDetailModal] = useState(false);
-  const [selectedMetric, setSelectedMetric] = useState<string>('');
   const [showVerifyModal, setShowVerifyModal] = useState(false);
   const [selectedDistributor, setSelectedDistributor] = useState<any>(null);
 
@@ -32,11 +30,6 @@ const Liquidation: React.FC = () => {
     distributorMetrics, 
     getPerformanceMetrics
   } = useLiquidationCalculation();
-
-  const handleMetricClick = (metric: string) => {
-    setSelectedMetric(metric);
-    setShowDetailModal(true);
-  };
 
   const handleVerifyClick = (distributor: any) => {
     setSelectedDistributor(distributor);
@@ -87,80 +80,68 @@ const Liquidation: React.FC = () => {
 
       {/* Overall Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div 
-          className="bg-orange-50 rounded-xl p-6 border-l-4 border-orange-500 cursor-pointer hover:shadow-md transition-all duration-200"
-          onClick={() => handleMetricClick('opening')}
-        >
+        <div className="bg-orange-50 rounded-xl p-6 border-l-4 border-orange-500">
           <div className="flex items-center justify-between mb-4">
             <div className="w-12 h-12 bg-orange-500 rounded-lg flex items-center justify-center">
               <Package className="w-6 h-6 text-white" />
             </div>
+            <button className="bg-orange-500 text-white px-3 py-1 rounded text-sm hover:bg-orange-600 transition-colors">
+              View
+            </button>
           </div>
           <h4 className="text-lg font-semibold text-gray-900 mb-2">Opening Stock</h4>
           <div className="text-3xl font-bold text-gray-900 mb-1">32,660</div>
           <div className="text-sm text-gray-600 mb-2">Kg/Litre</div>
-          <div className="text-sm text-gray-500 mb-3">Value: ₹190.00L</div>
-          <button className="text-orange-600 text-sm font-medium hover:text-orange-700 flex items-center">
-            View Details <ChevronRight className="w-4 h-4 ml-1" />
-          </button>
+          <div className="text-sm text-gray-500">Value: ₹190.00L</div>
           <div className="text-xs text-gray-500 mt-2">Last updated: 15 Sept 2025, 10:00 pm</div>
         </div>
 
-        <div 
-          className="bg-blue-50 rounded-xl p-6 border-l-4 border-blue-500 cursor-pointer hover:shadow-md transition-all duration-200"
-          onClick={() => handleMetricClick('sales')}
-        >
+        <div className="bg-blue-50 rounded-xl p-6 border-l-4 border-blue-500">
           <div className="flex items-center justify-between mb-4">
             <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
               <TrendingUp className="w-6 h-6 text-white" />
             </div>
+            <button className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600 transition-colors">
+              View
+            </button>
           </div>
           <h4 className="text-lg font-semibold text-gray-900 mb-2">YTD Net Sales</h4>
           <div className="text-3xl font-bold text-gray-900 mb-1">13,303</div>
           <div className="text-sm text-gray-600 mb-2">Kg/Litre</div>
-          <div className="text-sm text-gray-500 mb-3">Value: ₹43.70L</div>
-          <button className="text-blue-600 text-sm font-medium hover:text-blue-700 flex items-center">
-            View Details <ChevronRight className="w-4 h-4 ml-1" />
-          </button>
+          <div className="text-sm text-gray-500">Value: ₹43.70L</div>
           <div className="text-xs text-gray-500 mt-2">Last updated: 15 Sept 2025, 10:00 pm</div>
         </div>
 
-        <div 
-          className="bg-green-50 rounded-xl p-6 border-l-4 border-green-500 cursor-pointer hover:shadow-md transition-all duration-200"
-          onClick={() => handleMetricClick('liquidation')}
-        >
+        <div className="bg-green-50 rounded-xl p-6 border-l-4 border-green-500">
           <div className="flex items-center justify-between mb-4">
             <div className="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center">
               <Droplets className="w-6 h-6 text-white" />
             </div>
+            <button className="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600 transition-colors">
+              View
+            </button>
           </div>
           <h4 className="text-lg font-semibold text-gray-900 mb-2">Liquidation</h4>
           <div className="text-3xl font-bold text-gray-900 mb-1">12,720</div>
           <div className="text-sm text-gray-600 mb-2">Kg/Litre</div>
-          <div className="text-sm text-gray-500 mb-3">Value: ₹55.52L</div>
-          <button className="text-green-600 text-sm font-medium hover:text-green-700 flex items-center">
-            View Details <ChevronRight className="w-4 h-4 ml-1" />
-          </button>
-          <div className="text-xs text-gray-500 mt-2">Last updated: 15 Sept 2025, 10:00 pm</div>
+          <div className="text-sm text-gray-500">Value: ₹55.52L</div>
+          <div className="text-xs text-gray-500 mt-2">Last updated: Jan 20, 2024</div>
         </div>
 
-        <div 
-          className="bg-purple-50 rounded-xl p-6 border-l-4 border-purple-500 cursor-pointer hover:shadow-md transition-all duration-200"
-          onClick={() => handleMetricClick('rate')}
-        >
+        <div className="bg-purple-50 rounded-xl p-6 border-l-4 border-purple-500">
           <div className="flex items-center justify-between mb-4">
             <div className="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center">
               <Target className="w-6 h-6 text-white" />
             </div>
+            <button className="bg-purple-500 text-white px-3 py-1 rounded text-sm hover:bg-purple-600 transition-colors">
+              Verify
+            </button>
           </div>
           <h4 className="text-lg font-semibold text-gray-900 mb-2">Liquidation Rate</h4>
           <div className="text-3xl font-bold text-gray-900 mb-1">28%</div>
           <div className="text-sm text-gray-600 mb-2">Overall</div>
-          <div className="text-sm text-gray-500 mb-3">Performance</div>
-          <button className="text-purple-600 text-sm font-medium hover:text-purple-700 flex items-center">
-            View Details <ChevronRight className="w-4 h-4 ml-1" />
-          </button>
-          <div className="text-xs text-gray-500 mt-2">Last updated: 15 Sept 2025, 10:00 pm</div>
+          <div className="text-sm text-gray-500">Performance</div>
+          <div className="text-xs text-gray-500 mt-2">Last updated: Jan 20, 2024</div>
         </div>
       </div>
 
@@ -328,44 +309,44 @@ const Liquidation: React.FC = () => {
               </div>
             </div>
             
-            <div className="p-6">
-              <h4 className="text-lg font-semibold text-gray-900 mb-4">SKU-wise Stock Verification</h4>
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
+              <h4 className="text-lg font-semibold text-gray-900 mb-6">SKU-wise Stock Verification</h4>
               
-              <div className="space-y-6">
+              <div className="space-y-8">
                 {/* DAP 25kg Bag */}
                 <div>
-                  <h5 className="text-lg font-semibold text-gray-900 mb-3">DAP 25kg Bag</h5>
+                  <h5 className="text-lg font-semibold text-gray-900 mb-4">DAP 25kg Bag</h5>
                   
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     {/* Invoice 1 */}
-                    <div className="grid grid-cols-3 gap-4 items-center">
+                    <div className="grid grid-cols-3 gap-6 items-center py-3 border-b border-gray-200">
                       <div>
-                        <p className="font-medium text-gray-900">Invoice: INV-2024-001</p>
+                        <p className="font-semibold text-gray-900">Invoice: INV-2024-001</p>
                         <p className="text-sm text-gray-600">Date: 1/15/2024</p>
                       </div>
                       <div className="text-center">
-                        <p className="text-sm text-gray-600 mb-1">Current Stock (System)</p>
+                        <p className="text-sm text-gray-600 mb-2">Current Stock (System)</p>
                         <input
                           type="number"
                           value={105}
                           readOnly
-                          className="w-20 px-3 py-2 border border-gray-300 rounded-lg text-center bg-gray-50"
+                          className="w-24 px-3 py-2 border border-gray-300 rounded-lg text-center bg-gray-50"
                         />
                       </div>
                       <div className="text-center">
-                        <p className="text-sm text-gray-600 mb-1">Physical Stock (Verified)</p>
+                        <p className="text-sm text-gray-600 mb-2">Physical Stock (Verified)</p>
                         <input
                           type="number"
                           placeholder="105"
-                          className="w-20 px-3 py-2 border border-gray-300 rounded-lg text-center focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          className="w-24 px-3 py-2 border border-gray-300 rounded-lg text-center focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         />
                       </div>
                     </div>
 
                     {/* Invoice 2 */}
-                    <div className="grid grid-cols-3 gap-4 items-center">
+                    <div className="grid grid-cols-3 gap-6 items-center py-3 border-b border-gray-200">
                       <div>
-                        <p className="font-medium text-gray-900">Invoice: INV-2024-002</p>
+                        <p className="font-semibold text-gray-900">Invoice: INV-2024-002</p>
                         <p className="text-sm text-gray-600">Date: 1/20/2024</p>
                       </div>
                       <div className="text-center">
@@ -373,14 +354,37 @@ const Liquidation: React.FC = () => {
                           type="number"
                           value={105}
                           readOnly
-                          className="w-20 px-3 py-2 border border-gray-300 rounded-lg text-center bg-gray-50"
+                          className="w-24 px-3 py-2 border border-gray-300 rounded-lg text-center bg-gray-50"
                         />
                       </div>
                       <div className="text-center">
                         <input
                           type="number"
                           placeholder="105"
-                          className="w-20 px-3 py-2 border border-gray-300 rounded-lg text-center focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          className="w-24 px-3 py-2 border border-gray-300 rounded-lg text-center focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Invoice 3 */}
+                    <div className="grid grid-cols-3 gap-6 items-center py-3 border-b border-gray-200">
+                      <div>
+                        <p className="font-semibold text-gray-900">Invoice: INV-2024-003</p>
+                        <p className="text-sm text-gray-600">Date: 1/25/2024</p>
+                      </div>
+                      <div className="text-center">
+                        <input
+                          type="number"
+                          value={105}
+                          readOnly
+                          className="w-24 px-3 py-2 border border-gray-300 rounded-lg text-center bg-gray-50"
+                        />
+                      </div>
+                      <div className="text-center">
+                        <input
+                          type="number"
+                          placeholder="105"
+                          className="w-24 px-3 py-2 border border-gray-300 rounded-lg text-center focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         />
                       </div>
                     </div>
@@ -389,13 +393,13 @@ const Liquidation: React.FC = () => {
 
                 {/* DAP 50kg Bag */}
                 <div>
-                  <h5 className="text-lg font-semibold text-gray-900 mb-3">DAP 50kg Bag</h5>
+                  <h5 className="text-lg font-semibold text-gray-900 mb-4">DAP 50kg Bag</h5>
                   
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     {/* Invoice 1 */}
-                    <div className="grid grid-cols-3 gap-4 items-center">
+                    <div className="grid grid-cols-3 gap-6 items-center py-3 border-b border-gray-200">
                       <div>
-                        <p className="font-medium text-gray-900">Invoice: INV-2024-001</p>
+                        <p className="font-semibold text-gray-900">Invoice: INV-2024-001</p>
                         <p className="text-sm text-gray-600">Date: 1/15/2024</p>
                       </div>
                       <div className="text-center">
@@ -403,22 +407,22 @@ const Liquidation: React.FC = () => {
                           type="number"
                           value={105}
                           readOnly
-                          className="w-20 px-3 py-2 border border-gray-300 rounded-lg text-center bg-gray-50"
+                          className="w-24 px-3 py-2 border border-gray-300 rounded-lg text-center bg-gray-50"
                         />
                       </div>
                       <div className="text-center">
                         <input
                           type="number"
                           placeholder="105"
-                          className="w-20 px-3 py-2 border border-gray-300 rounded-lg text-center focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          className="w-24 px-3 py-2 border border-gray-300 rounded-lg text-center focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         />
                       </div>
                     </div>
 
                     {/* Invoice 2 */}
-                    <div className="grid grid-cols-3 gap-4 items-center">
+                    <div className="grid grid-cols-3 gap-6 items-center py-3 border-b border-gray-200">
                       <div>
-                        <p className="font-medium text-gray-900">Invoice: INV-2024-002</p>
+                        <p className="font-semibold text-gray-900">Invoice: INV-2024-002</p>
                         <p className="text-sm text-gray-600">Date: 1/20/2024</p>
                       </div>
                       <div className="text-center">
@@ -426,14 +430,14 @@ const Liquidation: React.FC = () => {
                           type="number"
                           value={105}
                           readOnly
-                          className="w-20 px-3 py-2 border border-gray-300 rounded-lg text-center bg-gray-50"
+                          className="w-24 px-3 py-2 border border-gray-300 rounded-lg text-center bg-gray-50"
                         />
                       </div>
                       <div className="text-center">
                         <input
                           type="number"
                           placeholder="105"
-                          className="w-20 px-3 py-2 border border-gray-300 rounded-lg text-center focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          className="w-24 px-3 py-2 border border-gray-300 rounded-lg text-center focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         />
                       </div>
                     </div>
