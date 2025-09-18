@@ -1,71 +1,69 @@
-import React, { useState } from 'react';
+/**
+ * File: src/pages/Planning.tsx
+ * Author: GSDP INTEGRATION
+ *
+ * Purpose: This component displays the work plans assigned to the logged-in user.
+ * It fetches data from the API and provides navigation to log activity progress.
+ */
+
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Calendar, Target, Users, Plus, CheckCircle, Clock, AlertCircle, MapPin, ArrowLeft } from 'lucide-react';
-import { ActivityPlan, PlannedActivity } from '../types';
-import { RouteTracker } from '../components/RouteTracker';
+import { Calendar, CheckCircle, Clock, ArrowLeft, Plus } from 'lucide-react';
+import { api } from '../services/api';
+import { useAuth } from '../auth/AuthContext';
+
+// --- Interfaces for Data Structures ---
+
+interface IPlannedActivity {
+  _id: string;
+  date: string;
+  village: string;
+  distributor: string;
+  activityType: string;
+  description: string;
+  expectedOutcome: string;
+  status: 'Pending' | 'Completed' | 'Cancelled';
+}
+
+interface IPlan {
+  _id: string;
+  planType: 'Weekly' | 'Monthly';
+  startDate: string;
+  endDate: string;
+  title: string;
+  description: string;
+  status: 'Draft' | 'Pending Approval' | 'Approved' | 'In Progress' | 'Completed';
+  activities: IPlannedActivity[];
+}
 
 export const Planning: React.FC = () => {
   const navigate = useNavigate();
-  const [plans, setPlans] = useState<ActivityPlan[]>([
-    {
-      id: '1',
-      planType: 'Weekly',
-      startDate: '2024-01-15',
-      endDate: '2024-01-21',
-      title: 'North Delhi Territory Coverage',
-      description: 'Weekly plan for dealer visits and product demonstrations',
-      assignedTo: 'MDO001',
-      createdBy: 'TSM001',
-      status: 'Approved',
-      approvedBy: 'RMM001',
-      activities: [
-        {
-          id: 'A1',
-          date: '2024-01-15',
-          village: 'Green Valley',
-          distributor: 'Ram Kumar',
-          activityType: 'Product Demo',
-          description: 'Demonstrate new fertilizer line',
-          expectedOutcome: 'Generate 5 leads',
-          status: 'Completed',
-          actualOutcome: '7 leads generated, 2 orders placed'
-        },
-        {
-          id: 'A2',
-          date: '2024-01-16',
-          village: 'Sector 12',
-          distributor: 'Suresh Traders',
-          activityType: 'Stock Review',
-          description: 'Review inventory and liquidation status',
-          expectedOutcome: 'Clear 50% old stock',
-          status: 'Pending'
+  const { user } = useAuth();
+
+  const [plans, setPlans] = useState<IPlan[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      const fetchPlans = async () => {
+        try {
+          setLoading(true);
+          const fetchedPlans = await api.getPlansForUser(user.id!);
+          setPlans(fetchedPlans);
+          setError(null);
+        } catch (err) {
+          setError("Failed to load work plans.");
+          console.error(err);
+        } finally {
+          setLoading(false);
         }
-      ],
-      targets: [
-        {
-          id: 'T1',
-          metric: 'Dealer Visits',
-          targetValue: 15,
-          achievedValue: 12,
-          unit: 'visits',
-          period: 'Weekly'
-        },
-        {
-          id: 'T2',
-          metric: 'Sales Volume',
-          targetValue: 50000,
-          achievedValue: 45000,
-          unit: 'INR',
-          period: 'Weekly'
-        }
-      ]
+      };
+      fetchPlans();
     }
-  ]);
+  }, [user]);
 
-  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
-  const [showCreatePlan, setShowCreatePlan] = useState(false);
-
-  const getStatusColor = (status: ActivityPlan['status']) => {
+  const getStatusColor = (status: IPlan['status']) => {
     switch (status) {
       case 'Approved': return 'text-green-600 bg-green-100';
       case 'In Progress': return 'text-blue-600 bg-blue-100';
@@ -76,14 +74,22 @@ export const Planning: React.FC = () => {
     }
   };
 
-  const getActivityStatusIcon = (status: PlannedActivity['status']) => {
+  const getActivityStatusIcon = (status: IPlannedActivity['status']) => {
     switch (status) {
       case 'Completed': return <CheckCircle className="w-4 h-4 text-green-600" />;
       case 'Pending': return <Clock className="w-4 h-4 text-yellow-600" />;
-      case 'Cancelled': return <AlertCircle className="w-4 h-4 text-red-600" />;
+      case 'Cancelled': return <Clock className="w-4 h-4 text-red-600" />;
       default: return <Clock className="w-4 h-4 text-gray-600" />;
     }
   };
+
+  if (loading) {
+    return <div className="text-center p-8">Loading work plans...</div>;
+  }
+
+  if (error) {
+    return <div className="text-center p-8 text-red-600">{error}</div>;
+  }
 
   return (
     <div className="p-6">
@@ -96,127 +102,77 @@ export const Planning: React.FC = () => {
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Planning & Targets</h1>
-            <p className="text-gray-600">Manage activity plans and track performance</p>
+            <h1 className="text-2xl font-bold text-gray-900">My Work Plans</h1>
+            <p className="text-gray-600">View and execute your assigned activities.</p>
           </div>
         </div>
-        <button 
-          onClick={() => setShowCreatePlan(true)}
-          className="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700"
-        >
-          <Plus className="w-4 h-4" />
-          Create Plan
-        </button>
+        {user?.role === 'TSM' && ( // "Create Plan" is a TSM feature
+          <button 
+            onClick={() => navigate('/planning/create')} // Navigate to a future create plan page
+            className="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700"
+          >
+            <Plus className="w-4 h-4" />
+            Create Plan
+          </button>
+        )}
       </div>
 
       <div className="grid gap-6">
-        {plans.map((plan) => (
-          <div key={plan.id} className="bg-white rounded-lg border p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                  <Calendar className="w-5 h-5 text-purple-600" />
-                </div>
-                <div>
-                  <h3 className="font-semibold">{plan.title}</h3>
-                  <p className="text-sm text-gray-600">
-                    {new Date(plan.startDate).toLocaleDateString()} - {new Date(plan.endDate).toLocaleDateString()}
-                  </p>
-                </div>
-              </div>
-              <span className={`px-3 py-1 rounded-full text-sm ${getStatusColor(plan.status)}`}>
-                {plan.status}
-              </span>
-            </div>
-            
-            <p className="text-gray-700 mb-4">{plan.description}</p>
-            
-            {plan.targets && (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                {plan.targets.map((target) => (
-                  <div key={target.id} className="text-center p-3 bg-gray-50 rounded-lg">
-                    <div className="flex items-center justify-center gap-2 mb-1">
-                      <Target className="w-4 h-4 text-purple-600" />
-                      <span className="text-sm text-gray-600">{target.metric}</span>
-                    </div>
-                    <p className="text-lg font-semibold">
-                      {target.achievedValue}/{target.targetValue} {target.unit}
-                    </p>
-                    <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-                      <div 
-                        className="bg-purple-600 h-2 rounded-full" 
-                        style={{ width: `${Math.min((target.achievedValue / target.targetValue) * 100, 100)}%` }}
-                      ></div>
-                    </div>
+        {plans.length > 0 ? (
+          plans.map((plan) => (
+            <div key={plan._id} className="bg-white rounded-lg border p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                    <Calendar className="w-5 h-5 text-purple-600" />
                   </div>
-                ))}
-              </div>
-            )}
-            
-            {plan.activities && plan.activities.length > 0 && (
-              <div className="mb-4">
-                <h4 className="font-medium mb-2">Activities ({plan.activities.length})</h4>
-                <div className="space-y-2">
-                  {plan.activities.slice(0, 3).map((activity) => (
-                    <div key={activity.id} className="flex items-center gap-3 p-2 bg-gray-50 rounded">
-                      {getActivityStatusIcon(activity.status)}
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium">{activity.activityType}</span>
-                          <span className="text-sm text-gray-500">- {activity.village}</span>
-                        </div>
-                        <p className="text-sm text-gray-600">{activity.description}</p>
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        {new Date(activity.date).toLocaleDateString()}
-                      </div>
-                    </div>
-                  ))}
-                  {plan.activities.length > 3 && (
-                    <p className="text-sm text-gray-500 text-center">
-                      +{plan.activities.length - 3} more activities
+                  <div>
+                    <h3 className="font-semibold">{plan.title}</h3>
+                    <p className="text-sm text-gray-600">
+                      {new Date(plan.startDate).toLocaleDateString()} - {new Date(plan.endDate).toLocaleDateString()}
                     </p>
-                  )}
+                  </div>
                 </div>
+                <span className={`px-3 py-1 rounded-full text-sm ${getStatusColor(plan.status)}`}>
+                  {plan.status}
+                </span>
               </div>
-            )}
-            
-            <div className="flex gap-2 flex-wrap">
-              <button 
-                onClick={() => setSelectedPlan(selectedPlan === plan.id ? null : plan.id)}
-                className="px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200"
-              >
-                {selectedPlan === plan.id ? 'Hide Details' : 'View Details'}
-              </button>
-              <button className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
-                Update Progress
-              </button>
-              {plan.status === 'Approved' && (
-                <button className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-1">
-                  <MapPin className="w-4 h-4" />
-                  Track Route
-                </button>
+              
+              <p className="text-gray-700 mb-4">{plan.description}</p>
+              
+              {plan.activities && plan.activities.length > 0 && (
+                <div className="mb-4">
+                  <h4 className="font-medium mb-2">Activities ({plan.activities.length})</h4>
+                  <div className="space-y-2">
+                    {plan.activities.map((activity) => (
+                      <div key={activity._id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                        {getActivityStatusIcon(activity.status)}
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium">{activity.activityType}</span>
+                            <span className="text-sm text-gray-500">- {activity.village}</span>
+                          </div>
+                          <p className="text-sm text-gray-600">{activity.description}</p>
+                        </div>
+                        <button 
+                          onClick={() => navigate(`/field-visits/${activity._id}`)} // Navigate to log progress
+                          className="px-4 py-2 border border-gray-300 text-sm rounded-lg hover:bg-gray-100"
+                        >
+                          Update Progress
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               )}
             </div>
-            
-            {selectedPlan === plan.id && (
-              <div className="mt-6 pt-6 border-t">
-                <RouteTracker
-                  plannedRoute={plan.activities?.map(activity => ({
-                    id: activity.id,
-                    name: `${activity.village} - ${activity.distributor}`,
-                    latitude: 28.6139 + Math.random() * 0.1,
-                    longitude: 77.2090 + Math.random() * 0.1,
-                    status: activity.status === 'Completed' ? 'visited' as const : 'pending' as const
-                  })) || []}
-                  onRouteUpdate={(route) => {
-                    console.log('Route updated:', route);
-                  }}
-                />
-              </div>
-            )}
+          ))
+        ) : (
+          <div className="text-center py-12 bg-white rounded-lg border">
+            <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <p className="text-gray-500">No work plans have been assigned to you yet.</p>
           </div>
-        ))}
+        )}
       </div>
     </div>
   );

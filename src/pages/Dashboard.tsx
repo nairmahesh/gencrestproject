@@ -1,11 +1,19 @@
-// frontend.zip/src/pages/Dashboard.tsx
+/**
+ * File: src/pages/Dashboard.tsx
+ * Author: GSDP INTEGRATION
+ *
+ * Purpose: This component acts as a router to display the correct dashboard
+ * based on the authenticated user's role (MDO or TSM).
+ */
 
 import React, { useState, useEffect } from 'react';
-import { Eye, CheckCircle, Clock, TrendingUp, Target, Package, Droplets } from 'lucide-react';
+import { Eye, CheckCircle, Clock, TrendingUp, Target, Droplets } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import { useAuth } from '../auth/AuthContext';
+import DashboardTSM from './DashboardTSM'; // Import the new TSM dashboard
 
+// MDO-specific interfaces
 interface LiquidationMetrics {
   openingStock: { volume: number; value: number };
   liquidation: { volume: number; value: number };
@@ -28,79 +36,68 @@ interface MdoSummary {
   percentCompleted: number;
 }
 
-interface User {
-  name: string;
-  email: string;
-  role: string;
-}
-
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
   const [currentTime, setCurrentTime] = useState(new Date());
+  
+  // States for MDO Dashboard
   const [mdoSummary, setMdoSummary] = useState<MdoSummary | null>(null);
-  const [loadingSummary, setLoadingSummary] = useState(true);
+  const [loadingMdoSummary, setLoadingMdoSummary] = useState(true);
   const [overallMetrics, setOverallMetrics] = useState<LiquidationMetrics | null>(null);
   const [loadingLiquidation, setLoadingLiquidation] = useState(true);
+  
   const navigate = useNavigate();
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    
+    // Fetch data only if the user is an MDO
+    if (user?.role === 'MDO' || user?.role === 'SO') {
+      const fetchMdoData = async () => {
+        setLoadingMdoSummary(true);
+        setLoadingLiquidation(true);
+        try {
+          const summaryData = await api.getMdoSummary();
+          setMdoSummary(summaryData.summary);
 
-    const fetchMdoSummary = async () => {
-      setLoadingSummary(true);
-      try {
-        const data = await api.getMdoSummary();
-        setMdoSummary(data.summary);
-      } catch (error) {
-        console.error("Error fetching MDO summary:", error);
-      } finally {
-        setLoadingSummary(false);
-      }
-    };
+          const { distributors } = await api.getDistributors();
+          const totals = distributors.reduce((acc: any, dist: Distributor) => {
+            const liquidated = Math.max(0, dist.openingStock - dist.currentStock);
+            acc.openingStock += dist.openingStock;
+            acc.currentStock += dist.currentStock;
+            acc.liquidation += liquidated;
+            return acc;
+          }, { openingStock: 0, currentStock: 0, liquidation: 0 });
 
-    const fetchAndCalculateMetrics = async () => {
-      setLoadingLiquidation(true);
-      try {
-        const { distributors } = await api.getDistributors();
-        
-        const totals = distributors.reduce((acc: any, dist: Distributor) => {
-          const liquidated = Math.max(0, dist.openingStock - dist.currentStock);
-          acc.openingStock += dist.openingStock;
-          acc.currentStock += dist.currentStock;
-          acc.liquidation += liquidated;
-          return acc;
-        }, { openingStock: 0, currentStock: 0, liquidation: 0 });
+          const liquidationPercentage = totals.openingStock > 0 
+            ? Math.round((totals.liquidation / totals.openingStock) * 100) 
+            : 0;
 
-        const liquidationPercentage = totals.openingStock > 0 
-          ? Math.round((totals.liquidation / totals.openingStock) * 100) 
-          : 0;
-
-        setOverallMetrics({
-          openingStock: { volume: totals.openingStock, value: totals.openingStock * 0.005 },
-          liquidation: { volume: totals.liquidation, value: totals.liquidation * 0.0005 },
-          balanceStock: { volume: totals.currentStock, value: totals.currentStock * 0.004 },
-          liquidationPercentage: liquidationPercentage,
-        });
-
-      } catch (error) {
-        console.error("Error fetching distributors:", error);
-      } finally {
-        setLoadingLiquidation(false);
-      }
-    };
-
-    fetchMdoSummary();
-    fetchAndCalculateMetrics();
-
+          setOverallMetrics({
+            openingStock: { volume: totals.openingStock, value: totals.openingStock * 0.005 },
+            liquidation: { volume: totals.liquidation, value: totals.liquidation * 0.0005 },
+            balanceStock: { volume: totals.currentStock, value: totals.currentStock * 0.004 },
+            liquidationPercentage: liquidationPercentage,
+          });
+        } catch (error) {
+          console.error("Error fetching MDO dashboard data:", error);
+        } finally {
+          setLoadingMdoSummary(false);
+          setLoadingLiquidation(false);
+        }
+      };
+      fetchMdoData();
+    }
+    
     return () => clearInterval(timer);
-  }, []);
+  }, [user]);
 
   const renderMdoDashboard = () => (
     <>
       {/* MDO Monthly Activity Summary */}
       <div className="bg-white rounded-xl p-6 shadow-lg">
         <h3 className="text-xl font-semibold text-gray-900 mb-4">Monthly Activity Summary</h3>
-        {loadingSummary ? (
+        {loadingMdoSummary ? (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse">
             {[...Array(4)].map((_, i) => <div key={i} className="bg-gray-200 h-24 rounded-lg"></div>)}
           </div>
@@ -179,13 +176,21 @@ const Dashboard: React.FC = () => {
       </div>
     </>
   );
-  
-  const renderManagerDashboard = () => (
-    <div>
-        <h2 className="text-xl font-semibold">Manager Dashboard</h2>
-        <p>High-level statistics will be displayed here.</p>
-    </div>
-  );
+
+  const renderDashboardByRole = () => {
+    switch (user?.role) {
+      case 'TSM':
+      case 'RMM':
+      case 'ZBH':
+      case 'ADMIN':
+        return <DashboardTSM />;
+      case 'MDO':
+      case 'SO':
+        return renderMdoDashboard();
+      default:
+        return <div>Loading user role...</div>;
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -198,20 +203,13 @@ const Dashboard: React.FC = () => {
             </p>
           </div>
           <div className="text-right">
-            {loadingSummary ? (
-              <div className="text-3xl font-bold animate-pulse">--</div>
-            ) : (
-              <>
-                <div className="text-3xl font-bold">{mdoSummary?.total || 0}</div>
-                <div className="text-white/90 text-sm">Activities this month</div>
-              </>
-            )}
+            <div className="text-3xl font-bold">{mdoSummary?.total || '...'}</div>
+            <div className="text-white/90 text-sm">Activities this month</div>
           </div>
         </div>
       </div>
       
-      {user?.role === 'MDO' && renderMdoDashboard()}
-      {user?.role === 'TSM' && renderManagerDashboard()}
+      {renderDashboardByRole()}
     </div>
   );
 };

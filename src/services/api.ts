@@ -22,6 +22,7 @@ const refreshToken = async () => {
   // Handle session expiry, e.g., redirect to login
   localStorage.removeItem('accessToken');
   localStorage.removeItem('refreshToken');
+  localStorage.removeItem('user');
   window.location.href = '/login';
   throw new Error('Session expired');
  }
@@ -46,12 +47,20 @@ const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
 
  let response = await fetch(`${API_BASE_URL}${url}`, options);
 
- if (response.status === 403) {
-  // Token expired, try to refresh
-  token = await refreshToken();
-  headers['Authorization'] = `Bearer ${token}`;
-  options.headers = headers;
-  response = await fetch(`${API_BASE_URL}${url}`, options); // Retry the request with the new token
+ if (response.status === 403 || response.status === 401) { // Handle both forbidden and unauthorized
+  try {
+    token = await refreshToken();
+    headers['Authorization'] = `Bearer ${token}`;
+    options.headers = headers;
+    response = await fetch(`${API_BASE_URL}${url}`, options); // Retry the request with the new token
+  } catch (error) {
+    // If refresh fails, redirect to login
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('user');
+    window.location.href = '/login';
+    throw new Error('Session expired');
+  }
  }
 
  return response;
@@ -119,4 +128,61 @@ export const api = {
     }
     return response.json();
   },
+
+  getTsmDashboardStats: async () => {
+    const response = await fetchWithAuth('/tsm/dashboard');
+    if (!response.ok) {
+        throw new Error('Failed to fetch TSM dashboard stats');
+    }
+    return response.json();
+  },
+
+  getDistributorDetails: async (distributorId: string) => {
+    const response = await fetchWithAuth(`/liquidation/distributors/${distributorId}`);
+    if (!response.ok) {
+        throw new Error('Failed to fetch distributor details');
+    }
+    return response.json();
+  },
+
+  getRetailersByDistributor: async (distributorId: string) => {
+    const response = await fetchWithAuth(`/liquidation/retailers?distributorId=${distributorId}`);
+    if (!response.ok) {
+        throw new Error('Failed to fetch retailers');
+    }
+    return response.json();
+  },
+
+  updateDistributorStock: async (distributorId: string, payload: any) => {
+    const response = await fetchWithAuth(`/liquidation/distributors/${distributorId}/stock`, {
+        method: 'POST',
+        body: JSON.stringify(payload),
+    });
+    if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error || 'Failed to update stock');
+    }
+    return response.json();
+  },
+  
+  // --- New functions for Planning and Activity Logging ---
+
+  getPlansForUser: async (userId: string) => {
+    const response = await fetchWithAuth(`/planning/user/${userId}`);
+    if (!response.ok) {
+        throw new Error('Failed to fetch plans');
+    }
+    return response.json();
+  },
+
+  updateMdoActivity: async (activityId: string, payload: any) => {
+    const response = await fetchWithAuth(`/mdo/activities/${activityId}`, {
+        method: 'PUT',
+        body: JSON.stringify(payload),
+    });
+    if (!response.ok) {
+        throw new Error('Failed to update activity');
+    }
+    return response.json();
+  }
 };
