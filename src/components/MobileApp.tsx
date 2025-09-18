@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useLiquidationCalculation } from '../hooks/useLiquidationCalculation';
 import { 
   Home, 
   MapPin, 
@@ -33,30 +34,24 @@ interface MobileAppProps {}
 const MobileApp: React.FC<MobileAppProps> = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [showVerifyModal, setShowVerifyModal] = useState(false);
+  const [showViewModal, setShowViewModal] = useState(false);
   const [selectedDistributor, setSelectedDistributor] = useState<any>(null);
+  const [selectedMetric, setSelectedMetric] = useState<string>('');
   const [verificationData, setVerificationData] = useState<any>({});
 
+  const { distributorMetrics } = useLiquidationCalculation();
+
   // Sample data for mobile app
-  const distributors = [
-    {
-      id: 'DIST001',
-      name: 'SRI RAMA SEEDS',
-      code: '1325',
-      territory: 'North Delhi',
-      liquidationRate: 40,
-      status: 'Active',
-      priority: 'High'
-    },
-    {
-      id: 'DIST002', 
-      name: 'Ram Kumar Distributors',
-      code: 'DLR001',
-      territory: 'Green Valley',
-      liquidationRate: 29,
-      status: 'Active',
-      priority: 'Medium'
-    }
-  ];
+  const distributors = distributorMetrics.map(d => ({
+    id: d.id,
+    name: d.distributorName,
+    code: d.distributorCode,
+    territory: d.territory,
+    liquidationRate: d.metrics.liquidationPercentage,
+    status: d.status,
+    priority: d.priority,
+    metrics: d.metrics
+  }));
 
   const getSKUData = (distributorId: string) => {
     return [
@@ -107,6 +102,59 @@ const MobileApp: React.FC<MobileAppProps> = () => {
     ];
   };
 
+  const getSKUColor = (skuCode: string) => {
+    switch (skuCode) {
+      case 'DAP-25KG': return 'bg-blue-600 text-white';
+      case 'DAP-50KG': return 'bg-green-600 text-white';
+      default: return 'bg-gray-600 text-white';
+    }
+  };
+
+  const getMetricData = (metric: string, distributorId: string) => {
+    const skuData = getSKUData(distributorId);
+
+    switch (metric) {
+      case 'opening':
+        const totalOpeningVolume = skuData.reduce((sum, sku) => 
+          sum + sku.invoices.reduce((invSum, inv) => invSum + Math.round(inv.currentStock * 0.25), 0), 0
+        );
+        return {
+          title: 'Opening Stock',
+          totalVolume: totalOpeningVolume,
+          data: skuData
+        };
+      case 'sales':
+        const totalSalesVolume = skuData.reduce((sum, sku) => 
+          sum + sku.invoices.reduce((invSum, inv) => invSum + Math.round(inv.currentStock * 0.1), 0), 0
+        );
+        return {
+          title: 'YTD Net Sales',
+          totalVolume: totalSalesVolume,
+          data: skuData
+        };
+      case 'liquidation':
+        const totalLiquidationVolume = skuData.reduce((sum, sku) => 
+          sum + sku.invoices.reduce((invSum, inv) => invSum + Math.round(inv.currentStock * 0.25), 0), 0
+        );
+        return {
+          title: 'Liquidation',
+          totalVolume: totalLiquidationVolume,
+          data: skuData
+        };
+      case 'balance':
+        const totalBalanceVolume = skuData.reduce((sum, sku) => 
+          sum + sku.invoices.reduce((invSum, inv) => invSum + inv.currentStock, 0), 0
+        );
+        return {
+          title: 'Balance Stock',
+          totalVolume: totalBalanceVolume,
+          data: skuData
+        };
+      default:
+        return { title: '', totalVolume: 0, data: [] };
+    }
+  };
+
   const handleVerifyClick = (distributor: any) => {
     setSelectedDistributor(distributor);
     
@@ -127,6 +175,12 @@ const MobileApp: React.FC<MobileAppProps> = () => {
 
     setVerificationData({ skuVerifications, remarks: '' });
     setShowVerifyModal(true);
+  };
+
+  const handleViewClick = (distributor: any, metric: string) => {
+    setSelectedDistributor(distributor);
+    setSelectedMetric(metric);
+    setShowViewModal(true);
   };
 
   const handleSKUStockChange = (skuCode: string, invoiceNumber: string, field: 'current' | 'physical', value: number) => {
@@ -213,7 +267,7 @@ const MobileApp: React.FC<MobileAppProps> = () => {
             <div className="text-xs text-gray-600">Overall Rate</div>
           </div>
           <div className="text-center">
-            <div className="text-xl font-bold text-gray-900">3</div>
+            <div className="text-xl font-bold text-gray-900">{distributors.length}</div>
             <div className="text-xs text-gray-600">Distributors</div>
           </div>
         </div>
@@ -244,17 +298,64 @@ const MobileApp: React.FC<MobileAppProps> = () => {
               </div>
             </div>
             
+            {/* Mobile Metrics Cards */}
+            <div className="grid grid-cols-2 gap-2 mb-3">
+              <div className="bg-orange-50 rounded p-2 text-center">
+                <div className="text-sm font-bold text-orange-800">{distributor.metrics.openingStock.volume}</div>
+                <div className="text-xs text-orange-600">Opening</div>
+                <button 
+                  onClick={() => handleViewClick(distributor, 'opening')}
+                  className="text-xs text-orange-600 underline mt-1"
+                >
+                  View
+                </button>
+              </div>
+              <div className="bg-blue-50 rounded p-2 text-center">
+                <div className="text-sm font-bold text-blue-800">{distributor.metrics.ytdNetSales.volume}</div>
+                <div className="text-xs text-blue-600">Sales</div>
+                <button 
+                  onClick={() => handleViewClick(distributor, 'sales')}
+                  className="text-xs text-blue-600 underline mt-1"
+                >
+                  View
+                </button>
+              </div>
+              <div className="bg-green-50 rounded p-2 text-center">
+                <div className="text-sm font-bold text-green-800">{distributor.metrics.liquidation.volume}</div>
+                <div className="text-xs text-green-600">Liquidated</div>
+                <button 
+                  onClick={() => handleViewClick(distributor, 'liquidation')}
+                  className="text-xs text-green-600 underline mt-1"
+                >
+                  View
+                </button>
+              </div>
+              <div className="bg-purple-50 rounded p-2 text-center">
+                <div className="text-sm font-bold text-purple-800">{distributor.metrics.balanceStock.volume}</div>
+                <div className="text-xs text-purple-600">Balance</div>
+                <button 
+                  onClick={() => handleVerifyClick(distributor)}
+                  className="text-xs text-green-600 underline mt-1"
+                >
+                  Verify
+                </button>
+              </div>
+            </div>
+            
             <div className="flex space-x-2">
-              <button className="flex-1 bg-purple-100 text-purple-700 py-2 px-3 rounded-lg text-sm">
-                <Eye className="w-3 h-3 mr-1 inline" />
-                View
-              </button>
               <button 
                 onClick={() => handleVerifyClick(distributor)}
-                className="flex-1 bg-green-600 text-white py-2 px-3 rounded-lg text-sm"
+                className="flex-1 bg-green-600 text-white py-2 px-3 rounded-lg text-sm flex items-center justify-center"
               >
                 <CheckCircle className="w-3 h-3 mr-1 inline" />
                 Verify
+              </button>
+              <button 
+                onClick={() => handleViewClick(distributor, 'overview')}
+                className="flex-1 bg-purple-100 text-purple-700 py-2 px-3 rounded-lg text-sm flex items-center justify-center"
+              >
+                <Eye className="w-3 h-3 mr-1 inline" />
+                Overview
               </button>
             </div>
           </div>
@@ -421,8 +522,12 @@ const MobileApp: React.FC<MobileAppProps> = () => {
                   <div key={sku.skuCode} className="bg-gray-50 rounded-lg p-3">
                     {/* SKU Header */}
                     <div className="mb-3">
-                      <h5 className="font-semibold text-gray-900">{sku.skuName}</h5>
-                      <p className="text-xs text-gray-600">SKU: {sku.skuCode}</p>
+                      <div className="flex items-center space-x-2 mb-2">
+                        <span className={`px-2 py-1 rounded text-xs font-medium ${getSKUColor(sku.skuCode)}`}>
+                          {sku.skuName}
+                        </span>
+                        <span className="text-xs text-gray-600">SKU: {sku.skuCode}</span>
+                      </div>
                     </div>
                     
                     {/* Invoice-wise verification */}
@@ -442,15 +547,11 @@ const MobileApp: React.FC<MobileAppProps> = () => {
                               <p className="text-xs text-gray-500">{new Date(invoice.invoiceDate).toLocaleDateString()}</p>
                             </div>
                             
-                            {/* Single line: SKU Name - Current Stock - Physical Stock */}
                             <div className="space-y-2">
-                              <div className="flex items-center justify-between">
-                                <span className="text-sm font-medium text-gray-900">{sku.skuName}</span>
-                              </div>
-                              
                               <div className="grid grid-cols-2 gap-3">
                                 {/* Current Stock */}
                                 <div>
+                                  <p className="text-xs text-gray-600 mb-1">Current Stock</p>
                                       className="w-full px-1 py-1 border border-gray-300 rounded text-center text-xs"
                                       readOnly
                                   <input
@@ -458,16 +559,9 @@ const MobileApp: React.FC<MobileAppProps> = () => {
                                     value={verificationData.skuVerifications?.[verificationKey]?.current || invoice.currentStock}
                                     onChange={(e) => handleSKUStockChange(sku.skuCode, invoice.invoiceNumber, 'current', parseInt(e.target.value) || 0)}
                                     className="w-full px-2 py-1 border border-gray-300 rounded text-center text-sm"
-                                  />
                                 </div>
                                 
                                 <div className="grid grid-cols-3 gap-2">
-                                  {/* SKU Name */}
-                                      className="w-full px-1 py-1 border border-gray-300 rounded text-center text-xs focus:ring-1 focus:ring-purple-500"
-                                    <p className="text-xs text-gray-600 mb-1">SKU</p>
-                                    <p className="text-xs font-medium">{sku.skuName}</p>
-                                  </div>
-                                  
                                 <div>
                                   <p className="text-xs text-gray-600 mb-1">Physical Stock</p>
                                   <input
@@ -525,6 +619,96 @@ const MobileApp: React.FC<MobileAppProps> = () => {
                 className="flex-1 bg-green-600 text-white py-2 rounded-lg text-sm"
               >
                 Verify Stock
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* View Modal for Mobile */}
+      {showViewModal && selectedDistributor && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl w-full max-w-md max-h-[90vh] overflow-hidden">
+            <div className="flex items-center justify-between p-4 border-b bg-blue-100">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">{getMetricData(selectedMetric, selectedDistributor.id).title}</h3>
+                <p className="text-sm text-gray-600">{selectedDistributor.name}</p>
+              </div>
+              <button
+                onClick={() => setShowViewModal(false)}
+                className="p-2 hover:bg-blue-200 rounded-full"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            
+            <div className="p-4 overflow-y-auto max-h-[calc(90vh-120px)]">
+              {/* Total Summary */}
+              <div className="bg-gray-50 rounded-lg p-4 mb-4">
+                <h4 className="font-semibold text-gray-900 mb-2">Total {getMetricData(selectedMetric, selectedDistributor.id).title}</h4>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-gray-900">
+                    {getMetricData(selectedMetric, selectedDistributor.id).totalVolume}
+                  </div>
+                  <div className="text-sm text-gray-600">Total Volume (Kg/Litre)</div>
+                </div>
+              </div>
+
+              {/* SKU Breakdown */}
+              <div className="space-y-4">
+                {getMetricData(selectedMetric, selectedDistributor.id).data.map((sku: any) => (
+                  <div key={sku.skuCode} className="bg-gray-50 rounded-lg p-3">
+                    <div className="flex items-center space-x-2 mb-3">
+                      <span className={`px-2 py-1 rounded text-xs font-medium ${getSKUColor(sku.skuCode)}`}>
+                        {sku.skuName}
+                      </span>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      {sku.invoices.map((invoice: any, index: number) => {
+                        let calculatedValue = 0;
+                        switch (selectedMetric) {
+                          case 'opening':
+                            calculatedValue = Math.round(invoice.currentStock * 0.25);
+                            break;
+                          case 'sales':
+                            calculatedValue = Math.round(invoice.currentStock * 0.1);
+                            break;
+                          case 'liquidation':
+                            calculatedValue = Math.round(invoice.currentStock * 0.25);
+                            break;
+                          case 'balance':
+                            calculatedValue = invoice.currentStock;
+                            break;
+                        }
+                        
+                        return (
+                          <div key={index} className="bg-white rounded border p-2">
+                            <div className="flex justify-between items-center">
+                              <div>
+                                <p className="text-xs font-medium">{invoice.invoiceNumber}</p>
+                                <p className="text-xs text-gray-500">{new Date(invoice.invoiceDate).toLocaleDateString()}</p>
+                              </div>
+                              <div className="text-right">
+                                <div className="text-sm font-bold">{calculatedValue}</div>
+                                <div className="text-xs text-gray-600">{sku.unit}</div>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            <div className="flex justify-end p-4 border-t">
+              <button
+                onClick={() => setShowViewModal(false)}
+                className="px-4 py-2 bg-gray-500 text-white rounded-lg text-sm"
+              >
+                Close
               </button>
             </div>
           </div>
