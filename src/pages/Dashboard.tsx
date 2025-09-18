@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../contexts/AuthContext';
+import RoleBasedAccess from '../components/RoleBasedAccess';
+import RoleBanner from '../components/RoleBanner';
 import { useLiquidationCalculation } from '../hooks/useLiquidationCalculation';
 import { 
   Calendar, 
@@ -60,6 +63,7 @@ const Dashboard: React.FC = () => {
   const [selectedModule, setSelectedModule] = useState('All');
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedMetric, setSelectedMetric] = useState<string>('');
+  const { user } = useAuth();
   
   // Use dynamic liquidation calculation hook
   const { 
@@ -595,11 +599,14 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {/* Role Banner */}
+      <RoleBanner />
+
       {/* Header Section */}
       <div className="gradient-bg rounded-2xl p-6 text-white">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold mb-2">Good Morning, Rajesh!</h1>
+            <h1 className="text-2xl font-bold mb-2">Good Morning, {user?.name.split(' ')[0] || 'User'}!</h1>
             <p className="text-white/90">
               {currentTime.toLocaleDateString('en-IN', { 
                 weekday: 'long', 
@@ -613,6 +620,9 @@ const Dashboard: React.FC = () => {
                 hour: '2-digit', 
                 minute: '2-digit' 
               })}
+            </p>
+            <p className="text-white/80 text-xs mt-1">
+              {user?.role} - {user?.territory || user?.region || user?.zone || 'Head Office'}
             </p>
           </div>
           <div className="text-right">

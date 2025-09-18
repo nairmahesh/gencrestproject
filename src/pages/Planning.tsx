@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import RoleBasedAccess from '../components/RoleBasedAccess';
 import { Calendar, Target, Users, Plus, CheckCircle, Clock, AlertCircle, MapPin, ArrowLeft } from 'lucide-react';
 import { ActivityPlan, PlannedActivity } from '../types';
 import { RouteTracker } from '../components/RouteTracker';
 
 export const Planning: React.FC = () => {
   const navigate = useNavigate();
+  const { user, hasPermission } = useAuth();
   const [plans, setPlans] = useState<ActivityPlan[]>([
     {
       id: '1',
@@ -65,9 +68,8 @@ export const Planning: React.FC = () => {
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [showCreatePlan, setShowCreatePlan] = useState(false);
   
-  // Current user context - in real app this would come from auth
-  const currentUserRole = 'TSM'; // This would come from auth context
-  const canCreatePlans = ['TSM', 'RBH', 'RMM', 'ZBH', 'MH', 'VP_SM'].includes(currentUserRole);
+  const currentUserRole = user?.role || 'MDO';
+  const canCreatePlans = hasPermission('monthly_plans', 'create');
 
   const getStatusColor = (status: ActivityPlan['status']) => {
     switch (status) {
@@ -108,7 +110,7 @@ export const Planning: React.FC = () => {
             </p>
           </div>
         </div>
-        {canCreatePlans && (
+        <RoleBasedAccess allowedRoles={['TSM', 'RBH', 'RMM', 'ZBH', 'MH', 'VP_SM']}>
           <button 
             onClick={() => setShowCreatePlan(true)}
             className="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700"
@@ -116,7 +118,7 @@ export const Planning: React.FC = () => {
             <Plus className="w-4 h-4" />
             {currentUserRole === 'TSM' ? 'Create Plan (MDO/Self)' : 'Create Plan'}
           </button>
-        )}
+        </RoleBasedAccess>
       </div>
       
       {/* Planning Authority Info */}

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useAuth } from '../contexts/AuthContext';
 import { 
   Home, 
   MapPin, 
@@ -30,6 +31,7 @@ import {
 } from 'lucide-react';
 
 const MobileApp: React.FC = () => {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedType, setSelectedType] = useState('All Types');
@@ -133,11 +135,13 @@ const MobileApp: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-gray-900">Good Morning, Rajesh!</h1>
-          <p className="text-sm text-gray-600">MDO - North Delhi</p>
+          <h1 className="text-xl font-bold text-gray-900">Good Morning, {user?.name.split(' ')[0] || 'User'}!</h1>
+          <p className="text-sm text-gray-600">{user?.role} - {user?.territory || user?.region || 'Territory'}</p>
         </div>
         <div className="w-10 h-10 bg-purple-500 rounded-full flex items-center justify-center">
-          <span className="text-white font-semibold">RK</span>
+          <span className="text-white font-semibold">
+            {user?.name.split(' ').map(n => n[0]).join('').toUpperCase() || 'U'}
+          </span>
         </div>
       </div>
 
@@ -873,14 +877,16 @@ const MobileApp: React.FC = () => {
         <div className="flex items-center space-x-3">
           <Menu className="w-6 h-6" />
           <div>
-            <h1 className="font-semibold">Rajesh Kumar</h1>
-            <p className="text-xs opacity-90">MDO - North Delhi</p>
+            <h1 className="font-semibold">{user?.name || 'User'}</h1>
+            <p className="text-xs opacity-90">{user?.role} - {user?.territory || user?.region || 'Territory'}</p>
           </div>
         </div>
         <div className="flex items-center space-x-3">
           <Bell className="w-6 h-6" />
           <div className="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-            <span className="text-sm font-semibold">RK</span>
+            <span className="text-sm font-semibold">
+              {user?.name.split(' ').map(n => n[0]).join('').toUpperCase() || 'U'}
+            </span>
           </div>
         </div>
       </div>

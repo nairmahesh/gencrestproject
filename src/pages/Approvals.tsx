@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import { 
   UserCheck, 
   Clock, 
@@ -19,6 +20,7 @@ import { ApprovalWorkflowComponent } from '../components/ApprovalWorkflow';
 
 const Approvals: React.FC = () => {
   const navigate = useNavigate();
+  const { user, canApprove } = useAuth();
   const [selectedType, setSelectedType] = useState('All');
   const [selectedStatus, setSelectedStatus] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
@@ -420,7 +422,7 @@ const Approvals: React.FC = () => {
                 <div className="mt-6 pt-6 border-t border-gray-200">
                   <ApprovalWorkflowComponent
                     workflow={workflow}
-                    canTakeAction={workflow.status === 'pending'}
+                    canTakeAction={workflow.status === 'pending' && canApprove(workflow.submittedByRole)}
                     onApprove={(comments) => {
                       console.log('Approved with comments:', comments);
                       // In real app, this would update the workflow

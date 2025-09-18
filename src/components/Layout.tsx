@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import Header from './Header';
 import Sidebar from './Sidebar';
-import { getRoleByCode } from '../types/hierarchy';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -11,13 +11,7 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
-  
-  // Current user context - in real app this would come from auth context
-  const currentUser = {
-    name: 'Rajesh Kumar',
-    role: 'MDO',
-    territory: 'North Delhi'
-  };
+  const { user } = useAuth();
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -40,7 +34,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       <div className="lg:pl-64">
         <Header 
           onMenuClick={() => setSidebarOpen(true)} 
-          currentUser={currentUser}
         />
         <main>
           {children}

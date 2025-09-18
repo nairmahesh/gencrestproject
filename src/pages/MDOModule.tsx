@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import { 
   ArrowLeft, 
   Calendar, 
@@ -56,9 +57,9 @@ const MDOModule: React.FC = () => {
   const [activeView, setActiveView] = useState<'overview' | 'schedule' | 'tasks'>('overview');
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('All');
-  
-  // Current user context - in real app this would come from auth
-  const currentUserRole = 'MDO'; // This would come from auth context
+  const { user } = useAuth();
+
+  const currentUserRole = user?.role || 'MDO';
 
   // Sample plan data with creator information
   const currentPlan = {

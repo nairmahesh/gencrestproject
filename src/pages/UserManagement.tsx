@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import RoleBasedAccess from '../components/RoleBasedAccess';
 import { 
   Users, 
   Plus, 
@@ -22,6 +24,7 @@ import { UserProfile } from '../components/UserProfile';
 
 const UserManagement: React.FC = () => {
   const navigate = useNavigate();
+  const { user: currentUser } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRole, setSelectedRole] = useState('All');
   const [selectedRegion, setSelectedRegion] = useState('All');
@@ -215,10 +218,12 @@ const UserManagement: React.FC = () => {
             <p className="text-gray-600 mt-1">Manage organizational hierarchy and user roles</p>
           </div>
         </div>
-        <button className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center">
-          <Plus className="w-4 h-4 mr-2" />
-          Add User
-        </button>
+        <RoleBasedAccess allowedRoles={['MD', 'CHRO', 'VP_SM']}>
+          <button className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center">
+            <Plus className="w-4 h-4 mr-2" />
+            Add User
+          </button>
+        </RoleBasedAccess>
       </div>
 
       {/* Summary Cards */}

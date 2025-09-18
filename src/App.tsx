@@ -1,5 +1,7 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
+import { useAuth } from './contexts/AuthContext';
+import LoginForm from './components/LoginForm';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import FieldVisits from './pages/FieldVisits';
@@ -17,6 +19,12 @@ import UserManagement from './pages/UserManagement';
 import Approvals from './pages/Approvals';
 
 function App() {
+  const { isAuthenticated } = useAuth();
+
+  if (!isAuthenticated) {
+    return <LoginForm />;
+  }
+
   return (
     <Layout>
       <Routes>
