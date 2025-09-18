@@ -40,6 +40,7 @@ const Liquidation: React.FC = () => {
   const distributorsWithTags = distributorMetrics.map(distributor => ({
     ...distributor,
     tags: [
+      'Distributor', // Main filter option
       distributor.priority,
       distributor.status,
       distributor.region,
@@ -53,23 +54,63 @@ const Liquidation: React.FC = () => {
     ].filter(Boolean)
   }));
 
+  // Add sample retailer data for demonstration
+  const retailerData = [
+    {
+      id: 'RET001',
+      distributorName: 'Green Agro Store',
+      distributorCode: 'GAS001',
+      territory: 'Sector 15',
+      region: 'Delhi NCR',
+      zone: 'North Zone',
+      status: 'Active' as const,
+      priority: 'Medium' as const,
+      metrics: {
+        openingStock: { volume: 25, value: 0.30 },
+        ytdNetSales: { volume: 180, value: 0.85 },
+        liquidation: { volume: 85, value: 0.45 },
+        balanceStock: { volume: 120, value: 0.70 },
+        liquidationPercentage: 41,
+        lastUpdated: new Date().toISOString()
+      },
+      tags: [
+        'Retailer', // Main filter option
+        'Medium',
+        'Active',
+        'Delhi NCR',
+        'North Zone',
+        'Medium Performance',
+        'Fertilizers',
+        'Sector 15'
+      ]
+    }
+  ];
+
+  // Combine distributors and retailers
+  const allEntities = [...distributorsWithTags, ...retailerData];
+
   // Get all unique tags
-  const allTags = Array.from(new Set(distributorsWithTags.flatMap(d => d.tags)));
+  const allTags = Array.from(new Set(allEntities.flatMap(d => d.tags)));
+  
+  // Prioritize main filter options
+  const mainTags = ['Distributor', 'Retailer'];
+  const otherTags = allTags.filter(tag => !mainTags.includes(tag));
+  const sortedTags = [...mainTags, ...otherTags];
   
   // Filter tags based on search
-  const filteredTags = allTags.filter(tag => 
+  const filteredTags = sortedTags.filter(tag => 
     tag.toLowerCase().includes(searchTag.toLowerCase())
   );
 
   // Filter distributors based on search and tags
-  const filteredDistributors = distributorsWithTags.filter(distributor => {
-    const matchesSearch = distributor.distributorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         distributor.distributorCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         distributor.territory.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         distributor.region.toLowerCase().includes(searchTerm.toLowerCase());
+  const filteredEntities = allEntities.filter(entity => {
+    const matchesSearch = entity.distributorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         entity.distributorCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         entity.territory.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         entity.region.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesTags = selectedTags.length === 0 || 
-                       selectedTags.some(tag => distributor.tags.includes(tag));
+                       selectedTags.some(tag => entity.tags.includes(tag));
     
     return matchesSearch && matchesTags;
   });
@@ -242,22 +283,49 @@ const Liquidation: React.FC = () => {
           {/* Available Tags */}
           {searchTag && (
             <div className="border-t pt-4">
-              <p className="text-sm font-medium text-gray-700 mb-2">Available Tags:</p>
-              <div className="flex flex-wrap gap-2">
-                {filteredTags.map(tag => (
-                  <button
-                    key={tag}
-                    onClick={() => handleTagToggle(tag)}
-                    className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                      selectedTags.includes(tag)
-                        ? 'bg-purple-600 text-white'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                  >
-                    {tag}
-                  </button>
-                ))}
+              <p className="text-sm font-medium text-gray-700 mb-2">Available Filters:</p>
+              
+              {/* Main Filter Options */}
+              <div className="mb-3">
+                <p className="text-xs font-medium text-gray-600 mb-2">Type:</p>
+                <div className="flex flex-wrap gap-2">
+                  {mainTags.filter(tag => tag.toLowerCase().includes(searchTag.toLowerCase())).map(tag => (
+                    <button
+                      key={tag}
+                      onClick={() => handleTagToggle(tag)}
+                      className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                        selectedTags.includes(tag)
+                          ? 'bg-purple-600 text-white'
+                          : 'bg-purple-100 text-purple-700 hover:bg-purple-200'
+                      }`}
+                    >
+                      {tag}
+                    </button>
+                  ))}
+                </div>
               </div>
+              
+              {/* Other Filter Options */}
+              {otherTags.filter(tag => tag.toLowerCase().includes(searchTag.toLowerCase())).length > 0 && (
+                <div>
+                  <p className="text-xs font-medium text-gray-600 mb-2">Other Filters:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {otherTags.filter(tag => tag.toLowerCase().includes(searchTag.toLowerCase())).map(tag => (
+                      <button
+                        key={tag}
+                        onClick={() => handleTagToggle(tag)}
+                        className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                          selectedTags.includes(tag)
+                            ? 'bg-purple-600 text-white'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                      >
+                        {tag}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
           
@@ -289,7 +357,7 @@ const Liquidation: React.FC = () => {
       {/* Results Summary */}
       <div className="flex items-center justify-between text-sm text-gray-600">
         <span>
-          Showing {filteredDistributors.length} of {distributorsWithTags.length} distributors
+          Showing {filteredEntities.length} of {allEntities.length} entries
           {selectedTags.length > 0 && (
             <span className="ml-2">
               (filtered by {selectedTags.length} tag{selectedTags.length !== 1 ? 's' : ''})
@@ -297,20 +365,25 @@ const Liquidation: React.FC = () => {
           )}
         </span>
         <div className="flex items-center space-x-4">
-          <span>Active: {filteredDistributors.filter(d => d.status === 'Active').length}</span>
-          <span>High Priority: {filteredDistributors.filter(d => d.priority === 'High').length}</span>
-          <span>Avg Liquidation: {Math.round(filteredDistributors.reduce((sum, d) => sum + d.metrics.liquidationPercentage, 0) / filteredDistributors.length || 0)}%</span>
+          <span>Distributors: {filteredEntities.filter(d => d.tags.includes('Distributor')).length}</span>
+          <span>Retailers: {filteredEntities.filter(d => d.tags.includes('Retailer')).length}</span>
+          <span>Active: {filteredEntities.filter(d => d.status === 'Active').length}</span>
+          <span>Avg Liquidation: {Math.round(filteredEntities.reduce((sum, d) => sum + d.metrics.liquidationPercentage, 0) / filteredEntities.length || 0)}%</span>
         </div>
       </div>
 
       {/* Distributors List */}
       <div className="space-y-4">
-        {filteredDistributors.map((distributor) => (
+        {filteredEntities.map((distributor) => (
           <div key={distributor.id} className="bg-white rounded-xl p-6 card-shadow card-hover">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-3">
                 <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-                  <Building className="w-6 h-6 text-purple-600" />
+                  {distributor.tags.includes('Distributor') ? (
+                    <Building className="w-6 h-6 text-purple-600" />
+                  ) : (
+                    <Building className="w-6 h-6 text-blue-600" />
+                  )}
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-900">{distributor.distributorName}</h3>
@@ -411,10 +484,10 @@ const Liquidation: React.FC = () => {
         ))}
       </div>
 
-      {filteredDistributors.length === 0 && (
+      {filteredEntities.length === 0 && (
         <div className="text-center py-12">
           <Droplets className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-500">No distributors found</p>
+          <p className="text-gray-500">No entries found</p>
         </div>
       )}
     </div>
