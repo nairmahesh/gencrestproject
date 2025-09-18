@@ -37,6 +37,15 @@ const MobileApp: React.FC = () => {
   const [selectedType, setSelectedType] = useState('All Types');
   const [selectedRegion, setSelectedRegion] = useState('All Regions');
   const [showMobileFilters, setShowMobileFilters] = useState(false);
+  const [showVerifyModal, setShowVerifyModal] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<any>(null);
+  const [verificationData, setVerificationData] = useState({
+    currentStock: 0,
+    physicalStock: 0,
+    variance: 0,
+    reason: '',
+    verifiedBy: user?.name || 'User'
+  });
 
   // Sample liquidation data
   const liquidationData = [
@@ -130,6 +139,36 @@ const MobileApp: React.FC = () => {
     setSearchTerm('');
   };
 
+  const handleVerifyClick = (item: any) => {
+    setSelectedItem(item);
+    setVerificationData({
+      currentStock: item.metrics.balanceStock.volume,
+      physicalStock: item.metrics.balanceStock.volume,
+      variance: 0,
+      reason: '',
+      verifiedBy: user?.name || 'User'
+    });
+    setShowVerifyModal(true);
+  };
+
+  const handleStockChange = (field: 'currentStock' | 'physicalStock', value: number) => {
+    const newData = { ...verificationData, [field]: value };
+    newData.variance = newData.physicalStock - newData.currentStock;
+    setVerificationData(newData);
+  };
+
+  const handleVerifySubmit = () => {
+    // In a real app, this would update the backend
+    console.log('Stock verification submitted:', {
+      itemId: selectedItem.id,
+      ...verificationData,
+      timestamp: new Date().toISOString()
+    });
+    
+    alert(`Stock verified for ${selectedItem.distributorName}!\nVariance: ${verificationData.variance} ${selectedItem.metrics.balanceStock.volume > 1000 ? 'Kg' : 'L'}`);
+    setShowVerifyModal(false);
+    setSelectedItem(null);
+  };
   const renderDashboard = () => (
     <div className="p-4 space-y-4">
       {/* Header */}
@@ -833,9 +872,12 @@ const MobileApp: React.FC = () => {
                 <Eye className="w-3 h-3 mr-1" />
                 View Details
               </button>
-              <button className="flex-1 border border-gray-300 text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center text-xs">
-                <Edit className="w-3 h-3 mr-1" />
-                Update
+              <button 
+                onClick={() => handleVerifyClick(item)}
+                className="flex-1 bg-green-600 text-white px-3 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center text-xs"
+              >
+                <CheckCircle className="w-3 h-3 mr-1" />
+                Verify
               </button>
             </div>
           </div>
@@ -851,6 +893,100 @@ const MobileApp: React.FC = () => {
     </div>
   );
 
+  // Stock Verification Modal
+  const renderVerifyModal = () => (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl w-full max-w-md">
+        <div className="flex items-center justify-between p-4 border-b">
+          <h3 className="text-lg font-semibold text-gray-900">Stock Verification</h3>
+          <button
+            onClick={() => setShowVerifyModal(false)}
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        
+        <div className="p-4 space-y-4">
+          {selectedItem && (
+            <>
+              <div className="bg-gray-50 rounded-lg p-3">
+                <h4 className="font-semibold text-gray-900">{selectedItem.distributorName}</h4>
+                <p className="text-sm text-gray-600">{selectedItem.distributorCode} • {selectedItem.territory}</p>
+              </div>
+              
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Current Stock (System)
+                  </label>
+                  <input
+                    type="number"
+                    value={verificationData.currentStock}
+                    onChange={(e) => handleStockChange('currentStock', parseInt(e.target.value) || 0)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    placeholder="Enter current stock"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Physical Stock (Verified)
+                  </label>
+                  <input
+                    type="number"
+                    value={verificationData.physicalStock}
+                    onChange={(e) => handleStockChange('physicalStock', parseInt(e.target.value) || 0)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    placeholder="Enter physical stock"
+                  />
+                </div>
+                
+                {verificationData.variance !== 0 && (
+                  <div className={`p-3 rounded-lg ${verificationData.variance > 0 ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">Variance:</span>
+                      <span className={`font-bold ${verificationData.variance > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        {verificationData.variance > 0 ? '+' : ''}{verificationData.variance} {selectedItem.metrics.balanceStock.volume > 1000 ? 'Kg' : 'L'}
+                      </span>
+                    </div>
+                  </div>
+                )}
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Reason for Variance (if any)
+                  </label>
+                  <textarea
+                    value={verificationData.reason}
+                    onChange={(e) => setVerificationData(prev => ({ ...prev, reason: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    rows={3}
+                    placeholder="Explain any stock variance..."
+                  />
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+        
+        <div className="flex space-x-3 p-4 border-t">
+          <button
+            onClick={() => setShowVerifyModal(false)}
+            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleVerifySubmit}
+            className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+          >
+            Verify Stock
+          </button>
+        </div>
+      </div>
+    </div>
+  );
   const renderTabContent = () => {
     switch (activeTab) {
       case 'dashboard':
@@ -922,6 +1058,9 @@ const MobileApp: React.FC = () => {
           ))}
         </div>
       </div>
+      
+      {/* Stock Verification Modal */}
+      {showVerifyModal && renderVerifyModal()}
     </div>
   );
 };
