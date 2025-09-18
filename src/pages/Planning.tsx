@@ -2,13 +2,47 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import RoleBasedAccess from '../components/RoleBasedAccess';
-import { Calendar, Target, Users, Plus, CheckCircle, Clock, AlertCircle, MapPin, ArrowLeft } from 'lucide-react';
+import { Calendar, Target, Users, Plus, CheckCircle, Clock, AlertCircle, MapPin, ArrowLeft, ChevronDown } from 'lucide-react';
 import { ActivityPlan, PlannedActivity } from '../types';
 import { RouteTracker } from '../components/RouteTracker';
+
+interface ActivityCategory {
+  category: string;
+  activities: string[];
+}
+
+const MDO_ACTIVITIES: ActivityCategory[] = [
+  {
+    category: 'Internal Meetings',
+    activities: ['Team Meetings']
+  },
+  {
+    category: 'Farmer BTL Engagement',
+    activities: [
+      'Farmer Meets – Small',
+      'Farmer Meets – Large', 
+      'Farm level demos',
+      'Wall Paintings',
+      'Jeep Campaigns',
+      'Field Days',
+      'Distributor Day Training Program (25 dealers max)',
+      'Retailer Day Training Program (50 retailers max)',
+      'Distributor Connect Meeting (Overnight Stay)',
+      'Dealer/Retailer Store Branding'
+    ]
+  },
+  {
+    category: 'Channel BTL Engagement',
+    activities: ['Trade Merchandise']
+  }
+];
 
 export const Planning: React.FC = () => {
   const navigate = useNavigate();
   const { user, hasPermission } = useAuth();
+  const [showCreateDropdown, setShowCreateDropdown] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [selectedPlanType, setSelectedPlanType] = useState<'MDO' | 'Self' | ''>('');
   const [plans, setPlans] = useState<ActivityPlan[]>([
     {
       id: '1',
@@ -66,10 +100,15 @@ export const Planning: React.FC = () => {
   ]);
 
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
-  const [showCreatePlan, setShowCreatePlan] = useState(false);
   
   const currentUserRole = user?.role || 'MDO';
   const canCreatePlans = hasPermission('monthly_plans', 'create');
+
+  const handleCreatePlan = (type: 'MDO' | 'Self') => {
+    setSelectedPlanType(type);
+    setShowCreateModal(true);
+    setShowCreateDropdown(false);
+  };
 
   const getStatusColor = (status: ActivityPlan['status']) => {
     switch (status) {
@@ -111,27 +150,52 @@ export const Planning: React.FC = () => {
           </div>
         </div>
         <RoleBasedAccess allowedRoles={['TSM', 'RBH', 'RMM', 'ZBH', 'MH', 'VP_SM']}>
-          <button 
-            onClick={() => setShowCreatePlan(true)}
-            className="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700"
-          >
-            <Plus className="w-4 h-4" />
-            {currentUserRole === 'TSM' ? 'Create Plan (MDO/Self)' : 'Create Plan'}
-          </button>
+          <div className="relative">
+            {currentUserRole === 'TSM' ? (
+              <>
+                <button 
+                  onClick={() => setShowCreateDropdown(!showCreateDropdown)}
+                  className="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors"
+                >
+                  <Plus className="w-4 h-4" />
+                  Create Plan
+                  <ChevronDown className="w-4 h-4" />
+                </button>
+                
+                {showCreateDropdown && (
+                  <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                    <div className="py-2">
+                      <button
+                        onClick={() => handleCreatePlan('MDO')}
+                        className="w-full text-left px-4 py-2 hover:bg-gray-100 transition-colors"
+                      >
+                        <div className="font-medium text-gray-900">For MDO</div>
+                        <div className="text-sm text-gray-600">Create plan for team members</div>
+                      </button>
+                      <button
+                        onClick={() => handleCreatePlan('Self')}
+                        className="w-full text-left px-4 py-2 hover:bg-gray-100 transition-colors"
+                      >
+                        <div className="font-medium text-gray-900">For Self</div>
+                        <div className="text-sm text-gray-600">Create your own plan</div>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </>
+            ) : (
+              <button 
+                onClick={() => setShowCreateModal(true)}
+                className="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700"
+              >
+                <Plus className="w-4 h-4" />
+                Create Plan
+              </button>
+            )}
+          </div>
         </RoleBasedAccess>
       </div>
       
-      {/* Planning Authority Info */}
-      <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-        <h3 className="font-semibold text-blue-900 mb-2">📋 Monthly Planning Authority</h3>
-        <div className="text-sm text-blue-800 space-y-1">
-          <p><strong>TSM:</strong> Creates monthly plans for MDO and themselves (requires RBH approval)</p>
-          <p><strong>RBH/RMM:</strong> Can create plans when TSM is absent (no approval needed)</p>
-          <p><strong>ZBH:</strong> Creates zonal plans (requires VP-Sales & Marketing approval)</p>
-          <p><strong>MDO:</strong> Can only view plans created by TSM</p>
-        </div>
-      </div>
-
       <div className="grid gap-6">
         {plans.map((plan) => (
           <div key={plan.id} className="bg-white rounded-lg border p-6">
@@ -241,6 +305,143 @@ export const Planning: React.FC = () => {
           </div>
         ))}
       </div>
+
+      {/* Create Plan Modal */}
+      {showCreateModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
+            <div className="flex items-center justify-between p-6 border-b">
+              <div>
+                <h3 className="text-xl font-semibold text-gray-900">
+                  Create Monthly Plan {selectedPlanType && `- ${selectedPlanType === 'MDO' ? 'For MDO Team' : 'For Self'}`}
+                </h3>
+                <p className="text-sm text-gray-600 mt-1">
+                  Plan activities based on business requirements
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  setShowCreateModal(false);
+                  setSelectedPlanType('');
+                }}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+              <div className="space-y-6">
+                {/* Plan Basic Info */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Plan Title</label>
+                    <input
+                      type="text"
+                      placeholder="Enter plan title"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Period</label>
+                    <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                      <option>February 2024</option>
+                      <option>March 2024</option>
+                      <option>April 2024</option>
+                    </select>
+                {/* Activity Categories */}
+                <div>
+                  <h4 className="text-lg font-semibold text-gray-900 mb-4">Activity Categories</h4>
+                  <div className="space-y-4">
+                    {MDO_ACTIVITIES.map((category, categoryIndex) => (
+                      <div key={categoryIndex} className="bg-gray-50 rounded-xl p-4">
+                        <h5 className="font-semibold text-gray-900 mb-3">{category.category}</h5>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          {category.activities.map((activity, activityIndex) => (
+                            <div key={activityIndex} className="bg-white rounded-lg p-3 border border-gray-200">
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm font-medium text-gray-900">{activity}</span>
+                                <input
+                                  type="number"
+                                  placeholder="0"
+                                  min="0"
+                                  className="w-16 px-2 py-1 border border-gray-300 rounded text-sm text-center focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                />
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                  </div>
+                {/* Targets Section */}
+                <div>
+                  <h4 className="text-lg font-semibold text-gray-900 mb-4">Monthly Targets</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="bg-blue-50 rounded-lg p-4">
+                      <label className="block text-sm font-medium text-blue-700 mb-2">Dealer Visits</label>
+                      <input
+                        type="number"
+                        placeholder="Enter target visits"
+                        className="w-full px-3 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+                    <div className="bg-green-50 rounded-lg p-4">
+                      <label className="block text-sm font-medium text-green-700 mb-2">Sales Volume (₹)</label>
+                      <input
+                        type="number"
+                        placeholder="Enter sales target"
+                        className="w-full px-3 py-2 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      />
+                    </div>
+                    <div className="bg-purple-50 rounded-lg p-4">
+                      <label className="block text-sm font-medium text-purple-700 mb-2">New Customers</label>
+                      <input
+                        type="number"
+                        placeholder="Enter customer target"
+                        className="w-full px-3 py-2 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex justify-end space-x-3 p-6 border-t">
+              <button
+                onClick={() => {
+                  setShowCreateModal(false);
+                  setSelectedPlanType('');
+                }}
+                className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  // Handle plan creation logic here
+                  alert(`Creating plan ${selectedPlanType === 'MDO' ? 'for MDO team' : 'for self'}`);
+                  setShowCreateModal(false);
+                  setSelectedPlanType('');
+                }}
+                className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+              >
+                Create Plan
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+                </div>
+      {/* Click outside to close dropdown */}
+      {showCreateDropdown && (
+        <div 
+          className="fixed inset-0 z-40" 
+          onClick={() => setShowCreateDropdown(false)}
+        />
+      )}
     </div>
   );
 };
