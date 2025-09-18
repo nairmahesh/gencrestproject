@@ -686,12 +686,12 @@ const MobileApp: React.FC<MobileAppProps> = () => {
       {/* Content based on selected view */}
       {selectedView === 'overview' && (
         <div className="space-y-4">
-          {/* Team vs Personal Stats */}
+          {/* MDO Team Performance First */}
           <div className="grid grid-cols-1 gap-4">
             <div className="bg-white rounded-lg p-4 shadow-sm">
-              <h3 className="font-semibold text-sm mb-3 flex items-center">
+              <h3 className="font-semibold text-base mb-3 flex items-center">
                 <Users className="w-4 h-4 mr-2 text-blue-600" />
-                Team Performance
+                MDO Team Performance
               </h3>
               <div className="grid grid-cols-2 gap-3">
                 <div className="text-center p-3 bg-blue-50 rounded-lg">
@@ -705,12 +705,33 @@ const MobileApp: React.FC<MobileAppProps> = () => {
                   <div className="text-xs text-gray-500">{teamAggregates.monthlyActivities.done}/{teamAggregates.monthlyActivities.planned}</div>
                 </div>
               </div>
+              
+              {/* MDO Summary Stats */}
+              <div className="grid grid-cols-2 gap-3 mt-4">
+                <div className="bg-white rounded-lg p-3 border text-center">
+                  <div className="text-lg font-bold text-blue-600">{tsmPersonalStats.teamManagement.totalMDOs}</div>
+                  <div className="text-xs text-gray-600">Total MDOs</div>
+                </div>
+                <div className="bg-white rounded-lg p-3 border text-center">
+                  <div className="text-lg font-bold text-green-600">{tsmPersonalStats.teamManagement.topPerformers}</div>
+                  <div className="text-xs text-gray-600">Top Performers</div>
+                </div>
+                <div className="bg-white rounded-lg p-3 border text-center">
+                  <div className="text-lg font-bold text-red-600">{tsmPersonalStats.teamManagement.needsAttention}</div>
+                  <div className="text-xs text-gray-600">Need Attention</div>
+                </div>
+                <div className="bg-white rounded-lg p-3 border text-center">
+                  <div className="text-lg font-bold text-purple-600">{teamAggregates.averagePerformance}%</div>
+                  <div className="text-xs text-gray-600">Avg Performance</div>
+                </div>
+              </div>
             </div>
 
+            {/* TSM Personal Performance Second */}
             <div className="bg-white rounded-lg p-4 shadow-sm">
-              <h3 className="font-semibold text-sm mb-3 flex items-center">
+              <h3 className="font-semibold text-base mb-3 flex items-center">
                 <Target className="w-4 h-4 mr-2 text-purple-600" />
-                Your Performance
+                MDO Team Performance
               </h3>
               <div className="grid grid-cols-2 gap-3">
                 <div className="text-center p-3 bg-purple-50 rounded-lg">
@@ -724,29 +745,9 @@ const MobileApp: React.FC<MobileAppProps> = () => {
                   <div className="text-xs text-gray-500">{tsmPersonalStats.monthlyActivities.done}/{tsmPersonalStats.monthlyActivities.planned}</div>
                 </div>
               </div>
-            </div>
-          </div>
-
-          {/* Key Metrics */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="bg-white rounded-lg p-3 shadow-sm text-center">
-              <div className="text-lg font-bold text-blue-600">{tsmPersonalStats.teamManagement.totalMDOs}</div>
-              <div className="text-xs text-gray-600">Total MDOs</div>
-            </div>
-            <div className="bg-white rounded-lg p-3 shadow-sm text-center">
-              <div className="text-lg font-bold text-green-600">{tsmPersonalStats.teamManagement.topPerformers}</div>
-              <div className="text-xs text-gray-600">Top Performers</div>
-            </div>
-            <div className="bg-white rounded-lg p-3 shadow-sm text-center">
-              <div className="text-lg font-bold text-red-600">{tsmPersonalStats.teamManagement.needsAttention}</div>
-              <div className="text-xs text-gray-600">Need Attention</div>
-            </div>
-            <div className="bg-white rounded-lg p-3 shadow-sm text-center">
-              <div className="text-lg font-bold text-purple-600">{teamAggregates.averagePerformance}%</div>
-              <div className="text-xs text-gray-600">Avg Performance</div>
-            </div>
-          </div>
-
+              
+              {/* MDO Summary Stats */}
+              <div className="grid grid-cols-2 gap-3 mt-4">
           {/* Exceptions Alert */}
           {allExceptions.length > 0 && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-3">
@@ -839,6 +840,7 @@ const MobileApp: React.FC<MobileAppProps> = () => {
         <div className="space-y-3">
           <div className="bg-white rounded-lg p-4 shadow-sm">
             <h3 className="font-semibold text-sm mb-3">Exception Summary</h3>
+            {/* TSM Personal Performance Second */}
             <div className="grid grid-cols-2 gap-3">
               <div className="bg-red-50 rounded p-2 text-center">
                 <div className="text-sm font-bold text-red-800">{allExceptions.filter(e => e.type === 'route_deviation').length}</div>
