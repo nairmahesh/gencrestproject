@@ -27,6 +27,7 @@ const Liquidation: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [searchTag, setSearchTag] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
   
   const { 
     overallMetrics, 
@@ -241,12 +242,26 @@ const Liquidation: React.FC = () => {
       {/* Filters with Tag System */}
       <div className="bg-white rounded-xl p-6 card-shadow">
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-gray-900">Filters</h3>
-          {/* One Line Search Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 items-end">
-            {/* Search from Name */}
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold text-gray-900">Search & Filters</h3>
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors relative"
+            >
+              <Filter className="w-4 h-4 text-gray-600" />
+              {(selectedTags.length > 0) && (
+                <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full text-xs text-white flex items-center justify-center">
+                  {selectedTags.length}
+                </span>
+              )}
+            </button>
+          </div>
+          
+          {/* Search Section */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-end">
+            {/* Search */}
             <div className="lg:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Search from Name:</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Search:</label>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <input
@@ -259,9 +274,9 @@ const Liquidation: React.FC = () => {
               </div>
             </div>
             
-            {/* Search Distributor/Retailer */}
+            {/* Type Filter */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Search - Distributor/Retailer:</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Type:</label>
               <select
                 value={selectedTags.find(tag => ['Distributor', 'Retailer'].includes(tag)) || 'All'}
                 onChange={(e) => {
@@ -278,40 +293,90 @@ const Liquidation: React.FC = () => {
                 <option value="Retailer">Retailer</option>
               </select>
             </div>
-            
-            {/* Select Region */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Select Region:</label>
-              <select
-                value={selectedTags.find(tag => ['Delhi NCR', 'Mumbai', 'Bangalore', 'Chennai'].includes(tag)) || 'All'}
-                onChange={(e) => {
-                  const newTags = selectedTags.filter(tag => !['Delhi NCR', 'Mumbai', 'Bangalore', 'Chennai'].includes(tag));
-                  if (e.target.value !== 'All') {
-                    newTags.push(e.target.value);
-                  }
-                  setSelectedTags(newTags);
-                }}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              >
-                <option value="All">All Regions</option>
-                <option value="Delhi NCR">Delhi NCR</option>
-                <option value="Mumbai">Mumbai</option>
-                <option value="Bangalore">Bangalore</option>
-                <option value="Chennai">Chennai</option>
-              </select>
-            </div>
           </div>
           
-          {/* Clear Filters Button */}
-          {selectedTags.length > 0 && (
-            <div className="flex justify-end">
-              <button
-                onClick={clearAllTags}
-                className="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center border border-red-300"
-              >
-                <X className="w-4 h-4 mr-1" />
-                Clear Filters
-              </button>
+          {/* Expandable Filters */}
+          {showFilters && (
+            <div className="border-t pt-4 space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Region Filter */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Region:</label>
+                  <select
+                    value={selectedTags.find(tag => ['Delhi NCR', 'Mumbai', 'Bangalore', 'Chennai'].includes(tag)) || 'All'}
+                    onChange={(e) => {
+                      const newTags = selectedTags.filter(tag => !['Delhi NCR', 'Mumbai', 'Bangalore', 'Chennai'].includes(tag));
+                      if (e.target.value !== 'All') {
+                        newTags.push(e.target.value);
+                      }
+                      setSelectedTags(newTags);
+                    }}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  >
+                    <option value="All">All Regions</option>
+                    <option value="Delhi NCR">Delhi NCR</option>
+                    <option value="Mumbai">Mumbai</option>
+                    <option value="Bangalore">Bangalore</option>
+                    <option value="Chennai">Chennai</option>
+                  </select>
+                </div>
+                
+                {/* Status Filter */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Status:</label>
+                  <select
+                    value={selectedTags.find(tag => ['Active', 'Inactive'].includes(tag)) || 'All'}
+                    onChange={(e) => {
+                      const newTags = selectedTags.filter(tag => !['Active', 'Inactive'].includes(tag));
+                      if (e.target.value !== 'All') {
+                        newTags.push(e.target.value);
+                      }
+                      setSelectedTags(newTags);
+                    }}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  >
+                    <option value="All">All Status</option>
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
+                  </select>
+                </div>
+              </div>
+              
+              {/* Active Filters Display */}
+              {selectedTags.length > 0 && (
+                <div>
+                  <p className="text-sm font-medium text-gray-700 mb-2">Active Filters:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedTags.map(tag => (
+                      <span
+                        key={tag}
+                        className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getTagColor(tag)}`}
+                      >
+                        {tag}
+                        <button
+                          onClick={() => removeTag(tag)}
+                          className="ml-2 hover:bg-black hover:bg-opacity-10 rounded-full p-0.5"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* Clear All Filters */}
+              {selectedTags.length > 0 && (
+                <div className="flex justify-end">
+                  <button
+                    onClick={clearAllTags}
+                    className="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center border border-red-300"
+                  >
+                    <X className="w-4 h-4 mr-1" />
+                    Clear All Filters
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
