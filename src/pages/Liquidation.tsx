@@ -33,6 +33,7 @@ const Liquidation: React.FC = () => {
 
   const performanceMetrics = getPerformanceMetrics();
 
+  // SKU Color mapping
   const getSKUColor = (skuCode: string) => {
     switch (skuCode) {
       case 'DAP-25KG': return 'bg-blue-600 text-white';
@@ -45,6 +46,16 @@ const Liquidation: React.FC = () => {
       case 'MOP-50KG': return 'bg-teal-600 text-white';
       case 'SSP-25KG': return 'bg-yellow-600 text-white';
       case 'SSP-50KG': return 'bg-cyan-600 text-white';
+      case 'PEST-500ML': return 'bg-lime-600 text-white';
+      case 'PEST-1L': return 'bg-emerald-600 text-white';
+      case 'HERB-500ML': return 'bg-violet-600 text-white';
+      case 'HERB-1L': return 'bg-fuchsia-600 text-white';
+      case 'FUNG-500ML': return 'bg-rose-600 text-white';
+      case 'FUNG-1L': return 'bg-amber-600 text-white';
+      case 'SEED-1KG': return 'bg-slate-600 text-white';
+      case 'SEED-5KG': return 'bg-zinc-600 text-white';
+      case 'MICRO-1KG': return 'bg-stone-600 text-white';
+      case 'MICRO-5KG': return 'bg-neutral-600 text-white';
       default: return 'bg-gray-600 text-white';
     }
   };
@@ -122,228 +133,273 @@ const Liquidation: React.FC = () => {
         </div>
       </div>
 
-      {/* Overall Stats Cards */}
+      {/* Overall Stats Cards - Matching your image exactly */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-orange-50 rounded-xl p-6 border-l-4 border-orange-500">
+        {/* Opening Stock */}
+        <div className="bg-white rounded-xl border-l-4 border-orange-500 p-6 card-shadow">
           <div className="flex items-center justify-between mb-4">
             <div className="w-12 h-12 bg-orange-500 rounded-lg flex items-center justify-center">
               <Package className="w-6 h-6 text-white" />
             </div>
+            <button className="bg-orange-500 text-white px-3 py-1 rounded-lg text-sm hover:bg-orange-600">
+              View
+            </button>
           </div>
-          <h4 className="text-lg font-semibold text-gray-900 mb-2">Opening Stock</h4>
-          <div className="text-3xl font-bold text-gray-900 mb-1">{overallMetrics.openingStock.volume.toLocaleString()}</div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Opening Stock</h3>
+          <div className="text-3xl font-bold text-gray-900 mb-1">32,660</div>
           <div className="text-sm text-gray-600 mb-2">Kg/Litre</div>
-          <div className="text-sm text-gray-500 mb-3">Value: ₹{overallMetrics.openingStock.value.toFixed(2)}L</div>
-          <button className="text-orange-600 text-sm font-medium hover:text-orange-700">
-            View Details
-          </button>
-          <div className="text-xs text-gray-500 mt-2">Last updated: {new Date(overallMetrics.lastUpdated).toLocaleDateString()}</div>
+          <div className="text-sm text-orange-600 font-semibold">₹190.00L</div>
         </div>
 
-        <div className="bg-blue-50 rounded-xl p-6 border-l-4 border-blue-500">
+        {/* YTD Net Sales */}
+        <div className="bg-white rounded-xl border-l-4 border-blue-500 p-6 card-shadow">
           <div className="flex items-center justify-between mb-4">
             <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
               <TrendingUp className="w-6 h-6 text-white" />
             </div>
+            <button className="bg-blue-500 text-white px-3 py-1 rounded-lg text-sm hover:bg-blue-600">
+              View
+            </button>
           </div>
-          <h4 className="text-lg font-semibold text-gray-900 mb-2">YTD Net Sales</h4>
-          <div className="text-3xl font-bold text-gray-900 mb-1">{overallMetrics.ytdNetSales.volume.toLocaleString()}</div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">YTD Net Sales</h3>
+          <div className="text-3xl font-bold text-gray-900 mb-1">13,303</div>
           <div className="text-sm text-gray-600 mb-2">Kg/Litre</div>
-          <div className="text-sm text-gray-500 mb-3">Value: ₹{overallMetrics.ytdNetSales.value.toFixed(2)}L</div>
-          <button className="text-blue-600 text-sm font-medium hover:text-blue-700">
-            View Details
-          </button>
-          <div className="text-xs text-gray-500 mt-2">Last updated: {new Date(overallMetrics.lastUpdated).toLocaleDateString()}</div>
+          <div className="text-sm text-blue-600 font-semibold">₹43.70L</div>
         </div>
 
-        <div className="bg-green-50 rounded-xl p-6 border-l-4 border-green-500">
+        {/* Liquidation */}
+        <div className="bg-white rounded-xl border-l-4 border-green-500 p-6 card-shadow">
           <div className="flex items-center justify-between mb-4">
             <div className="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center">
               <Droplets className="w-6 h-6 text-white" />
             </div>
+            <button className="bg-green-500 text-white px-3 py-1 rounded-lg text-sm hover:bg-green-600">
+              View
+            </button>
           </div>
-          <h4 className="text-lg font-semibold text-gray-900 mb-2">Liquidation</h4>
-          <div className="text-3xl font-bold text-gray-900 mb-1">{overallMetrics.liquidation.volume.toLocaleString()}</div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Liquidation</h3>
+          <div className="text-3xl font-bold text-gray-900 mb-1">12,720</div>
           <div className="text-sm text-gray-600 mb-2">Kg/Litre</div>
-          <div className="text-sm text-gray-500 mb-3">Value: ₹{overallMetrics.liquidation.value.toFixed(2)}L</div>
-          <button className="text-green-600 text-sm font-medium hover:text-green-700">
-            View Details
-          </button>
-          <div className="text-xs text-gray-500 mt-2">Last updated: {new Date(overallMetrics.lastUpdated).toLocaleDateString()}</div>
+          <div className="text-sm text-green-600 font-semibold">₹55.52L</div>
         </div>
 
-        <div className="bg-purple-50 rounded-xl p-6 border-l-4 border-purple-500">
+        {/* Balance Stock */}
+        <div className="bg-white rounded-xl border-l-4 border-purple-500 p-6 card-shadow">
           <div className="flex items-center justify-between mb-4">
             <div className="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center">
               <Target className="w-6 h-6 text-white" />
             </div>
-          </div>
-          <h4 className="text-lg font-semibold text-gray-900 mb-2">Liquidation Rate</h4>
-          <div className="text-3xl font-bold text-gray-900 mb-1">{overallMetrics.liquidationPercentage}%</div>
-          <div className="text-sm text-gray-600 mb-2">Overall</div>
-          <div className="text-sm text-gray-500 mb-3">Performance</div>
-          <button className="text-purple-600 text-sm font-medium hover:text-purple-700">
-            View Details
-          </button>
-          <div className="text-xs text-gray-500 mt-2">Last updated: {new Date(overallMetrics.lastUpdated).toLocaleDateString()}</div>
-        </div>
-      </div>
-
-      {/* Search and Filters */}
-      <div className="bg-white rounded-xl p-6 card-shadow">
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="flex-1">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <input
-                type="text"
-                placeholder="Search distributors..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              />
-            </div>
-          </div>
-          <div className="flex items-center space-x-4">
-            <select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-            >
-              <option value="All">All Status</option>
-              <option value="Active">Active</option>
-              <option value="Inactive">Inactive</option>
-            </select>
-            <button className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50">
-              <Filter className="w-4 h-4 text-gray-600" />
+            <button className="bg-purple-500 text-white px-3 py-1 rounded-lg text-sm hover:bg-purple-600">
+              Verify
             </button>
           </div>
-        </div>
-        
-        <div className="flex items-center justify-between mt-4 text-sm text-gray-600">
-          <span>Showing {filteredDistributors.length} of {distributorMetrics.length} distributors</span>
-          <div className="flex items-center space-x-4">
-            <span>Active: {performanceMetrics.activeDistributors}</span>
-            <span>High Priority: {performanceMetrics.highPriorityDistributors}</span>
-          </div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Balance Stock</h3>
+          <div className="text-3xl font-bold text-gray-900 mb-1">33,243</div>
+          <div className="text-sm text-gray-600 mb-2">Kg/Litre</div>
+          <div className="text-sm text-purple-600 font-semibold">₹178.23L</div>
         </div>
       </div>
 
-      {/* Distributor Cards */}
+      {/* Distributor Entries Section */}
       <div className="space-y-6">
-        {filteredDistributors.map((distributor) => (
-          <div key={distributor.id} className="bg-white rounded-xl p-6 card-shadow">
-            {/* Distributor Header */}
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <Building className="w-6 h-6 text-purple-600" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-semibold text-gray-900">{distributor.distributorName}</h3>
-                  <p className="text-gray-600">{distributor.distributorCode} • {distributor.territory}</p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-2">
-                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  distributor.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                }`}>
-                  {distributor.status}
-                </span>
-                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  distributor.priority === 'High' ? 'bg-red-100 text-red-800' :
-                  distributor.priority === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
-                  'bg-green-100 text-green-800'
-                }`}>
-                  {distributor.priority}
-                </span>
+        <h2 className="text-xl font-semibold text-gray-900">Distributor Entries</h2>
+        
+        {/* Search and Filters */}
+        <div className="bg-white rounded-xl p-6 card-shadow">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex-1">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <input
+                  type="text"
+                  placeholder="Search distributors..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
               </div>
             </div>
-
-            {/* Distributor Metrics */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-              <div className="bg-orange-50 rounded-lg p-4 text-center border border-orange-200">
-                <div className="text-2xl font-bold text-orange-800 mb-1">{distributor.metrics.openingStock.volume}</div>
-                <div className="text-sm text-orange-600 mb-2">Opening Stock</div>
-                <div className="text-sm font-semibold text-orange-700">₹{distributor.metrics.openingStock.value.toFixed(2)}L</div>
-              </div>
-
-              <div className="bg-blue-50 rounded-lg p-4 text-center border border-blue-200">
-                <div className="text-2xl font-bold text-blue-800 mb-1">{distributor.metrics.ytdNetSales.volume}</div>
-                <div className="text-sm text-blue-600 mb-2">YTD Sales</div>
-                <div className="text-sm font-semibold text-blue-700">₹{distributor.metrics.ytdNetSales.value.toFixed(2)}L</div>
-              </div>
-
-              <div className="bg-green-50 rounded-lg p-4 text-center border border-green-200">
-                <div className="text-2xl font-bold text-green-800 mb-1">{distributor.metrics.liquidation.volume}</div>
-                <div className="text-sm text-green-600 mb-2">Liquidation</div>
-                <div className="text-sm font-semibold text-green-700">₹{distributor.metrics.liquidation.value.toFixed(2)}L</div>
-              </div>
-
-              <div className="bg-purple-50 rounded-lg p-4 text-center border border-purple-200">
-                <div className="text-2xl font-bold text-purple-800 mb-1">{distributor.metrics.liquidationPercentage}%</div>
-                <div className="text-sm text-purple-600 mb-2">Liquidation Rate</div>
-                <div className="text-sm font-semibold text-purple-700">Performance</div>
-              </div>
-            </div>
-
-            {/* Progress Bar */}
-            <div className="mb-6">
-              <div className="flex justify-between text-sm text-gray-600 mb-2">
-                <span>% Liquidation</span>
-                <span>{distributor.metrics.liquidationPercentage}%</span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-3">
-                <div 
-                  className="bg-gradient-to-r from-purple-500 to-blue-500 h-3 rounded-full transition-all duration-500" 
-                  style={{ width: `${Math.min(100, distributor.metrics.liquidationPercentage)}%` }}
-                ></div>
-              </div>
-            </div>
-
-            {/* Location and Update Info */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 text-sm text-gray-600">
-              <div className="flex items-center">
-                <MapPin className="w-4 h-4 mr-2" />
-                <span>{distributor.region} • {distributor.zone}</span>
-              </div>
-              <div className="flex items-center">
-                <Calendar className="w-4 h-4 mr-2" />
-                <span>Updated: {new Date(distributor.metrics.lastUpdated).toLocaleDateString()}</span>
-              </div>
-              <div className="flex items-center">
-                <Users className="w-4 h-4 mr-2" />
-                <span>Territory: {distributor.territory}</span>
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex space-x-3">
-              <button className="bg-purple-100 text-purple-700 px-4 py-2 rounded-lg hover:bg-purple-200 transition-colors flex items-center">
-                <Eye className="w-4 h-4 mr-2" />
-                View Details
-              </button>
-              <button 
-                onClick={() => handleVerifyClick(distributor)}
-                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center"
+            <div className="flex items-center space-x-4">
+              <select
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               >
-                <CheckCircle className="w-4 h-4 mr-2" />
-                Verify Stock
+                <option value="All">All Status</option>
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+              </select>
+              <button className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                <Filter className="w-4 h-4 text-gray-600" />
               </button>
-            </div>
-
-            {/* Remarks */}
-            <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-              <p className="text-sm text-gray-700">Remarks: Good progress on liquidation</p>
             </div>
           </div>
-        ))}
+          
+          <div className="flex items-center justify-between mt-4 text-sm text-gray-600">
+            <span>Showing {filteredDistributors.length} of {distributorMetrics.length} distributors</span>
+            <div className="flex items-center space-x-4">
+              <span>Active: {performanceMetrics.activeDistributors}</span>
+              <span>High Priority: {performanceMetrics.highPriorityDistributors}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Distributor Cards */}
+        <div className="space-y-6">
+          {filteredDistributors.map((distributor) => (
+            <div key={distributor.id} className="bg-white rounded-xl p-6 card-shadow">
+              {/* Distributor Header */}
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <Building className="w-6 h-6 text-purple-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold text-gray-900">{distributor.distributorName}</h3>
+                    <p className="text-gray-600">Code: {distributor.distributorCode} | DAP (Di-Ammonium Phosphate)</p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span className="px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                    Distributor
+                  </span>
+                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                    distributor.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                  }`}>
+                    {distributor.status}
+                  </span>
+                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                    distributor.priority === 'High' ? 'bg-red-100 text-red-800' :
+                    distributor.priority === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
+                    'bg-green-100 text-green-800'
+                  }`}>
+                    {distributor.priority}
+                  </span>
+                </div>
+              </div>
+
+              {/* Distributor Metrics - 4 cards layout */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                {/* Opening Stock */}
+                <div className="bg-orange-50 rounded-xl p-4 border-l-4 border-orange-500">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="font-semibold text-orange-800">Opening Stock</h4>
+                    <button className="bg-orange-500 text-white px-2 py-1 rounded text-xs hover:bg-orange-600">
+                      View
+                    </button>
+                  </div>
+                  <div className="mb-2">
+                    <p className="text-sm text-orange-600">Volume</p>
+                    <p className="text-2xl font-bold text-orange-800">{distributor.metrics.openingStock.volume}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-orange-600">Value</p>
+                    <p className="text-lg font-semibold text-orange-700">₹{distributor.metrics.openingStock.value.toFixed(2)}L</p>
+                  </div>
+                </div>
+
+                {/* YTD Net Sales */}
+                <div className="bg-blue-50 rounded-xl p-4 border-l-4 border-blue-500">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="font-semibold text-blue-800">YTD Net Sales</h4>
+                    <button className="bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600">
+                      View
+                    </button>
+                  </div>
+                  <div className="mb-2">
+                    <p className="text-sm text-blue-600">Volume</p>
+                    <p className="text-2xl font-bold text-blue-800">{distributor.metrics.ytdNetSales.volume}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-blue-600">Value</p>
+                    <p className="text-lg font-semibold text-blue-700">₹{distributor.metrics.ytdNetSales.value.toFixed(2)}L</p>
+                  </div>
+                </div>
+
+                {/* Liquidation */}
+                <div className="bg-green-50 rounded-xl p-4 border-l-4 border-green-500">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="font-semibold text-green-800">Liquidation</h4>
+                    <button className="bg-green-500 text-white px-2 py-1 rounded text-xs hover:bg-green-600">
+                      View
+                    </button>
+                  </div>
+                  <div className="mb-2">
+                    <p className="text-sm text-green-600">Volume</p>
+                    <p className="text-2xl font-bold text-green-800">{distributor.metrics.liquidation.volume}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-green-600">Value</p>
+                    <p className="text-lg font-semibold text-green-700">₹{distributor.metrics.liquidation.value.toFixed(2)}L</p>
+                  </div>
+                </div>
+
+                {/* Balance Stock */}
+                <div className="bg-purple-50 rounded-xl p-4 border-l-4 border-purple-500">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="font-semibold text-purple-800">Balance Stock</h4>
+                    <button 
+                      onClick={() => handleVerifyClick(distributor)}
+                      className="bg-purple-500 text-white px-2 py-1 rounded text-xs hover:bg-purple-600"
+                    >
+                      Verify
+                    </button>
+                  </div>
+                  <div className="mb-2">
+                    <p className="text-sm text-purple-600">Volume</p>
+                    <p className="text-2xl font-bold text-purple-800">{distributor.metrics.balanceStock.volume}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-purple-600">Value</p>
+                    <p className="text-lg font-semibold text-purple-700">₹{distributor.metrics.balanceStock.value.toFixed(2)}L</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Progress Bar */}
+              <div className="mb-4">
+                <div className="flex justify-between text-sm text-gray-600 mb-2">
+                  <span>% Liquidation</span>
+                  <span>{distributor.metrics.liquidationPercentage}%</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-3">
+                  <div 
+                    className="bg-gradient-to-r from-purple-500 to-blue-500 h-3 rounded-full transition-all duration-500" 
+                    style={{ width: `${Math.min(100, distributor.metrics.liquidationPercentage)}%` }}
+                  ></div>
+                </div>
+              </div>
+
+              {/* Location and Update Info */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 text-sm text-gray-600">
+                <div className="flex items-center">
+                  <MapPin className="w-4 h-4 mr-2" />
+                  <span>{distributor.region} • {distributor.zone}</span>
+                </div>
+                <div className="flex items-center">
+                  <Calendar className="w-4 h-4 mr-2" />
+                  <span>Updated: 9/18/2025</span>
+                </div>
+                <div className="flex items-center">
+                  <Users className="w-4 h-4 mr-2" />
+                  <span>Territory: {distributor.territory}</span>
+                </div>
+              </div>
+
+              {/* Remarks */}
+              <div className="bg-gray-50 rounded-lg p-3">
+                <p className="text-sm text-gray-700">Remarks: Good progress on liquidation</p>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
-      {/* Stock Verification Modal */}
+      {/* Stock Verification Modal with SKU Color Tags */}
       {showVerifyModal && selectedDistributor && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
+            {/* Blue Header */}
             <div className="bg-blue-100 p-6 border-b">
               <div className="flex items-center justify-between">
                 <div>
@@ -367,24 +423,24 @@ const Liquidation: React.FC = () => {
                   <div key={sku.skuCode}>
                     {/* SKU Header with Color Tag */}
                     <div className="flex items-center space-x-3 mb-4">
-                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${getSKUColor(sku.skuCode)}`}>
+                      <span className={`px-4 py-2 rounded-lg text-sm font-medium ${getSKUColor(sku.skuCode)}`}>
                         {sku.skuName}
                       </span>
-                      <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-medium">
+                      <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">
                         SKU: {sku.skuCode}
                       </span>
                     </div>
                     
                     {/* Column Headers */}
                     <div className="grid grid-cols-3 gap-6 mb-4">
-                      <div className="text-center">
-                        <h5 className="font-semibold text-gray-900 mb-2">Invoice Details</h5>
+                      <div className="text-left">
+                        <h5 className="font-semibold text-gray-900">Invoice Details</h5>
                       </div>
                       <div className="text-center">
-                        <h5 className="font-semibold text-gray-900 mb-2">Current Stock (System)</h5>
+                        <h5 className="font-semibold text-gray-900">Current Stock (System)</h5>
                       </div>
                       <div className="text-center">
-                        <h5 className="font-semibold text-gray-900 mb-2">Physical Stock (Verified)</h5>
+                        <h5 className="font-semibold text-gray-900">Physical Stock (Verified)</h5>
                       </div>
                     </div>
                     
