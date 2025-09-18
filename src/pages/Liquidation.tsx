@@ -209,13 +209,205 @@ const Liquidation: React.FC = () => {
 
       {/* Overall Metrics */}
       <div className="bg-white rounded-xl p-6 card-shadow">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Overall Liquidation Metrics</h2>
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-lg font-semibold text-gray-900">Stock Liquidation Overview</h2>
+            <p className="text-sm text-gray-600 mt-1">Last updated: 15 Sept 2025, 10:00 pm</p>
+          </div>
+        </div>
+        
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div className="bg-orange-50 rounded-xl p-4 text-center border border-orange-200">
-            <div className="w-12 h-12 bg-orange-500 rounded-lg flex items-center justify-center mx-auto mb-3">
-              <Package className="w-6 h-6 text-white" />
+          <div className="bg-white rounded-xl p-6 border-l-4 border-orange-500 card-shadow">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-orange-800">Opening Stock</h3>
+              <button className="bg-orange-500 text-white px-3 py-1 rounded text-sm hover:bg-orange-600 transition-colors">
+                View
+              </button>
             </div>
-            <div className="text-2xl font-bold text-orange-800 mb-1">
+            <div className="space-y-2">
+              <div className="text-3xl font-bold text-orange-800">
+                32,660
+              </div>
+              <div className="text-sm text-orange-600">Kg/Litre</div>
+              <div className="text-lg font-semibold text-orange-700">₹190.00L</div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl p-6 border-l-4 border-blue-500 card-shadow">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-blue-800">YTD Net Sales</h3>
+              <button className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600 transition-colors">
+                View
+              </button>
+            </div>
+            <div className="space-y-2">
+              <div className="text-3xl font-bold text-blue-800">
+                13,303
+              </div>
+              <div className="text-sm text-blue-600">Kg/Litre</div>
+              <div className="text-lg font-semibold text-blue-700">₹43.70L</div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl p-6 border-l-4 border-green-500 card-shadow">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-green-800">Liquidation</h3>
+              <button className="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600 transition-colors">
+                View
+              </button>
+            </div>
+            <div className="space-y-2">
+              <div className="text-3xl font-bold text-green-800">
+                12,720
+              </div>
+              <div className="text-sm text-green-600">Kg/Litre</div>
+              <div className="text-lg font-semibold text-green-700">₹55.52L</div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl p-6 border-l-4 border-purple-500 card-shadow">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-purple-800">Balance Stock</h3>
+              <button className="bg-purple-500 text-white px-3 py-1 rounded text-sm hover:bg-purple-600 transition-colors">
+                Verify
+              </button>
+            </div>
+            <div className="space-y-2">
+              <div className="text-3xl font-bold text-purple-800">
+                33,243
+              </div>
+              <div className="text-sm text-purple-600">Kg/Litre</div>
+              <div className="text-lg font-semibold text-purple-700">₹178.23L</div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Liquidation Percentage */}
+        <div className="mt-6 text-center">
+          <div className="text-4xl font-bold text-purple-600 mb-2">28%</div>
+          <div className="text-lg text-gray-700">Liquidation Percentage</div>
+        </div>
+      </div>
+
+      {/* Distributor Entries Section */}
+      <div className="bg-white rounded-xl p-6 card-shadow">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Distributor Entries</h2>
+        
+        {/* Individual Distributor Cards */}
+        {distributorsWithTags.map((distributor) => (
+          <div key={distributor.id} className="mb-6 last:mb-0">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                  <Building className="w-6 h-6 text-purple-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">{distributor.distributorName}</h3>
+                  <p className="text-sm text-gray-600">Code: {distributor.distributorCode} | DAP (Di-Ammonium Phosphate)</p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-2">
+                <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(distributor.status)}`}>
+                  {distributor.status === 'Active' ? 'Active' : 'Inactive'}
+                </span>
+                <span className={`px-3 py-1 rounded-full text-sm font-medium ${getPriorityColor(distributor.priority)}`}>
+                  {distributor.priority}
+                </span>
+              </div>
+            </div>
+
+            {/* Metric Cards for this distributor */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+              <div className="bg-orange-50 rounded-lg p-4 border-l-4 border-orange-500">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="text-sm font-semibold text-orange-800">Opening Stock</h4>
+                  <button className="bg-orange-500 text-white px-2 py-1 rounded text-xs hover:bg-orange-600 transition-colors">
+                    View
+                  </button>
+                </div>
+                <div className="space-y-1">
+                  <div className="text-sm text-orange-600">Volume</div>
+                  <div className="text-xl font-bold text-orange-800">
+                    {distributor.metrics.openingStock.volume.toLocaleString()}
+                  </div>
+                  <div className="text-sm text-orange-600">Value</div>
+                  <div className="text-sm font-semibold text-orange-700">
+                    ₹{distributor.metrics.openingStock.value.toFixed(2)}L
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-blue-50 rounded-lg p-4 border-l-4 border-blue-500">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="text-sm font-semibold text-blue-800">YTD Net Sales</h4>
+                  <button className="bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600 transition-colors">
+                    View
+                  </button>
+                </div>
+                <div className="space-y-1">
+                  <div className="text-sm text-blue-600">Volume</div>
+                  <div className="text-xl font-bold text-blue-800">
+                    {distributor.metrics.ytdNetSales.volume.toLocaleString()}
+                  </div>
+                  <div className="text-sm text-blue-600">Value</div>
+                  <div className="text-sm font-semibold text-blue-700">
+                    ₹{distributor.metrics.ytdNetSales.value.toFixed(2)}L
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-green-50 rounded-lg p-4 border-l-4 border-green-500">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="text-sm font-semibold text-green-800">Liquidation</h4>
+                  <button className="bg-green-500 text-white px-2 py-1 rounded text-xs hover:bg-green-600 transition-colors">
+                    View
+                  </button>
+                </div>
+                <div className="space-y-1">
+                  <div className="text-sm text-green-600">Volume</div>
+                  <div className="text-xl font-bold text-green-800">
+                    {distributor.metrics.liquidation.volume.toLocaleString()}
+                  </div>
+                  <div className="text-sm text-green-600">Value</div>
+                  <div className="text-sm font-semibold text-green-700">
+                    ₹{distributor.metrics.liquidation.value.toFixed(2)}L
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-purple-50 rounded-lg p-4 border-l-4 border-purple-500">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="text-sm font-semibold text-purple-800">Balance Stock</h4>
+                  <button className="bg-purple-500 text-white px-2 py-1 rounded text-xs hover:bg-purple-600 transition-colors">
+                    Verify
+                  </button>
+                </div>
+                <div className="space-y-1">
+                  <div className="text-sm text-purple-600">Volume</div>
+                  <div className="text-xl font-bold text-purple-800">
+                    {distributor.metrics.balanceStock.volume.toLocaleString()}
+                  </div>
+                  <div className="text-sm text-purple-600">Value</div>
+                  <div className="text-sm font-semibold text-purple-700">
+                    ₹{distributor.metrics.balanceStock.value.toFixed(2)}L
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Liquidation Percentage for this distributor */}
+            <div className="text-center py-4">
+              <div className="text-2xl font-bold text-purple-600 mb-1">
+                {distributor.metrics.liquidationPercentage}%
+              </div>
+              <div className="text-sm text-gray-600">Liquidation</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Filters with Tag System - Keep existing filters */}
+      <div className="bg-white rounded-xl p-6 card-shadow">
               {overallMetrics.openingStock.volume.toLocaleString()}
             </div>
             <div className="text-sm text-orange-600 mb-2">Kg/Litre</div>
@@ -270,21 +462,6 @@ const Liquidation: React.FC = () => {
       {/* Filters with Tag System */}
       <div className="bg-white rounded-xl p-6 card-shadow">
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-gray-900">Search & Filters</h3>
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors relative"
-            >
-              <Filter className="w-4 h-4 text-gray-600" />
-              {(selectedTags.length > 0) && (
-                <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full text-xs text-white flex items-center justify-center">
-                  {selectedTags.length}
-                </span>
-              )}
-            </button>
-          </div>
-          
           {/* Search Section */}
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 items-end">
             {/* Search */}
@@ -322,230 +499,8 @@ const Liquidation: React.FC = () => {
               </select>
             </div>
           </div>
-          
-          {/* Expandable Filters */}
-          {showFilters && (
-            <div className="border-t pt-4 space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Region Filter */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Region:</label>
-                  <select
-                    value={selectedTags.find(tag => ['Delhi NCR', 'Mumbai', 'Bangalore', 'Chennai'].includes(tag)) || 'All'}
-                    onChange={(e) => {
-                      const newTags = selectedTags.filter(tag => !['Delhi NCR', 'Mumbai', 'Bangalore', 'Chennai'].includes(tag));
-                      if (e.target.value !== 'All') {
-                        newTags.push(e.target.value);
-                      }
-                      setSelectedTags(newTags);
-                    }}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  >
-                    <option value="All">All Regions</option>
-                    <option value="Delhi NCR">Delhi NCR</option>
-                    <option value="Mumbai">Mumbai</option>
-                    <option value="Bangalore">Bangalore</option>
-                    <option value="Chennai">Chennai</option>
-                  </select>
-                </div>
-                
-                {/* Status Filter */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Status:</label>
-                  <select
-                    value={selectedTags.find(tag => ['Active', 'Inactive'].includes(tag)) || 'All'}
-                    onChange={(e) => {
-                      const newTags = selectedTags.filter(tag => !['Active', 'Inactive'].includes(tag));
-                      if (e.target.value !== 'All') {
-                        newTags.push(e.target.value);
-                      }
-                      setSelectedTags(newTags);
-                    }}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  >
-                    <option value="All">All Status</option>
-                    <option value="Active">Active</option>
-                    <option value="Inactive">Inactive</option>
-                  </select>
-                </div>
-              </div>
-              
-              {/* Active Filters Display */}
-              {selectedTags.length > 0 && (
-                <div>
-                  <p className="text-sm font-medium text-gray-700 mb-2">Active Filters:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedTags.map(tag => (
-                      <span
-                        key={tag}
-                        className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getTagColor(tag)}`}
-                      >
-                        {tag}
-                        <button
-                          onClick={() => removeTag(tag)}
-                          className="ml-2 hover:bg-black hover:bg-opacity-10 rounded-full p-0.5"
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-              
-              {/* Clear All Filters */}
-              {selectedTags.length > 0 && (
-                <div className="flex justify-end">
-                  <button
-                    onClick={clearAllTags}
-                    className="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center border border-red-300"
-                  >
-                    <X className="w-4 h-4 mr-1" />
-                    Clear All Filters
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
         </div>
       </div>
-
-      {/* Results Summary */}
-      <div className="flex items-center justify-between text-sm text-gray-600">
-        <span>
-          Showing {filteredEntities.length} of {allEntities.length} entries
-          {selectedTags.length > 0 && (
-            <span className="ml-2">
-              (filtered by {selectedTags.length} tag{selectedTags.length !== 1 ? 's' : ''})
-            </span>
-          )}
-        </span>
-        <div className="flex items-center space-x-4">
-          <span>Distributors: {filteredEntities.filter(d => d.tags.includes('Distributor')).length}</span>
-          <span>Retailers: {filteredEntities.filter(d => d.tags.includes('Retailer')).length}</span>
-          <span>Active: {filteredEntities.filter(d => d.status === 'Active').length}</span>
-          <span>Avg Liquidation: {Math.round(filteredEntities.reduce((sum, d) => sum + d.metrics.liquidationPercentage, 0) / filteredEntities.length || 0)}%</span>
-        </div>
-      </div>
-
-      {/* Distributors List */}
-      <div className="space-y-4">
-        {filteredEntities.map((distributor) => (
-          <div key={distributor.id} className="bg-white rounded-xl p-6 card-shadow card-hover">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-                  {distributor.tags.includes('Distributor') ? (
-                    <Building className="w-6 h-6 text-purple-600" />
-                  ) : (
-                    <Building className="w-6 h-6 text-blue-600" />
-                  )}
-                </div>
-                <div>
-                  <h3 className="font-semibold text-gray-900">{distributor.distributorName}</h3>
-                  <p className="text-sm text-gray-600">{distributor.distributorCode} • {distributor.territory}</p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-2">
-                <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(distributor.status)}`}>
-                  {distributor.status}
-                </span>
-                <span className={`px-3 py-1 rounded-full text-xs font-medium ${getPriorityColor(distributor.priority)}`}>
-                  {distributor.priority}
-                </span>
-              </div>
-            </div>
-
-            {/* Liquidation Metrics */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-              <div className="text-center p-3 bg-orange-50 rounded-lg">
-                <div className="text-lg font-bold text-orange-800">
-                  {distributor.metrics.openingStock.volume.toLocaleString()}
-                </div>
-                <div className="text-xs text-orange-600">Opening Stock</div>
-                <div className="text-xs text-orange-700">₹{distributor.metrics.openingStock.value.toFixed(2)}L</div>
-              </div>
-              <div className="text-center p-3 bg-blue-50 rounded-lg">
-                <div className="text-lg font-bold text-blue-800">
-                  {distributor.metrics.ytdNetSales.volume.toLocaleString()}
-                </div>
-                <div className="text-xs text-blue-600">YTD Sales</div>
-                <div className="text-xs text-blue-700">₹{distributor.metrics.ytdNetSales.value.toFixed(2)}L</div>
-              </div>
-              <div className="text-center p-3 bg-green-50 rounded-lg">
-                <div className="text-lg font-bold text-green-800">
-                  {distributor.metrics.liquidation.volume.toLocaleString()}
-                </div>
-                <div className="text-xs text-green-600">Liquidated</div>
-                <div className="text-xs text-green-700">₹{distributor.metrics.liquidation.value.toFixed(2)}L</div>
-              </div>
-              <div className="text-center p-3 bg-purple-50 rounded-lg">
-                <div className="text-lg font-bold text-purple-800">
-                  {distributor.metrics.liquidationPercentage}%
-                </div>
-                <div className="text-xs text-purple-600">Liquidation Rate</div>
-                <div className="w-full bg-gray-200 rounded-full h-1 mt-1">
-                  <div 
-                    className="bg-purple-600 h-1 rounded-full" 
-                    style={{ width: `${Math.min(distributor.metrics.liquidationPercentage, 100)}%` }}
-                  ></div>
-                </div>
-              </div>
-            </div>
-
-            {/* Distributor Tags */}
-            <div className="mb-4">
-              <div className="flex flex-wrap gap-1">
-                {distributor.tags.slice(0, 4).map((tag, index) => (
-                  <span
-                    key={index}
-                    className={`px-2 py-1 rounded-full text-xs font-medium ${getTagColor(tag)}`}
-                  >
-                    {tag}
-                  </span>
-                ))}
-                {distributor.tags.length > 4 && (
-                  <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
-                    +{distributor.tags.length - 4} more
-                  </span>
-                )}
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between text-sm text-gray-600 mb-4">
-              <div className="flex items-center">
-                <MapPin className="w-4 h-4 mr-1" />
-                <span>{distributor.region} • {distributor.zone}</span>
-              </div>
-              <div className="flex items-center">
-                <Calendar className="w-4 h-4 mr-1" />
-                <span>Updated: {new Date(distributor.metrics.lastUpdated).toLocaleDateString()}</span>
-              </div>
-            </div>
-
-            <div className="flex space-x-3">
-              <button 
-                onClick={() => navigate(`/retailer-liquidation/${distributor.id}`)}
-                className="bg-purple-100 text-purple-700 px-4 py-2 rounded-lg hover:bg-purple-200 transition-colors flex items-center"
-              >
-                <Eye className="w-4 h-4 mr-2" />
-                View Details
-              </button>
-              <button className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors flex items-center">
-                <Edit className="w-4 h-4 mr-2" />
-                Update Stock
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {filteredEntities.length === 0 && (
-        <div className="text-center py-12">
-          <Droplets className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-500">No entries found</p>
-        </div>
-      )}
     </div>
   );
 };
