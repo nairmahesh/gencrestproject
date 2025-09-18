@@ -893,7 +893,7 @@ const MobileApp: React.FC = () => {
       </div>
 
       {/* Bottom Navigation */}
-      <div className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-sm bg-white border-t border-gray-200">
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 max-w-sm mx-auto">
         <div className="flex justify-around py-2">
           {[
             { id: 'dashboard', icon: Home, label: 'Home' },
