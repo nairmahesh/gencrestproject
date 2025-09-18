@@ -578,85 +578,169 @@ const Liquidation: React.FC = () => {
             </div>
             
             <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
-              <h4 className="text-lg font-semibold text-gray-900 mb-6">SKU-wise {selectedMetric === 'opening' ? 'Opening Stock' : selectedMetric === 'sales' ? 'Sales' : selectedMetric === 'liquidation' ? 'Liquidation' : 'Stock'} Details</h4>
+              <div className="space-y-6">
+                {/* Total Summary at Top */}
+                <div className="bg-gray-50 rounded-xl p-6">
+                  <h4 className="text-lg font-semibold text-gray-900 mb-4">
+                    Total {selectedMetric === 'opening' ? 'Opening Stock' : selectedMetric === 'sales' ? 'YTD Sales' : selectedMetric === 'liquidation' ? 'Liquidation' : 'Stock'}
+                  </h4>
+                  <div className="grid grid-cols-2 gap-6">
+                    <div className="text-center">
+                      <div className="text-3xl font-bold text-gray-900">
+                        {selectedMetric === 'opening' ? '42' : 
+                         selectedMetric === 'sales' ? '310' : 
+                         selectedMetric === 'liquidation' ? '140' : '210'}
+                      </div>
+                      <div className="text-sm text-gray-600">Total Volume (Kg/Litre)</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-3xl font-bold text-gray-900">
+                        ₹{selectedMetric === 'opening' ? '13.80' : 
+                           selectedMetric === 'sales' ? '13.95' : 
+                           selectedMetric === 'liquidation' ? '9.30' : '18.45'}L
+                      </div>
+                      <div className="text-sm text-gray-600">Total Value</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Invoice-wise Breakdown */}
+                <div>
+                  <h4 className="text-lg font-semibold text-gray-900 mb-6">Invoice-wise Breakdown</h4>
               
               <div className="space-y-8">
                 {getSKUData(selectedDistributorId).map((sku) => (
                   <div key={sku.skuCode}>
                     {/* SKU Header with Color Tag */}
-                    <div className="flex items-center space-x-3 mb-4">
-                      <span className={`px-4 py-2 rounded-lg text-sm font-medium ${getSKUColor(sku.skuCode)}`}>
-                        {sku.skuName}
-                      </span>
-                      <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">
-                        SKU: {sku.skuCode}
-                      </span>
-                    </div>
+                  <div className="space-y-8">
+                    {getSKUData(selectedDistributorId).map((product) => (
+                      <div key={product.skuCode} className="bg-gray-50 rounded-xl p-6">
+                        {/* SKU Header */}
+                        <div className="flex items-center space-x-3 mb-6">
+                          <span className={`px-4 py-2 rounded-lg text-sm font-medium ${getSKUColor(product.skuCode)}`}>
+                            {product.skuName}
+                          </span>
+                          <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">
+                            SKU: {product.skuCode}
+                          </span>
+                        </div>
                     
                     {/* Column Headers */}
-                    <div className="grid grid-cols-3 gap-6 mb-4">
-                      <div className="text-left">
-                        <h5 className="font-semibold text-gray-900">Invoice Details</h5>
-                      </div>
-                      <div className="text-center">
-                        <h5 className="font-semibold text-gray-900">Current Stock (System)</h5>
-                      </div>
-                      <div className="text-center">
-                        <h5 className="font-semibold text-gray-900">
-                          {selectedMetric === 'opening' ? 'Opening Stock' : 
-                           selectedMetric === 'sales' ? 'Sales Volume' : 
-                           selectedMetric === 'liquidation' ? 'Liquidated Qty' : 'Stock'}
-                        </h5>
-                      </div>
-                    </div>
+                        {/* Column Headers - Different for each metric */}
+                        <div className="grid grid-cols-4 gap-4 mb-4">
+                          <div className="text-left">
+                            <h5 className="font-semibold text-gray-900">Invoice Details</h5>
+                          </div>
+                          <div className="text-center">
+                            <h5 className="font-semibold text-gray-900">SKU</h5>
+                          </div>
+                          {selectedMetric === 'opening' && (
+                            <>
+                              <div className="text-center">
+                                <h5 className="font-semibold text-gray-900">Opening Stock</h5>
+                              </div>
+                              <div className="text-center">
+                                <h5 className="font-semibold text-gray-900">Current Stock</h5>
+                              </div>
+                            </>
+                          )}
+                          {selectedMetric === 'sales' && (
+                            <>
+                              <div className="text-center">
+                                <h5 className="font-semibold text-gray-900">Current Stock</h5>
+                              </div>
+                              <div className="text-center">
+                                <h5 className="font-semibold text-gray-900">Sales In Value (₹ Lakhs)</h5>
+                              </div>
+                            </>
+                          )}
+                          {selectedMetric === 'liquidation' && (
+                            <>
+                              <div className="text-center">
+                                <h5 className="font-semibold text-gray-900">Current Stock</h5>
+                              </div>
+                              <div className="text-center">
+                                <h5 className="font-semibold text-gray-900">Liquidated Qty</h5>
+                              </div>
+                            </>
+                          )}
+                        </div>
                     
                     {/* Invoice Rows */}
                     <div className="space-y-3">
-                      {sku.invoices.map((invoice, index) => {
-                        // Calculate display value based on metric type
-                        let displayValue = invoice.currentStock;
-                        if (selectedMetric === 'opening') {
-                          displayValue = Math.round(invoice.currentStock * 0.4);
-                        } else if (selectedMetric === 'sales') {
-                          displayValue = Math.round(invoice.currentStock * 1.8);
-                        } else if (selectedMetric === 'liquidation') {
-                          displayValue = Math.round(invoice.currentStock * 0.5);
-                        }
+                        {/* Invoice Rows */}
+                        <div className="space-y-3">
+                          {product.invoices.map((invoice, index) => {
+                            // Calculate values based on metric type
+                            let openingStock = Math.round(invoice.currentStock * 0.4);
+                            let salesValue = ((invoice.currentStock * 1.8 * 1350) / 100000).toFixed(2);
+                            let liquidatedQty = Math.round(invoice.currentStock * 0.5);
                         
-                        return (
-                          <div key={index} className="grid grid-cols-3 gap-6 items-center py-3 border-b border-gray-200">
-                            <div>
-                              <p className="font-medium text-gray-900">Invoice: {invoice.invoiceNumber}</p>
-                              <p className="text-sm text-gray-600">Date: {new Date(invoice.invoiceDate).toLocaleDateString()}</p>
-                              <p className="text-xs text-gray-500">Batch: {invoice.batchNumber}</p>
-                            </div>
-                            <div className="text-center">
-                              <input
-                                type="number"
-                                value={invoice.currentStock}
-                                readOnly
-                                className="w-24 px-3 py-2 border border-gray-300 rounded-lg text-center bg-gray-50"
-                              />
-                            </div>
-                            <div className="text-center">
-                              <input
-                                type="number"
-                                value={displayValue}
-                                readOnly
-                                className={`w-24 px-3 py-2 border rounded-lg text-center ${
-                                  selectedMetric === 'opening' ? 'border-orange-300 bg-orange-50 text-orange-800' :
-                                  selectedMetric === 'sales' ? 'border-blue-300 bg-blue-50 text-blue-800' :
-                                  selectedMetric === 'liquidation' ? 'border-green-300 bg-green-50 text-green-800' :
-                                  'border-gray-300 bg-gray-50'
-                                }`}
-                              />
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
+                            return (
+                              <div key={index} className="grid grid-cols-4 gap-4 items-center py-3 border-b border-gray-200">
+                                <div>
+                                  <p className="font-medium text-gray-900">Invoice: {invoice.invoiceNumber}</p>
+                                  <p className="text-sm text-gray-600">Date: {new Date(invoice.invoiceDate).toLocaleDateString()}</p>
+                                  <p className="text-xs text-gray-500">Batch: {invoice.batchNumber}</p>
+                                </div>
+                                <div className="text-center">
+                                  <span className={`px-3 py-1 rounded-lg text-sm font-medium ${getSKUColor(product.skuCode)}`}>
+                                    {product.skuName}
+                                  </span>
+                                </div>
+                                
+                                {selectedMetric === 'opening' && (
+                                  <>
+                                    <div className="text-center">
+                                      <div className="px-3 py-2 border border-orange-300 bg-orange-50 text-orange-800 rounded-lg text-center font-semibold">
+                                        {openingStock}
+                                      </div>
+                                    </div>
+                                    <div className="text-center">
+                                      <div className="px-3 py-2 border border-gray-300 bg-gray-50 rounded-lg text-center">
+                                        {invoice.currentStock}
+                                      </div>
+                                    </div>
+                                  </>
+                                )}
+                                
+                                {selectedMetric === 'sales' && (
+                                  <>
+                                    <div className="text-center">
+                                      <div className="px-3 py-2 border border-gray-300 bg-gray-50 rounded-lg text-center">
+                                        {invoice.currentStock}
+                                      </div>
+                                    </div>
+                                    <div className="text-center">
+                                      <div className="px-3 py-2 border border-blue-300 bg-blue-50 text-blue-800 rounded-lg text-center font-semibold">
+                                        ₹{salesValue}L
+                                      </div>
+                                    </div>
+                                  </>
+                                )}
+                                
+                                {selectedMetric === 'liquidation' && (
+                                  <>
+                                    <div className="text-center">
+                                      <div className="px-3 py-2 border border-gray-300 bg-gray-50 rounded-lg text-center">
+                                        {invoice.currentStock}
+                                      </div>
+                                    </div>
+                                    <div className="text-center">
+                                      <div className="px-3 py-2 border border-green-300 bg-green-50 text-green-800 rounded-lg text-center font-semibold">
+                                        {liquidatedQty}
+                                      </div>
+                                    </div>
+                                  </>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                </div>
               </div>
             </div>
             
