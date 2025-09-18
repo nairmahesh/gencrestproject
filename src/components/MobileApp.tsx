@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useAuth } from '../contexts/AuthContext';
 import { useLiquidationCalculation } from '../hooks/useLiquidationCalculation';
 import { 
   Home, 
@@ -26,20 +27,122 @@ import {
   Clock,
   DollarSign,
   Camera,
-  Upload
+  Upload,
+  Users,
+  AlertTriangle,
+  Award,
+  Activity,
+  BarChart3
 } from 'lucide-react';
 
 interface MobileAppProps {}
 
 const MobileApp: React.FC<MobileAppProps> = () => {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [showVerifyModal, setShowVerifyModal] = useState(false);
   const [showViewModal, setShowViewModal] = useState(false);
   const [selectedDistributor, setSelectedDistributor] = useState<any>(null);
   const [selectedMetric, setSelectedMetric] = useState<string>('');
   const [verificationData, setVerificationData] = useState<any>({});
+  const [selectedView, setSelectedView] = useState<'overview' | 'team' | 'exceptions'>('overview');
 
   const { distributorMetrics } = useLiquidationCalculation();
+
+  // Sample MDO data for TSM
+  const mdoStats = [
+    {
+      id: 'MDO001',
+      name: 'Rajesh Kumar',
+      employeeCode: 'MDO001',
+      territory: 'North Delhi',
+      ytdActivities: { planned: 540, done: 456, percentage: 84 },
+      monthlyActivities: { planned: 45, done: 38, pending: 7, pendingPercentage: 16, completedPercentage: 84 },
+      exceptions: [
+        { id: 'EX001', type: 'route_deviation', description: 'Route deviation on Jan 18', severity: 'Medium', date: '2024-01-18', status: 'Open' },
+        { id: 'EX002', type: 'missing_proof', description: 'Missing visit photos', severity: 'High', date: '2024-01-19', status: 'Open' }
+      ],
+      performance: { visitCompliance: 85, targetAchievement: 88, liquidationRate: 72 },
+      regionEffort: { territory: 'North Delhi', activitiesCompleted: 38, hoursSpent: 342, visitCount: 28 }
+    },
+    {
+      id: 'MDO002',
+      name: 'Amit Singh',
+      employeeCode: 'MDO002',
+      territory: 'South Delhi',
+      ytdActivities: { planned: 540, done: 432, percentage: 80 },
+      monthlyActivities: { planned: 45, done: 36, pending: 9, pendingPercentage: 20, completedPercentage: 80 },
+      exceptions: [
+        { id: 'EX003', type: 'insufficient_hours', description: 'Only 7.5 hours on Jan 17', severity: 'High', date: '2024-01-17', status: 'Open' }
+      ],
+      performance: { visitCompliance: 82, targetAchievement: 85, liquidationRate: 68 },
+      regionEffort: { territory: 'South Delhi', activitiesCompleted: 36, hoursSpent: 324, visitCount: 26 }
+    },
+    {
+      id: 'MDO003',
+      name: 'Priya Verma',
+      employeeCode: 'MDO003',
+      territory: 'East Delhi',
+      ytdActivities: { planned: 540, done: 486, percentage: 90 },
+      monthlyActivities: { planned: 45, done: 41, pending: 4, pendingPercentage: 9, completedPercentage: 91 },
+      exceptions: [],
+      performance: { visitCompliance: 92, targetAchievement: 94, liquidationRate: 78 },
+      regionEffort: { territory: 'East Delhi', activitiesCompleted: 41, hoursSpent: 369, visitCount: 32 }
+    }
+  ];
+
+  // TSM personal stats
+  const tsmPersonalStats = {
+    ytdActivities: { planned: 240, done: 216, percentage: 90 },
+    monthlyActivities: { planned: 20, done: 18, pending: 2, pendingPercentage: 10, completedPercentage: 90 },
+    teamManagement: {
+      totalMDOs: mdoStats.length,
+      activeMDOs: mdoStats.length,
+      topPerformers: mdoStats.filter(m => m.performance.targetAchievement >= 90).length,
+      needsAttention: mdoStats.filter(m => m.exceptions.length > 0).length
+    },
+    approvals: { pending: 5, approved: 23, rejected: 2 }
+  };
+
+  // Team aggregates
+  const teamAggregates = {
+    ytdActivities: {
+      planned: mdoStats.reduce((sum, mdo) => sum + mdo.ytdActivities.planned, 0),
+      done: mdoStats.reduce((sum, mdo) => sum + mdo.ytdActivities.done, 0),
+      percentage: Math.round((mdoStats.reduce((sum, mdo) => sum + mdo.ytdActivities.done, 0) / mdoStats.reduce((sum, mdo) => sum + mdo.ytdActivities.planned, 0)) * 100)
+    },
+    monthlyActivities: {
+      planned: mdoStats.reduce((sum, mdo) => sum + mdo.monthlyActivities.planned, 0),
+      done: mdoStats.reduce((sum, mdo) => sum + mdo.monthlyActivities.done, 0),
+      pending: mdoStats.reduce((sum, mdo) => sum + mdo.monthlyActivities.pending, 0),
+      pendingPercentage: Math.round((mdoStats.reduce((sum, mdo) => sum + mdo.monthlyActivities.pending, 0) / mdoStats.reduce((sum, mdo) => sum + mdo.monthlyActivities.planned, 0)) * 100),
+      completedPercentage: Math.round((mdoStats.reduce((sum, mdo) => sum + mdo.monthlyActivities.done, 0) / mdoStats.reduce((sum, mdo) => sum + mdo.monthlyActivities.planned, 0)) * 100)
+    },
+    totalExceptions: mdoStats.reduce((sum, mdo) => sum + mdo.exceptions.length, 0),
+    averagePerformance: Math.round(mdoStats.reduce((sum, mdo) => sum + mdo.performance.targetAchievement, 0) / mdoStats.length)
+  };
+
+  const allExceptions = mdoStats.flatMap(mdo => mdo.exceptions);
+
+  const getExceptionColor = (type: string) => {
+    switch (type) {
+      case 'route_deviation': return 'bg-yellow-100 text-yellow-800';
+      case 'insufficient_hours': return 'bg-red-100 text-red-800';
+      case 'missing_proof': return 'bg-orange-100 text-orange-800';
+      case 'late_submission': return 'bg-purple-100 text-purple-800';
+      case 'target_miss': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getSeverityColor = (severity: string) => {
+    switch (severity) {
+      case 'High': return 'text-red-600';
+      case 'Medium': return 'text-yellow-600';
+      case 'Low': return 'text-green-600';
+      default: return 'text-gray-600';
+    }
+  };
 
   // Sample data for mobile app
   const distributors = distributorMetrics.map(d => ({
@@ -202,57 +305,580 @@ const MobileApp: React.FC<MobileAppProps> = () => {
   const renderDashboard = () => (
     <div className="p-4 space-y-4">
       {/* Header */}
-      <div className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl p-4 text-white">
-        <h2 className="text-lg font-bold mb-1">Good Morning!</h2>
-        <p className="text-sm opacity-90">Today's Activities</p>
+      {user?.role === 'TSM' ? (
+        <div className="bg-gradient-to-r from-green-600 to-blue-600 rounded-xl p-4 text-white">
+          <h2 className="text-lg font-bold mb-1">TSM Dashboard</h2>
+          <p className="text-sm opacity-90">{user?.name}</p>
+          <div className="flex justify-between items-end mt-3">
+            <div>
+              <div className="text-2xl font-bold">{teamAggregates.monthlyActivities.done}</div>
+              <div className="text-xs opacity-80">Team Activities Done</div>
+            </div>
+            <div className="text-right">
+              <div className="text-lg font-bold">{tsmPersonalStats.monthlyActivities.done}</div>
+              <div className="text-xs opacity-80">Your Activities</div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl p-4 text-white">
+          <h2 className="text-lg font-bold mb-1">Good Morning!</h2>
+          <p className="text-sm opacity-90">Today's Activities</p>
+          <div className="flex justify-between items-end mt-3">
+            <div>
+              <div className="text-2xl font-bold">8</div>
+              <div className="text-xs opacity-80">Visits Planned</div>
+            </div>
+            <div className="text-right">
+              <div className="text-lg font-bold">3</div>
+              <div className="text-xs opacity-80">Completed</div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TSM Navigation Tabs */}
+      {user?.role === 'TSM' && (
+        <div className="bg-white rounded-lg p-2 shadow-sm">
+          <div className="flex space-x-1">
+            <button
+              onClick={() => setSelectedView('overview')}
+              className={`flex-1 py-2 px-3 rounded-lg text-xs transition-colors ${
+                selectedView === 'overview'
+                  ? 'bg-purple-600 text-white'
+                  : 'text-gray-600'
+              }`}
+            >
+              Overview
+            </button>
+            <button
+              onClick={() => setSelectedView('team')}
+              className={`flex-1 py-2 px-3 rounded-lg text-xs transition-colors ${
+                selectedView === 'team'
+                  ? 'bg-purple-600 text-white'
+                  : 'text-gray-600'
+              }`}
+            >
+              Team
+            </button>
+            <button
+              onClick={() => setSelectedView('exceptions')}
+              className={`flex-1 py-2 px-3 rounded-lg text-xs transition-colors relative ${
+                selectedView === 'exceptions'
+                  ? 'bg-purple-600 text-white'
+                  : 'text-gray-600'
+              }`}
+            >
+              Exceptions
+              {allExceptions.length > 0 && (
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white rounded-full text-xs flex items-center justify-center">
+                  {allExceptions.length}
+                </span>
+              )}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* TSM Content */}
+      {user?.role === 'TSM' ? (
+        <>
+          {selectedView === 'overview' && (
+            <div className="space-y-4">
+              {/* Team vs Personal Stats */}
+              <div className="grid grid-cols-1 gap-4">
+                <div className="bg-white rounded-lg p-4 shadow-sm">
+                  <h3 className="font-semibold text-sm mb-3 flex items-center">
+                    <Users className="w-4 h-4 mr-2 text-blue-600" />
+                    Team Performance
+                  </h3>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="text-center p-3 bg-blue-50 rounded-lg">
+                      <div className="text-lg font-bold text-blue-800">{teamAggregates.ytdActivities.percentage}%</div>
+                      <div className="text-xs text-blue-600">YTD Achievement</div>
+                      <div className="text-xs text-gray-500">{teamAggregates.ytdActivities.done}/{teamAggregates.ytdActivities.planned}</div>
+                    </div>
+                    <div className="text-center p-3 bg-green-50 rounded-lg">
+                      <div className="text-lg font-bold text-green-800">{teamAggregates.monthlyActivities.completedPercentage}%</div>
+                      <div className="text-xs text-green-600">Monthly Progress</div>
+                      <div className="text-xs text-gray-500">{teamAggregates.monthlyActivities.done}/{teamAggregates.monthlyActivities.planned}</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-lg p-4 shadow-sm">
+                  <h3 className="font-semibold text-sm mb-3 flex items-center">
+                    <Target className="w-4 h-4 mr-2 text-purple-600" />
+                    Your Performance
+                  </h3>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="text-center p-3 bg-purple-50 rounded-lg">
+                      <div className="text-lg font-bold text-purple-800">{tsmPersonalStats.ytdActivities.percentage}%</div>
+                      <div className="text-xs text-purple-600">YTD Achievement</div>
+                      <div className="text-xs text-gray-500">{tsmPersonalStats.ytdActivities.done}/{tsmPersonalStats.ytdActivities.planned}</div>
+                    </div>
+                    <div className="text-center p-3 bg-orange-50 rounded-lg">
+                      <div className="text-lg font-bold text-orange-800">{tsmPersonalStats.monthlyActivities.completedPercentage}%</div>
+                      <div className="text-xs text-orange-600">Monthly Progress</div>
+                      <div className="text-xs text-gray-500">{tsmPersonalStats.monthlyActivities.done}/{tsmPersonalStats.monthlyActivities.planned}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Key Metrics */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-white rounded-lg p-3 shadow-sm text-center">
+                  <div className="text-lg font-bold text-blue-600">{tsmPersonalStats.teamManagement.totalMDOs}</div>
+                  <div className="text-xs text-gray-600">Total MDOs</div>
+                </div>
+                <div className="bg-white rounded-lg p-3 shadow-sm text-center">
+                  <div className="text-lg font-bold text-green-600">{tsmPersonalStats.teamManagement.topPerformers}</div>
+                  <div className="text-xs text-gray-600">Top Performers</div>
+                </div>
+                <div className="bg-white rounded-lg p-3 shadow-sm text-center">
+                  <div className="text-lg font-bold text-red-600">{tsmPersonalStats.teamManagement.needsAttention}</div>
+                  <div className="text-xs text-gray-600">Need Attention</div>
+                </div>
+                <div className="bg-white rounded-lg p-3 shadow-sm text-center">
+                  <div className="text-lg font-bold text-purple-600">{teamAggregates.averagePerformance}%</div>
+                  <div className="text-xs text-gray-600">Avg Performance</div>
+                </div>
+              </div>
+
+              {/* Exceptions Alert */}
+              {allExceptions.length > 0 && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center space-x-2">
+                      <AlertTriangle className="w-4 h-4 text-red-600" />
+                      <h3 className="font-semibold text-red-800 text-sm">Active Exceptions ({allExceptions.length})</h3>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    {allExceptions.slice(0, 2).map((exception) => (
+                      <div key={exception.id} className="bg-white rounded p-2 border border-red-200">
+                        <p className="text-xs font-medium text-gray-900">{exception.description}</p>
+                        <p className="text-xs text-gray-600">{exception.mdoName}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {selectedView === 'team' && (
+            <div className="space-y-3">
+              {mdoStats.map((mdo) => (
+                <div key={mdo.id} className="bg-white rounded-lg p-4 shadow-sm">
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <h3 className="font-semibold text-sm">{mdo.name}</h3>
+                      <p className="text-xs text-gray-600">{mdo.employeeCode} • {mdo.territory}</p>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-sm font-bold text-purple-600">{mdo.performance.targetAchievement}%</div>
+                      <div className="text-xs text-gray-600">Target</div>
+                    </div>
+                  </div>
+
+                  {/* YTD vs Monthly */}
+                  <div className="grid grid-cols-2 gap-3 mb-3">
+                    <div className="bg-blue-50 rounded p-2 text-center">
+                      <div className="text-sm font-bold text-blue-800">{mdo.ytdActivities.percentage}%</div>
+                      <div className="text-xs text-blue-600">YTD</div>
+                      <div className="text-xs text-gray-500">{mdo.ytdActivities.done}/{mdo.ytdActivities.planned}</div>
+                    </div>
+                    <div className="bg-green-50 rounded p-2 text-center">
+                      <div className="text-sm font-bold text-green-800">{mdo.monthlyActivities.completedPercentage}%</div>
+                      <div className="text-xs text-green-600">Monthly</div>
+                      <div className="text-xs text-gray-500">{mdo.monthlyActivities.done}/{mdo.monthlyActivities.planned}</div>
+                    </div>
+                  </div>
+
+                  {/* Region Effort */}
+                  <div className="bg-gray-50 rounded p-2 mb-3">
+                    <div className="text-xs text-gray-600 mb-1">Region Effort - {mdo.regionEffort.territory}</div>
+                    <div className="grid grid-cols-3 gap-2 text-center">
+                      <div>
+                        <div className="text-sm font-bold">{mdo.regionEffort.activitiesCompleted}</div>
+                        <div className="text-xs text-gray-600">Activities</div>
+                      </div>
+                      <div>
+                        <div className="text-sm font-bold">{mdo.regionEffort.hoursSpent}</div>
+                        <div className="text-xs text-gray-600">Hours</div>
+                      </div>
+                      <div>
+                        <div className="text-sm font-bold">{mdo.regionEffort.visitCount}</div>
+                        <div className="text-xs text-gray-600">Visits</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Exceptions */}
+                  {mdo.exceptions.length > 0 && (
+                    <div className="bg-red-50 rounded p-2">
+                      <div className="text-xs text-red-800 font-medium mb-1">
+                        {mdo.exceptions.length} Exception{mdo.exceptions.length !== 1 ? 's' : ''}
+                      </div>
+                      {mdo.exceptions.slice(0, 1).map((ex) => (
+                        <div key={ex.id} className="text-xs text-red-700">
+                          {ex.description}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {selectedView === 'exceptions' && (
+            <div className="space-y-3">
+              <div className="bg-white rounded-lg p-4 shadow-sm">
+                <h3 className="font-semibold text-sm mb-3">Exception Summary</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-red-50 rounded p-2 text-center">
+                    <div className="text-sm font-bold text-red-800">{allExceptions.filter(e => e.type === 'route_deviation').length}</div>
+                    <div className="text-xs text-red-600">Route Issues</div>
+                  </div>
+                  <div className="bg-orange-50 rounded p-2 text-center">
+                    <div className="text-sm font-bold text-orange-800">{allExceptions.filter(e => e.type === 'insufficient_hours').length}</div>
+                    <div className="text-xs text-orange-600">Hour Issues</div>
+                  </div>
+                  <div className="bg-yellow-50 rounded p-2 text-center">
+                    <div className="text-sm font-bold text-yellow-800">{allExceptions.filter(e => e.type === 'missing_proof').length}</div>
+                    <div className="text-xs text-yellow-600">Missing Proofs</div>
+                  </div>
+                  <div className="bg-purple-50 rounded p-2 text-center">
+                    <div className="text-sm font-bold text-purple-800">{allExceptions.filter(e => e.type === 'late_submission').length}</div>
+                    <div className="text-xs text-purple-600">Late Submissions</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                {allExceptions.map((exception) => (
+                  <div key={exception.id} className="bg-white rounded-lg p-3 shadow-sm">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center space-x-2">
+                        <AlertTriangle className={`w-4 h-4 ${getSeverityColor(exception.severity)}`} />
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getExceptionColor(exception.type)}`}>
+                          {exception.type.replace('_', ' ')}
+                        </span>
+                      </div>
+                      <span className={`text-xs font-medium ${getSeverityColor(exception.severity)}`}>
+                        {exception.severity}
+                      </span>
+                    </div>
+                    <p className="text-xs font-medium text-gray-900 mb-1">{exception.description}</p>
+                    <p className="text-xs text-gray-600">{exception.mdoName} • {new Date(exception.date).toLocaleDateString()}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </>
+      ) : (
+        <>
+          {/* Regular Dashboard for non-TSM users */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-white rounded-lg p-3 shadow-sm">
+              <div className="text-lg font-bold text-blue-600">85%</div>
+              <div className="text-xs text-gray-600">Visit Target</div>
+            </div>
+            <div className="bg-white rounded-lg p-3 shadow-sm">
+              <div className="text-lg font-bold text-green-600">₹4.2L</div>
+              <div className="text-xs text-gray-600">Sales MTD</div>
+            </div>
+          </div>
+
+          {/* Recent Activities */}
+          <div className="bg-white rounded-lg p-4 shadow-sm">
+            <h3 className="font-semibold mb-3">Recent Activities</h3>
+            <div className="space-y-3">
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                  <CheckCircle className="w-4 h-4 text-green-600" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium">Visit completed</p>
+                  <p className="text-xs text-gray-600">SRI RAMA SEEDS - 2 hours ago</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                  <Package className="w-4 h-4 text-blue-600" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium">New order received</p>
+                  <p className="text-xs text-gray-600">Green Agro - ₹45,000</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+
+  const renderTSMDashboard = () => (
+    <div className="p-4 space-y-4">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-green-600 to-blue-600 rounded-xl p-4 text-white">
+        <h2 className="text-lg font-bold mb-1">TSM Dashboard</h2>
+        <p className="text-sm opacity-90">{user?.name}</p>
         <div className="flex justify-between items-end mt-3">
           <div>
-            <div className="text-2xl font-bold">8</div>
-            <div className="text-xs opacity-80">Visits Planned</div>
+            <div className="text-2xl font-bold">{teamAggregates.monthlyActivities.done}</div>
+            <div className="text-xs opacity-80">Team Activities Done</div>
           </div>
           <div className="text-right">
-            <div className="text-lg font-bold">3</div>
-            <div className="text-xs opacity-80">Completed</div>
+            <div className="text-lg font-bold">{tsmPersonalStats.monthlyActivities.done}</div>
+            <div className="text-xs opacity-80">Your Activities</div>
           </div>
         </div>
       </div>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-2 gap-3">
-        <div className="bg-white rounded-lg p-3 shadow-sm">
-          <div className="text-lg font-bold text-blue-600">85%</div>
-          <div className="text-xs text-gray-600">Visit Target</div>
-        </div>
-        <div className="bg-white rounded-lg p-3 shadow-sm">
-          <div className="text-lg font-bold text-green-600">₹4.2L</div>
-          <div className="text-xs text-gray-600">Sales MTD</div>
+      {/* Navigation Tabs */}
+      <div className="bg-white rounded-lg p-2 shadow-sm">
+        <div className="flex space-x-1">
+          <button
+            onClick={() => setSelectedView('overview')}
+            className={`flex-1 py-2 px-3 rounded-lg text-xs transition-colors ${
+              selectedView === 'overview'
+                ? 'bg-purple-600 text-white'
+                : 'text-gray-600'
+            }`}
+          >
+            Overview
+          </button>
+          <button
+            onClick={() => setSelectedView('team')}
+            className={`flex-1 py-2 px-3 rounded-lg text-xs transition-colors ${
+              selectedView === 'team'
+                ? 'bg-purple-600 text-white'
+                : 'text-gray-600'
+            }`}
+          >
+            Team
+          </button>
+          <button
+            onClick={() => setSelectedView('exceptions')}
+            className={`flex-1 py-2 px-3 rounded-lg text-xs transition-colors relative ${
+              selectedView === 'exceptions'
+                ? 'bg-purple-600 text-white'
+                : 'text-gray-600'
+            }`}
+          >
+            Exceptions
+            {allExceptions.length > 0 && (
+              <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white rounded-full text-xs flex items-center justify-center">
+                {allExceptions.length}
+              </span>
+            )}
+          </button>
         </div>
       </div>
 
-      {/* Recent Activities */}
-      <div className="bg-white rounded-lg p-4 shadow-sm">
-        <h3 className="font-semibold mb-3">Recent Activities</h3>
+      {/* Content based on selected view */}
+      {selectedView === 'overview' && (
+        <div className="space-y-4">
+          {/* Team vs Personal Stats */}
+          <div className="grid grid-cols-1 gap-4">
+            <div className="bg-white rounded-lg p-4 shadow-sm">
+              <h3 className="font-semibold text-sm mb-3 flex items-center">
+                <Users className="w-4 h-4 mr-2 text-blue-600" />
+                Team Performance
+              </h3>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="text-center p-3 bg-blue-50 rounded-lg">
+                  <div className="text-lg font-bold text-blue-800">{teamAggregates.ytdActivities.percentage}%</div>
+                  <div className="text-xs text-blue-600">YTD Achievement</div>
+                  <div className="text-xs text-gray-500">{teamAggregates.ytdActivities.done}/{teamAggregates.ytdActivities.planned}</div>
+                </div>
+                <div className="text-center p-3 bg-green-50 rounded-lg">
+                  <div className="text-lg font-bold text-green-800">{teamAggregates.monthlyActivities.completedPercentage}%</div>
+                  <div className="text-xs text-green-600">Monthly Progress</div>
+                  <div className="text-xs text-gray-500">{teamAggregates.monthlyActivities.done}/{teamAggregates.monthlyActivities.planned}</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg p-4 shadow-sm">
+              <h3 className="font-semibold text-sm mb-3 flex items-center">
+                <Target className="w-4 h-4 mr-2 text-purple-600" />
+                Your Performance
+              </h3>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="text-center p-3 bg-purple-50 rounded-lg">
+                  <div className="text-lg font-bold text-purple-800">{tsmPersonalStats.ytdActivities.percentage}%</div>
+                  <div className="text-xs text-purple-600">YTD Achievement</div>
+                  <div className="text-xs text-gray-500">{tsmPersonalStats.ytdActivities.done}/{tsmPersonalStats.ytdActivities.planned}</div>
+                </div>
+                <div className="text-center p-3 bg-orange-50 rounded-lg">
+                  <div className="text-lg font-bold text-orange-800">{tsmPersonalStats.monthlyActivities.completedPercentage}%</div>
+                  <div className="text-xs text-orange-600">Monthly Progress</div>
+                  <div className="text-xs text-gray-500">{tsmPersonalStats.monthlyActivities.done}/{tsmPersonalStats.monthlyActivities.planned}</div>
+                </div>
+              </div>
+            </div>
+
+          {/* Key Metrics */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-white rounded-lg p-3 shadow-sm text-center">
+              <div className="text-lg font-bold text-blue-600">{tsmPersonalStats.teamManagement.totalMDOs}</div>
+              <div className="text-xs text-gray-600">Total MDOs</div>
+            </div>
+            <div className="bg-white rounded-lg p-3 shadow-sm text-center">
+              <div className="text-lg font-bold text-green-600">{tsmPersonalStats.teamManagement.topPerformers}</div>
+              <div className="text-xs text-gray-600">Top Performers</div>
+            </div>
+            <div className="bg-white rounded-lg p-3 shadow-sm text-center">
+              <div className="text-lg font-bold text-red-600">{tsmPersonalStats.teamManagement.needsAttention}</div>
+              <div className="text-xs text-gray-600">Need Attention</div>
+            </div>
+            <div className="bg-white rounded-lg p-3 shadow-sm text-center">
+              <div className="text-lg font-bold text-purple-600">{teamAggregates.averagePerformance}%</div>
+              <div className="text-xs text-gray-600">Avg Performance</div>
+            </div>
+          </div>
+
+          {/* Exceptions Alert */}
+          {allExceptions.length > 0 && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center space-x-2">
+                  <AlertTriangle className="w-4 h-4 text-red-600" />
+                  <h3 className="font-semibold text-red-800 text-sm">Active Exceptions ({allExceptions.length})</h3>
+                </div>
+              </div>
+              <div className="space-y-2">
+                {allExceptions.slice(0, 2).map((exception) => (
+                  <div key={exception.id} className="bg-white rounded p-2 border border-red-200">
+                    <p className="text-xs font-medium text-gray-900">{exception.description}</p>
+                    <p className="text-xs text-gray-600">{exception.mdoName}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {selectedView === 'team' && (
         <div className="space-y-3">
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-              <CheckCircle className="w-4 h-4 text-green-600" />
+          {mdoStats.map((mdo) => (
+            <div key={mdo.id} className="bg-white rounded-lg p-4 shadow-sm">
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <h3 className="font-semibold text-sm">{mdo.name}</h3>
+                  <p className="text-xs text-gray-600">{mdo.employeeCode} • {mdo.territory}</p>
+                </div>
+                <div className="text-right">
+                  <div className="text-sm font-bold text-purple-600">{mdo.performance.targetAchievement}%</div>
+                  <div className="text-xs text-gray-600">Target</div>
+                </div>
+              </div>
+
+              {/* YTD vs Monthly */}
+              <div className="grid grid-cols-2 gap-3 mb-3">
+                <div className="bg-blue-50 rounded p-2 text-center">
+                  <div className="text-sm font-bold text-blue-800">{mdo.ytdActivities.percentage}%</div>
+                  <div className="text-xs text-blue-600">YTD</div>
+                  <div className="text-xs text-gray-500">{mdo.ytdActivities.done}/{mdo.ytdActivities.planned}</div>
+                </div>
+                <div className="bg-green-50 rounded p-2 text-center">
+                  <div className="text-sm font-bold text-green-800">{mdo.monthlyActivities.completedPercentage}%</div>
+                  <div className="text-xs text-green-600">Monthly</div>
+                  <div className="text-xs text-gray-500">{mdo.monthlyActivities.done}/{mdo.monthlyActivities.planned}</div>
+                </div>
+              </div>
+
+              {/* Region Effort */}
+              <div className="bg-gray-50 rounded p-2 mb-3">
+                <div className="text-xs text-gray-600 mb-1">Region Effort - {mdo.regionEffort.territory}</div>
+                <div className="grid grid-cols-3 gap-2 text-center">
+                  <div>
+                    <div className="text-sm font-bold">{mdo.regionEffort.activitiesCompleted}</div>
+                    <div className="text-xs text-gray-600">Activities</div>
+                  </div>
+                  <div>
+                    <div className="text-sm font-bold">{mdo.regionEffort.hoursSpent}</div>
+                    <div className="text-xs text-gray-600">Hours</div>
+                  </div>
+                  <div>
+                    <div className="text-sm font-bold">{mdo.regionEffort.visitCount}</div>
+                    <div className="text-xs text-gray-600">Visits</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Exceptions */}
+              {mdo.exceptions.length > 0 && (
+                <div className="bg-red-50 rounded p-2">
+                  <div className="text-xs text-red-800 font-medium mb-1">
+                    {mdo.exceptions.length} Exception{mdo.exceptions.length !== 1 ? 's' : ''}
+                  </div>
+                  {mdo.exceptions.slice(0, 1).map((ex) => (
+                    <div key={ex.id} className="text-xs text-red-700">
+                      {ex.description}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-            <div className="flex-1">
-              <p className="text-sm font-medium">Visit completed</p>
-              <p className="text-xs text-gray-600">SRI RAMA SEEDS - 2 hours ago</p>
+          ))}
+        </div>
+      )}
+
+      {selectedView === 'exceptions' && (
+        <div className="space-y-3">
+          <div className="bg-white rounded-lg p-4 shadow-sm">
+            <h3 className="font-semibold text-sm mb-3">Exception Summary</h3>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-red-50 rounded p-2 text-center">
+                <div className="text-sm font-bold text-red-800">{allExceptions.filter(e => e.type === 'route_deviation').length}</div>
+                <div className="text-xs text-red-600">Route Issues</div>
+              </div>
+              <div className="bg-orange-50 rounded p-2 text-center">
+                <div className="text-sm font-bold text-orange-800">{allExceptions.filter(e => e.type === 'insufficient_hours').length}</div>
+                <div className="text-xs text-orange-600">Hour Issues</div>
+              </div>
+              <div className="bg-yellow-50 rounded p-2 text-center">
+                <div className="text-sm font-bold text-yellow-800">{allExceptions.filter(e => e.type === 'missing_proof').length}</div>
+                <div className="text-xs text-yellow-600">Missing Proofs</div>
+              </div>
+              <div className="bg-purple-50 rounded p-2 text-center">
+                <div className="text-sm font-bold text-purple-800">{allExceptions.filter(e => e.type === 'late_submission').length}</div>
+                <div className="text-xs text-purple-600">Late Submissions</div>
+              </div>
             </div>
           </div>
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-              <Package className="w-4 h-4 text-blue-600" />
-            </div>
-            <div className="flex-1">
-              <p className="text-sm font-medium">New order received</p>
-              <p className="text-xs text-gray-600">Green Agro - ₹45,000</p>
-            </div>
+
+          <div className="space-y-2">
+            {allExceptions.map((exception) => (
+              <div key={exception.id} className="bg-white rounded-lg p-3 shadow-sm">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center space-x-2">
+                    <AlertTriangle className={`w-4 h-4 ${getSeverityColor(exception.severity)}`} />
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getExceptionColor(exception.type)}`}>
+                      {exception.type.replace('_', ' ')}
+                    </span>
+                  </div>
+                  <span className={`text-xs font-medium ${getSeverityColor(exception.severity)}`}>
+                    {exception.severity}
+                  </span>
+                </div>
+                <p className="text-xs font-medium text-gray-900 mb-1">{exception.description}</p>
+                <p className="text-xs text-gray-600">{exception.mdoName} • {new Date(exception.date).toLocaleDateString()}</p>
+              </div>
+            ))}
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 
@@ -336,13 +962,6 @@ const MobileApp: React.FC<MobileAppProps> = () => {
                 <button 
                   onClick={() => handleVerifyClick(distributor)}
                   className="text-xs text-green-600 underline mt-1"
-                >
-                  Verify
-                </button>
-              </div>
-            </div>
-            
-            <div className="flex space-x-2">
             </div>
           </div>
         ))}
@@ -442,7 +1061,7 @@ const MobileApp: React.FC<MobileAppProps> = () => {
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
-        return renderDashboard();
+        return user?.role === 'TSM' ? renderTSMDashboard() : renderDashboard();
       case 'tracker':
         return renderTracker();
       case 'tasks':
