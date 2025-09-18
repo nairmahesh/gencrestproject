@@ -639,67 +639,111 @@ const MobileApp: React.FC = () => {
 
       {/* NEW DROPDOWN FILTERS SECTION */}
       <div className="bg-white rounded-xl p-4 shadow-sm">
-        <h3 className="font-semibold mb-3 text-gray-900">Filters</h3>
-        <div className="space-y-3">
-          {/* One Line Search Section for Mobile */}
-          <div className="space-y-3">
-            {/* Search from Name */}
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="font-semibold text-gray-900">Search & Filters</h3>
+          <button
+            onClick={() => setShowMobileFilters(!showMobileFilters)}
+            className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors relative"
+          >
+            <Filter className="w-4 h-4 text-gray-600" />
+            {(selectedType !== 'All Types' || selectedRegion !== 'All Regions') && (
+              <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full text-xs text-white flex items-center justify-center">
+                {(selectedType !== 'All Types' ? 1 : 0) + (selectedRegion !== 'All Regions' ? 1 : 0)}
+              </span>
+            )}
+          </button>
+        </div>
+        
+        {/* Search Bar - Always Visible */}
+        <div className="mb-3">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <input
+              type="text"
+              placeholder="Search distributors, retailers..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm bg-white"
+            />
+          </div>
+        </div>
+        
+        {/* Accordion Filters */}
+        {showMobileFilters && (
+          <div className="space-y-3 border-t pt-3">
+            {/* Type Filter */}
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Search from Name:</label>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <input
-                  type="text"
-                  placeholder="Search distributors, retailers..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm bg-white"
-                />
-              </div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Type:</label>
+              <select
+                value={selectedType}
+                onChange={(e) => setSelectedType(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm bg-white"
+              >
+                <option value="All Types">All</option>
+                <option value="Distributor">Distributor</option>
+                <option value="Retailer">Retailer</option>
+              </select>
             </div>
             
-            {/* Filter Dropdowns in one row */}
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Search - Distributor/Retailer:</label>
-                <select
-                  value={selectedType}
-                  onChange={(e) => setSelectedType(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm bg-white"
-                >
-                  <option value="All Types">All</option>
-                  <option value="Distributor">Distributor</option>
-                  <option value="Retailer">Retailer</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Select Region:</label>
-                <select
-                  value={selectedRegion}
-                  onChange={(e) => setSelectedRegion(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm bg-white"
-                >
-                  <option value="All Regions">All Regions</option>
-                  <option value="Delhi NCR">Delhi NCR</option>
-                  <option value="Mumbai">Mumbai</option>
-                  <option value="Bangalore">Bangalore</option>
-                  <option value="Chennai">Chennai</option>
-                </select>
-              </div>
+            {/* Region Filter */}
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Region:</label>
+              <select
+                value={selectedRegion}
+                onChange={(e) => setSelectedRegion(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm bg-white"
+              >
+                <option value="All Regions">All Regions</option>
+                <option value="Delhi NCR">Delhi NCR</option>
+                <option value="Mumbai">Mumbai</option>
+                <option value="Bangalore">Bangalore</option>
+                <option value="Chennai">Chennai</option>
+              </select>
             </div>
+            
+            {/* Active Filters Display */}
+            {(selectedType !== 'All Types' || selectedRegion !== 'All Regions') && (
+              <div>
+                <p className="text-xs font-medium text-gray-700 mb-2">Active Filters:</p>
+                <div className="flex flex-wrap gap-1">
+                  {selectedType !== 'All Types' && (
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                      {selectedType}
+                      <button
+                        onClick={() => setSelectedType('All Types')}
+                        className="ml-1 hover:bg-purple-200 rounded-full p-0.5"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </span>
+                  )}
+                  {selectedRegion !== 'All Regions' && (
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      {selectedRegion}
+                      <button
+                        onClick={() => setSelectedRegion('All Regions')}
+                        className="ml-1 hover:bg-blue-200 rounded-full p-0.5"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
+            
+            {/* Clear All Filters */}
+            {(selectedType !== 'All Types' || selectedRegion !== 'All Regions') && (
+              <button
+                onClick={clearFilters}
+                className="w-full px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center justify-center text-sm border border-red-300"
+              >
+                <X className="w-4 h-4 mr-1" />
+                Clear All Filters
+              </button>
+            )}
           </div>
-          
-          {/* Clear Filters */}
-          {(selectedType !== 'All Types' || selectedRegion !== 'All Regions' || searchTerm) && (
-            <button
-              onClick={clearFilters}
-              className="w-full px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center justify-center text-sm border border-red-300"
-            >
-              <X className="w-4 h-4 mr-1" />
-              Clear Filters
-            </button>
-          )}
-        </div>
+        )}
       </div>
 
       {/* Results Summary */}
