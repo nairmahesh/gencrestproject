@@ -43,7 +43,8 @@ import {
   FileText,
   Zap,
   Award,
-  Activity
+  Activity,
+  ArrowLeft
 } from 'lucide-react';
 
 interface MobileAppProps {
