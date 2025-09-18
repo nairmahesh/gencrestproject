@@ -111,24 +111,25 @@ const UserManagement: React.FC = () => {
     },
     {
       id: 'U007',
-      employeeCode: 'VP001',
+      employeeCode: 'MD001',
       name: 'Ravi Agarwal',
       email: 'ravi.agarwal@gencrest.com',
       phone: '+91 32109 87654',
+      role: getRoleByCode('MD')!,
+      reportsTo: undefined,
+      isActive: true,
+      joinDate: '2015-01-01'
+    },
+    {
+      id: 'U008',
+      employeeCode: 'VP001',
+      name: 'Dr. Suresh Mehta',
+      email: 'suresh.mehta@gencrest.com',
+      phone: '+91 21098 76543',
       role: getRoleByCode('VP_SM')!,
       reportsTo: 'MD',
       isActive: true,
       joinDate: '2017-01-08'
-    },
-    {
-      id: 'U008',
-      employeeCode: 'MD001',
-      name: 'Dr. Suresh Mehta',
-      email: 'suresh.mehta@gencrest.com',
-      phone: '+91 21098 76543',
-      role: getRoleByCode('MD')!,
-      isActive: true,
-      joinDate: '2015-01-01'
     },
     {
       id: 'U009',
