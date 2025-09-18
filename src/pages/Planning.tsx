@@ -64,6 +64,10 @@ export const Planning: React.FC = () => {
 
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [showCreatePlan, setShowCreatePlan] = useState(false);
+  
+  // Current user context - in real app this would come from auth
+  const currentUserRole = 'TSM'; // This would come from auth context
+  const canCreatePlans = ['TSM', 'RBH', 'RMM', 'ZBH', 'MH', 'VP_SM'].includes(currentUserRole);
 
   const getStatusColor = (status: ActivityPlan['status']) => {
     switch (status) {
@@ -97,16 +101,33 @@ export const Planning: React.FC = () => {
           </button>
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Planning & Targets</h1>
-            <p className="text-gray-600">Manage activity plans and track performance</p>
+            <p className="text-gray-600">
+              {currentUserRole === 'TSM' ? 'Create monthly plans for your team and yourself' :
+               ['RBH', 'RMM'].includes(currentUserRole) ? 'Create monthly plans (no approval needed when TSM absent)' :
+               'Manage activity plans and track performance'}
+            </p>
           </div>
         </div>
-        <button 
-          onClick={() => setShowCreatePlan(true)}
-          className="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700"
-        >
-          <Plus className="w-4 h-4" />
-          Create Plan
-        </button>
+        {canCreatePlans && (
+          <button 
+            onClick={() => setShowCreatePlan(true)}
+            className="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700"
+          >
+            <Plus className="w-4 h-4" />
+            {currentUserRole === 'TSM' ? 'Create Plan (MDO/Self)' : 'Create Plan'}
+          </button>
+        )}
+      </div>
+      
+      {/* Planning Authority Info */}
+      <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+        <h3 className="font-semibold text-blue-900 mb-2">📋 Monthly Planning Authority</h3>
+        <div className="text-sm text-blue-800 space-y-1">
+          <p><strong>TSM:</strong> Creates monthly plans for MDO and themselves (requires RBH approval)</p>
+          <p><strong>RBH/RMM:</strong> Can create plans when TSM is absent (no approval needed)</p>
+          <p><strong>ZBH:</strong> Creates zonal plans (requires VP-Sales & Marketing approval)</p>
+          <p><strong>MDO:</strong> Can only view plans created by TSM</p>
+        </div>
       </div>
 
       <div className="grid gap-6">

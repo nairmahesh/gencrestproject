@@ -29,21 +29,22 @@ const Approvals: React.FC = () => {
     {
       id: 'WF001',
       type: 'monthly_plan',
-      submittedBy: 'U001',
-      submittedByRole: 'MDO',
-      currentApprover: 'U002',
-      currentApproverRole: 'TSM',
+      submittedBy: 'U002',
+      submittedByRole: 'TSM',
+      currentApprover: 'U003',
+      currentApproverRole: 'RBH',
       status: 'pending',
       submissionDate: '2024-01-20T10:00:00Z',
       data: {
-        title: 'January 2024 Monthly Plan',
+        title: 'January 2024 Monthly Plan - MDO Team',
         activities: 45,
         targets: { visits: 35, sales: 500000 },
-        territory: 'North Delhi'
+        territory: 'North Delhi',
+        planFor: 'MDO Team and Self'
       },
       approvalChain: [
         {
-          approverRole: 'TSM',
+          approverRole: 'RBH',
           status: 'pending'
         }
       ]
@@ -72,6 +73,33 @@ const Approvals: React.FC = () => {
           status: 'approved',
           date: '2024-01-19T09:15:00Z',
           comments: 'Approved for client visit expenses'
+        }
+      ]
+    },
+    {
+      id: 'WF005',
+      type: 'monthly_plan',
+      submittedBy: 'U003',
+      submittedByRole: 'RBH',
+      currentApprover: '',
+      currentApproverRole: '',
+      status: 'approved',
+      submissionDate: '2024-01-19T10:00:00Z',
+      approvalDate: '2024-01-19T10:00:00Z',
+      comments: 'Auto-approved: RBH creating plan in TSM absence',
+      data: {
+        title: 'Emergency Monthly Plan - TSM Absent',
+        activities: 30,
+        targets: { visits: 25, sales: 300000 },
+        territory: 'Delhi Territory',
+        reason: 'TSM on medical leave'
+      },
+      approvalChain: [
+        {
+          approverRole: 'AUTO_APPROVED',
+          status: 'approved',
+          date: '2024-01-19T10:00:00Z',
+          comments: 'Auto-approved: RBH creating plan in TSM absence'
         }
       ]
     },

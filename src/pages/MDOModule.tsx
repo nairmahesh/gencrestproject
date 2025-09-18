@@ -56,6 +56,9 @@ const MDOModule: React.FC = () => {
   const [activeView, setActiveView] = useState<'overview' | 'schedule' | 'tasks'>('overview');
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('All');
+  
+  // Current user context - in real app this would come from auth
+  const currentUserRole = 'MDO'; // This would come from auth context
 
   // Sample activity data
   const activityData: ActivityData = {
@@ -490,8 +493,12 @@ const MDOModule: React.FC = () => {
           </button>
           <div>
             <h1 className="text-2xl font-bold text-gray-900">MDO Module</h1>
-            <p className="text-gray-600 mt-1">Manage your activities, tasks, and schedules</p>
+            <p className="text-gray-600 mt-1">View your activities, tasks, and schedules</p>
           </div>
+        </div>
+        {/* Note: MDO cannot create plans - only TSM can create plans for MDO */}
+        <div className="text-sm text-gray-500 bg-blue-50 px-4 py-2 rounded-lg">
+          <p>📋 Monthly plans are created by your TSM (Territory Sales Manager)</p>
         </div>
       </div>
 
