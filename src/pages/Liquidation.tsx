@@ -125,11 +125,12 @@ const Liquidation: React.FC = () => {
 
     switch (metric) {
       case 'opening':
+        // Calculate opening stock: 50% of current stock for each invoice
         const totalOpeningVolume = skuData.reduce((sum, sku) => 
-          sum + sku.invoices.reduce((invSum, inv) => invSum + Math.round(inv.currentStock * 0.4), 0), 0
+          sum + sku.invoices.reduce((invSum, inv) => invSum + Math.round(inv.currentStock * 0.5), 0), 0
         );
         const totalOpeningValue = skuData.reduce((sum, sku) => 
-          sum + sku.invoices.reduce((invSum, inv) => invSum + ((inv.currentStock * 0.4 * 1350) / 100000), 0), 0
+          sum + sku.invoices.reduce((invSum, inv) => invSum + ((inv.currentStock * 0.5 * 1350) / 100000), 0), 0
         );
         return {
           title: `Opening Stock - ${distributor.distributorName}`,
@@ -142,18 +143,19 @@ const Liquidation: React.FC = () => {
               skuCode: sku.skuCode,
               skuName: sku.skuName,
               unit: sku.unit,
-              volume: inv.currentStock * 0.4,
-              value: (inv.currentStock * 0.4 * 1350) / 100000,
+              volume: Math.round(inv.currentStock * 0.5),
+              value: (inv.currentStock * 0.5 * 1350) / 100000,
               unitPrice: 1350
             }))
           }))
         };
       case 'sales':
+        // Calculate YTD sales: 20% of current stock for each invoice
         const totalSalesVolume = skuData.reduce((sum, sku) => 
-          sum + sku.invoices.reduce((invSum, inv) => invSum + Math.round(inv.currentStock * 1.8), 0), 0
+          sum + sku.invoices.reduce((invSum, inv) => invSum + Math.round(inv.currentStock * 0.2), 0), 0
         );
         const totalSalesValue = skuData.reduce((sum, sku) => 
-          sum + sku.invoices.reduce((invSum, inv) => invSum + ((inv.currentStock * 1.8 * 1350) / 100000), 0), 0
+          sum + sku.invoices.reduce((invSum, inv) => invSum + ((inv.currentStock * 0.2 * 1350) / 100000), 0), 0
         );
         return {
           title: `YTD Net Sales - ${distributor.distributorName}`,
@@ -166,13 +168,14 @@ const Liquidation: React.FC = () => {
               skuCode: sku.skuCode,
               skuName: sku.skuName,
               unit: sku.unit,
-              volume: inv.currentStock * 1.8,
-              value: (inv.currentStock * 1.8 * 1350) / 100000,
+              volume: Math.round(inv.currentStock * 0.2),
+              value: (inv.currentStock * 0.2 * 1350) / 100000,
               unitPrice: 1350
             }))
           }))
         };
       case 'liquidation':
+        // Calculate liquidation: 50% of current stock for each invoice  
         const totalLiquidationVolume = skuData.reduce((sum, sku) => 
           sum + sku.invoices.reduce((invSum, inv) => invSum + Math.round(inv.currentStock * 0.5), 0), 0
         );
