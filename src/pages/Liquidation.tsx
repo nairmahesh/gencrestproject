@@ -671,63 +671,6 @@ const Liquidation: React.FC = () => {
           </div>
         </div>
       )}
-    </div>
-  );
-};
-
-export default Liquidation;
-              <div>
-                <h3 className="text-xl font-semibold text-gray-900">{getMetricData(selectedMetric, selectedDistributorId).title}</h3>
-                <p className="text-sm text-gray-600 mt-1">{getMetricData(selectedMetric, selectedDistributorId).subtitle}</p>
-              </div>
-              <button
-                onClick={() => setShowDetailModal(false)}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            
-            <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
-              <div className="space-y-6">
-                {getMetricData(selectedMetric, selectedDistributorId).data.map((product: any) => (
-                  <div key={product.skuCode} className="bg-gray-50 rounded-xl p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center space-x-3">
-                        <span className={`px-4 py-2 rounded-lg text-sm font-medium ${getSKUColor(product.skuCode)}`}>
-                          {product.skuName} - {product.skuCode}
-                        </span>
-                      </div>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {product.skus && product.skus.map((sku: any, index: number) => (
-                        <div key={index} className="bg-white rounded-lg p-4 border border-gray-200">
-                          <div className="grid grid-cols-3 gap-3 text-sm">
-                            <div className="text-center">
-                              <p className="text-gray-600">Volume</p>
-                              <p className="font-semibold">{sku.volume.toLocaleString()}</p>
-                              <p className="text-xs text-gray-500">{sku.unit}</p>
-                            </div>
-                            <div className="text-center">
-                              <p className="text-gray-600">Value</p>
-                              <p className="font-semibold">₹{sku.value.toFixed(2)}L</p>
-                            </div>
-                            <div className="text-center">
-                              <p className="text-gray-600">Unit Price</p>
-                              <p className="font-semibold">₹{sku.unitPrice}</p>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {filteredDistributors.length === 0 && (
         <div className="text-center py-12">
