@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { api } from '../services/api';
+import { useAuth } from '../auth/AuthContext';
 
 const Login: React.FC = () => {
-  const [email, setEmail] = useState('mdo@example.com');
+  const [email, setEmail] = useState('mdo1@example.com');
   const [password, setPassword] = useState('password123');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+   const { login } = useAuth(); 
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -14,7 +16,7 @@ const Login: React.FC = () => {
     setLoading(true);
     setError('');
     try {
-      await api.login({ email, password });
+     await login({ email, password });
       navigate('/');
     } catch (err) {
      console.log(err);
