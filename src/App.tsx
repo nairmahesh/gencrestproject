@@ -12,6 +12,7 @@ import Performance from './pages/Performance';
 import RetailerLiquidation from './pages/RetailerLiquidation';
 import MobileAppDesign from './pages/MobileAppDesign';
 import MobileAppPage from './pages/MobileAppPage';
+import MDOModule from './pages/MDOModule';
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
         <Route path="/retailer-liquidation/:id" element={<RetailerLiquidation />} />
         <Route path="/mobile-design" element={<MobileAppDesign />} />
         <Route path="/mobile" element={<MobileAppPage />} />
+        <Route path="/mdo-module" element={<MDOModule />} />
       </Routes>
     </Layout>
   );

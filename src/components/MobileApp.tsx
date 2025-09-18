@@ -17,7 +17,10 @@ import {
   Filter,
   X,
   Eye,
-  Edit
+  Edit,
+  CheckCircle,
+  Clock,
+  Plus
 } from 'lucide-react';
 
 const MobileApp: React.FC = () => {
@@ -431,18 +434,90 @@ const MobileApp: React.FC = () => {
             <p className="text-gray-600">Field visits content coming soon...</p>
           </div>
         );
-      case 'orders':
+      case 'schedule':
         return (
           <div className="p-4">
-            <h2 className="text-xl font-bold mb-4">Sales Orders</h2>
-            <p className="text-gray-600">Sales orders content coming soon...</p>
+            <h2 className="text-xl font-bold mb-4">Schedule</h2>
+            <div className="space-y-4">
+              {/* Add Schedule Button */}
+              <button className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center">
+                <Plus className="w-4 h-4 mr-2" />
+                Add Schedule
+              </button>
+              
+              {/* Sample Schedule Items */}
+              <div className="space-y-3">
+                <div className="bg-white rounded-lg p-4 shadow-sm">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="font-semibold text-gray-900">Dealer Meeting</h3>
+                    <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">Scheduled</span>
+                  </div>
+                  <p className="text-sm text-gray-600 mb-2">Ram Kumar Distributors</p>
+                  <div className="flex items-center text-xs text-gray-500">
+                    <Calendar className="w-3 h-3 mr-1" />
+                    <span>Jan 22, 2024 at 10:00 AM</span>
+                  </div>
+                </div>
+                
+                <div className="bg-white rounded-lg p-4 shadow-sm">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="font-semibold text-gray-900">Product Demo</h3>
+                    <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Completed</span>
+                  </div>
+                  <p className="text-sm text-gray-600 mb-2">Suresh Traders</p>
+                  <div className="flex items-center text-xs text-gray-500">
+                    <Calendar className="w-3 h-3 mr-1" />
+                    <span>Jan 21, 2024 at 2:30 PM</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         );
-      case 'contacts':
+      case 'tasks':
         return (
           <div className="p-4">
-            <h2 className="text-xl font-bold mb-4">Contacts</h2>
-            <p className="text-gray-600">Contacts content coming soon...</p>
+            <h2 className="text-xl font-bold mb-4">Tasks</h2>
+            <div className="space-y-4">
+              {/* Add Task Button */}
+              <button className="w-full bg-purple-600 text-white py-3 px-4 rounded-lg hover:bg-purple-700 transition-colors flex items-center justify-center">
+                <Plus className="w-4 h-4 mr-2" />
+                Add Task
+              </button>
+              
+              {/* Sample Task Items */}
+              <div className="space-y-3">
+                <div className="bg-white rounded-lg p-4 shadow-sm">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="font-semibold text-gray-900">Visit SRI RAMA SEEDS</h3>
+                    <span className="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs">High</span>
+                  </div>
+                  <p className="text-sm text-gray-600 mb-2">Stock verification and liquidation tracking</p>
+                  <div className="flex items-center justify-between text-xs text-gray-500">
+                    <div className="flex items-center">
+                      <Clock className="w-3 h-3 mr-1" />
+                      <span>Due: Jan 22, 2024</span>
+                    </div>
+                    <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full">Pending</span>
+                  </div>
+                </div>
+                
+                <div className="bg-white rounded-lg p-4 shadow-sm">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="font-semibold text-gray-900">Monthly Sales Report</h3>
+                    <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs">Medium</span>
+                  </div>
+                  <p className="text-sm text-gray-600 mb-2">Prepare and submit monthly sales performance report</p>
+                  <div className="flex items-center justify-between text-xs text-gray-500">
+                    <div className="flex items-center">
+                      <Clock className="w-3 h-3 mr-1" />
+                      <span>Due: Jan 25, 2024</span>
+                    </div>
+                    <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full">In Progress</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         );
       default:
@@ -480,9 +555,9 @@ const MobileApp: React.FC = () => {
           {[
             { id: 'dashboard', icon: Home, label: 'Dashboard' },
             { id: 'visits', icon: MapPin, label: 'Visits' },
-            { id: 'orders', icon: ShoppingCart, label: 'Orders' },
+            { id: 'schedule', icon: Calendar, label: 'Schedule' },
+            { id: 'tasks', icon: CheckCircle, label: 'Tasks' },
             { id: 'liquidation', icon: Droplets, label: 'Liquidation' },
-            { id: 'contacts', icon: Users, label: 'Contacts' }
           ].map((tab) => (
             <button
               key={tab.id}
