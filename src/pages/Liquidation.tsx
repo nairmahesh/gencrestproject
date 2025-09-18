@@ -1073,8 +1073,8 @@ const Liquidation: React.FC = () => {
             <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
               {selectedItem && (
                 <div className="space-y-6">
-                  <div className="bg-gray-50 rounded-lg p-3">
-                    <h4 className="font-semibold text-gray-900">{selectedItem.distributorName}</h4>
+                  <div className="bg-blue-100 border border-blue-300 rounded-lg p-4">
+                    <h4 className="font-bold text-blue-900 text-lg">{selectedItem.distributorName}</h4>
                     <p className="text-sm text-gray-600">{selectedItem.distributorCode} • {selectedItem.territory}</p>
                   </div>
                   
@@ -1084,12 +1084,12 @@ const Liquidation: React.FC = () => {
                     <div className="space-y-4">
                       {getSKUData(selectedItem.id).map((sku) => (
                         <div key={sku.skuCode} className="bg-white rounded-lg border border-gray-200 p-4">
-                          <div className="flex items-center justify-between mb-3">
-                            <div>
+                          <div className="mb-3">
+                            <div className="flex items-center justify-between">
                               <h5 className="font-semibold text-gray-900">{sku.skuName}</h5>
-                              <p className="text-sm text-gray-600">SKU: {sku.skuCode} | Invoice: {sku.invoiceNumber}</p>
-                              <p className="text-xs text-gray-500">Date: {new Date(sku.invoiceDate).toLocaleDateString()}</p>
                             </div>
+                            <p className="text-sm text-gray-600">SKU: {sku.skuCode} | Invoice: {sku.invoiceNumber}</p>
+                            <p className="text-xs text-gray-500">Date: {new Date(sku.invoiceDate).toLocaleDateString()}</p>
                           </div>
                           
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1097,26 +1097,34 @@ const Liquidation: React.FC = () => {
                               <label className="block text-sm font-medium text-gray-700 mb-1">
                                 Current Stock (System)
                               </label>
-                              <input
-                                type="number"
-                                value={verificationData.skuVerifications[sku.skuCode]?.current || sku.currentStock}
-                                onChange={(e) => handleSKUStockChange(sku.skuCode, 'current', parseInt(e.target.value) || 0)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                                placeholder="Enter current stock"
-                              />
+                              <div className="flex items-center space-x-2">
+                                <span className="text-sm font-medium text-gray-900 min-w-0 flex-1">{sku.skuCode}</span>
+                                <input
+                                  type="number"
+                                  value={verificationData.skuVerifications[sku.skuCode]?.current || sku.currentStock}
+                                  onChange={(e) => handleSKUStockChange(sku.skuCode, 'current', parseInt(e.target.value) || 0)}
+                                  className="w-20 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-center"
+                                  placeholder="0"
+                                />
+                                <span className="text-sm text-gray-600">{sku.unit}</span>
+                              </div>
                             </div>
                             
                             <div>
                               <label className="block text-sm font-medium text-gray-700 mb-1">
                                 Physical Stock (Verified)
                               </label>
-                              <input
-                                type="number"
-                                value={verificationData.skuVerifications[sku.skuCode]?.physical || sku.currentStock}
-                                onChange={(e) => handleSKUStockChange(sku.skuCode, 'physical', parseInt(e.target.value) || 0)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                                placeholder="Enter physical stock"
-                              />
+                              <div className="flex items-center space-x-2">
+                                <span className="text-sm font-medium text-gray-900 min-w-0 flex-1">{sku.skuCode}</span>
+                                <input
+                                  type="number"
+                                  value={verificationData.skuVerifications[sku.skuCode]?.physical || sku.currentStock}
+                                  onChange={(e) => handleSKUStockChange(sku.skuCode, 'physical', parseInt(e.target.value) || 0)}
+                                  className="w-20 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-center"
+                                  placeholder="0"
+                                />
+                                <span className="text-sm text-gray-600">{sku.unit}</span>
+                              </div>
                             </div>
                           </div>
                           
