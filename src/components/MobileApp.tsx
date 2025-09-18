@@ -37,7 +37,8 @@ import {
   Battery,
   MapPinOff,
   Route,
-  Shield
+  Shield,
+  ShoppingCart
 } from 'lucide-react';
 
 interface CriticalAlert {
@@ -325,7 +326,7 @@ const MobileApp: React.FC<MobileAppProps> = () => {
                 <AlertTriangle className="w-4 h-4 text-red-600" />
                 <h3 className="font-semibold text-sm text-red-800">Critical Alerts</h3>
                 <span className="w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center">
-                  4 Active
+                  {activeAlerts.length} Active
                 </span>
               </div>
               <button 
@@ -481,6 +482,26 @@ const MobileApp: React.FC<MobileAppProps> = () => {
                   </div>
                 </div>
               </div>
+
+              {/* Exceptions Alert */}
+              {allExceptions.length > 0 && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center space-x-2">
+                      <AlertTriangle className="w-4 h-4 text-red-600" />
+                      <h3 className="font-semibold text-red-800 text-sm">Active Exceptions ({allExceptions.length})</h3>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    {allExceptions.slice(0, 2).map((exception) => (
+                      <div key={exception.id} className="bg-white rounded p-2 border border-red-200">
+                        <p className="text-xs font-medium text-gray-900">{exception.description}</p>
+                        <p className="text-xs text-gray-600">{exception.mdoName}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -637,112 +658,6 @@ const MobileApp: React.FC<MobileAppProps> = () => {
           </div>
         </>
       )}
-    </div>
-  );
-
-  // Critical Alerts Modal
-  const renderCriticalAlertsModal = () => (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl w-full max-w-md max-h-[80vh] overflow-hidden">
-        <div className="bg-red-50 p-4 border-b border-red-200">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <AlertTriangle className="w-5 h-5 text-red-600" />
-              <h3 className="text-lg font-semibold text-red-800">Critical Alerts</h3>
-              <span className="w-6 h-6 bg-red-500 text-white rounded-full text-xs flex items-center justify-center">
-                4 Active
-              </span>
-            </div>
-            <button
-              onClick={() => setShowCriticalAlerts(false)}
-              className="p-1 hover:bg-red-100 rounded-full transition-colors"
-            >
-              <X className="w-4 h-4 text-red-600" />
-            </button>
-          </div>
-        </div>
-        
-        {/* Alert Categories */}
-        <div className="p-4 border-b border-gray-200">
-          <div className="flex space-x-2 overflow-x-auto">
-            <button
-              onClick={() => setSelectedAlertCategory('All')}
-              className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
-                selectedAlertCategory === 'All' ? 'bg-red-600 text-white' : 'bg-gray-100 text-gray-700'
-              }`}
-            >
-              All
-            </button>
-            <button
-              onClick={() => setSelectedAlertCategory('Location')}
-              className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
-                selectedAlertCategory === 'Location' ? 'bg-red-600 text-white' : getAlertCategoryColor('Location')
-              }`}
-            >
-              Location
-            </button>
-            <button
-              onClick={() => setSelectedAlertCategory('Battery')}
-              className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
-                selectedAlertCategory === 'Battery' ? 'bg-red-600 text-white' : getAlertCategoryColor('Battery')
-              }`}
-            >
-              Battery
-            </button>
-            <button
-              onClick={() => setSelectedAlertCategory('Geofence')}
-              className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
-                selectedAlertCategory === 'Geofence' ? 'bg-red-600 text-white' : getAlertCategoryColor('Geofence')
-              }`}
-            >
-              Geofence
-            </button>
-          </div>
-        </div>
-        
-        <div className="p-4 overflow-y-auto max-h-[50vh]">
-          <div className="space-y-3">
-            {filteredAlerts.map((alert) => (
-              <div key={alert.id} className={`p-3 rounded-lg border ${getAlertColor(alert.severity)}`}>
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center space-x-2">
-                    {getAlertIcon(alert.type)}
-                    <span className="font-medium text-sm">{alert.userName}</span>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      alert.severity === 'high' ? 'bg-red-500 text-white' :
-                      alert.severity === 'medium' ? 'bg-orange-500 text-white' :
-                      'bg-yellow-500 text-white'
-                    }`}>
-                      {alert.severity} priority
-                    </span>
-                  </div>
-                  <span className="text-xs text-gray-500">
-                    2 mins ago
-                  </span>
-                </div>
-                
-                <p className="text-sm mb-3">{alert.description}</p>
-                
-                <div className="flex space-x-2">
-                  <button className="flex-1 bg-purple-600 text-white py-2 px-3 rounded-lg text-xs">
-                    View Details
-                  </button>
-                  <button className="flex-1 bg-gray-500 text-white py-2 px-3 rounded-lg text-xs">
-                    Mark Resolved
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-          
-          {filteredAlerts.length === 0 && (
-            <div className="text-center py-8">
-              <CheckCircle className="w-8 h-8 text-green-500 mx-auto mb-2" />
-              <p className="text-sm text-gray-500">No active alerts in this category</p>
-            </div>
-          )}
-        </div>
-      </div>
     </div>
   );
 
@@ -941,6 +856,112 @@ const MobileApp: React.FC<MobileAppProps> = () => {
     </div>
   );
 
+  // Critical Alerts Modal
+  const renderCriticalAlertsModal = () => (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl w-full max-w-md max-h-[80vh] overflow-hidden">
+        <div className="bg-red-50 p-4 border-b border-red-200">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <AlertTriangle className="w-5 h-5 text-red-600" />
+              <h3 className="text-lg font-semibold text-red-800">Critical Alerts</h3>
+              <span className="w-6 h-6 bg-red-500 text-white rounded-full text-xs flex items-center justify-center">
+                {activeAlerts.length}
+              </span>
+            </div>
+            <button
+              onClick={() => setShowCriticalAlerts(false)}
+              className="p-1 hover:bg-red-100 rounded-full transition-colors"
+            >
+              <X className="w-4 h-4 text-red-600" />
+            </button>
+          </div>
+        </div>
+        
+        {/* Alert Categories */}
+        <div className="p-4 border-b border-gray-200">
+          <div className="flex space-x-2 overflow-x-auto">
+            <button
+              onClick={() => setSelectedAlertCategory('All')}
+              className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
+                selectedAlertCategory === 'All' ? 'bg-red-600 text-white' : 'bg-gray-100 text-gray-700'
+              }`}
+            >
+              All
+            </button>
+            <button
+              onClick={() => setSelectedAlertCategory('Location')}
+              className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
+                selectedAlertCategory === 'Location' ? 'bg-red-600 text-white' : getAlertCategoryColor('Location')
+              }`}
+            >
+              Location
+            </button>
+            <button
+              onClick={() => setSelectedAlertCategory('Battery')}
+              className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
+                selectedAlertCategory === 'Battery' ? 'bg-red-600 text-white' : getAlertCategoryColor('Battery')
+              }`}
+            >
+              Battery
+            </button>
+            <button
+              onClick={() => setSelectedAlertCategory('Geofence')}
+              className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
+                selectedAlertCategory === 'Geofence' ? 'bg-red-600 text-white' : getAlertCategoryColor('Geofence')
+              }`}
+            >
+              Geofence
+            </button>
+          </div>
+        </div>
+        
+        <div className="p-4 overflow-y-auto max-h-[50vh]">
+          <div className="space-y-3">
+            {filteredAlerts.map((alert) => (
+              <div key={alert.id} className={`p-3 rounded-lg border ${getAlertColor(alert.severity)}`}>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center space-x-2">
+                    {getAlertIcon(alert.type)}
+                    <span className="font-medium text-sm">{alert.userName}</span>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      alert.severity === 'high' ? 'bg-red-500 text-white' :
+                      alert.severity === 'medium' ? 'bg-orange-500 text-white' :
+                      'bg-yellow-500 text-white'
+                    }`}>
+                      {alert.severity} priority
+                    </span>
+                  </div>
+                  <span className="text-xs text-gray-500">
+                    2 mins ago
+                  </span>
+                </div>
+                
+                <p className="text-sm mb-3">{alert.description}</p>
+                
+                <div className="flex space-x-2">
+                  <button className="flex-1 bg-purple-600 text-white py-2 px-3 rounded-lg text-xs">
+                    View Details
+                  </button>
+                  <button className="flex-1 bg-gray-500 text-white py-2 px-3 rounded-lg text-xs">
+                    Mark Resolved
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          {filteredAlerts.length === 0 && (
+            <div className="text-center py-8">
+              <CheckCircle className="w-8 h-8 text-green-500 mx-auto mb-2" />
+              <p className="text-sm text-gray-500">No active alerts in this category</p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
@@ -994,8 +1015,8 @@ const MobileApp: React.FC<MobileAppProps> = () => {
               activeTab === 'tasks' ? 'text-purple-600 bg-purple-50' : 'text-gray-600'
             }`}
           >
-            <CheckSquare className="w-5 h-5 mb-1" />
-            <span className="text-xs">Tasks</span>
+            <ShoppingCart className="w-5 h-5 mb-1" />
+            <span className="text-xs">Orders</span>
           </button>
           
           <button
