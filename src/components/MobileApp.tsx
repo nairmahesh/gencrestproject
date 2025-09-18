@@ -350,13 +350,6 @@ const MobileApp: React.FC<MobileAppProps> = () => {
                 <CheckCircle className="w-3 h-3 mr-1 inline" />
                 Verify
               </button>
-              <button 
-                onClick={() => handleViewClick(distributor, 'overview')}
-                className="flex-1 bg-purple-100 text-purple-700 py-2 px-3 rounded-lg text-sm flex items-center justify-center"
-              >
-                <Eye className="w-3 h-3 mr-1 inline" />
-                Overview
-              </button>
             </div>
           </div>
         ))}
