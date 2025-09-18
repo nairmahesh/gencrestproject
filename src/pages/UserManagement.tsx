@@ -101,8 +101,8 @@ const UserManagement: React.FC = () => {
     {
       id: 'U006',
       employeeCode: 'MH001',
-      name: 'Kavita Reddy',
-      email: 'kavita.reddy@gencrest.com',
+      name: 'Asad Ahmed',
+      email: 'asad.ahmed@gencrest.com',
       phone: '+91 43210 98765',
       role: getRoleByCode('MH')!,
       reportsTo: 'VP_SM',
@@ -123,8 +123,8 @@ const UserManagement: React.FC = () => {
     {
       id: 'U008',
       employeeCode: 'VP001',
-      name: 'Dr. Suresh Mehta',
-      email: 'suresh.mehta@gencrest.com',
+      name: 'Navdeep Mehta',
+      email: 'navdeep.mehta@gencrest.com',
       phone: '+91 21098 76543',
       role: getRoleByCode('VP_SM')!,
       reportsTo: 'MD',
