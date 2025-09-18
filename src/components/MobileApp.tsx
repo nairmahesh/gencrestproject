@@ -22,7 +22,11 @@ import {
   FileText,
   MoreHorizontal,
   Car,
-  Award
+  Award,
+  Menu,
+  Settings,
+  BarChart3,
+  Download
 } from 'lucide-react';
 
 const MobileApp: React.FC = () => {
