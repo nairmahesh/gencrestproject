@@ -85,11 +85,11 @@ export const useLiquidationCalculation = () => {
       status: 'Active',
       priority: 'High',
       metrics: {
-        openingStock: { volume: 212, value: 2.86 },
-        ytdNetSales: { volume: 84, value: 1.13 },
-        liquidation: { volume: 212, value: 2.86 },
-        balanceStock: { volume: 84, value: 1.13 },
-        liquidationPercentage: 72,
+        openingStock: { volume: 420, value: 5.67 }, // 2 SKUs × 2 invoices × 105 × 0.5 = 420
+        ytdNetSales: { volume: 168, value: 2.27 }, // 2 SKUs × 2 invoices × 105 × 0.2 = 168  
+        liquidation: { volume: 210, value: 2.84 }, // 2 SKUs × 2 invoices × 105 × 0.25 = 210
+        balanceStock: { volume: 378, value: 5.10 }, // 420 + 168 - 210 = 378
+        liquidationPercentage: 36, // 210 / (420 + 168) × 100 = 36%
         lastUpdated: new Date().toISOString()
       }
     },
