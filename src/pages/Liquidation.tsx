@@ -534,36 +534,35 @@ const Liquidation: React.FC = () => {
                                 <p className="text-xs text-gray-500">Date: {new Date(invoice.invoiceDate).toLocaleDateString()}</p>
                               </div>
                               
-                              {/* Single line layout: Current Stock - Physical Stock */}
-                              <div className="flex items-center space-x-6">
+                              {/* Single line layout: SKU Name - Current Stock - Physical Stock */}
+                              <div className="grid grid-cols-3 gap-4 items-center">
+                                {/* SKU Name */}
+                                <div>
+                                  <p className="font-medium text-gray-900">{sku.skuName}</p>
+                                </div>
+                                
                                 {/* Current Stock */}
                                 <div className="text-center">
-                                  <p className="text-sm font-medium text-gray-700 mb-2">Current Stock (System)</p>
-                                  <div className="flex items-center space-x-2">
-                                    <input
-                                      type="number"
-                                      value={verificationData.skuVerifications[verificationKey]?.current || invoice.currentStock}
-                                      onChange={(e) => handleSKUStockChange(sku.skuCode, invoice.invoiceNumber, 'current', parseInt(e.target.value) || 0)}
-                                      className="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-center"
-                                      placeholder="0"
-                                    />
-                                    <span className="text-sm text-gray-600">{sku.unit}</span>
-                                  </div>
+                                  <p className="text-sm text-gray-600 mb-1">Current Stock (System)</p>
+                                  <input
+                                    type="number"
+                                    value={verificationData.skuVerifications[verificationKey]?.current || invoice.currentStock}
+                                    onChange={(e) => handleSKUStockChange(sku.skuCode, invoice.invoiceNumber, 'current', parseInt(e.target.value) || 0)}
+                                    className="w-20 px-2 py-1 border border-gray-300 rounded text-center text-sm"
+                                    readOnly
+                                  />
                                 </div>
                                 
                                 {/* Physical Stock */}
                                 <div className="text-center">
-                                  <p className="text-sm font-medium text-gray-700 mb-2">Physical Stock (Verified)</p>
-                                  <div className="flex items-center space-x-2">
-                                    <input
-                                      type="number"
-                                      value={verificationData.skuVerifications[verificationKey]?.physical || ''}
-                                      onChange={(e) => handleSKUStockChange(sku.skuCode, invoice.invoiceNumber, 'physical', parseInt(e.target.value) || 0)}
-                                      className="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-center"
-                                      placeholder="Enter count"
-                                    />
-                                    <span className="text-sm text-gray-600">{sku.unit}</span>
-                                  </div>
+                                  <p className="text-sm text-gray-600 mb-1">Physical Stock (Verified)</p>
+                                  <input
+                                    type="number"
+                                    value={verificationData.skuVerifications[verificationKey]?.physical || ''}
+                                    onChange={(e) => handleSKUStockChange(sku.skuCode, invoice.invoiceNumber, 'physical', parseInt(e.target.value) || 0)}
+                                    className="w-20 px-2 py-1 border border-gray-300 rounded text-center text-sm focus:ring-2 focus:ring-purple-500"
+                                    placeholder="Enter count"
+                                  />
                                 </div>
                               </div>
                               
