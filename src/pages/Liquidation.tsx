@@ -723,6 +723,58 @@ const Dashboard: React.FC = () => {
               View Details <ChevronRight className="w-4 h-4 ml-1" />
             </button>
             <div className="text-xs text-gray-500 mt-2">Last updated: Jan 20, 2024</div>
+                          {/* Invoice entries for this SKU */}
+                          <div className="space-y-3">
+                            <div className="grid grid-cols-3 gap-4 text-sm font-medium text-gray-700 border-b pb-2">
+                              <div>Invoice Details</div>
+                              <div className="text-center">Current Stock</div>
+                              <div className="text-center">Physical Stock</div>
+                            </div>
+                            
+                            {/* Sample invoices for this SKU */}
+                            <div className="grid grid-cols-3 gap-4 items-center py-2">
+                              <div>
+                                <p className="font-medium text-gray-900">Invoice: INV-2024-001</p>
+                                <p className="text-sm text-gray-600">Date: 1/15/2024</p>
+                              </div>
+                              <div className="text-center">
+                                <input
+                                  type="number"
+                                  value={Math.floor(sku.volume / 2)}
+                                  readOnly
+                                  className="w-20 px-3 py-2 border border-gray-300 rounded-lg text-center bg-gray-50"
+                                />
+                              </div>
+                              <div className="text-center">
+                                <input
+                                  type="number"
+                                  placeholder="Enter count"
+                                  className="w-20 px-3 py-2 border border-gray-300 rounded-lg text-center focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                />
+                              </div>
+                            </div>
+                            
+                            <div className="grid grid-cols-3 gap-4 items-center py-2">
+                              <div>
+                                <p className="font-medium text-gray-900">Invoice: INV-2024-002</p>
+                                <p className="text-sm text-gray-600">Date: 1/20/2024</p>
+                              </div>
+                              <div className="text-center">
+                                <input
+                                  type="number"
+                                  value={Math.floor(sku.volume / 2)}
+                                  readOnly
+                                  className="w-20 px-3 py-2 border border-gray-300 rounded-lg text-center bg-gray-50"
+                                />
+                              </div>
+                              <div className="text-center">
+                                <input
+                                  type="number"
+                                  placeholder="Enter count"
+                                  className="w-20 px-3 py-2 border border-gray-300 rounded-lg text-center focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                />
+                              </div>
+                            </div>
           </div>
 
           <div 
@@ -756,23 +808,16 @@ const Dashboard: React.FC = () => {
               className={`${module.bgColor} ${module.borderColor} border rounded-xl p-6 card-hover cursor-pointer`}
               onClick={() => navigate(module.route)}
             >
+              <div className="flex items-center justify-between mb-4">
+                <h4 className="font-semibold text-gray-900">{module.title}</h4>
+                <div className={`w-10 h-10 ${module.color} rounded-full flex items-center justify-center`}>
+                  <module.icon className="w-5 h-5 text-white" />
+                </div>
+              </div>
+              
               <div className="grid grid-cols-2 gap-3">
                 {module.stats.map((stat, statIndex) => (
-                  <div key={sku.skuCode} className="space-y-4">
-                    {/* SKU Header */}
-                    <div className="border-b border-gray-200 pb-2">
-                      <h5 className="text-lg font-semibold text-gray-900">{sku.skuName}</h5>
-                      <p className="text-sm text-gray-600">SKU: {sku.skuCode}</p>
-                    </div>
-                    
-                    {/* Column Headers for this SKU */}
-                    <div className="grid grid-cols-3 gap-6 mb-2">
-                      <div className="text-sm font-medium text-gray-700"></div>
-                      <div className="text-sm font-medium text-gray-700 text-center">Current Stock (System)</div>
-                      <div className="text-sm font-medium text-gray-700 text-center">Physical Stock (Verified)</div>
-                    </div>
-                    
-                    {/* Invoice entries for this SKU */}
+                  <div key={statIndex} className="text-center">
                     <div className="text-lg font-bold text-gray-900">
                       {stat.value} {stat.unit}
                     </div>
@@ -816,71 +861,6 @@ const Dashboard: React.FC = () => {
                 <activity.icon className={`w-4 h-4 ${activity.color}`} />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between">
-                  <p className="text-sm font-medium text-gray-900">{activity.title}</p>
-                  <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                    {activity.module}
-                  </span>
-                </div>
-                <p className="text-sm text-gray-600">{activity.description}</p>
-                <p className="text-xs text-gray-500 mt-1">{activity.time}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Product & SKU Details Modal */}
-      {showDetailModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl w-full max-w-6xl max-h-[90vh] overflow-hidden">
-            <div className="flex items-center justify-between p-6 border-b">
-              <div>
-                <h3 className="text-xl font-semibold text-gray-900">{getMetricData(selectedMetric).title}</h3>
-                <p className="text-sm text-gray-600 mt-1">{getMetricData(selectedMetric).subtitle}</p>
-              </div>
-              <button
-                onClick={() => setShowDetailModal(false)}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            
-            <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
-              <div className="space-y-6">
-                {getMetricData(selectedMetric).data.map((product) => (
-                  <div key={product.id} className="bg-gray-50 rounded-xl p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <div>
-                        <h4 className="text-lg font-semibold text-gray-900">{product.productName}</h4>
-                        <p className="text-sm text-gray-600">Code: {product.productCode} | Category: {product.category}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-lg font-bold text-gray-900">{product.totalVolume.toLocaleString()} Kg/L</p>
-                        <p className="text-sm text-gray-600">₹{product.totalValue.toFixed(2)}L</p>
-                      </div>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {product.skus.map((sku) => (
-                        <div key={invoice.invoiceNumber} className="space-y-3">
-                                className="w-24 px-3 py-2 border border-gray-300 rounded-lg text-center focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                          <div className="grid grid-cols-3 gap-6 items-center py-2">
-                            {/* Invoice Info Column */}
-                              <p className="font-semibold">{sku.volume.toLocaleString()}</p>
-                              <p className="font-medium text-gray-900">Invoice: {invoice.invoiceNumber}</p>
-                              <p className="text-sm text-gray-600">Date: {new Date(invoice.invoiceDate).toLocaleDateString()}</p>
-                            </div>
-                            <div className="text-center">
-                              <p className="text-gray-600">Value</p>
-                              <p className="font-semibold">₹{sku.value.toFixed(2)}L</p>
-                            </div>
-                                className="w-24 px-3 py-2 border border-gray-300 rounded-lg text-center focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                              <p className="text-gray-600">Unit Price</p>
-                              <p className="font-semibold">₹{sku.unitPrice}</p>
-                            </div>
-                          </div>
                         </div>
                       ))}
                     </div>
