@@ -137,13 +137,8 @@ const Liquidation: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {/* Opening Stock */}
         <div className="bg-white rounded-xl border-l-4 border-orange-500 p-6 card-shadow">
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-orange-500 rounded-lg flex items-center justify-center">
-              <Package className="w-6 h-6 text-white" />
-            </div>
-            <button className="bg-orange-500 text-white px-3 py-1 rounded-lg text-sm hover:bg-orange-600">
-              View
-            </button>
+          <div className="w-12 h-12 bg-orange-500 rounded-lg flex items-center justify-center mb-4">
+            <Package className="w-6 h-6 text-white" />
           </div>
           <h3 className="text-lg font-semibold text-gray-900 mb-2">Opening Stock</h3>
           <div className="text-3xl font-bold text-gray-900 mb-1">32,660</div>
@@ -153,13 +148,8 @@ const Liquidation: React.FC = () => {
 
         {/* YTD Net Sales */}
         <div className="bg-white rounded-xl border-l-4 border-blue-500 p-6 card-shadow">
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
-              <TrendingUp className="w-6 h-6 text-white" />
-            </div>
-            <button className="bg-blue-500 text-white px-3 py-1 rounded-lg text-sm hover:bg-blue-600">
-              View
-            </button>
+          <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center mb-4">
+            <TrendingUp className="w-6 h-6 text-white" />
           </div>
           <h3 className="text-lg font-semibold text-gray-900 mb-2">YTD Net Sales</h3>
           <div className="text-3xl font-bold text-gray-900 mb-1">13,303</div>
@@ -169,13 +159,8 @@ const Liquidation: React.FC = () => {
 
         {/* Liquidation */}
         <div className="bg-white rounded-xl border-l-4 border-green-500 p-6 card-shadow">
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center">
-              <Droplets className="w-6 h-6 text-white" />
-            </div>
-            <button className="bg-green-500 text-white px-3 py-1 rounded-lg text-sm hover:bg-green-600">
-              View
-            </button>
+          <div className="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center mb-4">
+            <Droplets className="w-6 h-6 text-white" />
           </div>
           <h3 className="text-lg font-semibold text-gray-900 mb-2">Liquidation</h3>
           <div className="text-3xl font-bold text-gray-900 mb-1">12,720</div>
@@ -185,13 +170,8 @@ const Liquidation: React.FC = () => {
 
         {/* Balance Stock */}
         <div className="bg-white rounded-xl border-l-4 border-purple-500 p-6 card-shadow">
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center">
-              <Target className="w-6 h-6 text-white" />
-            </div>
-            <button className="bg-purple-500 text-white px-3 py-1 rounded-lg text-sm hover:bg-purple-600">
-              Verify
-            </button>
+          <div className="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center mb-4">
+            <Target className="w-6 h-6 text-white" />
           </div>
           <h3 className="text-lg font-semibold text-gray-900 mb-2">Balance Stock</h3>
           <div className="text-3xl font-bold text-gray-900 mb-1">33,243</div>
