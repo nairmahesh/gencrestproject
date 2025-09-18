@@ -75,6 +75,7 @@ const Contacts: React.FC = () => {
   const filteredTags = allTags.filter(tag => 
     tag.toLowerCase().includes(searchTag.toLowerCase())
   );
+
   const filteredContacts = contacts.filter(contact => {
     const matchesSearch = contact.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          contact.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -152,6 +153,7 @@ const Contacts: React.FC = () => {
           Add Contact
         </button>
       </div>
+
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="bg-white rounded-xl p-6 card-shadow">
