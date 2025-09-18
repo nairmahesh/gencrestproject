@@ -953,14 +953,14 @@ const MobileApp: React.FC<MobileAppProps> = () => {
   };
 
   return (
-    <div className="max-w-sm mx-auto bg-gray-100 min-h-screen relative">
+    <div className="max-w-sm mx-auto bg-gray-100 min-h-screen flex flex-col">
       {/* Content */}
-      <div className="pb-20">
+      <div className="flex-1 overflow-y-auto pb-20">
         {renderContent()}
       </div>
 
       {/* Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2">
+      <div className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-sm bg-white border-t border-gray-200 px-4 py-2 z-40">
         <div className="flex justify-around">
           <button
             onClick={() => setActiveTab('dashboard')}
