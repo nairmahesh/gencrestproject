@@ -408,59 +408,6 @@ const Liquidation: React.FC = () => {
 
       {/* Filters with Tag System - Keep existing filters */}
       <div className="bg-white rounded-xl p-6 card-shadow">
-              {overallMetrics.openingStock.volume.toLocaleString()}
-            </div>
-            <div className="text-sm text-orange-600 mb-2">Kg/Litre</div>
-            <div className="text-sm font-semibold text-orange-700">
-              ₹{overallMetrics.openingStock.value.toFixed(2)}L
-            </div>
-            <div className="text-xs text-orange-600 mt-1">Opening Stock</div>
-          </div>
-
-          <div className="bg-blue-50 rounded-xl p-4 text-center border border-blue-200">
-            <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center mx-auto mb-3">
-              <TrendingUp className="w-6 h-6 text-white" />
-            </div>
-            <div className="text-2xl font-bold text-blue-800 mb-1">
-              {overallMetrics.ytdNetSales.volume.toLocaleString()}
-            </div>
-            <div className="text-sm text-blue-600 mb-2">Kg/Litre</div>
-            <div className="text-sm font-semibold text-blue-700">
-              ₹{overallMetrics.ytdNetSales.value.toFixed(2)}L
-            </div>
-            <div className="text-xs text-blue-600 mt-1">YTD Net Sales</div>
-          </div>
-
-          <div className="bg-green-50 rounded-xl p-4 text-center border border-green-200">
-            <div className="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center mx-auto mb-3">
-              <Droplets className="w-6 h-6 text-white" />
-            </div>
-            <div className="text-2xl font-bold text-green-800 mb-1">
-              {overallMetrics.liquidation.volume.toLocaleString()}
-            </div>
-            <div className="text-sm text-green-600 mb-2">Kg/Litre</div>
-            <div className="text-sm font-semibold text-green-700">
-              ₹{overallMetrics.liquidation.value.toFixed(2)}L
-            </div>
-            <div className="text-xs text-green-600 mt-1">Liquidation</div>
-          </div>
-
-          <div className="bg-purple-50 rounded-xl p-4 text-center border border-purple-200">
-            <div className="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center mx-auto mb-3">
-              <Target className="w-6 h-6 text-white" />
-            </div>
-            <div className="text-2xl font-bold text-purple-800 mb-1">
-              {overallMetrics.liquidationPercentage}%
-            </div>
-            <div className="text-sm text-purple-600 mb-2">Overall</div>
-            <div className="text-sm font-semibold text-purple-700">Performance</div>
-            <div className="text-xs text-purple-600 mt-1">Liquidation Rate</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Filters with Tag System */}
-      <div className="bg-white rounded-xl p-6 card-shadow">
         <div className="space-y-4">
           {/* Search Section */}
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 items-end">
