@@ -60,6 +60,19 @@ const MDOModule: React.FC = () => {
   // Current user context - in real app this would come from auth
   const currentUserRole = 'MDO'; // This would come from auth context
 
+  // Sample plan data with creator information
+  const currentPlan = {
+    id: 'PLAN-2024-01',
+    title: 'January 2024 Monthly Plan',
+    createdBy: 'Priya Sharma', // TSM name
+    createdByRole: 'TSM',
+    createdDate: '2024-01-15',
+    approvedBy: 'Amit Patel', // RBH name
+    approvedDate: '2024-01-16',
+    status: 'Approved',
+    period: 'January 2024'
+  };
+
   // Sample activity data
   const activityData: ActivityData = {
     monthly: {
@@ -497,8 +510,36 @@ const MDOModule: React.FC = () => {
           </div>
         </div>
         {/* Note: MDO cannot create plans - only TSM can create plans for MDO */}
-        <div className="text-sm text-gray-500 bg-blue-50 px-4 py-2 rounded-lg">
-          <p>📋 Monthly plans are created by your TSM (Territory Sales Manager)</p>
+        <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-blue-900">📋 Current Monthly Plan</p>
+              <p className="text-xs text-blue-700 mt-1">{currentPlan.title}</p>
+            </div>
+            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+              currentPlan.status === 'Approved' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+            }`}>
+              {currentPlan.status}
+            </span>
+          </div>
+          <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-2 text-xs text-blue-700">
+            <div>
+              <span className="font-medium">Created by:</span> {currentPlan.createdBy} ({currentPlan.createdByRole})
+            </div>
+            <div>
+              <span className="font-medium">Created on:</span> {new Date(currentPlan.createdDate).toLocaleDateString()}
+            </div>
+            {currentPlan.status === 'Approved' && (
+              <>
+                <div>
+                  <span className="font-medium">Approved by:</span> {currentPlan.approvedBy}
+                </div>
+                <div>
+                  <span className="font-medium">Approved on:</span> {new Date(currentPlan.approvedDate).toLocaleDateString()}
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </div>
 
