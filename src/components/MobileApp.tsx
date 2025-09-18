@@ -588,6 +588,60 @@ const MobileApp: React.FC<MobileAppProps> = () => {
               </div>
             </div>
           )}
+
+          {/* Live Meetings Section */}
+          <div className="bg-white rounded-lg p-4 shadow-sm">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <h3 className="font-semibold text-sm text-gray-900">Live Meetings</h3>
+              </div>
+              <div className="flex items-center space-x-2">
+                <span className="text-green-600 font-semibold text-sm">2 Active</span>
+                <button className="text-gray-400">
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+            
+            <div className="space-y-3">
+              {/* Rajesh Kumar Meeting */}
+              <div className="bg-green-50 rounded-lg p-3 border border-green-200">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span className="font-semibold text-sm text-gray-900">Rajesh Kumar</span>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-green-600 font-semibold text-sm">25 min</div>
+                    <div className="text-xs text-gray-500">Started 10:45 AM</div>
+                  </div>
+                </div>
+                <div className="text-xs text-gray-600">
+                  <p className="font-medium">Ram Kumar Farm</p>
+                  <p>Green Valley, Sector 12</p>
+                </div>
+              </div>
+
+              {/* Priya Sharma Meeting */}
+              <div className="bg-green-50 rounded-lg p-3 border border-green-200">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span className="font-semibold text-sm text-gray-900">Priya Sharma</span>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-green-600 font-semibold text-sm">15 min</div>
+                    <div className="text-xs text-gray-500">Started 11:20 AM</div>
+                  </div>
+                </div>
+                <div className="text-xs text-gray-600">
+                  <p className="font-medium">Sunrise Agro Store</p>
+                  <p>Market Road, Anand</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </>
       ) : (
         <>
