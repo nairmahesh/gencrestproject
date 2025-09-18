@@ -608,10 +608,6 @@ const Liquidation: React.FC = () => {
                 <div>
                   <h4 className="text-lg font-semibold text-gray-900 mb-6">Invoice-wise Breakdown</h4>
               
-              <div className="space-y-8">
-                {getSKUData(selectedDistributorId).map((sku) => (
-                  <div key={sku.skuCode}>
-                    {/* SKU Header with Color Tag */}
                   <div className="space-y-8">
                     {getSKUData(selectedDistributorId).map((product) => (
                       <div key={product.skuCode} className="bg-gray-50 rounded-xl p-6">
@@ -625,7 +621,6 @@ const Liquidation: React.FC = () => {
                           </span>
                         </div>
                     
-                    {/* Column Headers */}
                         {/* Column Headers - Different for each metric */}
                         <div className="grid grid-cols-4 gap-4 mb-4">
                           <div className="text-left">
@@ -666,8 +661,6 @@ const Liquidation: React.FC = () => {
                           )}
                         </div>
                     
-                    {/* Invoice Rows */}
-                    <div className="space-y-3">
                         {/* Invoice Rows */}
                         <div className="space-y-3">
                           {product.invoices.map((invoice, index) => {
@@ -740,33 +733,6 @@ const Liquidation: React.FC = () => {
                       </div>
                     ))}
                   </div>
-                </div>
-              </div>
-            </div>
-            
-            <div className="flex justify-end space-x-3 p-6 border-t">
-              <button
-                onClick={() => setShowDetailModal(false)}
-                className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {filteredDistributors.length === 0 && (
-        <div className="text-center py-12">
-          <Building className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-500">No distributors found</p>
-        </div>
-      )}
-    </div>
-  );
-};
-
-export default Liquidation;
                 </div>
               </div>
             </div>
