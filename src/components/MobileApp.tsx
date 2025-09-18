@@ -259,23 +259,42 @@ const MobileApp: React.FC<MobileAppProps> = ({ children }) => {
 
     return (
       <div className="space-y-6">
-        {/* Header with Back Button */}
-        <div className="flex items-center space-x-3">
-          <button
-            onClick={handleBackToMain}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5 text-gray-600" />
-          </button>
-          <div>
-            <h2 className="text-lg font-bold text-gray-900">{detailData.title}</h2>
-            <p className="text-sm text-gray-600">{detailData.subtitle}</p>
-          </div>
-        </div>
-
-        {/* Detail Content */}
-        <div className="space-y-4">
-          {detailData.data.map((product, index) => (
+              {/* Filters */}
+              <div className="bg-white rounded-xl p-4">
+                <div className="space-y-3">
+                  {/* Search Bar */}
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <input
+                      type="text"
+                      placeholder="Search distributors, retailers..."
+                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                    />
+                  </div>
+                  
+                  {/* Filter Dropdowns */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">Type</label>
+                      <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm">
+                        <option value="All">All Types</option>
+                        <option value="Distributor">Distributor</option>
+                        <option value="Retailer">Retailer</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">Region</label>
+                      <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm">
+                        <option value="All">All Regions</option>
+                        <option value="Delhi NCR">Delhi NCR</option>
+                        <option value="Mumbai">Mumbai</option>
+                        <option value="Bangalore">Bangalore</option>
+                        <option value="Chennai">Chennai</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
             <div key={index} className="bg-white rounded-xl p-4 shadow-lg border border-gray-100">
               <h3 className="font-semibold text-gray-900 mb-3">{product.product}</h3>
               <div className="space-y-3">
