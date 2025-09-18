@@ -454,10 +454,11 @@ const Liquidation: React.FC = () => {
                   <div className="flex items-center justify-between mb-2">
                     <h4 className="font-semibold text-purple-800">Balance Stock</h4>
                     <button 
-                      onClick={() => handleMetricClick('balance', distributor.id)}
-                      className="bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600"
+                      onClick={() => handleVerifyClick(distributor)}
+                      className="bg-green-600 text-white px-2 py-1 rounded text-xs hover:bg-green-700 flex items-center"
                     >
-                      View
+                      <CheckCircle className="w-3 h-3 mr-1" />
+                      Verify Stock
                     </button>
                   </div>
                   <div className="mb-2">
@@ -467,15 +468,6 @@ const Liquidation: React.FC = () => {
                   <div>
                     <p className="text-sm text-purple-600">Value</p>
                     <p className="text-lg font-semibold text-purple-700">₹{distributor.metrics.balanceStock.value.toFixed(2)}L</p>
-                  </div>
-                  <div className="mt-3">
-                    <button 
-                      onClick={() => handleVerifyClick(distributor)}
-                      className="w-full bg-green-600 text-white py-1 px-2 rounded text-xs hover:bg-green-700 flex items-center justify-center"
-                    >
-                      <CheckCircle className="w-3 h-3 mr-1" />
-                      Verify Stock
-                    </button>
                   </div>
                 </div>
               </div>
