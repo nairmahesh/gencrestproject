@@ -24,6 +24,9 @@ const Liquidation: React.FC = () => {
   const [filterStatus, setFilterStatus] = useState('All');
   const [showVerifyModal, setShowVerifyModal] = useState(false);
   const [selectedDistributor, setSelectedDistributor] = useState<any>(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [selectedMetric, setSelectedMetric] = useState<string>('');
+  const [selectedDistributorId, setSelectedDistributorId] = useState<string>('');
   
   const { 
     overallMetrics, 
@@ -106,6 +109,70 @@ const Liquidation: React.FC = () => {
   const handleVerifyClick = (distributor: any) => {
     setSelectedDistributor(distributor);
     setShowVerifyModal(true);
+  };
+
+  const handleMetricClick = (metric: string, distributorId: string) => {
+    setSelectedMetric(metric);
+    setSelectedDistributorId(distributorId);
+    setShowDetailModal(true);
+  };
+
+  const getMetricData = (metric: string, distributorId: string) => {
+    const distributor = distributorMetrics.find(d => d.id === distributorId);
+    if (!distributor) return { title: '', subtitle: '', data: [] };
+
+    switch (metric) {
+      case 'opening':
+        return {
+          title: `Opening Stock - ${distributor.distributorName}`,
+          subtitle: 'SKU-wise opening stock breakdown',
+          data: getSKUData(distributorId).map(sku => ({
+            ...sku,
+            skus: sku.invoices.map(inv => ({
+              skuCode: sku.skuCode,
+              skuName: sku.skuName,
+              unit: sku.unit,
+              volume: inv.currentStock * 0.4,
+              value: (inv.currentStock * 0.4 * 1350) / 100000,
+              unitPrice: 1350
+            }))
+          }))
+        };
+      case 'sales':
+        return {
+          title: `YTD Net Sales - ${distributor.distributorName}`,
+          subtitle: 'SKU-wise sales performance',
+          data: getSKUData(distributorId).map(sku => ({
+            ...sku,
+            skus: sku.invoices.map(inv => ({
+              skuCode: sku.skuCode,
+              skuName: sku.skuName,
+              unit: sku.unit,
+              volume: inv.currentStock * 1.8,
+              value: (inv.currentStock * 1.8 * 1350) / 100000,
+              unitPrice: 1350
+            }))
+          }))
+        };
+      case 'liquidation':
+        return {
+          title: `Liquidation - ${distributor.distributorName}`,
+          subtitle: 'SKU-wise liquidation breakdown',
+          data: getSKUData(distributorId).map(sku => ({
+            ...sku,
+            skus: sku.invoices.map(inv => ({
+              skuCode: sku.skuCode,
+              skuName: sku.skuName,
+              unit: sku.unit,
+              volume: inv.currentStock * 0.5,
+              value: (inv.currentStock * 0.5 * 1350) / 100000,
+              unitPrice: 1350
+            }))
+          }))
+        };
+      default:
+        return { title: '', subtitle: '', data: [] };
+    }
   };
 
   const filteredDistributors = distributorMetrics.filter(distributor => {
@@ -236,7 +303,12 @@ const Liquidation: React.FC = () => {
                   </div>
                   <div>
                     <h3 className="text-xl font-semibold text-gray-900">{distributor.distributorName}</h3>
-                    <p className="text-gray-600">Code: {distributor.distributorCode} | DAP (Di-Ammonium Phosphate)</p>
+                    <div className="flex items-center space-x-2 mt-1">
+                      <span className="text-gray-600">Code: {distributor.distributorCode}</span>
+                      <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+                        DAP (Di-Ammonium Phosphate)
+                      </span>
+                    </div>
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -264,7 +336,10 @@ const Liquidation: React.FC = () => {
                 <div className="bg-orange-50 rounded-xl p-4 border-l-4 border-orange-500">
                   <div className="flex items-center justify-between mb-2">
                     <h4 className="font-semibold text-orange-800">Opening Stock</h4>
-                    <button className="bg-orange-500 text-white px-2 py-1 rounded text-xs hover:bg-orange-600">
+                    <button 
+                      onClick={() => handleMetricClick('opening', distributor.id)}
+                      className="bg-orange-500 text-white px-2 py-1 rounded text-xs hover:bg-orange-600"
+                    >
                       View
                     </button>
                   </div>
@@ -282,7 +357,10 @@ const Liquidation: React.FC = () => {
                 <div className="bg-blue-50 rounded-xl p-4 border-l-4 border-blue-500">
                   <div className="flex items-center justify-between mb-2">
                     <h4 className="font-semibold text-blue-800">YTD Net Sales</h4>
-                    <button className="bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600">
+                    <button 
+                      onClick={() => handleMetricClick('sales', distributor.id)}
+                      className="bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600"
+                    >
                       View
                     </button>
                   </div>
@@ -300,7 +378,10 @@ const Liquidation: React.FC = () => {
                 <div className="bg-green-50 rounded-xl p-4 border-l-4 border-green-500">
                   <div className="flex items-center justify-between mb-2">
                     <h4 className="font-semibold text-green-800">Liquidation</h4>
-                    <button className="bg-green-500 text-white px-2 py-1 rounded text-xs hover:bg-green-600">
+                    <button 
+                      onClick={() => handleMetricClick('liquidation', distributor.id)}
+                      className="bg-green-500 text-white px-2 py-1 rounded text-xs hover:bg-green-600"
+                    >
                       View
                     </button>
                   </div>
@@ -471,6 +552,67 @@ const Liquidation: React.FC = () => {
               >
                 Verify Stock
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Metric Details Modal */}
+      {showDetailModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl w-full max-w-6xl max-h-[90vh] overflow-hidden">
+            <div className="flex items-center justify-between p-6 border-b">
+              <div>
+                <h3 className="text-xl font-semibold text-gray-900">{getMetricData(selectedMetric, selectedDistributorId).title}</h3>
+                <p className="text-sm text-gray-600 mt-1">{getMetricData(selectedMetric, selectedDistributorId).subtitle}</p>
+              </div>
+              <button
+                onClick={() => setShowDetailModal(false)}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+              <div className="space-y-6">
+                {getMetricData(selectedMetric, selectedDistributorId).data.map((product: any) => (
+                  <div key={product.skuCode} className="bg-gray-50 rounded-xl p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center space-x-3">
+                        <span className={`px-4 py-2 rounded-lg text-sm font-medium ${getSKUColor(product.skuCode)}`}>
+                          {product.skuName}
+                        </span>
+                        <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">
+                          SKU: {product.skuCode}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {product.skus && product.skus.map((sku: any, index: number) => (
+                        <div key={index} className="bg-white rounded-lg p-4 border border-gray-200">
+                          <div className="grid grid-cols-3 gap-3 text-sm">
+                            <div className="text-center">
+                              <p className="text-gray-600">Volume</p>
+                              <p className="font-semibold">{sku.volume.toLocaleString()}</p>
+                              <p className="text-xs text-gray-500">{sku.unit}</p>
+                            </div>
+                            <div className="text-center">
+                              <p className="text-gray-600">Value</p>
+                              <p className="font-semibold">₹{sku.value.toFixed(2)}L</p>
+                            </div>
+                            <div className="text-center">
+                              <p className="text-gray-600">Unit Price</p>
+                              <p className="font-semibold">₹{sku.unitPrice}</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
