@@ -10,7 +10,9 @@ import {
   CreditCard,
   TrendingUp,
   X,
-  Smartphone
+  Smartphone,
+  Shield,
+  UserCheck
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -20,10 +22,12 @@ interface SidebarProps {
 const navigation = [
   { name: 'Dashboard', href: '/', icon: Home },
   { name: 'MDO Module', href: '/mdo-module', icon: Calendar },
+  { name: 'User Management', href: '/user-management', icon: Shield },
   { name: 'Field Visits', href: '/field-visits', icon: MapPin },
   { name: 'Sales Orders', href: '/sales-orders', icon: ShoppingCart },
   { name: 'Liquidation', href: '/liquidation', icon: Droplets },
   { name: 'Contacts', href: '/contacts', icon: Users },
+  { name: 'Approvals', href: '/approvals', icon: UserCheck },
   { name: 'Mobile App Design', href: '/mobile-design', icon: Smartphone },
   { name: 'Mobile App', href: '/mobile', icon: Smartphone },
 ];

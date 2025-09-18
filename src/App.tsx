@@ -13,6 +13,8 @@ import RetailerLiquidation from './pages/RetailerLiquidation';
 import MobileAppDesign from './pages/MobileAppDesign';
 import MobileAppPage from './pages/MobileAppPage';
 import MDOModule from './pages/MDOModule';
+import UserManagement from './pages/UserManagement';
+import Approvals from './pages/Approvals';
 
 function App() {
   return (
@@ -30,6 +32,8 @@ function App() {
         <Route path="/mobile-design" element={<MobileAppDesign />} />
         <Route path="/mobile" element={<MobileAppPage />} />
         <Route path="/mdo-module" element={<MDOModule />} />
+        <Route path="/user-management" element={<UserManagement />} />
+        <Route path="/approvals" element={<Approvals />} />
       </Routes>
     </Layout>
   );
