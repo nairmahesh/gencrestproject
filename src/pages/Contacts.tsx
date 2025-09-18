@@ -312,7 +312,6 @@ const Contacts: React.FC = () => {
           <span>Distributors: {filteredContacts.filter(c => c.type === 'Distributor').length}</span>
           <span>Dealers: {filteredContacts.filter(c => c.type === 'Dealer').length}</span>
           <span>Retailers: {filteredContacts.filter(c => c.type === 'Retailer').length}</span>
-          </div>
         </div>
       </div>
 
