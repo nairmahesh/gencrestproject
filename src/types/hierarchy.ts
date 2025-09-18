@@ -68,7 +68,7 @@ export const ROLE_HIERARCHY: UserRole[] = [
       { module: 'liquidation', actions: ['view', 'edit'] },
       { module: 'contacts', actions: ['view', 'create', 'edit'] },
       { module: 'travel_claims', actions: ['view', 'create', 'edit'] },
-      { module: 'monthly_plans', actions: ['view', 'create'] }
+      { module: 'monthly_plans', actions: ['view'] } // MDO can only view plans, cannot create
     ],
     canApprove: [],
     reportsTo: 'TSM'
@@ -85,7 +85,7 @@ export const ROLE_HIERARCHY: UserRole[] = [
       { module: 'liquidation', actions: ['view', 'edit', 'approve'] },
       { module: 'contacts', actions: ['view', 'create', 'edit', 'delete'] },
       { module: 'travel_claims', actions: ['view', 'create', 'edit', 'approve'] },
-      { module: 'monthly_plans', actions: ['view', 'create', 'edit', 'approve'] },
+      { module: 'monthly_plans', actions: ['view', 'create', 'edit', 'approve'] }, // TSM creates plans for MDO and self
       { module: 'team_management', actions: ['view', 'edit'] }
     ],
     canApprove: ['MDO'],
@@ -103,7 +103,7 @@ export const ROLE_HIERARCHY: UserRole[] = [
       { module: 'liquidation', actions: ['view', 'edit', 'approve'] },
       { module: 'contacts', actions: ['view', 'create', 'edit', 'delete', 'approve'] },
       { module: 'travel_claims', actions: ['view', 'create', 'edit', 'approve'] },
-      { module: 'monthly_plans', actions: ['view', 'create', 'edit', 'approve'] },
+      { module: 'monthly_plans', actions: ['view', 'create', 'edit', 'approve'] }, // RBH can create plans when TSM absent - no approval needed
       { module: 'team_management', actions: ['view', 'edit', 'approve'] },
       { module: 'regional_reports', actions: ['view', 'create', 'edit'] }
     ],
@@ -122,7 +122,7 @@ export const ROLE_HIERARCHY: UserRole[] = [
       { module: 'liquidation', actions: ['view', 'approve'] },
       { module: 'contacts', actions: ['view', 'approve'] },
       { module: 'travel_claims', actions: ['view', 'approve'] },
-      { module: 'monthly_plans', actions: ['view', 'approve'] },
+      { module: 'monthly_plans', actions: ['view', 'create', 'edit', 'approve'] }, // RMM can create plans when TSM absent - no approval needed
       { module: 'team_management', actions: ['view', 'edit', 'approve'] },
       { module: 'regional_reports', actions: ['view', 'create', 'edit', 'approve'] },
       { module: 'marketing_campaigns', actions: ['view', 'create', 'edit', 'approve'] }
@@ -255,11 +255,17 @@ export const getApprovalWorkflow = (submitterRole: string, type: ApprovalWorkflo
   // Special approval rules based on business requirements
   switch (type) {
     case 'monthly_plan':
-      if (submitterRole === 'RMM') {
-        return ['MH']; // RMM plans approved by Marketing Head
+      if (submitterRole === 'TSM') {
+        return ['RBH']; // TSM plans (for MDO and self) approved by RBH
+      }
+      if (submitterRole === 'RBH' || submitterRole === 'RMM') {
+        return []; // RBH/RMM plans created in TSM absence - no approval needed
       }
       if (submitterRole === 'ZBH') {
         return ['VP_SM']; // ZBH plans approved by VP-Sales & Marketing
+      }
+      if (submitterRole === 'MH') {
+        return ['VP_SM']; // Marketing Head plans approved by VP-Sales & Marketing
       }
       // For others, immediate supervisor approves
       return reportingChain.slice(0, 1);
