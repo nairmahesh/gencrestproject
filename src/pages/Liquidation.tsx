@@ -194,8 +194,8 @@ const Liquidation: React.FC = () => {
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Stock Liquidation</h1>
-            <p className="text-gray-600 mt-1">Monitor and track stock liquidation across distributors</p>
+            <h1 className="text-2xl font-bold">Stock Liquidation</h1>
+            <p className="text-purple-100 mt-1">Monitor and track stock liquidation across distributors</p>
           </div>
         </div>
       </div>
@@ -579,9 +579,11 @@ const Liquidation: React.FC = () => {
                 {getMetricData(selectedMetric, selectedDistributorId).data.map((product: any) => (
                   <div key={product.skuCode} className="bg-gray-50 rounded-xl p-6">
                     <div className="flex items-center justify-between mb-4">
-                      <span className={`px-4 py-2 rounded-lg text-sm font-medium ${getSKUColor(sku.skuCode)}`}>
-                        {sku.skuName}
-                      </span>
+                      <div className="flex items-center space-x-3">
+                        <span className={`px-4 py-2 rounded-lg text-sm font-medium ${getSKUColor(sku.skuCode)}`}>
+                          {sku.skuName} - {sku.skuCode}
+                        </span>
+                      </div>
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
