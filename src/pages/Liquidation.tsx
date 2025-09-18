@@ -579,11 +579,9 @@ const Liquidation: React.FC = () => {
                 {getMetricData(selectedMetric, selectedDistributorId).data.map((product: any) => (
                   <div key={product.skuCode} className="bg-gray-50 rounded-xl p-6">
                     <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center space-x-3">
-                        <span className={`px-4 py-2 rounded-lg text-sm font-medium ${getSKUColor(sku.skuCode)}`}>
-                          {sku.skuName} - {sku.skuCode}
-                        </span>
-                      </div>
+                      <span className={`px-4 py-2 rounded-lg text-sm font-medium ${getSKUColor(sku.skuCode)}`}>
+                        {sku.skuName}
+                      </span>
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
