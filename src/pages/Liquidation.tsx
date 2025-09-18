@@ -259,7 +259,7 @@ const Liquidation: React.FC = () => {
     skuData.forEach(sku => {
       skuVerifications[sku.skuCode] = {
         current: sku.currentStock,
-        physical: sku.currentStock,
+        physical: 0,
         variance: 0
       };
     });
@@ -1115,10 +1115,10 @@ const Liquidation: React.FC = () => {
                               <p className="text-sm font-medium text-gray-700 mb-2">Physical Stock (Verified)</p>
                               <input
                                 type="number"
-                                value={verificationData.skuVerifications[sku.skuCode]?.physical || sku.currentStock}
+                                value={verificationData.skuVerifications[sku.skuCode]?.physical || ''}
                                 onChange={(e) => handleSKUStockChange(sku.skuCode, 'physical', parseInt(e.target.value) || 0)}
                                 className="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-center"
-                                placeholder="0"
+                                placeholder="Enter count"
                               />
                             </div>
                           </div>
