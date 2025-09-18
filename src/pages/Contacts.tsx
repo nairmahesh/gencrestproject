@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, Plus, Search, Phone, Mail, MapPin, Building, ArrowLeft } from 'lucide-react';
+import { Users, Plus, Search, Phone, Mail, MapPin, Building, ArrowLeft, X, Tag } from 'lucide-react';
 
 interface Contact {
   id: string;
@@ -12,12 +12,16 @@ interface Contact {
   location: string;
   type: 'Dealer' | 'Retailer' | 'Distributor';
   status: 'Active' | 'Inactive';
+  tags: string[];
+  territory: string;
+  region: string;
 }
 
 const Contacts: React.FC = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
-  const [typeFilter, setTypeFilter] = useState('All');
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [searchTag, setSearchTag] = useState('');
 
   const contacts: Contact[] = [
     {
@@ -30,6 +34,9 @@ const Contacts: React.FC = () => {
       location: 'Green Valley, Sector 12',
       type: 'Distributor',
       status: 'Active',
+      tags: ['High Priority', 'North Delhi', 'Premium Customer', 'Fertilizers'],
+      territory: 'North Delhi',
+      region: 'Delhi NCR'
     },
     {
       id: '2',
@@ -41,6 +48,9 @@ const Contacts: React.FC = () => {
       location: 'Market Area, Sector 8',
       type: 'Dealer',
       status: 'Active',
+      tags: ['Medium Priority', 'Sector 8', 'Seeds', 'Regular Customer'],
+      territory: 'Sector 8',
+      region: 'Delhi NCR'
     },
     {
       id: '3',
@@ -52,15 +62,46 @@ const Contacts: React.FC = () => {
       location: 'Industrial Area',
       type: 'Retailer',
       status: 'Inactive',
+      tags: ['Low Priority', 'Industrial Area', 'Pesticides', 'New Customer'],
+      territory: 'Industrial Area',
+      region: 'Delhi NCR'
     },
   ];
 
+  // Get all unique tags from contacts
+  const allTags = Array.from(new Set(contacts.flatMap(contact => contact.tags)));
+  
+  // Filter tags based on search
+  const filteredTags = allTags.filter(tag => 
+    tag.toLowerCase().includes(searchTag.toLowerCase())
+  );
   const filteredContacts = contacts.filter(contact => {
     const matchesSearch = contact.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         contact.company.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesType = typeFilter === 'All' || contact.type === typeFilter;
-    return matchesSearch && matchesType;
+                         contact.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         contact.territory.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         contact.region.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesTags = selectedTags.length === 0 || 
+                       selectedTags.some(tag => contact.tags.includes(tag));
+    
+    return matchesSearch && matchesTags;
   });
+
+  const handleTagToggle = (tag: string) => {
+    setSelectedTags(prev => 
+      prev.includes(tag) 
+        ? prev.filter(t => t !== tag)
+        : [...prev, tag]
+    );
+  };
+
+  const removeTag = (tag: string) => {
+    setSelectedTags(prev => prev.filter(t => t !== tag));
+  };
+
+  const clearAllTags = () => {
+    setSelectedTags([]);
+  };
 
   const getTypeColor = (type: string) => {
     switch (type) {
@@ -79,6 +120,15 @@ const Contacts: React.FC = () => {
     return status === 'Active' 
       ? 'text-green-600' 
       : 'text-red-600';
+  };
+
+  const getTagColor = (tag: string) => {
+    if (tag.includes('High Priority')) return 'bg-red-100 text-red-800';
+    if (tag.includes('Medium Priority')) return 'bg-yellow-100 text-yellow-800';
+    if (tag.includes('Low Priority')) return 'bg-green-100 text-green-800';
+    if (tag.includes('Premium')) return 'bg-purple-100 text-purple-800';
+    if (tag.includes('New')) return 'bg-blue-100 text-blue-800';
+    return 'bg-gray-100 text-gray-800';
   };
 
   return (
@@ -161,30 +211,107 @@ const Contacts: React.FC = () => {
 
       {/* Filters */}
       <div className="bg-white rounded-xl p-6 card-shadow">
-        <div className="flex flex-col sm:flex-row gap-4">
+        <div className="space-y-4">
+          {/* Search Bar */}
           <div className="flex-1">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <input
                 type="text"
-                placeholder="Search contacts..."
+                placeholder="Search contacts, territories, regions..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               />
             </div>
           </div>
-          <div className="flex items-center space-x-4">
-            <select
-              value={typeFilter}
-              onChange={(e) => setTypeFilter(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-            >
-              <option value="All">All Types</option>
-              <option value="Distributor">Distributors</option>
-              <option value="Dealer">Dealers</option>
-              <option value="Retailer">Retailers</option>
-            </select>
+          
+          {/* Tag Search and Selection */}
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex-1">
+              <div className="relative">
+                <Tag className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <input
+                  type="text"
+                  placeholder="Search tags..."
+                  value={searchTag}
+                  onChange={(e) => setSearchTag(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+            {selectedTags.length > 0 && (
+              <button
+                onClick={clearAllTags}
+                className="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center"
+              >
+                <X className="w-4 h-4 mr-1" />
+                Clear All
+              </button>
+            )}
+          </div>
+          
+          {/* Available Tags */}
+          {searchTag && (
+            <div className="border-t pt-4">
+              <p className="text-sm font-medium text-gray-700 mb-2">Available Tags:</p>
+              <div className="flex flex-wrap gap-2">
+                {filteredTags.map(tag => (
+                  <button
+                    key={tag}
+                    onClick={() => handleTagToggle(tag)}
+                    className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                      selectedTags.includes(tag)
+                        ? 'bg-purple-600 text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    {tag}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {/* Selected Tags */}
+          {selectedTags.length > 0 && (
+            <div className="border-t pt-4">
+              <p className="text-sm font-medium text-gray-700 mb-2">Active Filters:</p>
+              <div className="flex flex-wrap gap-2">
+                {selectedTags.map(tag => (
+                  <span
+                    key={tag}
+                    className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getTagColor(tag)}`}
+                  >
+                    {tag}
+                    <button
+                      onClick={() => removeTag(tag)}
+                      className="ml-2 hover:bg-black hover:bg-opacity-10 rounded-full p-0.5"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Results Summary */}
+      <div className="flex items-center justify-between text-sm text-gray-600">
+        <span>
+          Showing {filteredContacts.length} of {contacts.length} contacts
+          {selectedTags.length > 0 && (
+            <span className="ml-2">
+              (filtered by {selectedTags.length} tag{selectedTags.length !== 1 ? 's' : ''})
+            </span>
+          )}
+        </span>
+        <div className="flex items-center space-x-4">
+          <span>Distributors: {filteredContacts.filter(c => c.type === 'Distributor').length}</span>
+          <span>Dealers: {filteredContacts.filter(c => c.type === 'Dealer').length}</span>
+          <span>Retailers: {filteredContacts.filter(c => c.type === 'Retailer').length}</span>
           </div>
         </div>
       </div>
@@ -227,6 +354,25 @@ const Contacts: React.FC = () => {
               <div className="flex items-center text-sm text-gray-600">
                 <MapPin className="w-4 h-4 mr-2" />
                 {contact.location}
+              </div>
+            </div>
+
+            {/* Contact Tags */}
+            <div className="mb-4">
+              <div className="flex flex-wrap gap-1">
+                {contact.tags.slice(0, 3).map((tag, index) => (
+                  <span
+                    key={index}
+                    className={`px-2 py-1 rounded-full text-xs font-medium ${getTagColor(tag)}`}
+                  >
+                    {tag}
+                  </span>
+                ))}
+                {contact.tags.length > 3 && (
+                  <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                    +{contact.tags.length - 3} more
+                  </span>
+                )}
               </div>
             </div>
 
