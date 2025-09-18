@@ -28,6 +28,17 @@ const Liquidation: React.FC = () => {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [searchTag, setSearchTag] = useState('');
   const [showFilters, setShowFilters] = useState(false);
+  const [showVerifyModal, setShowVerifyModal] = useState(false);
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<any>(null);
+  const [selectedMetric, setSelectedMetric] = useState<string>('');
+  const [verificationData, setVerificationData] = useState({
+    currentStock: 0,
+    physicalStock: 0,
+    variance: 0,
+    reason: '',
+    verifiedBy: user?.name || 'User'
+  });
   
   // Fallback data in case hook fails
   const overallMetrics = {
@@ -160,6 +171,42 @@ const Liquidation: React.FC = () => {
     setSelectedTags([]);
   };
 
+  const handleViewClick = (metric: string, item?: any) => {
+    setSelectedMetric(metric);
+    setSelectedItem(item);
+    setShowViewModal(true);
+  };
+
+  const handleVerifyClick = (item: any) => {
+    setSelectedItem(item);
+    setVerificationData({
+      currentStock: item.metrics.balanceStock.volume,
+      physicalStock: item.metrics.balanceStock.volume,
+      variance: 0,
+      reason: '',
+      verifiedBy: user?.name || 'User'
+    });
+    setShowVerifyModal(true);
+  };
+
+  const handleStockChange = (field: 'currentStock' | 'physicalStock', value: number) => {
+    const newData = { ...verificationData, [field]: value };
+    newData.variance = newData.physicalStock - newData.currentStock;
+    setVerificationData(newData);
+  };
+
+  const handleVerifySubmit = () => {
+    console.log('Stock verification submitted:', {
+      itemId: selectedItem.id,
+      ...verificationData,
+      timestamp: new Date().toISOString()
+    });
+    
+    alert(`Stock verified for ${selectedItem.distributorName}!\nVariance: ${verificationData.variance} ${selectedItem.metrics.balanceStock.volume > 1000 ? 'Kg' : 'L'}`);
+    setShowVerifyModal(false);
+    setSelectedItem(null);
+  };
+
   const getTagColor = (tag: string) => {
     if (tag.includes('High')) return 'bg-red-100 text-red-800';
     if (tag.includes('Medium')) return 'bg-yellow-100 text-yellow-800';
@@ -220,7 +267,10 @@ const Liquidation: React.FC = () => {
           <div className="bg-white rounded-xl p-6 border-l-4 border-orange-500 card-shadow">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-orange-800">Opening Stock</h3>
-              <button className="bg-orange-500 text-white px-3 py-1 rounded text-sm hover:bg-orange-600 transition-colors">
+              <button 
+                onClick={() => handleViewClick('opening')}
+                className="bg-orange-500 text-white px-3 py-1 rounded text-sm hover:bg-orange-600 transition-colors"
+              >
                 View
               </button>
             </div>
@@ -236,7 +286,10 @@ const Liquidation: React.FC = () => {
           <div className="bg-white rounded-xl p-6 border-l-4 border-blue-500 card-shadow">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-blue-800">YTD Net Sales</h3>
-              <button className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600 transition-colors">
+              <button 
+                onClick={() => handleViewClick('sales')}
+                className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600 transition-colors"
+              >
                 View
               </button>
             </div>
@@ -252,7 +305,10 @@ const Liquidation: React.FC = () => {
           <div className="bg-white rounded-xl p-6 border-l-4 border-green-500 card-shadow">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-green-800">Liquidation</h3>
-              <button className="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600 transition-colors">
+              <button 
+                onClick={() => handleViewClick('liquidation')}
+                className="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600 transition-colors"
+              >
                 View
               </button>
             </div>
@@ -268,7 +324,10 @@ const Liquidation: React.FC = () => {
           <div className="bg-white rounded-xl p-6 border-l-4 border-purple-500 card-shadow">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-purple-800">Balance Stock</h3>
-              <button className="bg-purple-500 text-white px-3 py-1 rounded text-sm hover:bg-purple-600 transition-colors">
+              <button 
+                onClick={() => handleViewClick('balance')}
+                className="bg-purple-500 text-white px-3 py-1 rounded text-sm hover:bg-purple-600 transition-colors"
+              >
                 Verify
               </button>
             </div>
@@ -321,7 +380,10 @@ const Liquidation: React.FC = () => {
               <div className="bg-orange-50 rounded-lg p-4 border-l-4 border-orange-500">
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="text-sm font-semibold text-orange-800">Opening Stock</h4>
-                  <button className="bg-orange-500 text-white px-2 py-1 rounded text-xs hover:bg-orange-600 transition-colors">
+                  <button 
+                    onClick={() => handleViewClick('opening', distributor)}
+                    className="bg-orange-500 text-white px-2 py-1 rounded text-xs hover:bg-orange-600 transition-colors"
+                  >
                     View
                   </button>
                 </div>
@@ -340,7 +402,10 @@ const Liquidation: React.FC = () => {
               <div className="bg-blue-50 rounded-lg p-4 border-l-4 border-blue-500">
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="text-sm font-semibold text-blue-800">YTD Net Sales</h4>
-                  <button className="bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600 transition-colors">
+                  <button 
+                    onClick={() => handleViewClick('sales', distributor)}
+                    className="bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600 transition-colors"
+                  >
                     View
                   </button>
                 </div>
@@ -359,7 +424,10 @@ const Liquidation: React.FC = () => {
               <div className="bg-green-50 rounded-lg p-4 border-l-4 border-green-500">
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="text-sm font-semibold text-green-800">Liquidation</h4>
-                  <button className="bg-green-500 text-white px-2 py-1 rounded text-xs hover:bg-green-600 transition-colors">
+                  <button 
+                    onClick={() => handleViewClick('liquidation', distributor)}
+                    className="bg-green-500 text-white px-2 py-1 rounded text-xs hover:bg-green-600 transition-colors"
+                  >
                     View
                   </button>
                 </div>
@@ -378,7 +446,10 @@ const Liquidation: React.FC = () => {
               <div className="bg-purple-50 rounded-lg p-4 border-l-4 border-purple-500">
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="text-sm font-semibold text-purple-800">Balance Stock</h4>
-                  <button className="bg-purple-500 text-white px-2 py-1 rounded text-xs hover:bg-purple-600 transition-colors">
+                  <button 
+                    onClick={() => handleVerifyClick(distributor)}
+                    className="bg-purple-500 text-white px-2 py-1 rounded text-xs hover:bg-purple-600 transition-colors"
+                  >
                     Verify
                   </button>
                 </div>
@@ -448,6 +519,184 @@ const Liquidation: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* View Details Modal */}
+      {showViewModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
+            <div className="flex items-center justify-between p-6 border-b">
+              <div>
+                <h3 className="text-xl font-semibold text-gray-900">
+                  {selectedMetric === 'opening' ? 'Opening Stock Details' :
+                   selectedMetric === 'sales' ? 'YTD Net Sales Details' :
+                   selectedMetric === 'liquidation' ? 'Liquidation Details' :
+                   'Balance Stock Details'}
+                </h3>
+                <p className="text-sm text-gray-600 mt-1">
+                  {selectedItem ? `${selectedItem.distributorName} (${selectedItem.distributorCode})` : 'Overall metrics'}
+                </p>
+              </div>
+              <button
+                onClick={() => setShowViewModal(false)}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-6">
+              <div className="text-center mb-6">
+                <div className="text-4xl font-bold text-gray-900 mb-2">
+                  {selectedItem 
+                    ? selectedItem.metrics[selectedMetric === 'opening' ? 'openingStock' : 
+                                          selectedMetric === 'sales' ? 'ytdNetSales' :
+                                          selectedMetric === 'liquidation' ? 'liquidation' : 'balanceStock'].volume.toLocaleString()
+                    : overallMetrics[selectedMetric === 'opening' ? 'openingStock' : 
+                                    selectedMetric === 'sales' ? 'ytdNetSales' :
+                                    selectedMetric === 'liquidation' ? 'liquidation' : 'balanceStock'].volume.toLocaleString()
+                  }
+                </div>
+                <div className="text-lg text-gray-600 mb-2">Kg/Litre</div>
+                <div className="text-2xl font-semibold text-gray-700">
+                  ₹{selectedItem 
+                      ? selectedItem.metrics[selectedMetric === 'opening' ? 'openingStock' : 
+                                            selectedMetric === 'sales' ? 'ytdNetSales' :
+                                            selectedMetric === 'liquidation' ? 'liquidation' : 'balanceStock'].value.toFixed(2)
+                      : overallMetrics[selectedMetric === 'opening' ? 'openingStock' : 
+                                      selectedMetric === 'sales' ? 'ytdNetSales' :
+                                      selectedMetric === 'liquidation' ? 'liquidation' : 'balanceStock'].value.toFixed(2)
+                    }L
+                </div>
+              </div>
+              
+              <div className="bg-gray-50 rounded-lg p-4">
+                <h4 className="font-semibold text-gray-900 mb-3">Details</h4>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Last Updated:</span>
+                    <span className="font-medium">
+                      {new Date(selectedItem?.metrics.lastUpdated || overallMetrics.lastUpdated).toLocaleDateString()}
+                    </span>
+                  </div>
+                  {selectedItem && (
+                    <>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Territory:</span>
+                        <span className="font-medium">{selectedItem.territory}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Region:</span>
+                        <span className="font-medium">{selectedItem.region}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Status:</span>
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(selectedItem.status)}`}>
+                          {selectedItem.status}
+                        </span>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Stock Verification Modal */}
+      {showVerifyModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl w-full max-w-md">
+            <div className="flex items-center justify-between p-4 border-b">
+              <h3 className="text-lg font-semibold text-gray-900">Stock Verification</h3>
+              <button
+                onClick={() => setShowVerifyModal(false)}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-4 space-y-4">
+              {selectedItem && (
+                <>
+                  <div className="bg-gray-50 rounded-lg p-3">
+                    <h4 className="font-semibold text-gray-900">{selectedItem.distributorName}</h4>
+                    <p className="text-sm text-gray-600">{selectedItem.distributorCode} • {selectedItem.territory}</p>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Current Stock (System)
+                      </label>
+                      <input
+                        type="number"
+                        value={verificationData.currentStock}
+                        onChange={(e) => handleStockChange('currentStock', parseInt(e.target.value) || 0)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        placeholder="Enter current stock"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Physical Stock (Verified)
+                      </label>
+                      <input
+                        type="number"
+                        value={verificationData.physicalStock}
+                        onChange={(e) => handleStockChange('physicalStock', parseInt(e.target.value) || 0)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        placeholder="Enter physical stock"
+                      />
+                    </div>
+                    
+                    {verificationData.variance !== 0 && (
+                      <div className={`p-3 rounded-lg ${verificationData.variance > 0 ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium">Variance:</span>
+                          <span className={`font-bold ${verificationData.variance > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                            {verificationData.variance > 0 ? '+' : ''}{verificationData.variance} {selectedItem.metrics.balanceStock.volume > 1000 ? 'Kg' : 'L'}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Reason for Variance (if any)
+                      </label>
+                      <textarea
+                        value={verificationData.reason}
+                        onChange={(e) => setVerificationData(prev => ({ ...prev, reason: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        rows={3}
+                        placeholder="Explain any stock variance..."
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+            
+            <div className="flex space-x-3 p-4 border-t">
+              <button
+                onClick={() => setShowVerifyModal(false)}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleVerifySubmit}
+                className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+              >
+                Verify Stock
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
