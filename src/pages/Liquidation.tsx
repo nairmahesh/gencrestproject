@@ -384,9 +384,9 @@ const Liquidation: React.FC = () => {
             </div>
             <h4 className="text-lg font-semibold text-gray-900 mb-2">Opening Stock</h4>
             <div className="space-y-2">
-              <div className="text-3xl font-bold text-orange-800">32,660</div>
+              <div className="text-2xl font-bold text-orange-800">32,660</div>
               <div className="text-sm text-orange-600">Kg/Litre</div>
-              <div className="text-lg font-semibold text-orange-700">₹40.55L</div>
+              <div className="text-base font-semibold text-orange-700">₹40.55L</div>
               <button 
                 onClick={() => handleViewClick('opening')}
                 className="bg-orange-500 text-white px-3 py-1 rounded text-sm hover:bg-orange-600 transition-colors"
@@ -404,9 +404,9 @@ const Liquidation: React.FC = () => {
             </div>
             <h4 className="text-lg font-semibold text-gray-900 mb-2">YTD Net Sales</h4>
             <div className="space-y-2">
-              <div className="text-3xl font-bold text-blue-800">23,303</div>
+              <div className="text-2xl font-bold text-blue-800">23,303</div>
               <div className="text-sm text-blue-600">Kg/Litre</div>
-              <div className="text-lg font-semibold text-blue-700">₹27.36L</div>
+              <div className="text-base font-semibold text-blue-700">₹27.36L</div>
               <button 
                 onClick={() => handleViewClick('sales')}
                 className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600 transition-colors"
@@ -424,9 +424,9 @@ const Liquidation: React.FC = () => {
             </div>
             <h4 className="text-lg font-semibold text-gray-900 mb-2">Liquidation</h4>
             <div className="space-y-2">
-              <div className="text-3xl font-bold text-green-800">12,720</div>
+              <div className="text-2xl font-bold text-green-800">12,720</div>
               <div className="text-sm text-green-600">Kg/Litre</div>
-              <div className="text-lg font-semibold text-green-700">₹16.55L</div>
+              <div className="text-base font-semibold text-green-700">₹16.55L</div>
               <button 
                 onClick={() => handleViewClick('liquidation')}
                 className="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600 transition-colors"
@@ -444,9 +444,9 @@ const Liquidation: React.FC = () => {
             </div>
             <h4 className="text-lg font-semibold text-gray-900 mb-2">Balance Stock</h4>
             <div className="space-y-2">
-              <div className="text-3xl font-bold text-purple-800">43,243</div>
+              <div className="text-2xl font-bold text-purple-800">43,243</div>
               <div className="text-sm text-purple-600">Kg/Litre</div>
-              <div className="text-lg font-semibold text-purple-700">₹51.36L</div>
+              <div className="text-base font-semibold text-purple-700">₹51.36L</div>
               <button 
                 onClick={() => handleViewClick('balance')}
                 className="bg-purple-500 text-white px-3 py-1 rounded text-sm hover:bg-purple-600 transition-colors"
@@ -461,7 +461,8 @@ const Liquidation: React.FC = () => {
       {/* Search and Filters */}
       <div className="bg-white rounded-xl p-6 card-shadow">
         <div className="space-y-4">
-          <div className="flex-1">
+          <div className="flex flex-col sm:flex-row gap-4">
+            {/* Main Search */}
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <input
@@ -472,9 +473,8 @@ const Liquidation: React.FC = () => {
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               />
             </div>
-          </div>
-          
-          <div className="flex flex-col sm:flex-row gap-4">
+            
+            {/* Tag Search */}
             <div className="flex-1">
               <div className="relative">
                 <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -487,6 +487,8 @@ const Liquidation: React.FC = () => {
                 />
               </div>
             </div>
+            
+            {/* Clear All Button */}
             {selectedTags.length > 0 && (
               <button
                 onClick={clearAllTags}
