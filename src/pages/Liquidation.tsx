@@ -387,12 +387,6 @@ const Liquidation: React.FC = () => {
               <div className="text-2xl font-bold text-orange-800">32,660</div>
               <div className="text-sm text-orange-600">Kg/Litre</div>
               <div className="text-base font-semibold text-orange-700">₹40.55L</div>
-              <button 
-                onClick={() => handleViewClick('opening')}
-                className="bg-orange-500 text-white px-3 py-1 rounded text-sm hover:bg-orange-600 transition-colors"
-              >
-                View
-              </button>
             </div>
           </div>
 
@@ -407,12 +401,6 @@ const Liquidation: React.FC = () => {
               <div className="text-2xl font-bold text-blue-800">23,303</div>
               <div className="text-sm text-blue-600">Kg/Litre</div>
               <div className="text-base font-semibold text-blue-700">₹27.36L</div>
-              <button 
-                onClick={() => handleViewClick('sales')}
-                className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600 transition-colors"
-              >
-                View
-              </button>
             </div>
           </div>
 
@@ -427,12 +415,6 @@ const Liquidation: React.FC = () => {
               <div className="text-2xl font-bold text-green-800">12,720</div>
               <div className="text-sm text-green-600">Kg/Litre</div>
               <div className="text-base font-semibold text-green-700">₹16.55L</div>
-              <button 
-                onClick={() => handleViewClick('liquidation')}
-                className="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600 transition-colors"
-              >
-                View
-              </button>
             </div>
           </div>
 
@@ -447,12 +429,6 @@ const Liquidation: React.FC = () => {
               <div className="text-2xl font-bold text-purple-800">43,243</div>
               <div className="text-sm text-purple-600">Kg/Litre</div>
               <div className="text-base font-semibold text-purple-700">₹51.36L</div>
-              <button 
-                onClick={() => handleViewClick('balance')}
-                className="bg-purple-500 text-white px-3 py-1 rounded text-sm hover:bg-purple-600 transition-colors"
-              >
-                Verify
-              </button>
             </div>
           </div>
         </div>
