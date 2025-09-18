@@ -125,12 +125,12 @@ const Liquidation: React.FC = () => {
 
     switch (metric) {
       case 'opening':
-        // Calculate opening stock: 50% of current stock for each invoice
+        // Calculate opening stock: 25% of current stock for each invoice
         const totalOpeningVolume = skuData.reduce((sum, sku) => 
-          sum + sku.invoices.reduce((invSum, inv) => invSum + Math.round(inv.currentStock * 0.5), 0), 0
+          sum + sku.invoices.reduce((invSum, inv) => invSum + Math.round(inv.currentStock * 0.25), 0), 0
         );
         const totalOpeningValue = skuData.reduce((sum, sku) => 
-          sum + sku.invoices.reduce((invSum, inv) => invSum + ((inv.currentStock * 0.5 * 1350) / 100000), 0), 0
+          sum + sku.invoices.reduce((invSum, inv) => invSum + ((inv.currentStock * 0.25 * 1350) / 100000), 0), 0
         );
         return {
           title: `Opening Stock - ${distributor.distributorName}`,
@@ -143,19 +143,19 @@ const Liquidation: React.FC = () => {
               skuCode: sku.skuCode,
               skuName: sku.skuName,
               unit: sku.unit,
-              volume: Math.round(inv.currentStock * 0.5),
-              value: (inv.currentStock * 0.5 * 1350) / 100000,
+              volume: Math.round(inv.currentStock * 0.25),
+              value: (inv.currentStock * 0.25 * 1350) / 100000,
               unitPrice: 1350
             }))
           }))
         };
       case 'sales':
-        // Calculate YTD sales: 20% of current stock for each invoice
+        // Calculate YTD sales: 10% of current stock for each invoice
         const totalSalesVolume = skuData.reduce((sum, sku) => 
-          sum + sku.invoices.reduce((invSum, inv) => invSum + Math.round(inv.currentStock * 0.2), 0), 0
+          sum + sku.invoices.reduce((invSum, inv) => invSum + Math.round(inv.currentStock * 0.1), 0), 0
         );
         const totalSalesValue = skuData.reduce((sum, sku) => 
-          sum + sku.invoices.reduce((invSum, inv) => invSum + ((inv.currentStock * 0.2 * 1350) / 100000), 0), 0
+          sum + sku.invoices.reduce((invSum, inv) => invSum + ((inv.currentStock * 0.1 * 1350) / 100000), 0), 0
         );
         return {
           title: `YTD Net Sales - ${distributor.distributorName}`,
@@ -168,8 +168,8 @@ const Liquidation: React.FC = () => {
               skuCode: sku.skuCode,
               skuName: sku.skuName,
               unit: sku.unit,
-              volume: Math.round(inv.currentStock * 0.2),
-              value: (inv.currentStock * 0.2 * 1350) / 100000,
+              volume: Math.round(inv.currentStock * 0.1),
+              value: (inv.currentStock * 0.1 * 1350) / 100000,
               unitPrice: 1350
             }))
           }))
@@ -455,7 +455,7 @@ const Liquidation: React.FC = () => {
                     <h4 className="font-semibold text-purple-800">Balance Stock</h4>
                     <button 
                       onClick={() => handleMetricClick('balance', distributor.id)}
-                      className="bg-purple-500 text-white px-2 py-1 rounded text-xs hover:bg-purple-600"
+                      className="bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600"
                     >
                       View
                     </button>
@@ -471,8 +471,9 @@ const Liquidation: React.FC = () => {
                   <div className="mt-3">
                     <button 
                       onClick={() => handleVerifyClick(distributor)}
-                      className="w-full bg-green-600 text-white py-1 px-2 rounded text-xs hover:bg-green-700"
+                      className="w-full bg-green-600 text-white py-1 px-2 rounded text-xs hover:bg-green-700 flex items-center justify-center"
                     >
+                      <CheckCircle className="w-3 h-3 mr-1" />
                       Verify Stock
                     </button>
                   </div>
@@ -744,7 +745,7 @@ const Liquidation: React.FC = () => {
                                   <>
                                     <div className="text-center">
                                       <div className="px-3 py-2 border border-orange-300 bg-orange-50 text-orange-800 rounded-lg font-semibold">
-                                        {openingStock}
+                                        {Math.round(invoice.currentStock * 0.25)}
                                       </div>
                                     </div>
                                     <div className="text-center">
@@ -764,7 +765,7 @@ const Liquidation: React.FC = () => {
                                     </div>
                                     <div className="text-center">
                                       <div className="px-3 py-2 border border-blue-300 bg-blue-50 text-blue-800 rounded-lg font-semibold">
-                                        ₹{salesValue}L
+                                        ₹{((invoice.currentStock * 0.1 * 1350) / 100000).toFixed(2)}L
                                       </div>
                                     </div>
                                   </>
