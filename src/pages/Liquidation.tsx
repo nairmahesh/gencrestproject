@@ -2,23 +2,21 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Droplets, 
+  TrendingUp, 
+  Package, 
+  Target, 
+  Building, 
+  Plus, 
   Search, 
   Filter, 
   Eye, 
-  Edit, 
-  ArrowLeft, 
-  Package, 
-  TrendingUp, 
-  Target, 
-  Building,
-  MapPin,
-  Calendar,
-  User,
-  AlertTriangle,
-  CheckCircle,
-  Clock,
-  Tag,
-  X
+  CheckCircle, 
+  ArrowLeft,
+  X,
+  Users,
+  Save,
+  Edit,
+  Minus
 } from 'lucide-react';
 import { useLiquidationCalculation } from '../hooks/useLiquidationCalculation';
 import { useAuth } from '../contexts/AuthContext';
@@ -88,8 +86,8 @@ const Liquidation: React.FC = () => {
       territory: 'North Delhi',
       region: 'Delhi NCR',
       zone: 'North Zone',
-      status: 'Active' as const,
-      priority: 'High' as const,
+      status: 'Active',
+      priority: 'High',
       metrics: {
         openingStock: { volume: 40, value: 13.80 },
         ytdNetSales: { volume: 310, value: 13.95 },
@@ -97,8 +95,7 @@ const Liquidation: React.FC = () => {
         balanceStock: { volume: 210, value: 18.45 },
         liquidationPercentage: 40,
         lastUpdated: new Date().toISOString()
-      },
-      tags: ['Distributor', 'High', 'Active', 'Delhi NCR', 'North Zone', 'High Performance', 'Premium Partner', 'Fertilizers', 'North Delhi']
+      }
     },
     {
       id: 'DIST002',
@@ -107,8 +104,8 @@ const Liquidation: React.FC = () => {
       territory: 'Green Valley',
       region: 'Delhi NCR',
       zone: 'North Zone',
-      status: 'Active' as const,
-      priority: 'Medium' as const,
+      status: 'Active',
+      priority: 'Medium',
       metrics: {
         openingStock: { volume: 15000, value: 18.75 },
         ytdNetSales: { volume: 6500, value: 8.13 },
@@ -116,74 +113,66 @@ const Liquidation: React.FC = () => {
         balanceStock: { volume: 15300, value: 19.13 },
         liquidationPercentage: 29,
         lastUpdated: new Date().toISOString()
-      },
-      tags: ['Distributor', 'Medium', 'Active', 'Delhi NCR', 'North Zone', 'Medium Performance', 'Fertilizers', 'Green Valley']
-    }
-  ];
-
-  // Enhanced distributor data with tags
-  const distributorsWithTags = distributorMetrics;
-
-  // Add sample retailer data for demonstration
-  const retailerData = [
+      }
+    },
     {
-      id: 'RET001',
-      distributorName: 'Green Agro Store',
+      id: 'DIST003',
+      distributorName: 'Green Agro Solutions',
       distributorCode: 'GAS001',
-      territory: 'Sector 15',
+      territory: 'Sector 8',
       region: 'Delhi NCR',
       zone: 'North Zone',
-      status: 'Active' as const,
-      priority: 'Medium' as const,
+      status: 'Active',
+      priority: 'Low',
       metrics: {
-        openingStock: { volume: 25, value: 0.30 },
-        ytdNetSales: { volume: 180, value: 0.85 },
-        liquidation: { volume: 85, value: 0.45 },
-        balanceStock: { volume: 120, value: 0.70 },
-        liquidationPercentage: 41,
+        openingStock: { volume: 17620, value: 21.70 },
+        ytdNetSales: { volume: 6493, value: 6.57 },
+        liquidation: { volume: 6380, value: 7.22 },
+        balanceStock: { volume: 17733, value: 21.05 },
+        liquidationPercentage: 26,
         lastUpdated: new Date().toISOString()
-      },
-      tags: [
-        'Retailer', // Main filter option
-        'Medium',
-        'Active',
-        'Delhi NCR',
-        'North Zone',
-        'Medium Performance',
-        'Fertilizers',
-        'Sector 15'
-      ]
+      }
     }
   ];
 
-  // Combine distributors and retailers
-  const allEntities = [...distributorsWithTags, ...retailerData];
+  const allTags = [
+    'High Priority', 'Medium Priority', 'Low Priority',
+    'North Delhi', 'Green Valley', 'Sector 8',
+    'Active', 'Pending Review', 'Overdue',
+    'Fertilizers', 'Seeds', 'Pesticides'
+  ];
 
-  // Get all unique tags
-  const allTags = Array.from(new Set(allEntities.flatMap(d => d.tags)));
-  
-  // Prioritize main filter options
-  const mainTags = ['Distributor', 'Retailer'];
-  const otherTags = allTags.filter(tag => !mainTags.includes(tag));
-  const sortedTags = [...mainTags, ...otherTags];
-  
-  // Filter tags based on search
-  const filteredTags = sortedTags.filter(tag => 
+  const filteredTags = allTags.filter(tag => 
     tag.toLowerCase().includes(searchTag.toLowerCase())
   );
 
-  // Filter distributors based on search and tags
-  const filteredEntities = allEntities.filter(entity => {
-    const matchesSearch = entity.distributorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         entity.distributorCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         entity.territory.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         entity.region.toLowerCase().includes(searchTerm.toLowerCase());
+  const filteredDistributors = distributorMetrics.filter(distributor => {
+    const matchesSearch = distributor.distributorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         distributor.distributorCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         distributor.territory.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesTags = selectedTags.length === 0 || 
-                       selectedTags.some(tag => entity.tags.includes(tag));
+                       selectedTags.some(tag => {
+                         if (tag.includes('Priority')) return distributor.priority === tag.split(' ')[0];
+                         if (tag === 'Active') return distributor.status === 'Active';
+                         return distributor.territory.includes(tag) || distributor.region.includes(tag);
+                       });
     
     return matchesSearch && matchesTags;
   });
+
+  const getStatusColor = (status: string) => {
+    return status === 'Active' ? 'text-green-600 bg-green-100' : 'text-red-600 bg-red-100';
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'High': return 'text-red-600 bg-red-100';
+      case 'Medium': return 'text-yellow-600 bg-yellow-100';
+      case 'Low': return 'text-green-600 bg-green-100';
+      default: return 'text-gray-600 bg-gray-100';
+    }
+  };
 
   const handleTagToggle = (tag: string) => {
     setSelectedTags(prev => 
@@ -351,35 +340,6 @@ const Liquidation: React.FC = () => {
     return retailers.reduce((sum, retailer) => sum + (retailer.quantities[skuCode] || 0), 0);
   };
 
-  const getTagColor = (tag: string) => {
-    if (tag.includes('High')) return 'bg-red-100 text-red-800';
-    if (tag.includes('Medium')) return 'bg-yellow-100 text-yellow-800';
-    if (tag.includes('Low')) return 'bg-green-100 text-green-800';
-    if (tag.includes('Premium')) return 'bg-purple-100 text-purple-800';
-    if (tag.includes('Active')) return 'bg-green-100 text-green-800';
-    if (tag.includes('Inactive')) return 'bg-gray-100 text-gray-800';
-    if (tag.includes('Attention')) return 'bg-red-100 text-red-800';
-    if (tag.includes('Performance')) return 'bg-blue-100 text-blue-800';
-    return 'bg-gray-100 text-gray-800';
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'Active': return 'text-green-600 bg-green-100';
-      case 'Inactive': return 'text-red-600 bg-red-100';
-      default: return 'text-gray-600 bg-gray-100';
-    }
-  };
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'High': return 'text-red-600 bg-red-100';
-      case 'Medium': return 'text-yellow-600 bg-yellow-100';
-      case 'Low': return 'text-green-600 bg-green-100';
-      default: return 'text-gray-600 bg-gray-100';
-    }
-  };
-
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -396,21 +356,37 @@ const Liquidation: React.FC = () => {
             <p className="text-gray-600 mt-1">Track and manage distributor stock liquidation</p>
           </div>
         </div>
+        <button className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center">
+          <Plus className="w-4 h-4 mr-2" />
+          Add Entry
+        </button>
       </div>
 
       {/* Overall Metrics */}
-      <div className="bg-white rounded-xl p-6 card-shadow">
+      <div className="bg-white rounded-xl p-6 shadow-lg">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h2 className="text-lg font-semibold text-gray-900">Stock Liquidation Overview</h2>
-            <p className="text-sm text-gray-600 mt-1">Last updated: 15 Sept 2025, 10:00 pm</p>
+            <h3 className="text-xl font-semibold text-gray-900">Overall Stock Liquidation</h3>
+            <p className="text-sm text-gray-600 mt-1">Last updated: {new Date(overallMetrics.lastUpdated).toLocaleDateString()}</p>
+          </div>
+          <div className="text-right">
+            <div className="text-3xl font-bold text-purple-600">{overallMetrics.liquidationPercentage}%</div>
+            <div className="text-sm text-gray-600">Liquidation Rate</div>
           </div>
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div className="bg-white rounded-xl p-6 border-l-4 border-orange-500 card-shadow">
+          <div className="bg-orange-50 rounded-xl p-6 border-l-4 border-orange-500">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-orange-800">Opening Stock</h3>
+              <div className="w-12 h-12 bg-orange-500 rounded-lg flex items-center justify-center">
+                <Package className="w-6 h-6 text-white" />
+              </div>
+            </div>
+            <h4 className="text-lg font-semibold text-gray-900 mb-2">Opening Stock</h4>
+            <div className="space-y-2">
+              <div className="text-3xl font-bold text-orange-800">32,660</div>
+              <div className="text-sm text-orange-600">Kg/Litre</div>
+              <div className="text-lg font-semibold text-orange-700">₹40.55L</div>
               <button 
                 onClick={() => handleViewClick('opening')}
                 className="bg-orange-500 text-white px-3 py-1 rounded text-sm hover:bg-orange-600 transition-colors"
@@ -418,18 +394,19 @@ const Liquidation: React.FC = () => {
                 View
               </button>
             </div>
-            <div className="space-y-2">
-              <div className="text-3xl font-bold text-orange-800">
-                32,660
-              </div>
-              <div className="text-sm text-orange-600">Kg/Litre</div>
-              <div className="text-lg font-semibold text-orange-700">₹190.00L</div>
-            </div>
           </div>
 
-          <div className="bg-white rounded-xl p-6 border-l-4 border-blue-500 card-shadow">
+          <div className="bg-blue-50 rounded-xl p-6 border-l-4 border-blue-500">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-blue-800">YTD Net Sales</h3>
+              <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
+                <TrendingUp className="w-6 h-6 text-white" />
+              </div>
+            </div>
+            <h4 className="text-lg font-semibold text-gray-900 mb-2">YTD Net Sales</h4>
+            <div className="space-y-2">
+              <div className="text-3xl font-bold text-blue-800">23,303</div>
+              <div className="text-sm text-blue-600">Kg/Litre</div>
+              <div className="text-lg font-semibold text-blue-700">₹27.36L</div>
               <button 
                 onClick={() => handleViewClick('sales')}
                 className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600 transition-colors"
@@ -437,18 +414,19 @@ const Liquidation: React.FC = () => {
                 View
               </button>
             </div>
-            <div className="space-y-2">
-              <div className="text-3xl font-bold text-blue-800">
-                13,303
-              </div>
-              <div className="text-sm text-blue-600">Kg/Litre</div>
-              <div className="text-lg font-semibold text-blue-700">₹43.70L</div>
-            </div>
           </div>
 
-          <div className="bg-white rounded-xl p-6 border-l-4 border-green-500 card-shadow">
+          <div className="bg-green-50 rounded-xl p-6 border-l-4 border-green-500">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-green-800">Liquidation</h3>
+              <div className="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center">
+                <Droplets className="w-6 h-6 text-white" />
+              </div>
+            </div>
+            <h4 className="text-lg font-semibold text-gray-900 mb-2">Liquidation</h4>
+            <div className="space-y-2">
+              <div className="text-3xl font-bold text-green-800">12,720</div>
+              <div className="text-sm text-green-600">Kg/Litre</div>
+              <div className="text-lg font-semibold text-green-700">₹16.55L</div>
               <button 
                 onClick={() => handleViewClick('liquidation')}
                 className="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600 transition-colors"
@@ -456,18 +434,19 @@ const Liquidation: React.FC = () => {
                 View
               </button>
             </div>
-            <div className="space-y-2">
-              <div className="text-3xl font-bold text-green-800">
-                12,720
-              </div>
-              <div className="text-sm text-green-600">Kg/Litre</div>
-              <div className="text-lg font-semibold text-green-700">₹55.52L</div>
-            </div>
           </div>
 
-          <div className="bg-white rounded-xl p-6 border-l-4 border-purple-500 card-shadow">
+          <div className="bg-purple-50 rounded-xl p-6 border-l-4 border-purple-500">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-purple-800">Balance Stock</h3>
+              <div className="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center">
+                <Target className="w-6 h-6 text-white" />
+              </div>
+            </div>
+            <h4 className="text-lg font-semibold text-gray-900 mb-2">Balance Stock</h4>
+            <div className="space-y-2">
+              <div className="text-3xl font-bold text-purple-800">43,243</div>
+              <div className="text-sm text-purple-600">Kg/Litre</div>
+              <div className="text-lg font-semibold text-purple-700">₹51.36L</div>
               <button 
                 onClick={() => handleViewClick('balance')}
                 className="bg-purple-500 text-white px-3 py-1 rounded text-sm hover:bg-purple-600 transition-colors"
@@ -475,192 +454,211 @@ const Liquidation: React.FC = () => {
                 Verify
               </button>
             </div>
-            <div className="space-y-2">
-              <div className="text-3xl font-bold text-purple-800">
-                33,243
-              </div>
-              <div className="text-sm text-purple-600">Kg/Litre</div>
-              <div className="text-lg font-semibold text-purple-700">₹178.23L</div>
-            </div>
           </div>
-        </div>
-        
-        {/* Liquidation Percentage */}
-        <div className="mt-6 text-center">
-          <div className="text-4xl font-bold text-purple-600 mb-2">28%</div>
-          <div className="text-lg text-gray-700">Liquidation Percentage</div>
         </div>
       </div>
 
-      {/* Distributor Entries Section */}
-      <div className="bg-white rounded-xl p-6 card-shadow">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Distributor Entries</h2>
-        
-        {/* Individual Distributor Cards */}
-        {distributorsWithTags.map((distributor) => (
-          <div key={distributor.id} className="mb-6 last:mb-0">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <Building className="w-6 h-6 text-purple-600" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900">{distributor.distributorName}</h3>
-                  <p className="text-sm text-gray-600">Code: {distributor.distributorCode} | DAP (Di-Ammonium Phosphate)</p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-2">
-                <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(distributor.status)}`}>
-                  {distributor.status === 'Active' ? 'Active' : 'Inactive'}
-                </span>
-                <span className={`px-3 py-1 rounded-full text-sm font-medium ${getPriorityColor(distributor.priority)}`}>
-                  {distributor.priority}
-                </span>
-              </div>
-            </div>
-
-            {/* Metric Cards for this distributor */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-              <div className="bg-orange-50 rounded-lg p-4 border-l-4 border-orange-500">
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="text-sm font-semibold text-orange-800">Opening Stock</h4>
-                  <button 
-                    onClick={() => handleViewClick('opening', distributor)}
-                    className="bg-orange-500 text-white px-2 py-1 rounded text-xs hover:bg-orange-600 transition-colors"
-                  >
-                    View
-                  </button>
-                </div>
-                <div className="space-y-1">
-                  <div className="text-sm text-orange-600">Volume</div>
-                  <div className="text-xl font-bold text-orange-800">
-                    {distributor.metrics.openingStock.volume.toLocaleString()}
-                  </div>
-                  <div className="text-sm text-orange-600">Value</div>
-                  <div className="text-sm font-semibold text-orange-700">
-                    ₹{distributor.metrics.openingStock.value.toFixed(2)}L
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-blue-50 rounded-lg p-4 border-l-4 border-blue-500">
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="text-sm font-semibold text-blue-800">YTD Net Sales</h4>
-                  <button 
-                    onClick={() => handleViewClick('sales', distributor)}
-                    className="bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600 transition-colors"
-                  >
-                    View
-                  </button>
-                </div>
-                <div className="space-y-1">
-                  <div className="text-sm text-blue-600">Volume</div>
-                  <div className="text-xl font-bold text-blue-800">
-                    {distributor.metrics.ytdNetSales.volume.toLocaleString()}
-                  </div>
-                  <div className="text-sm text-blue-600">Value</div>
-                  <div className="text-sm font-semibold text-blue-700">
-                    ₹{distributor.metrics.ytdNetSales.value.toFixed(2)}L
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-green-50 rounded-lg p-4 border-l-4 border-green-500">
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="text-sm font-semibold text-green-800">Liquidation</h4>
-                  <button 
-                    onClick={() => handleViewClick('liquidation', distributor)}
-                    className="bg-green-500 text-white px-2 py-1 rounded text-xs hover:bg-green-600 transition-colors"
-                  >
-                    View
-                  </button>
-                </div>
-                <div className="space-y-1">
-                  <div className="text-sm text-green-600">Volume</div>
-                  <div className="text-xl font-bold text-green-800">
-                    {distributor.metrics.liquidation.volume.toLocaleString()}
-                  </div>
-                  <div className="text-sm text-green-600">Value</div>
-                  <div className="text-sm font-semibold text-green-700">
-                    ₹{distributor.metrics.liquidation.value.toFixed(2)}L
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-purple-50 rounded-lg p-4 border-l-4 border-purple-500">
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="text-sm font-semibold text-purple-800">Balance Stock</h4>
-                  <button 
-                    onClick={() => handleVerifyClick(distributor)}
-                    className="bg-purple-500 text-white px-2 py-1 rounded text-xs hover:bg-purple-600 transition-colors"
-                  >
-                    Verify
-                  </button>
-                </div>
-                <div className="space-y-1">
-                  <div className="text-sm text-purple-600">Volume</div>
-                  <div className="text-xl font-bold text-purple-800">
-                    {distributor.metrics.balanceStock.volume.toLocaleString()}
-                  </div>
-                  <div className="text-sm text-purple-600">Value</div>
-                  <div className="text-sm font-semibold text-purple-700">
-                    ₹{distributor.metrics.balanceStock.value.toFixed(2)}L
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Liquidation Percentage for this distributor */}
-            <div className="text-center py-4">
-              <div className="text-2xl font-bold text-purple-600 mb-1">
-                {distributor.metrics.liquidationPercentage}%
-              </div>
-              <div className="text-sm text-gray-600">Liquidation</div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Filters with Tag System - Keep existing filters */}
+      {/* Search and Filters */}
       <div className="bg-white rounded-xl p-6 card-shadow">
         <div className="space-y-4">
-          {/* Search Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 items-end">
-            {/* Search */}
-            <div className="lg:col-span-3">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Search:</label>
+          <div className="flex-1">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <input
+                type="text"
+                placeholder="Search distributors, codes, territories..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              />
+            </div>
+          </div>
+          
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex-1">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <input
                   type="text"
-                  placeholder="Search distributors, retailers..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Search tags..."
+                  value={searchTag}
+                  onChange={(e) => setSearchTag(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 />
               </div>
             </div>
-            
-            {/* Type Filter */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Type:</label>
-              <select
-                value={selectedTags.find(tag => ['Distributor', 'Retailer'].includes(tag)) || 'All'}
-                onChange={(e) => {
-                  const newTags = selectedTags.filter(tag => !['Distributor', 'Retailer'].includes(tag));
-                  if (e.target.value !== 'All') {
-                    newTags.push(e.target.value);
-                  }
-                  setSelectedTags(newTags);
-                }}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            {selectedTags.length > 0 && (
+              <button
+                onClick={clearAllTags}
+                className="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center"
               >
-                <option value="All">All</option>
-                <option value="Distributor">Distributor</option>
-                <option value="Retailer">Retailer</option>
-              </select>
-            </div>
+                <X className="w-4 h-4 mr-1" />
+                Clear All
+              </button>
+            )}
           </div>
+          
+          {searchTag && (
+            <div className="border-t pt-4">
+              <p className="text-sm font-medium text-gray-700 mb-2">Available Tags:</p>
+              <div className="flex flex-wrap gap-2">
+                {filteredTags.map(tag => (
+                  <button
+                    key={tag}
+                    onClick={() => handleTagToggle(tag)}
+                    className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                      selectedTags.includes(tag)
+                        ? 'bg-purple-600 text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    {tag}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {selectedTags.length > 0 && (
+            <div className="border-t pt-4">
+              <p className="text-sm font-medium text-gray-700 mb-2">Active Filters:</p>
+              <div className="flex flex-wrap gap-2">
+                {selectedTags.map(tag => (
+                  <span
+                    key={tag}
+                    className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800"
+                  >
+                    {tag}
+                    <button
+                      onClick={() => removeTag(tag)}
+                      className="ml-2 hover:bg-purple-200 rounded-full p-0.5"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Distributor Entries */}
+      <div className="bg-white rounded-xl p-6 card-shadow">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-xl font-semibold text-gray-900">Distributor Entries</h3>
+          <div className="text-sm text-gray-600">
+            Showing {filteredDistributors.length} of {distributorMetrics.length} distributors
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          {filteredDistributors.map((distributor) => (
+            <div key={distributor.id} className="bg-gray-50 rounded-xl p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                    <Building className="w-6 h-6 text-purple-600" />
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-semibold text-gray-900">{distributor.distributorName}</h4>
+                    <p className="text-sm text-gray-600">Code: {distributor.distributorCode} • {distributor.territory}</p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(distributor.status)}`}>
+                    {distributor.status}
+                  </span>
+                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${getPriorityColor(distributor.priority)}`}>
+                    {distributor.priority}
+                  </span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div className="bg-orange-50 rounded-xl p-4 text-center">
+                  <div className="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center mx-auto mb-3">
+                    <Package className="w-5 h-5 text-white" />
+                  </div>
+                  <h5 className="text-sm font-semibold text-orange-700 mb-2">Opening Stock</h5>
+                  <div className="space-y-2">
+                    <div className="text-xl font-bold text-orange-800">{distributor.metrics.openingStock.volume}</div>
+                    <div className="text-sm text-orange-600">Value: ₹{distributor.metrics.openingStock.value.toFixed(2)}L</div>
+                    <button 
+                      onClick={() => handleViewClick('opening', distributor)}
+                      className="bg-orange-500 text-white px-2 py-1 rounded text-xs hover:bg-orange-600 transition-colors"
+                    >
+                      View
+                    </button>
+                  </div>
+                </div>
+
+                <div className="bg-blue-50 rounded-xl p-4 text-center">
+                  <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center mx-auto mb-3">
+                    <TrendingUp className="w-5 h-5 text-white" />
+                  </div>
+                  <h5 className="text-sm font-semibold text-blue-700 mb-2">YTD Net Sales</h5>
+                  <div className="space-y-2">
+                    <div className="text-xl font-bold text-blue-800">{distributor.metrics.ytdNetSales.volume}</div>
+                    <div className="text-sm text-blue-600">Value: ₹{distributor.metrics.ytdNetSales.value.toFixed(2)}L</div>
+                    <button 
+                      onClick={() => handleViewClick('sales', distributor)}
+                      className="bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600 transition-colors"
+                    >
+                      View
+                    </button>
+                  </div>
+                </div>
+
+                <div className="bg-green-50 rounded-xl p-4 text-center">
+                  <div className="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center mx-auto mb-3">
+                    <Droplets className="w-5 h-5 text-white" />
+                  </div>
+                  <h5 className="text-sm font-semibold text-green-700 mb-2">Liquidation</h5>
+                  <div className="space-y-2">
+                    <div className="text-xl font-bold text-green-800">{distributor.metrics.liquidation.volume}</div>
+                    <div className="text-sm text-green-600">Value: ₹{distributor.metrics.liquidation.value.toFixed(2)}L</div>
+                    <button 
+                      onClick={() => handleViewClick('liquidation', distributor)}
+                      className="bg-green-500 text-white px-2 py-1 rounded text-xs hover:bg-green-600 transition-colors"
+                    >
+                      View
+                    </button>
+                  </div>
+                </div>
+
+                <div className="bg-purple-50 rounded-xl p-4 text-center">
+                  <div className="w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center mx-auto mb-3">
+                    <Target className="w-5 h-5 text-white" />
+                  </div>
+                  <h5 className="text-sm font-semibold text-purple-700 mb-2">Balance Stock</h5>
+                  <div className="space-y-2">
+                    <div className="text-xl font-bold text-purple-800">{distributor.metrics.balanceStock.volume}</div>
+                    <div className="text-sm text-purple-600">Value: ₹{distributor.metrics.balanceStock.value.toFixed(2)}L</div>
+                    <button 
+                      onClick={() => handleVerifyClick(distributor)}
+                      className="bg-purple-500 text-white px-2 py-1 rounded text-xs hover:bg-purple-600 transition-colors"
+                    >
+                      Verify
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-4">
+                <div className="flex justify-between text-sm text-gray-600 mb-2">
+                  <span>Liquidation Progress</span>
+                  <span>{distributor.metrics.liquidationPercentage}%</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div 
+                    className="bg-gradient-to-r from-green-500 to-blue-500 h-2 rounded-full" 
+                    style={{ width: `${Math.min(distributor.metrics.liquidationPercentage, 100)}%` }}
+                  ></div>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -856,7 +854,7 @@ const Liquidation: React.FC = () => {
         </div>
       )}
 
-      {/* Stock Update Modal (replaces retailer modal when updating from SKU view) */}
+      {/* Stock Update Modal */}
       {showStockUpdateModal && selectedSKU && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
@@ -870,7 +868,7 @@ const Liquidation: React.FC = () => {
               <button
                 onClick={() => {
                   setShowStockUpdateModal(false);
-                  setShowSKUModal(true); // Return to SKU modal
+                  setShowSKUModal(true);
                 }}
                 className="p-2 hover:bg-gray-100 rounded-full transition-colors"
               >
@@ -966,34 +964,26 @@ const Liquidation: React.FC = () => {
                           />
                         </div>
                         
-                        <div className="space-y-3">
-                          <h6 className="text-sm font-medium text-gray-700">SKU-wise Quantities:</h6>
-                          {Object.keys(stockReduction).map(skuCode => (
-                            <div key={skuCode} className="grid grid-cols-2 gap-3">
-                              <div className="text-sm">
-                                <span className="font-medium">{skuCode}:</span>
-                                <span className="text-gray-600 ml-1">
-                                  (Available: {stockReduction[skuCode]} units)
-                                </span>
-                              </div>
-                              <input
-                                type="number"
-                                value={retailer.quantities[skuCode] || 0}
-                                onChange={(e) => handleRetailerQuantityChange(index, skuCode, parseInt(e.target.value) || 0)}
-                                max={stockReduction[skuCode]}
-                                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
-                                placeholder="Quantity"
-                              />
-                            </div>
-                          ))}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Quantity for {selectedSKU.skuCode}
+                          </label>
+                          <input
+                            type="number"
+                            value={retailer.quantities[selectedSKU.skuCode] || 0}
+                            onChange={(e) => handleRetailerQuantityChange(index, selectedSKU.skuCode, parseInt(e.target.value) || 0)}
+                            max={stockReduction[selectedSKU.skuCode]}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                            placeholder="Enter quantity"
+                          />
+                          <p className="text-xs text-gray-500 mt-1">
+                            Available: {stockReduction[selectedSKU.skuCode]} {selectedSKU.unit}
+                          </p>
                         </div>
                         
-                        {/* Validation */}
-                        {Object.keys(stockReduction).some(skuCode => 
-                          getTotalRetailerQuantity(skuCode) > stockReduction[skuCode]
-                        ) && (
+                        {getTotalRetailerQuantity(selectedSKU.skuCode) > stockReduction[selectedSKU.skuCode] && (
                           <div className="mt-3 p-2 bg-red-100 border border-red-300 rounded text-sm text-red-800">
-                            ⚠️ Total quantities cannot exceed available stock
+                            ⚠️ Total quantity cannot exceed available stock ({stockReduction[selectedSKU.skuCode]} {selectedSKU.unit})
                           </div>
                         )}
                       </div>
@@ -1029,7 +1019,7 @@ const Liquidation: React.FC = () => {
                     </div>
                     <p className="text-sm text-green-700">✅ This counts as liquidation</p>
                     <p className="text-xs text-gray-600">Invoice: {selectedSKU.invoiceNumber}</p>
-                      </div>
+                  </div>
                 </div>
               )}
             </div>
@@ -1038,7 +1028,7 @@ const Liquidation: React.FC = () => {
               <button
                 onClick={() => {
                   setShowStockUpdateModal(false);
-                  setShowSKUModal(true); // Return to SKU modal
+                  setShowSKUModal(true);
                 }}
                 className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
               >
@@ -1046,7 +1036,6 @@ const Liquidation: React.FC = () => {
               </button>
               <button
                 onClick={() => {
-                  // Process the stock reduction
                   console.log('Stock reduction processed:', {
                     skuCode: selectedSKU.skuCode,
                     saleType,
@@ -1055,7 +1044,7 @@ const Liquidation: React.FC = () => {
                   });
                   alert(`Stock movement recorded for ${selectedSKU.skuCode}!`);
                   setShowStockUpdateModal(false);
-                  setShowSKUModal(true); // Return to SKU modal
+                  setShowSKUModal(true);
                 }}
                 disabled={!saleType}
                 className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
@@ -1095,21 +1084,26 @@ const Liquidation: React.FC = () => {
                     <div className="space-y-4">
                       {getSKUData(selectedItem.id).map((sku) => (
                         <div key={sku.skuCode} className="bg-white rounded-lg border border-gray-200 p-4">
+                          <div className="flex items-center justify-between mb-3">
+                            <div>
+                              <h5 className="font-semibold text-gray-900">{sku.skuName}</h5>
+                              <p className="text-sm text-gray-600">SKU: {sku.skuCode} | Invoice: {sku.invoiceNumber}</p>
+                              <p className="text-xs text-gray-500">Date: {new Date(sku.invoiceDate).toLocaleDateString()}</p>
+                            </div>
+                          </div>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                               <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Quantity for {selectedSKU.skuCode}
+                                Current Stock (System)
                               </label>
                               <input
                                 type="number"
-                                value={retailer.quantities[selectedSKU.skuCode] || 0}
-                                onChange={(e) => handleRetailerQuantityChange(index, selectedSKU.skuCode, parseInt(e.target.value) || 0)}
-                                max={stockReduction[selectedSKU.skuCode]}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                placeholder="Enter quantity"
+                                value={verificationData.skuVerifications[sku.skuCode]?.current || sku.currentStock}
+                                onChange={(e) => handleSKUStockChange(sku.skuCode, 'current', parseInt(e.target.value) || 0)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                placeholder="Enter current stock"
                               />
-                              <p className="text-xs text-gray-500 mt-1">
-                                Available: {stockReduction[selectedSKU.skuCode]} {selectedSKU.unit}
-                              </p>
                             </div>
                             
                             <div>
@@ -1126,7 +1120,7 @@ const Liquidation: React.FC = () => {
                             </div>
                           </div>
                           
-                          {verificationData.skuVerifications[sku.skuCode]?.variance !== 0 && (
+                          {verificationData.skuVerifications[sku.skuCode] && verificationData.skuVerifications[sku.skuCode].variance !== 0 && (
                             <div className={`mt-3 p-3 rounded-lg ${
                               (verificationData.skuVerifications[sku.skuCode]?.variance || 0) > 0 
                                 ? 'bg-green-50 border border-green-200' 
@@ -1137,9 +1131,11 @@ const Liquidation: React.FC = () => {
                                 <span className={`font-bold ${
                                   (verificationData.skuVerifications[sku.skuCode]?.variance || 0) > 0 
                                     ? 'text-green-600' 
-                            {getTotalRetailerQuantity(selectedSKU.skuCode) > stockReduction[selectedSKU.skuCode] && (
+                                    : 'text-red-600'
+                                }`}>
+                                  {(verificationData.skuVerifications[sku.skuCode]?.variance || 0) > 0 ? '+' : ''}
                                   {verificationData.skuVerifications[sku.skuCode]?.variance || 0} {sku.unit}
-                                ⚠️ Total quantity cannot exceed available stock ({stockReduction[selectedSKU.skuCode]} {selectedSKU.unit})
+                                </span>
                               </div>
                             </div>
                           )}
