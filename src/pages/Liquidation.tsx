@@ -242,74 +242,78 @@ const Liquidation: React.FC = () => {
       <div className="bg-white rounded-xl p-6 card-shadow">
         <div className="space-y-4">
           <h3 className="text-lg font-semibold text-gray-900">Filters</h3>
-          <div className="flex flex-col sm:flex-row gap-4">
-          {/* Search Bar */}
-          <div className="flex-1">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <input
-                type="text"
-                placeholder="Search distributors, retailers..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              />
+          {/* One Line Search Section */}
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 items-end">
+            {/* Search from Name */}
+            <div className="lg:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Search from Name:</label>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <input
+                  type="text"
+                  placeholder="Search distributors, retailers..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+            
+            {/* Search Distributor/Retailer */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Search - Distributor/Retailer:</label>
+              <select
+                value={selectedTags.find(tag => ['Distributor', 'Retailer'].includes(tag)) || 'All'}
+                onChange={(e) => {
+                  const newTags = selectedTags.filter(tag => !['Distributor', 'Retailer'].includes(tag));
+                  if (e.target.value !== 'All') {
+                    newTags.push(e.target.value);
+                  }
+                  setSelectedTags(newTags);
+                }}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              >
+                <option value="All">All</option>
+                <option value="Distributor">Distributor</option>
+                <option value="Retailer">Retailer</option>
+              </select>
+            </div>
+            
+            {/* Select Region */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Select Region:</label>
+              <select
+                value={selectedTags.find(tag => ['Delhi NCR', 'Mumbai', 'Bangalore', 'Chennai'].includes(tag)) || 'All'}
+                onChange={(e) => {
+                  const newTags = selectedTags.filter(tag => !['Delhi NCR', 'Mumbai', 'Bangalore', 'Chennai'].includes(tag));
+                  if (e.target.value !== 'All') {
+                    newTags.push(e.target.value);
+                  }
+                  setSelectedTags(newTags);
+                }}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              >
+                <option value="All">All Regions</option>
+                <option value="Delhi NCR">Delhi NCR</option>
+                <option value="Mumbai">Mumbai</option>
+                <option value="Bangalore">Bangalore</option>
+                <option value="Chennai">Chennai</option>
+              </select>
             </div>
           </div>
           
-          {/* Type Filter */}
-          <div className="min-w-[150px]">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Type:</label>
-            <select
-              value={selectedTags.find(tag => ['Distributor', 'Retailer'].includes(tag)) || 'All'}
-              onChange={(e) => {
-                const newTags = selectedTags.filter(tag => !['Distributor', 'Retailer'].includes(tag));
-                if (e.target.value !== 'All') {
-                  newTags.push(e.target.value);
-                }
-                setSelectedTags(newTags);
-              }}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-            >
-              <option value="All">All</option>
-              <option value="Distributor">Distributor</option>
-              <option value="Retailer">Retailer</option>
-            </select>
-          </div>
-          
-          {/* Region Filter */}
-          <div className="min-w-[150px]">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Region:</label>
-            <select
-              value={selectedTags.find(tag => ['Delhi NCR', 'Mumbai', 'Bangalore', 'Chennai'].includes(tag)) || 'All'}
-              onChange={(e) => {
-                const newTags = selectedTags.filter(tag => !['Delhi NCR', 'Mumbai', 'Bangalore', 'Chennai'].includes(tag));
-                if (e.target.value !== 'All') {
-                  newTags.push(e.target.value);
-                }
-                setSelectedTags(newTags);
-              }}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-            >
-              <option value="All">All Regions</option>
-              <option value="Delhi NCR">Delhi NCR</option>
-              <option value="Mumbai">Mumbai</option>
-              <option value="Bangalore">Bangalore</option>
-              <option value="Chennai">Chennai</option>
-            </select>
-          </div>
-          
-          {/* Clear Filters */}
+          {/* Clear Filters Button */}
           {selectedTags.length > 0 && (
-            <button
-              onClick={clearAllTags}
-              className="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center border border-red-300"
-            >
-              <X className="w-4 h-4 mr-1" />
-              Clear
-            </button>
+            <div className="flex justify-end">
+              <button
+                onClick={clearAllTags}
+                className="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center border border-red-300"
+              >
+                <X className="w-4 h-4 mr-1" />
+                Clear Filters
+              </button>
+            </div>
           )}
-          </div>
         </div>
       </div>
 
