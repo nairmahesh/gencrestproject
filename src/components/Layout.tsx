@@ -11,6 +11,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
 
+  if (location.pathname === '/login') {
+    return <>{children}</>;
+  }
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Desktop Sidebar */}

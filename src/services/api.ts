@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.API || 'http://localhost:4000/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE || 'http://localhost:4000/api';
 
 const getAuthToken = () => {
  return localStorage.getItem('accessToken');
