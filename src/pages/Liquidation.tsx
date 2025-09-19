@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import { 
   ArrowLeft, 
   Package, 
@@ -20,8 +21,10 @@ import { useLiquidationCalculation } from '../hooks/useLiquidationCalculation';
 
 const Liquidation: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('All');
+  const [activeTab, setActiveTab] = useState<'team' | 'self'>('team');
   const [showVerifyModal, setShowVerifyModal] = useState(false);
   const [selectedDistributor, setSelectedDistributor] = useState<any>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
@@ -35,6 +38,57 @@ const Liquidation: React.FC = () => {
   } = useLiquidationCalculation();
 
   const performanceMetrics = getPerformanceMetrics();
+  const currentUserRole = user?.role || 'MDO';
+  const showTabs = ['TSM', 'RBH', 'RMM', 'ZBH', 'MH', 'VP_SM', 'MD', 'CHRO', 'CFO'].includes(currentUserRole);
+
+  // Sample self liquidation data for the logged-in user
+  const selfLiquidationData = {
+    personalMetrics: {
+      openingStock: { volume: 5420, value: 7.31 },
+      ytdNetSales: { volume: 2180, value: 2.94 },
+      liquidation: { volume: 1890, value: 2.55 },
+      balanceStock: { volume: 5710, value: 7.70 },
+      liquidationPercentage: 25
+    },
+    personalDistributors: [
+      {
+        id: 'SELF_DIST001',
+        distributorName: 'Personal Territory - Ram Kumar',
+        distributorCode: 'PT001',
+        territory: user?.territory || 'Personal Territory',
+        region: user?.region || 'Personal Region',
+        zone: user?.zone || 'Personal Zone',
+        status: 'Active' as const,
+        priority: 'High' as const,
+        metrics: {
+          openingStock: { volume: 2710, value: 3.66 },
+          ytdNetSales: { volume: 1090, value: 1.47 },
+          liquidation: { volume: 945, value: 1.28 },
+          balanceStock: { volume: 2855, value: 3.85 },
+          liquidationPercentage: 25,
+          lastUpdated: new Date().toISOString()
+        }
+      },
+      {
+        id: 'SELF_DIST002',
+        distributorName: 'Personal Territory - Suresh Traders',
+        distributorCode: 'PT002',
+        territory: user?.territory || 'Personal Territory',
+        region: user?.region || 'Personal Region',
+        zone: user?.zone || 'Personal Zone',
+        status: 'Active' as const,
+        priority: 'Medium' as const,
+        metrics: {
+          openingStock: { volume: 2710, value: 3.65 },
+          ytdNetSales: { volume: 1090, value: 1.47 },
+          liquidation: { volume: 945, value: 1.27 },
+          balanceStock: { volume: 2855, value: 3.85 },
+          liquidationPercentage: 25,
+          lastUpdated: new Date().toISOString()
+        }
+      }
+    ]
+  };
 
   // SKU Color mapping
   const getSKUColor = (skuCode: string) => {
@@ -249,10 +303,43 @@ const Liquidation: React.FC = () => {
           </button>
           <div>
             <h1 className="text-2xl font-bold">Stock Liquidation</h1>
-            <p className="text-purple-100 mt-1">Monitor and track stock liquidation across distributors</p>
+            <p className="text-gray-600 mt-1">
+              {activeTab === 'team' 
+                ? 'Monitor and track stock liquidation across team distributors' 
+                : 'Monitor and track your personal territory liquidation'
+              }
+            </p>
           </div>
         </div>
       </div>
+
+      {/* Team/Self Tabs - Only show for TSM and above */}
+      {showTabs && (
+        <div className="bg-white rounded-xl p-2 card-shadow">
+          <div className="flex space-x-2">
+            <button
+              onClick={() => setActiveTab('team')}
+              className={`flex-1 py-2 px-4 rounded-lg transition-colors ${
+                activeTab === 'team'
+                  ? 'bg-purple-600 text-white'
+                  : 'text-gray-600 hover:bg-gray-100'
+              }`}
+            >
+              Team Liquidation
+            </button>
+            <button
+              onClick={() => setActiveTab('self')}
+              className={`flex-1 py-2 px-4 rounded-lg transition-colors ${
+                activeTab === 'self'
+                  ? 'bg-purple-600 text-white'
+                  : 'text-gray-600 hover:bg-gray-100'
+              }`}
+            >
+              Self Liquidation
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Overall Stats Cards - Matching your image exactly */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -262,9 +349,13 @@ const Liquidation: React.FC = () => {
             <Package className="w-6 h-6 text-white" />
           </div>
           <h3 className="text-lg font-semibold text-gray-900 mb-2">Opening Stock</h3>
-          <div className="text-3xl font-bold text-gray-900 mb-1">32,660</div>
+          <div className="text-3xl font-bold text-gray-900 mb-1">
+            {activeTab === 'team' ? '32,660' : selfLiquidationData.personalMetrics.openingStock.volume.toLocaleString()}
+          </div>
           <div className="text-sm text-gray-600 mb-2">Kg/Litre</div>
-          <div className="text-sm text-orange-600 font-semibold">₹190.00L</div>
+          <div className="text-sm text-orange-600 font-semibold">
+            ₹{activeTab === 'team' ? '190.00' : selfLiquidationData.personalMetrics.openingStock.value.toFixed(2)}L
+          </div>
         </div>
 
         {/* YTD Net Sales */}
@@ -273,9 +364,13 @@ const Liquidation: React.FC = () => {
             <TrendingUp className="w-6 h-6 text-white" />
           </div>
           <h3 className="text-lg font-semibold text-gray-900 mb-2">YTD Net Sales</h3>
-          <div className="text-3xl font-bold text-gray-900 mb-1">13,303</div>
+          <div className="text-3xl font-bold text-gray-900 mb-1">
+            {activeTab === 'team' ? '13,303' : selfLiquidationData.personalMetrics.ytdNetSales.volume.toLocaleString()}
+          </div>
           <div className="text-sm text-gray-600 mb-2">Kg/Litre</div>
-          <div className="text-sm text-blue-600 font-semibold">₹43.70L</div>
+          <div className="text-sm text-blue-600 font-semibold">
+            ₹{activeTab === 'team' ? '43.70' : selfLiquidationData.personalMetrics.ytdNetSales.value.toFixed(2)}L
+          </div>
         </div>
 
         {/* Liquidation */}
@@ -284,9 +379,13 @@ const Liquidation: React.FC = () => {
             <Droplets className="w-6 h-6 text-white" />
           </div>
           <h3 className="text-lg font-semibold text-gray-900 mb-2">Liquidation</h3>
-          <div className="text-3xl font-bold text-gray-900 mb-1">12,720</div>
+          <div className="text-3xl font-bold text-gray-900 mb-1">
+            {activeTab === 'team' ? '12,720' : selfLiquidationData.personalMetrics.liquidation.volume.toLocaleString()}
+          </div>
           <div className="text-sm text-gray-600 mb-2">Kg/Litre</div>
-          <div className="text-sm text-green-600 font-semibold">₹55.52L</div>
+          <div className="text-sm text-green-600 font-semibold">
+            ₹{activeTab === 'team' ? '55.52' : selfLiquidationData.personalMetrics.liquidation.value.toFixed(2)}L
+          </div>
         </div>
 
         {/* Balance Stock */}
@@ -295,15 +394,21 @@ const Liquidation: React.FC = () => {
             <Target className="w-6 h-6 text-white" />
           </div>
           <h3 className="text-lg font-semibold text-gray-900 mb-2">Balance Stock</h3>
-          <div className="text-3xl font-bold text-gray-900 mb-1">33,243</div>
+          <div className="text-3xl font-bold text-gray-900 mb-1">
+            {activeTab === 'team' ? '33,243' : selfLiquidationData.personalMetrics.balanceStock.volume.toLocaleString()}
+          </div>
           <div className="text-sm text-gray-600 mb-2">Kg/Litre</div>
-          <div className="text-sm text-purple-600 font-semibold">₹178.23L</div>
+          <div className="text-sm text-purple-600 font-semibold">
+            ₹{activeTab === 'team' ? '178.23' : selfLiquidationData.personalMetrics.balanceStock.value.toFixed(2)}L
+          </div>
         </div>
       </div>
 
       {/* Distributor Entries Section */}
       <div className="space-y-6">
-        <h2 className="text-xl font-semibold text-gray-900">Distributor Entries</h2>
+        <h2 className="text-xl font-semibold text-gray-900">
+          {activeTab === 'team' ? 'Team Distributor Entries' : 'Personal Territory Distributors'}
+        </h2>
         
         {/* Search and Filters */}
         <div className="bg-white rounded-xl p-6 card-shadow">
@@ -338,16 +443,22 @@ const Liquidation: React.FC = () => {
           
           <div className="flex items-center justify-between mt-4 text-sm text-gray-600">
             <span>Showing {filteredDistributors.length} of {distributorMetrics.length} distributors</span>
-            <div className="flex items-center space-x-4">
-              <span>Active: {performanceMetrics.activeDistributors}</span>
-              <span>High Priority: {performanceMetrics.highPriorityDistributors}</span>
+              Showing {activeTab === 'team' ? filteredDistributors.length : selfLiquidationData.personalDistributors.filter(d => 
+                d.distributorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                d.distributorCode.toLowerCase().includes(searchTerm.toLowerCase())
+              ).length} of {activeTab === 'team' ? distributorMetrics.length : selfLiquidationData.personalDistributors.length} distributors
+              <span>Active: {activeTab === 'team' ? performanceMetrics.activeDistributors : selfLiquidationData.personalDistributors.filter(d => d.status === 'Active').length}</span>
+              <span>High Priority: {activeTab === 'team' ? performanceMetrics.highPriorityDistributors : selfLiquidationData.personalDistributors.filter(d => d.priority === 'High').length}</span>
             </div>
           </div>
         </div>
 
         {/* Distributor Cards */}
         <div className="space-y-6">
-          {filteredDistributors.map((distributor) => (
+          {(activeTab === 'team' ? filteredDistributors : selfLiquidationData.personalDistributors.filter(d => 
+            d.distributorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            d.distributorCode.toLowerCase().includes(searchTerm.toLowerCase())
+          )).map((distributor) => (
             <div key={distributor.id} className="bg-white rounded-xl p-6 card-shadow">
               {/* Distributor Header */}
               <div className="flex items-center justify-between mb-6">
@@ -815,10 +926,12 @@ const Liquidation: React.FC = () => {
         </div>
       )}
 
-      {filteredDistributors.length === 0 && (
+      {(activeTab === 'team' ? filteredDistributors : selfLiquidationData.personalDistributors).length === 0 && (
         <div className="text-center py-12">
           <Building className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-500">No distributors found</p>
+          <p className="text-gray-500">
+            No {activeTab === 'team' ? 'team' : 'personal'} distributors found
+          </p>
         </div>
       )}
     </div>
