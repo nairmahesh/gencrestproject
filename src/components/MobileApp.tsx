@@ -135,14 +135,16 @@ const MobileApp: React.FC = () => {
       {/* Stats Cards */}
       <div className="grid grid-cols-2 gap-3">
         <div className="bg-purple-500 rounded-lg p-4 text-white">
-          <h3 className="text-sm opacity-90 mb-1">Team Members</h3>
-          <div className="text-2xl font-bold">8</div>
-          <p className="text-xs opacity-80">6 active today</p>
+          <h3 className="text-sm opacity-90 mb-1">YTD Achievement</h3>
+          <div className="text-2xl font-bold">85%</div>
+          <p className="text-xs opacity-80">1374/1620</p>
+          <p className="text-xs opacity-70">Planned vs. Done Activities</p>
         </div>
         <div className="bg-pink-500 rounded-lg p-4 text-white">
-          <h3 className="text-sm opacity-90 mb-1">Today's Visits</h3>
-          <div className="text-2xl font-bold">24</div>
-          <p className="text-xs opacity-80">18 completed</p>
+          <h3 className="text-sm opacity-90 mb-1">Team Performance</h3>
+          <div className="text-2xl font-bold">87%</div>
+          <p className="text-xs opacity-80">Average Score</p>
+          <p className="text-xs opacity-70">4 MDOs under management</p>
         </div>
       </div>
 
@@ -200,62 +202,71 @@ const MobileApp: React.FC = () => {
         </div>
       </div>
 
-      {/* Quick Actions */}
-      <div className="bg-white rounded-lg p-4 shadow-sm">
-        <h3 className="font-semibold text-sm text-gray-900 mb-3">Quick Actions</h3>
-        <div className="grid grid-cols-4 gap-3">
-          <button className="bg-blue-500 text-white p-3 rounded-lg flex flex-col items-center">
-            <Plus className="w-5 h-5 mb-1" />
-            <span className="text-xs">Visit</span>
-          </button>
-          <button className="bg-green-500 text-white p-3 rounded-lg flex flex-col items-center">
-            <MapPin className="w-5 h-5 mb-1" />
-            <span className="text-xs">Track</span>
-          </button>
-          <button className="bg-purple-500 text-white p-3 rounded-lg flex flex-col items-center">
-            <Target className="w-5 h-5 mb-1" />
-            <span className="text-xs">Plan</span>
-          </button>
-          <button className="bg-orange-500 text-white p-3 rounded-lg flex flex-col items-center">
-            <FileText className="w-5 h-5 mb-1" />
-            <span className="text-xs">Report</span>
-          </button>
-        </div>
-      </div>
-
       {/* Team Performance */}
       <div className="bg-white rounded-lg p-4 shadow-sm">
-        <h3 className="font-semibold text-sm text-gray-900 mb-3">Team Performance</h3>
+        <h3 className="font-semibold text-sm text-gray-900 mb-3">MDO Activity Breakdown</h3>
         <div className="space-y-3">
-          <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+          <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
             <div className="flex items-center space-x-3">
               <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
                 <User className="w-4 h-4 text-blue-600" />
               </div>
               <div>
                 <p className="font-medium text-sm">Rajesh Kumar</p>
-                <p className="text-xs text-gray-600">North Delhi</p>
+                <p className="text-xs text-blue-600">Farmer Visits: 18/20</p>
+              </div>
+            </div>
+            <div className="text-right">
+              <p className="text-sm font-semibold text-green-600">90%</p>
+              <p className="text-xs text-blue-500">Achievement</p>
+            </div>
+          </div>
+          
+          <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                <User className="w-4 h-4 text-green-600" />
+              </div>
+              <div>
+                <p className="font-medium text-sm">Priya Sharma</p>
+                <p className="text-xs text-green-600">Product Demos: 14/16</p>
               </div>
             </div>
             <div className="text-right">
               <p className="text-sm font-semibold text-green-600">88%</p>
-              <p className="text-xs text-gray-500">Target</p>
+              <p className="text-xs text-green-500">Achievement</p>
             </div>
           </div>
           
-          <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+          <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
             <div className="flex items-center space-x-3">
               <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
                 <User className="w-4 h-4 text-purple-600" />
               </div>
               <div>
-                <p className="font-medium text-sm">Priya Sharma</p>
-                <p className="text-xs text-gray-600">South Delhi</p>
+                <p className="font-medium text-sm">Amit Singh</p>
+                <p className="text-xs text-purple-600">Dealer Meetings: 10/12</p>
               </div>
             </div>
             <div className="text-right">
-              <p className="text-sm font-semibold text-green-600">92%</p>
-              <p className="text-xs text-gray-500">Target</p>
+              <p className="text-sm font-semibold text-green-600">83%</p>
+              <p className="text-xs text-purple-500">Achievement</p>
+            </div>
+          </div>
+          
+          <div className="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
+                <User className="w-4 h-4 text-orange-600" />
+              </div>
+              <div>
+                <p className="font-medium text-sm">Neha Gupta</p>
+                <p className="text-xs text-orange-600">Stock Reviews: 8/10</p>
+              </div>
+            </div>
+            <div className="text-right">
+              <p className="text-sm font-semibold text-green-600">80%</p>
+              <p className="text-xs text-orange-500">Achievement</p>
             </div>
           </div>
         </div>
