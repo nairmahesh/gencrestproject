@@ -25,7 +25,7 @@ import {
   FileText,
   Clock,
   Save,
-  Minus
+  ChevronDown
 } from 'lucide-react';
 import { useLiquidationCalculation } from '../hooks/useLiquidationCalculation';
 import { useGeolocation } from '../hooks/useGeolocation';
@@ -51,13 +51,79 @@ const Liquidation: React.FC = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedDistributor, setSelectedDistributor] = useState<any>(null);
-  const [editingStock, setEditingStock] = useState(false);
-  const [tempStock, setTempStock] = useState({ inv1: 105, inv2: 105 });
+  const [selectedStatus, setSelectedStatus] = useState('All Status');
   const [uploadedProofs, setUploadedProofs] = useState<ProofItem[]>([]);
   const [isCapturing, setIsCapturing] = useState(false);
 
   const { overallMetrics, distributorMetrics } = useLiquidationCalculation();
   const { latitude, longitude, error: locationError } = useGeolocation();
+
+  // Sample distributor data matching the design
+  const distributors = [
+    {
+      id: 'DIST001',
+      name: 'SRI RAMA SEEDS AND PESTICIDES',
+      code: '1325',
+      territory: 'North Delhi',
+      region: 'Delhi NCR',
+      zone: 'North Zone',
+      status: 'Active',
+      priority: 'High',
+      liquidationPercentage: 71,
+      openingStock: { volume: 210, value: 2.84 },
+      ytdNetSales: { volume: 84, value: 1.13 },
+      liquidation: { volume: 210, value: 2.84 },
+      balanceStock: { volume: 420, value: 5.67 },
+      skus: [
+        {
+          name: 'DAP 25kg Bag',
+          code: 'DAP-25KG',
+          invoices: [
+            { number: 'INV-2024-001', date: '1/15/2024', batch: 'BATCH-001', openingStock: 26, currentStock: 105 },
+            { number: 'INV-2024-002', date: '1/15/2024', batch: 'BATCH-002', openingStock: 26, currentStock: 105 }
+          ]
+        },
+        {
+          name: 'DAP 50kg Bag',
+          code: 'DAP-50KG',
+          invoices: [
+            { number: 'INV-2024-001', date: '1/15/2024', batch: 'BATCH-001', openingStock: 26, currentStock: 105 },
+            { number: 'INV-2024-002', date: '1/15/2024', batch: 'BATCH-002', openingStock: 26, currentStock: 105 }
+          ]
+        }
+      ]
+    },
+    {
+      id: 'DIST002',
+      name: 'Ram Kumar Distributors',
+      code: 'DLR001',
+      territory: 'Green Valley',
+      region: 'Delhi NCR',
+      zone: 'North Zone',
+      status: 'Active',
+      priority: 'Medium',
+      liquidationPercentage: 29,
+      openingStock: { volume: 15000, value: 18.75 },
+      ytdNetSales: { volume: 6500, value: 8.13 },
+      liquidation: { volume: 6200, value: 7.75 },
+      balanceStock: { volume: 15300, value: 19.13 }
+    },
+    {
+      id: 'DIST003',
+      name: 'Green Agro Solutions',
+      code: 'GAS001',
+      territory: 'Sector 8',
+      region: 'Delhi NCR',
+      zone: 'North Zone',
+      status: 'Active',
+      priority: 'Medium',
+      liquidationPercentage: 26,
+      openingStock: { volume: 17620, value: 21.70 },
+      ytdNetSales: { volume: 6493, value: 6.57 },
+      liquidation: { volume: 6380, value: 7.22 },
+      balanceStock: { volume: 17733, value: 21.05 }
+    }
+  ];
 
   const generateProofItem = (type: 'photo' | 'video' | 'signature', file?: File): ProofItem => {
     const now = new Date();
@@ -115,19 +181,35 @@ const Liquidation: React.FC = () => {
   const handleSaveAndExit = () => {
     setSelectedDistributor(null);
     setUploadedProofs([]);
-    setEditingStock(false);
     alert(`Liquidation data saved successfully with ${uploadedProofs.length} proofs!`);
   };
 
-  const filteredDistributors = distributorMetrics.filter(distributor =>
-    distributor.distributorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    distributor.distributorCode.toLowerCase().includes(searchTerm.toLowerCase())
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'Active': return 'bg-green-100 text-green-800';
+      case 'Inactive': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'High': return 'bg-red-100 text-red-800';
+      case 'Medium': return 'bg-yellow-100 text-yellow-800';
+      case 'Low': return 'bg-green-100 text-green-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const filteredDistributors = distributors.filter(distributor =>
+    distributor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    distributor.code.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
-    <div className="space-y-6">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="bg-white border-b border-gray-200 px-6 py-4">
         <div className="flex items-center space-x-3">
           <button 
             onClick={() => navigate('/')}
@@ -135,250 +217,228 @@ const Liquidation: React.FC = () => {
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Stock Liquidation</h1>
-            <p className="text-gray-600 mt-1">Track and manage distributor stock liquidation</p>
-          </div>
+          <h1 className="text-2xl font-bold text-gray-900">Stock Liquidation</h1>
         </div>
       </div>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-orange-50 rounded-xl p-6 border-l-4 border-orange-500">
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-orange-500 rounded-lg flex items-center justify-center">
-              <Package className="w-6 h-6 text-white" />
-            </div>
-          </div>
-          <h4 className="text-lg font-semibold text-gray-900 mb-2">Opening Stock</h4>
-          <div className="text-3xl font-bold text-gray-900 mb-1">{overallMetrics.openingStock.volume.toLocaleString()}</div>
-          <div className="text-sm text-gray-600 mb-2">Kg/Litre</div>
-          <div className="text-sm text-gray-500">Value: ₹{overallMetrics.openingStock.value.toFixed(2)}L</div>
-        </div>
-
-        <div className="bg-blue-50 rounded-xl p-6 border-l-4 border-blue-500">
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
-              <TrendingUp className="w-6 h-6 text-white" />
-            </div>
-          </div>
-          <h4 className="text-lg font-semibold text-gray-900 mb-2">YTD Net Sales</h4>
-          <div className="text-3xl font-bold text-gray-900 mb-1">{overallMetrics.ytdNetSales.volume.toLocaleString()}</div>
-          <div className="text-sm text-gray-600 mb-2">Kg/Litre</div>
-          <div className="text-sm text-gray-500">Value: ₹{overallMetrics.ytdNetSales.value.toFixed(2)}L</div>
-        </div>
-
-        <div className="bg-green-50 rounded-xl p-6 border-l-4 border-green-500">
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center">
-              <Droplets className="w-6 h-6 text-white" />
-            </div>
-          </div>
-          <h4 className="text-lg font-semibold text-gray-900 mb-2">Liquidation</h4>
-          <div className="text-3xl font-bold text-gray-900 mb-1">{overallMetrics.liquidation.volume.toLocaleString()}</div>
-          <div className="text-sm text-gray-600 mb-2">Kg/Litre</div>
-          <div className="text-sm text-gray-500">Value: ₹{overallMetrics.liquidation.value.toFixed(2)}L</div>
-        </div>
-
-        <div className="bg-purple-50 rounded-xl p-6 border-l-4 border-purple-500">
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center">
-              <Target className="w-6 h-6 text-white" />
-            </div>
-          </div>
-          <h4 className="text-lg font-semibold text-gray-900 mb-2">Liquidation Rate</h4>
-          <div className="text-3xl font-bold text-gray-900 mb-1">{overallMetrics.liquidationPercentage}%</div>
-          <div className="text-sm text-gray-600 mb-2">Overall</div>
-          <div className="text-sm text-gray-500">Performance</div>
-        </div>
-      </div>
-
-      {/* Search and Filters */}
-      <div className="bg-white rounded-xl p-6 card-shadow">
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="flex-1">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <input
-                type="text"
-                placeholder="Search distributors..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              />
-            </div>
-          </div>
-          <button className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50">
-            <Filter className="w-4 h-4 text-gray-600" />
-          </button>
-        </div>
-      </div>
-
-      {/* Distributors List */}
-      <div className="space-y-4">
-        {filteredDistributors.map((distributor) => (
-          <div key={distributor.id} className="bg-white rounded-xl p-6 card-shadow card-hover">
+      <div className="p-6 space-y-6">
+        {/* Summary Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="bg-white rounded-xl p-6 border-l-4 border-orange-500">
             <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-                  <Building className="w-6 h-6 text-purple-600" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-gray-900">{distributor.distributorName}</h3>
-                  <p className="text-sm text-gray-600">{distributor.distributorCode} • {distributor.territory}</p>
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="text-2xl font-bold text-purple-600">{distributor.metrics.liquidationPercentage}%</div>
-                <div className="text-sm text-gray-600">Liquidation Rate</div>
+              <div className="w-12 h-12 bg-orange-500 rounded-lg flex items-center justify-center">
+                <Package className="w-6 h-6 text-white" />
               </div>
             </div>
+            <h4 className="text-lg font-semibold text-gray-900 mb-2">Opening Stock</h4>
+            <div className="text-3xl font-bold text-gray-900 mb-1">32,660</div>
+            <div className="text-sm text-gray-600 mb-2">Kg/Litre</div>
+            <div className="text-sm text-orange-600 font-semibold">₹190.00L</div>
+          </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-              <div className="text-center p-3 bg-orange-50 rounded-lg">
-                <div className="text-lg font-bold text-orange-600">{distributor.metrics.openingStock.volume}</div>
-                <div className="text-xs text-orange-600">Opening Stock</div>
-              </div>
-              <div className="text-center p-3 bg-blue-50 rounded-lg">
-                <div className="text-lg font-bold text-blue-600">{distributor.metrics.ytdNetSales.volume}</div>
-                <div className="text-xs text-blue-600">YTD Sales</div>
-              </div>
-              <div className="text-center p-3 bg-green-50 rounded-lg">
-                <div className="text-lg font-bold text-green-600">{distributor.metrics.liquidation.volume}</div>
-                <div className="text-xs text-green-600">Liquidated</div>
-              </div>
-              <div className="text-center p-3 bg-gray-50 rounded-lg">
-                <div className="text-lg font-bold text-gray-600">{distributor.metrics.balanceStock.volume}</div>
-                <div className="text-xs text-gray-600">Balance</div>
+          <div className="bg-white rounded-xl p-6 border-l-4 border-blue-500">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
+                <TrendingUp className="w-6 h-6 text-white" />
               </div>
             </div>
+            <h4 className="text-lg font-semibold text-gray-900 mb-2">YTD Net Sales</h4>
+            <div className="text-3xl font-bold text-gray-900 mb-1">13,303</div>
+            <div className="text-sm text-gray-600 mb-2">Kg/Litre</div>
+            <div className="text-sm text-blue-600 font-semibold">₹43.70L</div>
+          </div>
 
-            <div className="flex space-x-3">
-              <button
-                onClick={() => setSelectedDistributor(distributor)}
-                className="bg-purple-100 text-purple-700 px-4 py-2 rounded-lg hover:bg-purple-200 transition-colors flex items-center"
-              >
-                <Eye className="w-4 h-4 mr-2" />
-                View Details
+          <div className="bg-white rounded-xl p-6 border-l-4 border-green-500">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center">
+                <Droplets className="w-6 h-6 text-white" />
+              </div>
+            </div>
+            <h4 className="text-lg font-semibold text-gray-900 mb-2">Liquidation</h4>
+            <div className="text-3xl font-bold text-gray-900 mb-1">12,720</div>
+            <div className="text-sm text-gray-600 mb-2">Kg/Litre</div>
+            <div className="text-sm text-green-600 font-semibold">₹55.52L</div>
+          </div>
+
+          <div className="bg-white rounded-xl p-6 border-l-4 border-purple-500">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center">
+                <Target className="w-6 h-6 text-white" />
+              </div>
+            </div>
+            <h4 className="text-lg font-semibold text-gray-900 mb-2">Balance Stock</h4>
+            <div className="text-3xl font-bold text-gray-900 mb-1">33,243</div>
+            <div className="text-sm text-gray-600 mb-2">Kg/Litre</div>
+            <div className="text-sm text-purple-600 font-semibold">₹178.23L</div>
+          </div>
+        </div>
+
+        {/* Distributor Entries Section */}
+        <div className="bg-white rounded-xl shadow-sm">
+          <div className="p-6 border-b border-gray-200">
+            <h2 className="text-xl font-semibold text-gray-900">Distributor Entries</h2>
+          </div>
+
+          {/* Search and Filter */}
+          <div className="p-6 border-b border-gray-200">
+            <div className="flex items-center space-x-4">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <input
+                  type="text"
+                  placeholder="Search distributors..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+              <div className="relative">
+                <select
+                  value={selectedStatus}
+                  onChange={(e) => setSelectedStatus(e.target.value)}
+                  className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option>All Status</option>
+                  <option>Active</option>
+                  <option>Inactive</option>
+                </select>
+                <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+              </div>
+              <button className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                <Filter className="w-4 h-4 text-gray-600" />
               </button>
-              <button className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">
-                Generate Report
-              </button>
+            </div>
+            
+            <div className="flex items-center justify-between mt-4 text-sm text-gray-600">
+              <span>Showing 3 of 3 distributors</span>
+              <div className="flex items-center space-x-4">
+                <span>Active: 3</span>
+                <span>High Priority: 1</span>
+              </div>
             </div>
           </div>
-        ))}
+
+          {/* Distributors List */}
+          <div className="p-6">
+            <div className="space-y-4">
+              {distributors.map((distributor) => (
+                <div key={distributor.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <Building className="w-5 h-5 text-purple-600" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-gray-900">{distributor.name}</h3>
+                        <p className="text-sm text-gray-600">{distributor.code} • {distributor.territory}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center space-x-3">
+                      <span className="text-2xl font-bold text-purple-600">{distributor.liquidationPercentage}%</span>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(distributor.status)}`}>
+                        {distributor.status}
+                      </span>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(distributor.priority)}`}>
+                        {distributor.priority}
+                      </span>
+                      <button
+                        onClick={() => setSelectedDistributor(distributor)}
+                        className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center"
+                      >
+                        <CheckCircle className="w-4 h-4 mr-2" />
+                        Verify Stock
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Distributor Detail Modal */}
+      {/* Distributor Detail Modal - Matching Exact Design */}
       {selectedDistributor && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl w-full max-w-6xl max-h-[90vh] overflow-hidden">
-            <div className="flex items-center justify-between p-6 border-b bg-blue-50">
-              <div>
-                <h3 className="text-xl font-semibold text-gray-900">{selectedDistributor.distributorName}</h3>
-                <p className="text-sm text-gray-600 mt-1">{selectedDistributor.distributorCode} • {selectedDistributor.territory}</p>
+            {/* Modal Header */}
+            <div className="bg-blue-50 p-6 border-b border-blue-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-xl font-semibold text-gray-900">{selectedDistributor.name}</h3>
+                  <p className="text-sm text-gray-600 mt-1">{selectedDistributor.code} • {selectedDistributor.territory}</p>
+                </div>
+                <button
+                  onClick={() => setSelectedDistributor(null)}
+                  className="p-2 hover:bg-blue-100 rounded-full transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
               </div>
-              <button
-                onClick={() => setSelectedDistributor(null)}
-                className="p-2 hover:bg-blue-100 rounded-full transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
             </div>
             
             <div className="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
               <div className="space-y-6">
-                {/* Product Details */}
-                <div className="bg-gray-50 rounded-xl p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div>
-                      <h4 className="text-lg font-semibold text-gray-900">DAP (Di-Ammonium Phosphate)</h4>
-                      <p className="text-gray-600">SKU: DAP-50KG • DAP 50kg Bag</p>
-                    </div>
-                    <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
-                      DAP 50kg Bag
-                    </span>
-                  </div>
+                {/* SKU-wise Stock Verification */}
+                <div>
+                  <h4 className="text-lg font-semibold text-gray-900 mb-4">SKU-wise Stock Verification</h4>
+                  
+                  {selectedDistributor.skus?.map((sku: any, skuIndex: number) => (
+                    <div key={skuIndex} className="mb-8">
+                      {/* SKU Header */}
+                      <div className="flex items-center space-x-3 mb-4">
+                        <span className={`px-3 py-1 rounded-lg text-sm font-medium ${
+                          sku.code === 'DAP-25KG' ? 'bg-blue-600 text-white' : 'bg-green-600 text-white'
+                        }`}>
+                          {sku.name}
+                        </span>
+                        <span className="text-sm text-gray-600">SKU: {sku.code}</span>
+                      </div>
 
-                  {/* Stock Information */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    <div>
-                      <h5 className="font-semibold text-gray-900 mb-3">Invoice Details</h5>
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between p-3 bg-white rounded-lg border">
-                          <div>
-                            <p className="font-medium">Invoice: INV-2024-001</p>
-                            <p className="text-sm text-gray-600">Date: 1/15/2024</p>
-                          </div>
+                      {/* Invoice Table */}
+                      <div className="bg-gray-50 rounded-lg p-4 mb-4">
+                        <div className="grid grid-cols-4 gap-4 text-sm font-medium text-gray-700 mb-3">
+                          <div>Invoice Details</div>
+                          <div>SKU</div>
+                          <div>Opening Stock</div>
+                          <div>Current Stock</div>
                         </div>
-                        <div className="flex items-center justify-between p-3 bg-white rounded-lg border">
-                          <div>
-                            <p className="font-medium">Invoice: INV-2024-002</p>
-                            <p className="text-sm text-gray-600">Date: 1/15/2024</p>
+                        
+                        {sku.invoices.map((invoice: any, invIndex: number) => (
+                          <div key={invIndex} className="grid grid-cols-4 gap-4 items-center py-3 border-t border-gray-200">
+                            <div>
+                              <p className="font-medium text-gray-900">Invoice: {invoice.number}</p>
+                              <p className="text-sm text-gray-600">Date: {invoice.date}</p>
+                              <p className="text-xs text-gray-500">Batch: {invoice.batch}</p>
+                            </div>
+                            <div>
+                              <span className={`px-2 py-1 rounded text-xs font-medium ${
+                                sku.code === 'DAP-25KG' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'
+                              }`}>
+                                {sku.name}
+                              </span>
+                            </div>
+                            <div className="text-center">
+                              <div className="bg-orange-100 rounded-lg p-3">
+                                <div className="text-lg font-bold text-orange-800">{invoice.openingStock}</div>
+                              </div>
+                            </div>
+                            <div className="text-center">
+                              <div className="bg-blue-100 rounded-lg p-3">
+                                <div className="text-lg font-bold text-blue-800">{invoice.currentStock}</div>
+                              </div>
+                            </div>
                           </div>
-                        </div>
+                        ))}
                       </div>
                     </div>
-
-                    <div>
-                      <h5 className="font-semibold text-gray-900 mb-3">Stock Verification</h5>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="text-center">
-                          <p className="text-sm text-gray-600 mb-2">Current Stock (System)</p>
-                          <div className="bg-blue-100 rounded-lg p-4">
-                            <div className="text-2xl font-bold text-blue-600">105</div>
-                          </div>
-                        </div>
-                        <div className="text-center">
-                          <p className="text-sm text-gray-600 mb-2">Physical Stock (Verified)</p>
-                          <div className="bg-green-100 rounded-lg p-4">
-                            {editingStock ? (
-                              <input
-                                type="number"
-                                value={tempStock.inv1}
-                                onChange={(e) => setTempStock(prev => ({ ...prev, inv1: parseInt(e.target.value) || 0 }))}
-                                className="w-full text-center text-2xl font-bold text-green-600 bg-transparent border-b-2 border-green-300 focus:border-green-500 outline-none"
-                              />
-                            ) : (
-                              <div className="text-2xl font-bold text-green-600">105</div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="mt-4 flex space-x-2">
-                        {editingStock ? (
-                          <>
-                            <button
-                              onClick={() => setEditingStock(false)}
-                              className="flex-1 bg-green-600 text-white py-2 rounded-lg font-medium"
-                            >
-                              Save
-                            </button>
-                            <button
-                              onClick={() => setEditingStock(false)}
-                              className="flex-1 bg-gray-500 text-white py-2 rounded-lg font-medium"
-                            >
-                              Cancel
-                            </button>
-                          </>
-                        ) : (
-                          <button
-                            onClick={() => setEditingStock(true)}
-                            className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium flex items-center justify-center"
-                          >
-                            <Edit className="w-4 h-4 mr-2" />
-                            Verify Stock
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  </div>
+                  ))}
                 </div>
 
                 {/* Proof Upload Section */}
                 <div className="bg-white rounded-xl p-6 border border-gray-200">
-                  <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center justify-between mb-6">
                     <h4 className="text-lg font-semibold text-gray-900">Upload Proof</h4>
                     <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
                       {uploadedProofs.length} proofs uploaded
@@ -386,26 +446,26 @@ const Liquidation: React.FC = () => {
                   </div>
 
                   {isCapturing && (
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center mb-4">
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center mb-6">
                       <div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-2"></div>
                       <p className="text-sm text-blue-800">Capturing with location and timestamp...</p>
                     </div>
                   )}
 
                   {/* Primary Actions - Side by Side */}
-                  <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div className="grid grid-cols-2 gap-4 mb-6">
                     <button 
                       onClick={() => handleCameraCapture('photo')}
                       disabled={isCapturing || !latitude || !longitude}
-                      className="bg-blue-600 text-white py-4 rounded-lg flex flex-col items-center disabled:opacity-50 hover:bg-blue-700 transition-colors"
+                      className="bg-blue-600 text-white py-6 rounded-lg flex flex-col items-center disabled:opacity-50 hover:bg-blue-700 transition-colors"
                     >
-                      <Camera className="w-8 h-8 mb-2" />
+                      <Camera className="w-8 h-8 mb-3" />
                       <span className="text-lg font-medium">Click Pic</span>
                       <span className="text-sm opacity-90">With timestamp & location</span>
                     </button>
                     
-                    <label className="bg-purple-600 text-white py-4 rounded-lg flex flex-col items-center cursor-pointer hover:bg-purple-700 transition-colors">
-                      <Upload className="w-8 h-8 mb-2" />
+                    <label className="bg-purple-600 text-white py-6 rounded-lg flex flex-col items-center cursor-pointer hover:bg-purple-700 transition-colors">
+                      <Upload className="w-8 h-8 mb-3" />
                       <span className="text-lg font-medium">Upload Doc</span>
                       <span className="text-sm opacity-90">From device gallery</span>
                       <input
@@ -419,7 +479,7 @@ const Liquidation: React.FC = () => {
                   </div>
 
                   {/* Secondary Actions */}
-                  <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div className="grid grid-cols-2 gap-4 mb-6">
                     <button 
                       onClick={() => handleCameraCapture('video')}
                       disabled={isCapturing || !latitude || !longitude}
@@ -440,7 +500,7 @@ const Liquidation: React.FC = () => {
                   </div>
 
                   {/* Location & Time Status */}
-                  <div className={`p-4 rounded-lg border mb-4 ${
+                  <div className={`p-4 rounded-lg border mb-6 ${
                     latitude && longitude 
                       ? 'bg-green-50 border-green-200' 
                       : 'bg-red-50 border-red-200'
@@ -469,9 +529,9 @@ const Liquidation: React.FC = () => {
 
                   {/* Uploaded Proofs Gallery */}
                   {uploadedProofs.length > 0 ? (
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
-                      <h5 className="font-semibold text-gray-900 mb-3">Uploaded Proofs ({uploadedProofs.length})</h5>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6">
+                      <h5 className="font-semibold text-gray-900 mb-4">Uploaded Proofs ({uploadedProofs.length})</h5>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                         {uploadedProofs.map((proof) => (
                           <div key={proof.id} className="relative">
                             <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden border-2 border-gray-200">
@@ -548,12 +608,9 @@ const Liquidation: React.FC = () => {
                       <p className="text-sm text-gray-400">Click "Click Pic" or "Upload Doc" to add proof with timestamp and location</p>
                     </div>
                   )}
-                </div>
 
-                {/* Verification Status */}
-                <div className="bg-white rounded-xl p-6 border border-gray-200">
-                  <h4 className="text-lg font-semibold text-gray-900 mb-4">Verification Status</h4>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {/* Verification Status */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
                     <div className="text-center p-3 bg-gray-50 rounded-lg">
                       <div className={`w-8 h-8 mx-auto mb-2 rounded-full flex items-center justify-center ${
                         uploadedProofs.some(p => p.type === 'photo') ? 'bg-green-100' : 'bg-red-100'
