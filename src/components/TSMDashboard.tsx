@@ -1,37 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { 
-  Users, 
-  Target, 
-  Calendar, 
-  MapPin, 
-  AlertTriangle,
-  TrendingUp,
-  CheckCircle,
-  Clock,
-  Award,
-  BarChart3,
-  PieChart,
-  ArrowUp,
-  ArrowDown,
-  Eye,
-  Filter,
-  Search,
-  ChevronRight,
-  User,
-  Building,
-  Activity,
-  ArrowLeft,
-  Camera,
-  FileText,
-  Signature,
-  Phone,
-  Home,
-  Tractor,
-  Sprout,
-  ChevronDown,
-  X
-} from 'lucide-react';
+import { Users, Target, Calendar, MapPin, AlertTriangle, TrendingUp, CheckCircle, Clock, Award, BarChart3, PieChart, ArrowUp, ArrowDown, Eye, Filter, Search, ChevronRight, User, Building, Activity, ArrowLeft, Camera, FileText, FileSignature as Signature, Phone, Home, Tractor, Sprout, ChevronDown, X } from 'lucide-react';
 
 interface ActivityDetail {
   id: string;
