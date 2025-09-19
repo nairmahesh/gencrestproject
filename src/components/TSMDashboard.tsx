@@ -765,6 +765,7 @@ const TSMDashboard: React.FC = () => {
               <div className="text-2xl font-bold text-blue-800">{teamAggregates.ytdActivities.percentage}%</div>
               <div className="text-sm text-blue-600">YTD Achievement</div>
               <div className="text-xs text-gray-500 mt-1">{teamAggregates.ytdActivities.done}/{teamAggregates.ytdActivities.planned}</div>
+              <div className="text-xs text-gray-400 mt-1">Planned vs. Done Activities</div>
             </div>
             <div className="text-center p-4 bg-green-50 rounded-lg">
               <div className="text-2xl font-bold text-green-800">{teamAggregates.monthlyActivities.completedPercentage}%</div>
