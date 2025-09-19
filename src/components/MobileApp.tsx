@@ -59,6 +59,7 @@ interface ProofItem {
 
 const MobileApp: React.FC = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [liquidationView, setLiquidationView] = useState<'team' | 'self'>('team');
   const [activeLiquidationTab, setActiveLiquidationTab] = useState<'team' | 'self'>('team');
   const [selectedDistributor, setSelectedDistributor] = useState<any>(null);
   const [showVerifyModal, setShowVerifyModal] = useState(false);
