@@ -27,7 +27,6 @@ import {
   Save,
   ChevronDown
 } from 'lucide-react';
-import { useLiquidationCalculation } from '../hooks/useLiquidationCalculation';
 import { useGeolocation } from '../hooks/useGeolocation';
 
 interface ProofItem {
@@ -55,10 +54,9 @@ const Liquidation: React.FC = () => {
   const [uploadedProofs, setUploadedProofs] = useState<ProofItem[]>([]);
   const [isCapturing, setIsCapturing] = useState(false);
 
-  const { overallMetrics, distributorMetrics } = useLiquidationCalculation();
   const { latitude, longitude, error: locationError } = useGeolocation();
 
-  // Sample distributor data matching the design
+  // Sample distributor data matching the exact design
   const distributors = [
     {
       id: 'DIST001',
@@ -74,24 +72,10 @@ const Liquidation: React.FC = () => {
       ytdNetSales: { volume: 84, value: 1.13 },
       liquidation: { volume: 210, value: 2.84 },
       balanceStock: { volume: 420, value: 5.67 },
-      skus: [
-        {
-          name: 'DAP 25kg Bag',
-          code: 'DAP-25KG',
-          invoices: [
-            { number: 'INV-2024-001', date: '1/15/2024', batch: 'BATCH-001', openingStock: 26, currentStock: 105 },
-            { number: 'INV-2024-002', date: '1/15/2024', batch: 'BATCH-002', openingStock: 26, currentStock: 105 }
-          ]
-        },
-        {
-          name: 'DAP 50kg Bag',
-          code: 'DAP-50KG',
-          invoices: [
-            { number: 'INV-2024-001', date: '1/15/2024', batch: 'BATCH-001', openingStock: 26, currentStock: 105 },
-            { number: 'INV-2024-002', date: '1/15/2024', batch: 'BATCH-002', openingStock: 26, currentStock: 105 }
-          ]
-        }
-      ]
+      product: 'DAP (Di-Ammonium Phosphate)',
+      productCode: 'PT001',
+      lastUpdated: '9/18/2025',
+      remarks: 'Good progress on liquidation'
     },
     {
       id: 'DIST002',
@@ -106,7 +90,11 @@ const Liquidation: React.FC = () => {
       openingStock: { volume: 15000, value: 18.75 },
       ytdNetSales: { volume: 6500, value: 8.13 },
       liquidation: { volume: 6200, value: 7.75 },
-      balanceStock: { volume: 15300, value: 19.13 }
+      balanceStock: { volume: 15300, value: 19.13 },
+      product: 'DAP (Di-Ammonium Phosphate)',
+      productCode: 'PT001',
+      lastUpdated: '9/18/2025',
+      remarks: 'Needs improvement'
     },
     {
       id: 'DIST003',
@@ -121,7 +109,11 @@ const Liquidation: React.FC = () => {
       openingStock: { volume: 17620, value: 21.70 },
       ytdNetSales: { volume: 6493, value: 6.57 },
       liquidation: { volume: 6380, value: 7.22 },
-      balanceStock: { volume: 17733, value: 21.05 }
+      balanceStock: { volume: 17733, value: 21.05 },
+      product: 'DAP (Di-Ammonium Phosphate)',
+      productCode: 'PT001',
+      lastUpdated: '9/18/2025',
+      remarks: 'Regular follow-up needed'
     }
   ];
 
@@ -222,7 +214,7 @@ const Liquidation: React.FC = () => {
       </div>
 
       <div className="p-6 space-y-6">
-        {/* Summary Cards */}
+        {/* Summary Cards - Exact Design Match */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div className="bg-white rounded-xl p-6 border-l-4 border-orange-500">
             <div className="flex items-center justify-between mb-4">
@@ -318,28 +310,31 @@ const Liquidation: React.FC = () => {
             </div>
           </div>
 
-          {/* Distributors List */}
+          {/* Distributors List - Exact Design Match */}
           <div className="p-6">
             <div className="space-y-4">
               {distributors.map((distributor) => (
-                <div key={distributor.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                  <div className="flex items-center justify-between">
+                <div key={distributor.id} className="border border-gray-200 rounded-lg p-6">
+                  {/* Distributor Header */}
+                  <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center space-x-4">
                       <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
                         <Building className="w-5 h-5 text-purple-600" />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-gray-900">{distributor.name}</h3>
-                        <p className="text-sm text-gray-600">{distributor.code} • {distributor.territory}</p>
+                        <h3 className="text-lg font-semibold text-gray-900">{distributor.name}</h3>
+                        <div className="flex items-center space-x-4 text-sm text-gray-600">
+                          <span>Code: {distributor.code}</span>
+                          <span className="text-blue-600">{distributor.product}</span>
+                        </div>
                       </div>
                     </div>
                     
                     <div className="flex items-center space-x-3">
-                      <span className="text-2xl font-bold text-purple-600">{distributor.liquidationPercentage}%</span>
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(distributor.status)}`}>
+                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(distributor.status)}`}>
                         {distributor.status}
                       </span>
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(distributor.priority)}`}>
+                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${getPriorityColor(distributor.priority)}`}>
                         {distributor.priority}
                       </span>
                       <button
@@ -351,6 +346,95 @@ const Liquidation: React.FC = () => {
                       </button>
                     </div>
                   </div>
+
+                  {/* Metrics Cards - Exact Design */}
+                  <div className="grid grid-cols-4 gap-4 mb-4">
+                    <div className="bg-orange-50 rounded-lg p-4 border-l-4 border-orange-500">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="text-sm font-semibold text-orange-700">Opening Stock</h4>
+                        <button className="bg-orange-500 text-white px-2 py-1 rounded text-xs">View</button>
+                      </div>
+                      <div className="text-sm text-orange-600 mb-1">Volume</div>
+                      <div className="text-2xl font-bold text-orange-800">{distributor.openingStock.volume}</div>
+                      <div className="text-sm text-orange-600 mt-2">Value</div>
+                      <div className="text-sm font-semibold text-orange-700">₹{distributor.openingStock.value}L</div>
+                    </div>
+
+                    <div className="bg-blue-50 rounded-lg p-4 border-l-4 border-blue-500">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="text-sm font-semibold text-blue-700">YTD Net Sales</h4>
+                        <button className="bg-blue-500 text-white px-2 py-1 rounded text-xs">View</button>
+                      </div>
+                      <div className="text-sm text-blue-600 mb-1">Volume</div>
+                      <div className="text-2xl font-bold text-blue-800">{distributor.ytdNetSales.volume}</div>
+                      <div className="text-sm text-blue-600 mt-2">Value</div>
+                      <div className="text-sm font-semibold text-blue-700">₹{distributor.ytdNetSales.value}L</div>
+                    </div>
+
+                    <div className="bg-green-50 rounded-lg p-4 border-l-4 border-green-500">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="text-sm font-semibold text-green-700">Liquidation</h4>
+                        <button className="bg-green-500 text-white px-2 py-1 rounded text-xs">View</button>
+                      </div>
+                      <div className="text-sm text-green-600 mb-1">Volume</div>
+                      <div className="text-2xl font-bold text-green-800">{distributor.liquidation.volume}</div>
+                      <div className="text-sm text-green-600 mt-2">Value</div>
+                      <div className="text-sm font-semibold text-green-700">₹{distributor.liquidation.value}L</div>
+                    </div>
+
+                    <div className="bg-purple-50 rounded-lg p-4 border-l-4 border-purple-500">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="text-sm font-semibold text-purple-700">Balance Stock</h4>
+                        <button className="bg-green-600 text-white px-2 py-1 rounded text-xs flex items-center">
+                          <CheckCircle className="w-3 h-3 mr-1" />
+                          Verify Stock
+                        </button>
+                      </div>
+                      <div className="text-sm text-purple-600 mb-1">Volume</div>
+                      <div className="text-2xl font-bold text-purple-800">{distributor.balanceStock.volume}</div>
+                      <div className="text-sm text-purple-600 mt-2">Value</div>
+                      <div className="text-sm font-semibold text-purple-700">₹{distributor.balanceStock.value}L</div>
+                    </div>
+                  </div>
+
+                  {/* Progress Bar */}
+                  <div className="mb-4">
+                    <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
+                      <span>% Liquidation</span>
+                      <span className="font-semibold">{distributor.liquidationPercentage}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div 
+                        className="bg-purple-600 h-2 rounded-full transition-all duration-500" 
+                        style={{ width: `${distributor.liquidationPercentage}%` }}
+                      ></div>
+                    </div>
+                  </div>
+
+                  {/* Footer Info */}
+                  <div className="flex items-center justify-between text-sm text-gray-600">
+                    <div className="flex items-center space-x-4">
+                      <span className="flex items-center">
+                        <MapPin className="w-4 h-4 mr-1" />
+                        {distributor.region} • {distributor.zone}
+                      </span>
+                      <span className="flex items-center">
+                        <Calendar className="w-4 h-4 mr-1" />
+                        Updated: {distributor.lastUpdated}
+                      </span>
+                    </div>
+                    <div className="flex items-center space-x-4">
+                      <span className="flex items-center">
+                        <User className="w-4 h-4 mr-1" />
+                        Territory: {distributor.territory}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Remarks */}
+                  <div className="mt-4 text-sm text-gray-600">
+                    <span className="font-medium">Remarks:</span> {distributor.remarks}
+                  </div>
                 </div>
               ))}
             </div>
@@ -358,11 +442,11 @@ const Liquidation: React.FC = () => {
         </div>
       </div>
 
-      {/* Distributor Detail Modal - Matching Exact Design */}
+      {/* Distributor Detail Modal - Exact Design Match */}
       {selectedDistributor && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl w-full max-w-6xl max-h-[90vh] overflow-hidden">
-            {/* Modal Header */}
+            {/* Modal Header - Blue Background */}
             <div className="bg-blue-50 p-6 border-b border-blue-200">
               <div className="flex items-center justify-between">
                 <div>
@@ -384,56 +468,124 @@ const Liquidation: React.FC = () => {
                 <div>
                   <h4 className="text-lg font-semibold text-gray-900 mb-4">SKU-wise Stock Verification</h4>
                   
-                  {selectedDistributor.skus?.map((sku: any, skuIndex: number) => (
-                    <div key={skuIndex} className="mb-8">
-                      {/* SKU Header */}
-                      <div className="flex items-center space-x-3 mb-4">
-                        <span className={`px-3 py-1 rounded-lg text-sm font-medium ${
-                          sku.code === 'DAP-25KG' ? 'bg-blue-600 text-white' : 'bg-green-600 text-white'
-                        }`}>
-                          {sku.name}
-                        </span>
-                        <span className="text-sm text-gray-600">SKU: {sku.code}</span>
+                  {/* DAP 25kg Bag */}
+                  <div className="mb-6">
+                    <div className="flex items-center space-x-3 mb-4">
+                      <span className="bg-blue-600 text-white px-3 py-1 rounded-lg text-sm font-medium">
+                        DAP 25kg Bag
+                      </span>
+                      <span className="text-sm text-gray-600">SKU: DAP-25KG</span>
+                    </div>
+
+                    <div className="bg-gray-50 rounded-lg p-4">
+                      <div className="grid grid-cols-4 gap-4 text-sm font-medium text-gray-700 mb-3">
+                        <div>Invoice Details</div>
+                        <div>Current Stock (System)</div>
+                        <div>Physical Stock (Verified)</div>
+                        <div>Actions</div>
+                      </div>
+                      
+                      <div className="grid grid-cols-4 gap-4 items-center py-3 border-t border-gray-200">
+                        <div>
+                          <p className="font-medium text-gray-900">Invoice: INV-2024-001</p>
+                          <p className="text-sm text-gray-600">Date: 1/15/2024</p>
+                          <p className="text-xs text-gray-500">Batch: BATCH-001</p>
+                        </div>
+                        <div className="text-center">
+                          <div className="bg-blue-100 rounded-lg p-3">
+                            <div className="text-lg font-bold text-blue-800">105</div>
+                          </div>
+                        </div>
+                        <div className="text-center">
+                          <div className="bg-gray-100 rounded-lg p-3">
+                            <input 
+                              type="number" 
+                              defaultValue="105" 
+                              className="w-full text-center text-lg font-bold text-gray-800 bg-transparent border-none outline-none"
+                            />
+                          </div>
+                        </div>
+                        <div className="text-center">
+                          <button className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700">
+                            Update
+                          </button>
+                        </div>
                       </div>
 
-                      {/* Invoice Table */}
-                      <div className="bg-gray-50 rounded-lg p-4 mb-4">
-                        <div className="grid grid-cols-4 gap-4 text-sm font-medium text-gray-700 mb-3">
-                          <div>Invoice Details</div>
-                          <div>SKU</div>
-                          <div>Opening Stock</div>
-                          <div>Current Stock</div>
+                      <div className="grid grid-cols-4 gap-4 items-center py-3 border-t border-gray-200">
+                        <div>
+                          <p className="font-medium text-gray-900">Invoice: INV-2024-002</p>
+                          <p className="text-sm text-gray-600">Date: 1/15/2024</p>
+                          <p className="text-xs text-gray-500">Batch: BATCH-002</p>
                         </div>
-                        
-                        {sku.invoices.map((invoice: any, invIndex: number) => (
-                          <div key={invIndex} className="grid grid-cols-4 gap-4 items-center py-3 border-t border-gray-200">
-                            <div>
-                              <p className="font-medium text-gray-900">Invoice: {invoice.number}</p>
-                              <p className="text-sm text-gray-600">Date: {invoice.date}</p>
-                              <p className="text-xs text-gray-500">Batch: {invoice.batch}</p>
-                            </div>
-                            <div>
-                              <span className={`px-2 py-1 rounded text-xs font-medium ${
-                                sku.code === 'DAP-25KG' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'
-                              }`}>
-                                {sku.name}
-                              </span>
-                            </div>
-                            <div className="text-center">
-                              <div className="bg-orange-100 rounded-lg p-3">
-                                <div className="text-lg font-bold text-orange-800">{invoice.openingStock}</div>
-                              </div>
-                            </div>
-                            <div className="text-center">
-                              <div className="bg-blue-100 rounded-lg p-3">
-                                <div className="text-lg font-bold text-blue-800">{invoice.currentStock}</div>
-                              </div>
-                            </div>
+                        <div className="text-center">
+                          <div className="bg-blue-100 rounded-lg p-3">
+                            <div className="text-lg font-bold text-blue-800">105</div>
                           </div>
-                        ))}
+                        </div>
+                        <div className="text-center">
+                          <div className="bg-gray-100 rounded-lg p-3">
+                            <input 
+                              type="number" 
+                              defaultValue="105" 
+                              className="w-full text-center text-lg font-bold text-gray-800 bg-transparent border-none outline-none"
+                            />
+                          </div>
+                        </div>
+                        <div className="text-center">
+                          <button className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700">
+                            Update
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  ))}
+                  </div>
+
+                  {/* DAP 50kg Bag */}
+                  <div className="mb-6">
+                    <div className="flex items-center space-x-3 mb-4">
+                      <span className="bg-green-600 text-white px-3 py-1 rounded-lg text-sm font-medium">
+                        DAP 50kg Bag
+                      </span>
+                      <span className="text-sm text-gray-600">SKU: DAP-50KG</span>
+                    </div>
+
+                    <div className="bg-gray-50 rounded-lg p-4">
+                      <div className="grid grid-cols-4 gap-4 text-sm font-medium text-gray-700 mb-3">
+                        <div>Invoice Details</div>
+                        <div>Current Stock (System)</div>
+                        <div>Physical Stock (Verified)</div>
+                        <div>Actions</div>
+                      </div>
+                      
+                      <div className="grid grid-cols-4 gap-4 items-center py-3 border-t border-gray-200">
+                        <div>
+                          <p className="font-medium text-gray-900">Invoice: INV-2024-001</p>
+                          <p className="text-sm text-gray-600">Date: 1/15/2024</p>
+                          <p className="text-xs text-gray-500">Batch: BATCH-001</p>
+                        </div>
+                        <div className="text-center">
+                          <div className="bg-blue-100 rounded-lg p-3">
+                            <div className="text-lg font-bold text-blue-800">105</div>
+                          </div>
+                        </div>
+                        <div className="text-center">
+                          <div className="bg-gray-100 rounded-lg p-3">
+                            <input 
+                              type="number" 
+                              defaultValue="105" 
+                              className="w-full text-center text-lg font-bold text-gray-800 bg-transparent border-none outline-none"
+                            />
+                          </div>
+                        </div>
+                        <div className="text-center">
+                          <button className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700">
+                            Update
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Proof Upload Section */}
