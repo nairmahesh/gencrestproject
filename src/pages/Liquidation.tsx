@@ -1,28 +1,30 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
 import { 
-  ArrowLeft, 
-  Package, 
-  TrendingUp, 
   Droplets, 
+  Plus, 
+  Search, 
+  Filter, 
+  TrendingUp, 
+  Package, 
   Target,
+  ArrowLeft,
   Building,
-  Search,
-  Filter,
-  Eye,
-  CheckCircle,
-  X,
   MapPin,
   Calendar,
-  Users,
+  User,
+  CheckCircle,
+  AlertTriangle,
+  Eye,
+  Edit,
+  X,
   Camera,
   Upload,
   Video,
   Image as ImageIcon,
   FileText,
   Clock,
-  Plus,
+  Save,
   Minus
 } from 'lucide-react';
 import { useLiquidationCalculation } from '../hooks/useLiquidationCalculation';
@@ -47,155 +49,16 @@ interface ProofItem {
 
 const Liquidation: React.FC = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState('All');
-  const [activeTab, setActiveTab] = useState<'team' | 'self'>('team');
-  const [showVerifyModal, setShowVerifyModal] = useState(false);
   const [selectedDistributor, setSelectedDistributor] = useState<any>(null);
-  const [showDetailModal, setShowDetailModal] = useState(false);
-  const [selectedMetric, setSelectedMetric] = useState<string>('');
-  const [selectedDistributorId, setSelectedDistributorId] = useState<string>('');
-  const [uploadedProofs, setUploadedProofs] = useState<ProofItem[]>([]);
-  const [showProofModal, setShowProofModal] = useState(false);
-  const [isCapturing, setIsCapturing] = useState(false);
   const [editingStock, setEditingStock] = useState(false);
-  const [tempStock, setTempStock] = useState(0);
-  
-  const { 
-    overallMetrics, 
-    distributorMetrics, 
-    getPerformanceMetrics 
-  } = useLiquidationCalculation();
+  const [tempStock, setTempStock] = useState({ inv1: 105, inv2: 105 });
+  const [uploadedProofs, setUploadedProofs] = useState<ProofItem[]>([]);
+  const [isCapturing, setIsCapturing] = useState(false);
+  const [showProofSection, setShowProofSection] = useState(false);
+
+  const { overallMetrics, distributorMetrics } = useLiquidationCalculation();
   const { latitude, longitude, error: locationError } = useGeolocation();
-
-  const performanceMetrics = getPerformanceMetrics();
-  const currentUserRole = user?.role || 'MDO';
-  const showTabs = ['TSM', 'RBH', 'RMM', 'ZBH', 'MH', 'VP_SM', 'MD', 'CHRO', 'CFO'].includes(currentUserRole);
-
-  // Sample self liquidation data for the logged-in user
-  const selfLiquidationData = {
-    personalMetrics: {
-      openingStock: { volume: 5420, value: 7.31 },
-      ytdNetSales: { volume: 2180, value: 2.94 },
-      liquidation: { volume: 1890, value: 2.55 },
-      balanceStock: { volume: 5710, value: 7.70 },
-      liquidationPercentage: 25
-    },
-    personalDistributors: [
-      {
-        id: 'SELF_DIST001',
-        distributorName: 'Personal Territory - Ram Kumar',
-        distributorCode: 'PT001',
-        territory: user?.territory || 'Personal Territory',
-        region: user?.region || 'Personal Region',
-        zone: user?.zone || 'Personal Zone',
-        status: 'Active' as const,
-        priority: 'High' as const,
-        metrics: {
-          openingStock: { volume: 2710, value: 3.66 },
-          ytdNetSales: { volume: 1090, value: 1.47 },
-          liquidation: { volume: 945, value: 1.28 },
-          balanceStock: { volume: 2855, value: 3.85 },
-          liquidationPercentage: 25,
-          lastUpdated: new Date().toISOString()
-        }
-      },
-      {
-        id: 'SELF_DIST002',
-        distributorName: 'Personal Territory - Suresh Traders',
-        distributorCode: 'PT002',
-        territory: user?.territory || 'Personal Territory',
-        region: user?.region || 'Personal Region',
-        zone: user?.zone || 'Personal Zone',
-        status: 'Active' as const,
-        priority: 'Medium' as const,
-        metrics: {
-          openingStock: { volume: 2710, value: 3.65 },
-          ytdNetSales: { volume: 1090, value: 1.47 },
-          liquidation: { volume: 945, value: 1.27 },
-          balanceStock: { volume: 2855, value: 3.85 },
-          liquidationPercentage: 25,
-          lastUpdated: new Date().toISOString()
-        }
-      }
-    ]
-  };
-
-  // SKU Color mapping
-  const getSKUColor = (skuCode: string) => {
-    switch (skuCode) {
-      case 'DAP-25KG': return 'bg-blue-600 text-white';
-      case 'DAP-50KG': return 'bg-green-600 text-white';
-      case 'UREA-25KG': return 'bg-purple-600 text-white';
-      case 'UREA-50KG': return 'bg-orange-600 text-white';
-      case 'NPK-25KG': return 'bg-red-600 text-white';
-      case 'NPK-50KG': return 'bg-indigo-600 text-white';
-      case 'MOP-25KG': return 'bg-pink-600 text-white';
-      case 'MOP-50KG': return 'bg-teal-600 text-white';
-      case 'SSP-25KG': return 'bg-yellow-600 text-white';
-      case 'SSP-50KG': return 'bg-cyan-600 text-white';
-      case 'PEST-500ML': return 'bg-lime-600 text-white';
-      case 'PEST-1L': return 'bg-emerald-600 text-white';
-      case 'HERB-500ML': return 'bg-violet-600 text-white';
-      case 'HERB-1L': return 'bg-fuchsia-600 text-white';
-      case 'FUNG-500ML': return 'bg-rose-600 text-white';
-      case 'FUNG-1L': return 'bg-amber-600 text-white';
-      case 'SEED-1KG': return 'bg-slate-600 text-white';
-      case 'SEED-5KG': return 'bg-zinc-600 text-white';
-      case 'MICRO-1KG': return 'bg-stone-600 text-white';
-      case 'MICRO-5KG': return 'bg-neutral-600 text-white';
-      default: return 'bg-gray-600 text-white';
-    }
-  };
-
-  const getSKUData = (distributorId: string) => {
-    return [
-      {
-        skuCode: 'DAP-25KG',
-        skuName: 'DAP 25kg Bag',
-        unit: 'Kg',
-        invoices: [
-          {
-            invoiceNumber: 'INV-2024-001',
-            invoiceDate: '2024-01-15',
-            currentStock: 105,
-            batchNumber: 'BATCH-001'
-          },
-          {
-            invoiceNumber: 'INV-2024-002',
-            invoiceDate: '2024-01-15',
-            currentStock: 105,
-            batchNumber: 'BATCH-002'
-          }
-        ]
-      },
-      {
-        skuCode: 'DAP-50KG',
-        skuName: 'DAP 50kg Bag',
-        unit: 'Kg',
-        invoices: [
-          {
-            invoiceNumber: 'INV-2024-001',
-            invoiceDate: '2024-01-15',
-            currentStock: 105,
-            batchNumber: 'BATCH-003'
-          },
-          {
-            invoiceNumber: 'INV-2024-002',
-            invoiceDate: '2024-01-15',
-            currentStock: 105,
-            batchNumber: 'BATCH-004'
-          }
-        ]
-      }
-    ];
-  };
-
-  const handleVerifyClick = (distributor: any) => {
-    setSelectedDistributor(distributor);
-    setShowVerifyModal(true);
-  };
 
   const generateProofItem = (type: 'photo' | 'video' | 'signature', file?: File): ProofItem => {
     const now = new Date();
@@ -224,7 +87,6 @@ const Liquidation: React.FC = () => {
       const newProof = generateProofItem(type);
       setUploadedProofs(prev => [...prev, newProof]);
       setIsCapturing(false);
-      setShowProofModal(false);
       alert(`${type === 'photo' ? 'Photo' : 'Video'} captured with location and timestamp!`);
     }, 2000);
   };
@@ -235,7 +97,6 @@ const Liquidation: React.FC = () => {
       const newProof = generateProofItem(type, file);
       setUploadedProofs(prev => [...prev, newProof]);
     });
-    setShowProofModal(false);
   };
 
   const handleSignatureCapture = () => {
@@ -252,130 +113,18 @@ const Liquidation: React.FC = () => {
     };
   };
 
-  const handleMetricClick = (metric: string, distributorId: string) => {
-    setSelectedMetric(metric);
-    setSelectedDistributorId(distributorId);
-    setShowDetailModal(true);
+  const handleSaveAndExit = () => {
+    setSelectedDistributor(null);
+    setUploadedProofs([]);
+    setShowProofSection(false);
+    setEditingStock(false);
+    alert(`Liquidation data saved successfully with ${uploadedProofs.length} proofs!`);
   };
 
-  const getMetricData = (metric: string, distributorId: string) => {
-    const distributor = distributorMetrics.find(d => d.id === distributorId);
-    if (!distributor) return { title: '', subtitle: '', data: [] };
-    
-    const skuData = getSKUData(distributorId);
-
-    switch (metric) {
-      case 'opening':
-        // Calculate opening stock: 25% of current stock for each invoice
-        const totalOpeningVolume = skuData.reduce((sum, sku) => 
-          sum + sku.invoices.reduce((invSum, inv) => invSum + Math.round(inv.currentStock * 0.25), 0), 0
-        );
-        const totalOpeningValue = skuData.reduce((sum, sku) => 
-          sum + sku.invoices.reduce((invSum, inv) => invSum + ((inv.currentStock * 0.25 * 1350) / 100000), 0), 0
-        );
-        return {
-          title: `Opening Stock - ${distributor.distributorName}`,
-          subtitle: 'SKU-wise opening stock breakdown',
-          totalVolume: totalOpeningVolume,
-          totalValue: totalOpeningValue,
-          data: skuData.map(sku => ({
-            ...sku,
-            skus: sku.invoices.map(inv => ({
-              skuCode: sku.skuCode,
-              skuName: sku.skuName,
-              unit: sku.unit,
-              volume: Math.round(inv.currentStock * 0.25),
-              value: (inv.currentStock * 0.25 * 1350) / 100000,
-              unitPrice: 1350
-            }))
-          }))
-        };
-      case 'sales':
-        // Calculate YTD sales: 10% of current stock for each invoice
-        const totalSalesVolume = skuData.reduce((sum, sku) => 
-          sum + sku.invoices.reduce((invSum, inv) => invSum + Math.round(inv.currentStock * 0.1), 0), 0
-        );
-        const totalSalesValue = skuData.reduce((sum, sku) => 
-          sum + sku.invoices.reduce((invSum, inv) => invSum + ((inv.currentStock * 0.1 * 1350) / 100000), 0), 0
-        );
-        return {
-          title: `YTD Net Sales - ${distributor.distributorName}`,
-          subtitle: 'SKU-wise sales performance',
-          totalVolume: totalSalesVolume,
-          totalValue: totalSalesValue,
-          data: skuData.map(sku => ({
-            ...sku,
-            skus: sku.invoices.map(inv => ({
-              skuCode: sku.skuCode,
-              skuName: sku.skuName,
-              unit: sku.unit,
-              volume: Math.round(inv.currentStock * 0.1),
-              value: (inv.currentStock * 0.1 * 1350) / 100000,
-              unitPrice: 1350
-            }))
-          }))
-        };
-      case 'liquidation':
-        // Calculate liquidation: 25% of current stock for each invoice (to get 210 total)
-        const totalLiquidationVolume = skuData.reduce((sum, sku) => 
-          sum + sku.invoices.reduce((invSum, inv) => invSum + Math.round(inv.currentStock * 0.25), 0), 0
-        );
-        const totalLiquidationValue = skuData.reduce((sum, sku) => 
-          sum + sku.invoices.reduce((invSum, inv) => invSum + ((inv.currentStock * 0.25 * 1350) / 100000), 0), 0
-        );
-        return {
-          title: `Liquidation - ${distributor.distributorName}`,
-          subtitle: 'SKU-wise liquidation breakdown',
-          totalVolume: totalLiquidationVolume,
-          totalValue: totalLiquidationValue,
-          data: skuData.map(sku => ({
-            ...sku,
-            skus: sku.invoices.map(inv => ({
-              skuCode: sku.skuCode,
-              skuName: sku.skuName,
-              unit: sku.unit,
-              volume: Math.round(inv.currentStock * 0.25),
-              value: (inv.currentStock * 0.25 * 1350) / 100000,
-              unitPrice: 1350
-            }))
-          }))
-        };
-      case 'balance':
-        // Calculate balance stock: Current stock as-is for each invoice
-        const totalBalanceVolume = skuData.reduce((sum, sku) => 
-          sum + sku.invoices.reduce((invSum, inv) => invSum + inv.currentStock, 0), 0
-        );
-        const totalBalanceValue = skuData.reduce((sum, sku) => 
-          sum + sku.invoices.reduce((invSum, inv) => invSum + ((inv.currentStock * 1350) / 100000), 0), 0
-        );
-        return {
-          title: `Balance Stock - ${distributor.distributorName}`,
-          subtitle: 'SKU-wise current stock breakdown',
-          totalVolume: totalBalanceVolume,
-          totalValue: totalBalanceValue,
-          data: skuData.map(sku => ({
-            ...sku,
-            skus: sku.invoices.map(inv => ({
-              skuCode: sku.skuCode,
-              skuName: sku.skuName,
-              unit: sku.unit,
-              volume: inv.currentStock,
-              value: (inv.currentStock * 1350) / 100000,
-              unitPrice: 1350
-            }))
-          }))
-        };
-      default:
-        return { title: '', subtitle: '', totalVolume: 0, totalValue: 0, data: [] };
-    }
-  };
-
-  const filteredDistributors = distributorMetrics.filter(distributor => {
-    const matchesSearch = distributor.distributorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         distributor.distributorCode.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = filterStatus === 'All' || distributor.status === filterStatus;
-    return matchesSearch && matchesStatus;
-  });
+  const filteredDistributors = distributorMetrics.filter(distributor =>
+    distributor.distributorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    distributor.distributorCode.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="space-y-6">
@@ -389,803 +138,513 @@ const Liquidation: React.FC = () => {
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div>
-            <h1 className="text-2xl font-bold">Stock Liquidation</h1>
-            <p className="text-gray-600 mt-1">
-              {activeTab === 'team' 
-                ? 'Monitor and track stock liquidation across team distributors' 
-                : 'Monitor and track your personal territory liquidation'
-              }
-            </p>
+            <h1 className="text-2xl font-bold text-gray-900">Stock Liquidation</h1>
+            <p className="text-gray-600 mt-1">Track and manage distributor stock liquidation</p>
           </div>
         </div>
       </div>
 
-      {/* Team/Self Tabs - Only show for TSM and above */}
-      {showTabs && (
-        <div className="bg-white rounded-xl p-2 card-shadow">
-          <div className="flex space-x-2">
-            <button
-              onClick={() => setActiveTab('team')}
-              className={`flex-1 py-2 px-4 rounded-lg transition-colors ${
-                activeTab === 'team'
-                  ? 'bg-purple-600 text-white'
-                  : 'text-gray-600 hover:bg-gray-100'
-              }`}
-            >
-              Team Liquidation
-            </button>
-            <button
-              onClick={() => setActiveTab('self')}
-              className={`flex-1 py-2 px-4 rounded-lg transition-colors ${
-                activeTab === 'self'
-                  ? 'bg-purple-600 text-white'
-                  : 'text-gray-600 hover:bg-gray-100'
-              }`}
-            >
-              Self Liquidation
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Overall Stats Cards - Matching your image exactly */}
+      {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        {/* Opening Stock */}
-        <div className="bg-white rounded-xl border-l-4 border-orange-500 p-6 card-shadow">
-          <div className="w-12 h-12 bg-orange-500 rounded-lg flex items-center justify-center mb-4">
-            <Package className="w-6 h-6 text-white" />
+        <div className="bg-orange-50 rounded-xl p-6 border-l-4 border-orange-500">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-12 h-12 bg-orange-500 rounded-lg flex items-center justify-center">
+              <Package className="w-6 h-6 text-white" />
+            </div>
           </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">Opening Stock</h3>
-          <div className="text-3xl font-bold text-gray-900 mb-1">
-            {activeTab === 'team' ? '32,660' : selfLiquidationData.personalMetrics.openingStock.volume.toLocaleString()}
-          </div>
+          <h4 className="text-lg font-semibold text-gray-900 mb-2">Opening Stock</h4>
+          <div className="text-3xl font-bold text-gray-900 mb-1">{overallMetrics.openingStock.volume.toLocaleString()}</div>
           <div className="text-sm text-gray-600 mb-2">Kg/Litre</div>
-          <div className="text-sm text-orange-600 font-semibold">
-            ₹{activeTab === 'team' ? '190.00' : selfLiquidationData.personalMetrics.openingStock.value.toFixed(2)}L
-          </div>
+          <div className="text-sm text-gray-500">Value: ₹{overallMetrics.openingStock.value.toFixed(2)}L</div>
         </div>
 
-        {/* YTD Net Sales */}
-        <div className="bg-white rounded-xl border-l-4 border-blue-500 p-6 card-shadow">
-          <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center mb-4">
-            <TrendingUp className="w-6 h-6 text-white" />
+        <div className="bg-blue-50 rounded-xl p-6 border-l-4 border-blue-500">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
+              <TrendingUp className="w-6 h-6 text-white" />
+            </div>
           </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">YTD Net Sales</h3>
-          <div className="text-3xl font-bold text-gray-900 mb-1">
-            {activeTab === 'team' ? '13,303' : selfLiquidationData.personalMetrics.ytdNetSales.volume.toLocaleString()}
-          </div>
+          <h4 className="text-lg font-semibold text-gray-900 mb-2">YTD Net Sales</h4>
+          <div className="text-3xl font-bold text-gray-900 mb-1">{overallMetrics.ytdNetSales.volume.toLocaleString()}</div>
           <div className="text-sm text-gray-600 mb-2">Kg/Litre</div>
-          <div className="text-sm text-blue-600 font-semibold">
-            ₹{activeTab === 'team' ? '43.70' : selfLiquidationData.personalMetrics.ytdNetSales.value.toFixed(2)}L
-          </div>
+          <div className="text-sm text-gray-500">Value: ₹{overallMetrics.ytdNetSales.value.toFixed(2)}L</div>
         </div>
 
-        {/* Liquidation */}
-        <div className="bg-white rounded-xl border-l-4 border-green-500 p-6 card-shadow">
-          <div className="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center mb-4">
-            <Droplets className="w-6 h-6 text-white" />
+        <div className="bg-green-50 rounded-xl p-6 border-l-4 border-green-500">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center">
+              <Droplets className="w-6 h-6 text-white" />
+            </div>
           </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">Liquidation</h3>
-          <div className="text-3xl font-bold text-gray-900 mb-1">
-            {activeTab === 'team' ? '12,720' : selfLiquidationData.personalMetrics.liquidation.volume.toLocaleString()}
-          </div>
+          <h4 className="text-lg font-semibold text-gray-900 mb-2">Liquidation</h4>
+          <div className="text-3xl font-bold text-gray-900 mb-1">{overallMetrics.liquidation.volume.toLocaleString()}</div>
           <div className="text-sm text-gray-600 mb-2">Kg/Litre</div>
-          <div className="text-sm text-green-600 font-semibold">
-            ₹{activeTab === 'team' ? '55.52' : selfLiquidationData.personalMetrics.liquidation.value.toFixed(2)}L
-          </div>
+          <div className="text-sm text-gray-500">Value: ₹{overallMetrics.liquidation.value.toFixed(2)}L</div>
         </div>
 
-        {/* Balance Stock */}
-        <div className="bg-white rounded-xl border-l-4 border-purple-500 p-6 card-shadow">
-          <div className="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center mb-4">
-            <Target className="w-6 h-6 text-white" />
+        <div className="bg-purple-50 rounded-xl p-6 border-l-4 border-purple-500">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center">
+              <Target className="w-6 h-6 text-white" />
+            </div>
           </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">Balance Stock</h3>
-          <div className="text-3xl font-bold text-gray-900 mb-1">
-            {activeTab === 'team' ? '33,243' : selfLiquidationData.personalMetrics.balanceStock.volume.toLocaleString()}
-          </div>
-          <div className="text-sm text-gray-600 mb-2">Kg/Litre</div>
-          <div className="text-sm text-purple-600 font-semibold">
-            ₹{activeTab === 'team' ? '178.23' : selfLiquidationData.personalMetrics.balanceStock.value.toFixed(2)}L
-          </div>
+          <h4 className="text-lg font-semibold text-gray-900 mb-2">Liquidation Rate</h4>
+          <div className="text-3xl font-bold text-gray-900 mb-1">{overallMetrics.liquidationPercentage}%</div>
+          <div className="text-sm text-gray-600 mb-2">Overall</div>
+          <div className="text-sm text-gray-500">Performance</div>
         </div>
       </div>
 
-      {/* Distributor Entries Section */}
-      <div className="space-y-6">
-        <h2 className="text-xl font-semibold text-gray-900">
-          {activeTab === 'team' ? 'Team Distributor Entries' : 'Personal Territory Distributors'}
-        </h2>
-        
-        {/* Search and Filters */}
-        <div className="bg-white rounded-xl p-6 card-shadow">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <input
-                  type="text"
-                  placeholder="Search distributors..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                />
+      {/* Search and Filters */}
+      <div className="bg-white rounded-xl p-6 card-shadow">
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex-1">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <input
+                type="text"
+                placeholder="Search distributors..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              />
+            </div>
+          </div>
+          <button className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+            <Filter className="w-4 h-4 text-gray-600" />
+          </button>
+        </div>
+      </div>
+
+      {/* Distributors List */}
+      <div className="space-y-4">
+        {filteredDistributors.map((distributor) => (
+          <div key={distributor.id} className="bg-white rounded-xl p-6 card-shadow card-hover">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                  <Building className="w-6 h-6 text-purple-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900">{distributor.distributorName}</h3>
+                  <p className="text-sm text-gray-600">{distributor.distributorCode} • {distributor.territory}</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-2xl font-bold text-purple-600">{distributor.metrics.liquidationPercentage}%</div>
+                <div className="text-sm text-gray-600">Liquidation Rate</div>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
-              <select
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+              <div className="text-center p-3 bg-orange-50 rounded-lg">
+                <div className="text-lg font-bold text-orange-600">{distributor.metrics.openingStock.volume}</div>
+                <div className="text-xs text-orange-600">Opening Stock</div>
+              </div>
+              <div className="text-center p-3 bg-blue-50 rounded-lg">
+                <div className="text-lg font-bold text-blue-600">{distributor.metrics.ytdNetSales.volume}</div>
+                <div className="text-xs text-blue-600">YTD Sales</div>
+              </div>
+              <div className="text-center p-3 bg-green-50 rounded-lg">
+                <div className="text-lg font-bold text-green-600">{distributor.metrics.liquidation.volume}</div>
+                <div className="text-xs text-green-600">Liquidated</div>
+              </div>
+              <div className="text-center p-3 bg-gray-50 rounded-lg">
+                <div className="text-lg font-bold text-gray-600">{distributor.metrics.balanceStock.volume}</div>
+                <div className="text-xs text-gray-600">Balance</div>
+              </div>
+            </div>
+
+            <div className="flex space-x-3">
+              <button
+                onClick={() => setSelectedDistributor(distributor)}
+                className="bg-purple-100 text-purple-700 px-4 py-2 rounded-lg hover:bg-purple-200 transition-colors flex items-center"
               >
-                <option value="All">All Status</option>
-                <option value="Active">Active</option>
-                <option value="Inactive">Inactive</option>
-              </select>
-              <button className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50">
-                <Filter className="w-4 h-4 text-gray-600" />
+                <Eye className="w-4 h-4 mr-2" />
+                View Details
+              </button>
+              <button className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+                Generate Report
               </button>
             </div>
           </div>
-          
-          <div className="flex items-center justify-between mt-4 text-sm text-gray-600">
-            <span>
-              Showing {activeTab === 'team' ? filteredDistributors.length : selfLiquidationData.personalDistributors.filter(d => 
-                d.distributorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                d.distributorCode.toLowerCase().includes(searchTerm.toLowerCase())
-              ).length} of {activeTab === 'team' ? distributorMetrics.length : selfLiquidationData.personalDistributors.length} distributors
-            </span>
-            <span>Active: {activeTab === 'team' ? performanceMetrics.activeDistributors : selfLiquidationData.personalDistributors.filter(d => d.status === 'Active').length}</span>
-            <span>High Priority: {activeTab === 'team' ? performanceMetrics.highPriorityDistributors : selfLiquidationData.personalDistributors.filter(d => d.priority === 'High').length}</span>
-          </div>
-        </div>
-
-        {/* Distributor Cards */}
-        <div className="space-y-6">
-          {(activeTab === 'team' ? filteredDistributors : selfLiquidationData.personalDistributors.filter(d => 
-            d.distributorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            d.distributorCode.toLowerCase().includes(searchTerm.toLowerCase())
-          )).map((distributor) => (
-            <div key={distributor.id} className="bg-white rounded-xl p-6 card-shadow">
-              {/* Distributor Header */}
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                    <Building className="w-6 h-6 text-purple-600" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-semibold text-gray-900">{distributor.distributorName}</h3>
-                    <div className="flex items-center space-x-2 mt-1">
-                      <span className="text-gray-600">Code: {distributor.distributorCode}</span>
-                      <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
-                        DAP (Di-Ammonium Phosphate)
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <span className="px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                    Distributor
-                  </span>
-                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    distributor.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                  }`}>
-                    {distributor.status}
-                  </span>
-                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    distributor.priority === 'High' ? 'bg-red-100 text-red-800' :
-                    distributor.priority === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
-                    'bg-green-100 text-green-800'
-                  }`}>
-                    {distributor.priority}
-                  </span>
-                </div>
-              </div>
-
-              {/* Distributor Metrics - 4 cards layout */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                {/* Opening Stock */}
-                <div className="bg-orange-50 rounded-xl p-4 border-l-4 border-orange-500">
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="font-semibold text-orange-800">Opening Stock</h4>
-                    <button 
-                      onClick={() => handleMetricClick('opening', distributor.id)}
-                      className="bg-orange-500 text-white px-2 py-1 rounded text-xs hover:bg-orange-600"
-                    >
-                      View
-                    </button>
-                  </div>
-                  <div className="mb-2">
-                    <p className="text-sm text-orange-600">Volume</p>
-                    <p className="text-2xl font-bold text-orange-800">{distributor.metrics.openingStock.volume}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-orange-600">Value</p>
-                    <p className="text-lg font-semibold text-orange-700">₹{distributor.metrics.openingStock.value.toFixed(2)}L</p>
-                  </div>
-                </div>
-
-                {/* YTD Net Sales */}
-                <div className="bg-blue-50 rounded-xl p-4 border-l-4 border-blue-500">
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="font-semibold text-blue-800">YTD Net Sales</h4>
-                    <button 
-                      onClick={() => handleMetricClick('sales', distributor.id)}
-                      className="bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600"
-                    >
-                      View
-                    </button>
-                  </div>
-                  <div className="mb-2">
-                    <p className="text-sm text-blue-600">Volume</p>
-                    <p className="text-2xl font-bold text-blue-800">{distributor.metrics.ytdNetSales.volume}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-blue-600">Value</p>
-                    <p className="text-lg font-semibold text-blue-700">₹{distributor.metrics.ytdNetSales.value.toFixed(2)}L</p>
-                  </div>
-                </div>
-
-                {/* Liquidation */}
-                <div className="bg-green-50 rounded-xl p-4 border-l-4 border-green-500">
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="font-semibold text-green-800">Liquidation</h4>
-                    <button 
-                      onClick={() => handleMetricClick('liquidation', distributor.id)}
-                      className="bg-green-500 text-white px-2 py-1 rounded text-xs hover:bg-green-600"
-                    >
-                      View
-                    </button>
-                  </div>
-                  <div className="mb-2">
-                    <p className="text-sm text-green-600">Volume</p>
-                    <p className="text-2xl font-bold text-green-800">{distributor.metrics.liquidation.volume}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-green-600">Value</p>
-                    <p className="text-lg font-semibold text-green-700">₹{distributor.metrics.liquidation.value.toFixed(2)}L</p>
-                  </div>
-                </div>
-
-                {/* Balance Stock */}
-                <div className="bg-purple-50 rounded-xl p-4 border-l-4 border-purple-500">
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="font-semibold text-purple-800">Balance Stock</h4>
-                    <button 
-                      onClick={() => handleVerifyClick(distributor)}
-                      className="bg-green-600 text-white px-2 py-1 rounded text-xs hover:bg-green-700 flex items-center"
-                    >
-                      <CheckCircle className="w-3 h-3 mr-1" />
-                      Verify Stock
-                    </button>
-                  </div>
-                  <div className="mb-2">
-                    <p className="text-sm text-purple-600">Volume</p>
-                    <p className="text-2xl font-bold text-purple-800">{distributor.metrics.balanceStock.volume}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-purple-600">Value</p>
-                    <p className="text-lg font-semibold text-purple-700">₹{distributor.metrics.balanceStock.value.toFixed(2)}L</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Progress Bar */}
-              <div className="mb-4">
-                <div className="flex justify-between text-sm text-gray-600 mb-2">
-                  <span>% Liquidation</span>
-                  <span>{distributor.metrics.liquidationPercentage}%</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-3">
-                  <div 
-                    className="bg-gradient-to-r from-purple-500 to-blue-500 h-3 rounded-full transition-all duration-500" 
-                    style={{ width: `${Math.min(100, distributor.metrics.liquidationPercentage)}%` }}
-                  ></div>
-                </div>
-              </div>
-
-              {/* Location and Update Info */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 text-sm text-gray-600">
-                <div className="flex items-center">
-                  <MapPin className="w-4 h-4 mr-2" />
-                  <span>{distributor.region} • {distributor.zone}</span>
-                </div>
-                <div className="flex items-center">
-                  <Calendar className="w-4 h-4 mr-2" />
-                  <span>Updated: 9/18/2025</span>
-                </div>
-                <div className="flex items-center">
-                  <Users className="w-4 h-4 mr-2" />
-                  <span>Territory: {distributor.territory}</span>
-                </div>
-              </div>
-
-              {/* Remarks */}
-              <div className="bg-gray-50 rounded-lg p-3">
-                <p className="text-sm text-gray-700">Remarks: Good progress on liquidation</p>
-              </div>
-            </div>
-          ))}
-        </div>
+        ))}
       </div>
 
-      {showVerifyModal && selectedDistributor && (
+      {/* Distributor Detail Modal */}
+      {selectedDistributor && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
-            {/* Blue Header */}
-            <div className="bg-blue-100 p-6 border-b">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-xl font-semibold text-gray-900">{selectedDistributor.distributorName}</h3>
-                  <p className="text-gray-600">{selectedDistributor.distributorCode} • {selectedDistributor.territory}</p>
-                </div>
-                <button
-                  onClick={() => setShowVerifyModal(false)}
-                  className="p-2 hover:bg-blue-200 rounded-full transition-colors"
-                >
-                  <X className="w-5 h-5" />
-                </button>
+          <div className="bg-white rounded-xl w-full max-w-6xl max-h-[90vh] overflow-hidden">
+            <div className="flex items-center justify-between p-6 border-b bg-blue-50">
+              <div>
+                <h3 className="text-xl font-semibold text-gray-900">{selectedDistributor.distributorName}</h3>
+                <p className="text-sm text-gray-600 mt-1">{selectedDistributor.distributorCode} • {selectedDistributor.territory}</p>
               </div>
+              <button
+                onClick={() => setSelectedDistributor(null)}
+                className="p-2 hover:bg-blue-100 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
             </div>
             
-            <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
-              <h4 className="text-lg font-semibold text-gray-900 mb-6">SKU-wise Stock Verification</h4>
-              
-              <div className="space-y-8">
-                {getSKUData(selectedDistributor.id).map((sku) => (
-                  <div key={sku.skuCode}>
-                    {/* SKU Header with Color Tag */}
-                    <div className="flex items-center space-x-3 mb-4">
-                      <span className={`px-4 py-2 rounded-lg text-sm font-medium ${getSKUColor(sku.skuCode)}`}>
-                        {sku.skuName}
-                      </span>
-                      <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">
-                        SKU: {sku.skuCode}
-                      </span>
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
+              <div className="space-y-6">
+                {/* Product Details */}
+                <div className="bg-gray-50 rounded-xl p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <h4 className="text-lg font-semibold text-gray-900">DAP (Di-Ammonium Phosphate)</h4>
+                      <p className="text-gray-600">SKU: DAP-50KG • DAP 50kg Bag</p>
                     </div>
-                    
-                    {/* Column Headers */}
-                    <div className="grid grid-cols-3 gap-6 mb-4">
-                      <div className="text-left">
-                        <h5 className="font-semibold text-gray-900">Invoice Details</h5>
-                      </div>
-                      <div className="text-center">
-                        <h5 className="font-semibold text-gray-900">Current Stock (System)</h5>
-                      </div>
-                      <div className="text-center">
-                        <h5 className="font-semibold text-gray-900">Physical Stock (Verified)</h5>
-                      </div>
-                    </div>
-                    
-                    {/* Invoice Rows */}
-                    <div className="space-y-3">
-                      {sku.invoices.map((invoice, index) => (
-                        <div key={index} className="grid grid-cols-3 gap-6 items-center py-3 border-b border-gray-200">
+                    <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+                      DAP 50kg Bag
+                    </span>
+                  </div>
+
+                  {/* Stock Information */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div>
+                      <h5 className="font-semibold text-gray-900 mb-3">Invoice Details</h5>
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between p-3 bg-white rounded-lg border">
                           <div>
-                            <p className="font-medium text-gray-900">Invoice: {invoice.invoiceNumber}</p>
-                            <p className="text-sm text-gray-600">Date: {new Date(invoice.invoiceDate).toLocaleDateString()}</p>
-                          </div>
-                          <div className="text-center">
-                            <input
-                              type="number"
-                              value={invoice.currentStock}
-                              readOnly
-                              className="w-24 px-3 py-2 border border-gray-300 rounded-lg text-center bg-gray-50"
-                            />
-                          </div>
-                          <div className="text-center">
-                            <input
-                              type="number"
-                              placeholder="105"
-                              className="w-24 px-3 py-2 border border-gray-300 rounded-lg text-center focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            />
+                            <p className="font-medium">Invoice: INV-2024-001</p>
+                            <p className="text-sm text-gray-600">Date: 1/15/2024</p>
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            
-            <div className="flex justify-end space-x-3 p-6 border-t">
-              <button
-                onClick={() => setShowVerifyModal(false)}
-                className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => {
-                  alert(`Stock verified for ${selectedDistributor.distributorName}!`);
-                  setShowVerifyModal(false);
-                }}
-                className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-              >
-                Verify Stock
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Proof Upload Modal */}
-      {showProofModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl w-full max-w-md max-h-[90vh] overflow-hidden">
-            <div className="bg-blue-100 p-6 border-b">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-xl font-semibold text-gray-900">Upload Proof</h3>
-                  <p className="text-sm text-gray-600">Capture with timestamp & location</p>
-                </div>
-                <button
-                  onClick={() => setShowProofModal(false)}
-                  className="p-2 hover:bg-blue-200 rounded-full transition-colors"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-            
-            <div className="p-6 space-y-4">
-              {isCapturing && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
-                  <div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-2"></div>
-                  <p className="text-sm text-blue-800">Capturing with location...</p>
-                </div>
-              )}
-              
-              {/* Primary Actions - Side by Side */}
-              <div className="grid grid-cols-2 gap-4">
-                <button 
-                  onClick={() => handleCameraCapture('photo')}
-                  disabled={isCapturing}
-                  className="bg-blue-600 text-white py-6 rounded-lg flex flex-col items-center disabled:opacity-50 hover:bg-blue-700 transition-colors"
-                >
-                  <Camera className="w-8 h-8 mb-2" />
-                  <span className="text-sm font-medium">Click Pic</span>
-                  <span className="text-xs opacity-90">With timestamp</span>
-                </button>
-                <label className="bg-purple-600 text-white py-6 rounded-lg flex flex-col items-center cursor-pointer hover:bg-purple-700 transition-colors">
-                  <Upload className="w-8 h-8 mb-2" />
-                  <span className="text-sm font-medium">Upload Doc</span>
-                  <span className="text-xs opacity-90">From device</span>
-                  <input
-                    type="file"
-                    multiple
-                    accept="image/*,video/*"
-                    onChange={(e) => e.target.files && handleFileUpload(e.target.files)}
-                    className="hidden"
-                  />
-                </label>
-              </div>
-              
-              {/* Video Recording */}
-              <button 
-                onClick={() => handleCameraCapture('video')}
-                disabled={isCapturing}
-                className="w-full bg-indigo-600 text-white py-4 rounded-lg flex items-center justify-center disabled:opacity-50 hover:bg-indigo-700 transition-colors"
-              >
-                <Video className="w-5 h-5 mr-2" />
-                <span className="font-medium">Record Video</span>
-                <span className="text-xs opacity-90 ml-2">• With location & time</span>
-              </button>
-              
-              {/* Location & Time Status */}
-              <div className={`p-4 rounded-lg border ${
-                latitude && longitude 
-                  ? 'bg-green-50 border-green-200' 
-                  : 'bg-red-50 border-red-200'
-              }`}>
-                <div className="flex items-center space-x-2 mb-2">
-                  <MapPin className={`w-4 h-4 ${latitude && longitude ? 'text-green-600' : 'text-red-600'}`} />
-                  <span className={`text-sm font-medium ${latitude && longitude ? 'text-green-800' : 'text-red-800'}`}>
-                    {latitude && longitude 
-                      ? `Location: ${latitude.toFixed(4)}, ${longitude.toFixed(4)}`
-                      : 'Location access required'
-                    }
-                  </span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Clock className={`w-4 h-4 ${latitude && longitude ? 'text-green-600' : 'text-red-600'}`} />
-                  <span className={`text-sm ${latitude && longitude ? 'text-green-700' : 'text-red-700'}`}>
-                    {new Date().toLocaleString('en-IN')}
-                  </span>
-                </div>
-                {locationError && (
-                  <p className="text-xs text-red-600 mt-2">{locationError}</p>
-                )}
-              </div>
-              
-              {/* Uploaded Proofs Preview */}
-              {uploadedProofs.length > 0 && (
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
-                  <h5 className="font-semibold text-gray-900 mb-3">Recent Proofs ({uploadedProofs.length})</h5>
-                  <div className="grid grid-cols-3 gap-2 mb-3">
-                    {uploadedProofs.slice(-3).map((proof) => (
-                      <div key={proof.id} className="relative">
-                        <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
-                          {proof.type === 'video' ? (
-                            <div className="w-full h-full flex items-center justify-center bg-purple-100">
-                              <Video className="w-6 h-6 text-purple-600" />
-                            </div>
-                          ) : proof.type === 'signature' ? (
-                            <div className="w-full h-full flex items-center justify-center bg-green-100">
-                              <FileText className="w-6 h-6 text-green-600" />
-                            </div>
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-blue-100">
-                              <ImageIcon className="w-6 h-6 text-blue-600" />
-                            </div>
-                          )}
-                        </div>
-                        <div className="absolute top-1 right-1 w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
-                          <CheckCircle className="w-3 h-3 text-white" />
+                        <div className="flex items-center justify-between p-3 bg-white rounded-lg border">
+                          <div>
+                            <p className="font-medium">Invoice: INV-2024-002</p>
+                            <p className="text-sm text-gray-600">Date: 1/15/2024</p>
+                          </div>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                  
-                  {/* Latest Proof Details */}
-                  {uploadedProofs.length > 0 && (
-                    <div className="bg-blue-50 rounded-lg p-3">
-                      <h6 className="font-semibold text-blue-800 mb-2">Latest Proof Details</h6>
-                      {uploadedProofs.slice(-1).map((proof) => {
-                        const { date, time } = formatTimestamp(proof.timestamp);
-                        return (
-                          <div key={proof.id} className="text-xs text-blue-700 space-y-1">
-                            <div className="flex justify-between">
-                              <span>Type:</span>
-                              <span className="font-medium capitalize">{proof.type}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span>Date:</span>
-                              <span className="font-medium">{date}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span>Time:</span>
-                              <span className="font-medium">{time}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span>Location:</span>
-                              <span className="font-medium">{proof.location.latitude.toFixed(4)}, {proof.location.longitude.toFixed(4)}</span>
-                            </div>
-                            {proof.metadata.fileSize > 0 && (
-                              <div className="flex justify-between">
-                                <span>Size:</span>
-                                <span className="font-medium">{(proof.metadata.fileSize / 1024).toFixed(1)} KB</span>
-                              </div>
+                    </div>
+
+                    <div>
+                      <h5 className="font-semibold text-gray-900 mb-3">Stock Verification</h5>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="text-center">
+                          <p className="text-sm text-gray-600 mb-2">Current Stock (System)</p>
+                          <div className="bg-blue-100 rounded-lg p-4">
+                            <div className="text-2xl font-bold text-blue-600">105</div>
+                          </div>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-sm text-gray-600 mb-2">Physical Stock (Verified)</p>
+                          <div className="bg-green-100 rounded-lg p-4">
+                            {editingStock ? (
+                              <input
+                                type="number"
+                                value={tempStock.inv1}
+                                onChange={(e) => setTempStock(prev => ({ ...prev, inv1: parseInt(e.target.value) || 0 }))}
+                                className="w-full text-center text-2xl font-bold text-green-600 bg-transparent border-b-2 border-green-300 focus:border-green-500 outline-none"
+                              />
+                            ) : (
+                              <div className="text-2xl font-bold text-green-600">105</div>
                             )}
                           </div>
-                        );
-                      })}
+                        </div>
+                      </div>
                       
-                      {/* Verification Badge */}
-                      <div className="mt-3 flex items-center justify-center">
-                        <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-medium flex items-center">
-                          <CheckCircle className="w-3 h-3 mr-1" />
-                          Verified with GPS & Time
+                      <div className="mt-4 flex space-x-2">
+                        {editingStock ? (
+                          <>
+                            <button
+                              onClick={() => setEditingStock(false)}
+                              className="flex-1 bg-green-600 text-white py-2 rounded-lg font-medium"
+                            >
+                              Save
+                            </button>
+                            <button
+                              onClick={() => setEditingStock(false)}
+                              className="flex-1 bg-gray-500 text-white py-2 rounded-lg font-medium"
+                            >
+                              Cancel
+                            </button>
+                          </>
+                        ) : (
+                          <button
+                            onClick={() => setEditingStock(true)}
+                            className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium flex items-center justify-center"
+                          >
+                            <Edit className="w-4 h-4 mr-2" />
+                            Verify Stock
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Proof Upload Section */}
+                <div className="bg-white rounded-xl p-6 border border-gray-200">
+                  <div className="flex items-center justify-between mb-4">
+                    <h4 className="text-lg font-semibold text-gray-900">Upload Proof</h4>
+                    <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+                      {uploadedProofs.length} proofs uploaded
+                    </span>
+                  </div>
+
+                  {isCapturing && (
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center mb-4">
+                      <div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-2"></div>
+                      <p className="text-sm text-blue-800">Capturing with location and timestamp...</p>
+                    </div>
+                  )}
+
+                  {/* Primary Actions - Side by Side */}
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    <button 
+                      onClick={() => handleCameraCapture('photo')}
+                      disabled={isCapturing || !latitude || !longitude}
+                      className="bg-blue-600 text-white py-4 rounded-lg flex flex-col items-center disabled:opacity-50 hover:bg-blue-700 transition-colors"
+                    >
+                      <Camera className="w-8 h-8 mb-2" />
+                      <span className="text-lg font-medium">Click Pic</span>
+                      <span className="text-sm opacity-90">With timestamp & location</span>
+                    </button>
+                    
+                    <label className="bg-purple-600 text-white py-4 rounded-lg flex flex-col items-center cursor-pointer hover:bg-purple-700 transition-colors">
+                      <Upload className="w-8 h-8 mb-2" />
+                      <span className="text-lg font-medium">Upload Doc</span>
+                      <span className="text-sm opacity-90">From device gallery</span>
+                      <input
+                        type="file"
+                        multiple
+                        accept="image/*,video/*"
+                        onChange={(e) => e.target.files && handleFileUpload(e.target.files)}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+
+                  {/* Secondary Actions */}
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    <button 
+                      onClick={() => handleCameraCapture('video')}
+                      disabled={isCapturing || !latitude || !longitude}
+                      className="bg-indigo-600 text-white py-3 rounded-lg flex items-center justify-center disabled:opacity-50 hover:bg-indigo-700 transition-colors"
+                    >
+                      <Video className="w-5 h-5 mr-2" />
+                      <span className="font-medium">Record Video</span>
+                    </button>
+                    
+                    <button
+                      onClick={handleSignatureCapture}
+                      disabled={!latitude || !longitude}
+                      className="bg-green-600 text-white py-3 rounded-lg flex items-center justify-center disabled:opacity-50 hover:bg-green-700 transition-colors"
+                    >
+                      <FileText className="w-5 h-5 mr-2" />
+                      <span className="font-medium">E-Signature</span>
+                    </button>
+                  </div>
+
+                  {/* Location & Time Status */}
+                  <div className={`p-4 rounded-lg border mb-4 ${
+                    latitude && longitude 
+                      ? 'bg-green-50 border-green-200' 
+                      : 'bg-red-50 border-red-200'
+                  }`}>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <MapPin className={`w-4 h-4 ${latitude && longitude ? 'text-green-600' : 'text-red-600'}`} />
+                        <span className={`text-sm font-medium ${latitude && longitude ? 'text-green-800' : 'text-red-800'}`}>
+                          {latitude && longitude 
+                            ? `Location: ${latitude.toFixed(6)}, ${longitude.toFixed(6)}`
+                            : 'Location access required for proof capture'
+                          }
+                        </span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Clock className={`w-4 h-4 ${latitude && longitude ? 'text-green-600' : 'text-red-600'}`} />
+                        <span className={`text-sm ${latitude && longitude ? 'text-green-700' : 'text-red-700'}`}>
+                          {new Date().toLocaleString('en-IN')}
                         </span>
                       </div>
                     </div>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Metric Details Modal */}
-      {showDetailModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl w-full max-w-6xl max-h-[90vh] overflow-hidden">
-            {/* Blue Header */}
-            <div className="bg-blue-100 p-6 border-b">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-xl font-semibold text-gray-900">{getMetricData(selectedMetric, selectedDistributorId).title}</h3>
-                  <p className="text-gray-600">{getMetricData(selectedMetric, selectedDistributorId).subtitle}</p>
-                </div>
-                <button
-                  onClick={() => setShowDetailModal(false)}
-                  className="p-2 hover:bg-blue-200 rounded-full transition-colors"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-            
-            <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
-              <div className="space-y-6">
-                {/* Total Summary at Top */}
-                <div className="bg-gray-50 rounded-xl p-6">
-                  <h4 className="text-lg font-semibold text-gray-900 mb-4">
-                    Total {selectedMetric === 'opening' ? 'Opening Stock' : selectedMetric === 'sales' ? 'YTD Net Sales' : selectedMetric === 'liquidation' ? 'Liquidation' : 'Stock'}
-                  </h4>
-                  <div className="grid grid-cols-2 gap-6">
-                    <div className="text-center">
-                      <div className="text-3xl font-bold text-gray-900">
-                        {getMetricData(selectedMetric, selectedDistributorId).totalVolume}
-                      </div>
-                      <div className="text-sm text-gray-600">Total Volume (Kg/Litre)</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-3xl font-bold text-gray-900">
-                        ₹{getMetricData(selectedMetric, selectedDistributorId).totalValue.toFixed(2)}L
-                      </div>
-                      <div className="text-sm text-gray-600">Total Value</div>
-                    </div>
+                    {locationError && (
+                      <p className="text-xs text-red-600 mt-2">{locationError}</p>
+                    )}
                   </div>
-                </div>
 
-                {/* Invoice-wise Breakdown */}
-                <div>
-                  <h4 className="text-lg font-semibold text-gray-900 mb-6">Invoice-wise Breakdown</h4>
-              
-                  <div className="space-y-8">
-                    {getSKUData(selectedDistributorId).map((product) => (
-                      <div key={product.skuCode} className="bg-gray-50 rounded-xl p-6">
-                        {/* SKU Header */}
-                        <div className="flex items-center space-x-3 mb-6">
-                          <span className={`px-4 py-2 rounded-lg text-sm font-medium ${getSKUColor(product.skuCode)}`}>
-                            {product.skuName}
-                          </span>
-                          <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">
-                            SKU: {product.skuCode}
-                          </span>
-                        </div>
-                    
-                        {/* Column Headers - Different for each metric */}
-                        <div className="grid grid-cols-4 gap-4 mb-4">
-                          <div className="text-left">
-                            <h5 className="font-semibold text-gray-900">Invoice Details</h5>
+                  {/* Uploaded Proofs Gallery */}
+                  {uploadedProofs.length > 0 && (
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+                      <h5 className="font-semibold text-gray-900 mb-3">Uploaded Proofs ({uploadedProofs.length})</h5>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                        {uploadedProofs.map((proof) => (
+                          <div key={proof.id} className="relative">
+                            <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden border-2 border-gray-200">
+                              {proof.type === 'video' ? (
+                                <div className="w-full h-full flex items-center justify-center bg-purple-100">
+                                  <Video className="w-8 h-8 text-purple-600" />
+                                </div>
+                              ) : proof.type === 'signature' ? (
+                                <div className="w-full h-full flex items-center justify-center bg-green-100">
+                                  <FileText className="w-8 h-8 text-green-600" />
+                                </div>
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center bg-blue-100">
+                                  <ImageIcon className="w-8 h-8 text-blue-600" />
+                                </div>
+                              )}
+                            </div>
+                            <div className="absolute top-1 right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                              <CheckCircle className="w-3 h-3 text-white" />
+                            </div>
+                            <p className="text-xs text-center mt-1 capitalize font-medium">{proof.type}</p>
                           </div>
-                          <div className="text-center">
-                            <h5 className="font-semibold text-gray-900">SKU</h5>
-                          </div>
-                          {selectedMetric === 'opening' && (
-                            <>
-                              <div className="text-center">
-                                <h5 className="font-semibold text-gray-900">Opening Stock</h5>
-                              </div>
-                              <div className="text-center">
-                                <h5 className="font-semibold text-gray-900">Current Stock</h5>
-                              </div>
-                            </>
-                          )}
-                          {selectedMetric === 'sales' && (
-                            <>
-                              <div className="text-center">
-                                <h5 className="font-semibold text-gray-900">Current Stock</h5>
-                              </div>
-                              <div className="text-center">
-                                <h5 className="font-semibold text-gray-900">Sales In Value (₹ Lakhs)</h5>
-                              </div>
-                            </>
-                          )}
-                          {selectedMetric === 'liquidation' && (
-                            <>
-                              <div className="text-center">
-                                <h5 className="font-semibold text-gray-900">Current Stock</h5>
-                              </div>
-                              <div className="text-center">
-                                <h5 className="font-semibold text-gray-900">Liquidated Qty</h5>
-                              </div>
-                            </>
-                          )}
-                        </div>
-                    
-                        {/* Invoice Rows */}
-                        <div className="space-y-3">
-                          {product.invoices.map((invoice, index) => {
-                            // Calculate values based on metric type
-                            let openingStock = Math.round(invoice.currentStock * 0.4);
-                            let salesValue = ((invoice.currentStock * 1.8 * 1350) / 100000).toFixed(2);
-                            let liquidatedQty = Math.round(invoice.currentStock * 0.5);
-                        
+                        ))}
+                      </div>
+                      
+                      {/* Latest Proof Details */}
+                      {uploadedProofs.length > 0 && (
+                        <div className="bg-blue-50 rounded-lg p-4">
+                          <h6 className="font-semibold text-blue-800 mb-2">Latest Proof Details</h6>
+                          {uploadedProofs.slice(-1).map((proof) => {
+                            const { date, time } = formatTimestamp(proof.timestamp);
                             return (
-                              <div key={index} className="grid grid-cols-4 gap-4 items-center py-3 border-b border-gray-200">
-                                <div>
-                                  <p className="font-medium text-gray-900">Invoice: {invoice.invoiceNumber}</p>
-                                  <p className="text-sm text-gray-600">Date: {new Date(invoice.invoiceDate).toLocaleDateString()}</p>
-                                  <p className="text-xs text-gray-500">Batch: {invoice.batchNumber}</p>
+                              <div key={proof.id} className="grid grid-cols-2 gap-4 text-sm text-blue-700">
+                                <div className="space-y-1">
+                                  <div className="flex justify-between">
+                                    <span>Type:</span>
+                                    <span className="font-medium capitalize">{proof.type}</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span>Date:</span>
+                                    <span className="font-medium">{date}</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span>Time:</span>
+                                    <span className="font-medium">{time}</span>
+                                  </div>
                                 </div>
-                                <div className="text-center">
-                                  <span className={`px-3 py-1 rounded-lg text-sm font-medium ${getSKUColor(product.skuCode)}`}>
-                                    {product.skuName}
-                                  </span>
+                                <div className="space-y-1">
+                                  <div className="flex justify-between">
+                                    <span>Latitude:</span>
+                                    <span className="font-medium">{proof.location.latitude.toFixed(6)}</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span>Longitude:</span>
+                                    <span className="font-medium">{proof.location.longitude.toFixed(6)}</span>
+                                  </div>
+                                  {proof.metadata.fileSize > 0 && (
+                                    <div className="flex justify-between">
+                                      <span>Size:</span>
+                                      <span className="font-medium">{(proof.metadata.fileSize / 1024).toFixed(1)} KB</span>
+                                    </div>
+                                  )}
                                 </div>
-                                
-                                {selectedMetric === 'opening' && (
-                                  <>
-                                    <div className="text-center">
-                                      <div className="px-3 py-2 border border-orange-300 bg-orange-50 text-orange-800 rounded-lg font-semibold">
-                                        {Math.round(invoice.currentStock * 0.25)}
-                                      </div>
-                                    </div>
-                                    <div className="text-center">
-                                      <div className="px-3 py-2 border border-gray-300 bg-gray-50 rounded-lg">
-                                        {invoice.currentStock}
-                                      </div>
-                                    </div>
-                                  </>
-                                )}
-                                
-                                {selectedMetric === 'sales' && (
-                                  <>
-                                    <div className="text-center">
-                                      <div className="px-3 py-2 border border-gray-300 bg-gray-50 rounded-lg">
-                                        {invoice.currentStock}
-                                      </div>
-                                    </div>
-                                    <div className="text-center">
-                                      <div className="px-3 py-2 border border-blue-300 bg-blue-50 text-blue-800 rounded-lg font-semibold">
-                                        ₹{((invoice.currentStock * 0.1 * 1350) / 100000).toFixed(2)}L
-                                      </div>
-                                    </div>
-                                  </>
-                                )}
-                                
-                                {selectedMetric === 'liquidation' && (
-                                  <>
-                                    <div className="text-center">
-                                      <div className="px-3 py-2 border border-gray-300 bg-gray-50 rounded-lg">
-                                        {invoice.currentStock}
-                                      </div>
-                                    </div>
-                                    <div className="text-center">
-                                      <div className="px-3 py-2 border border-green-300 bg-green-50 text-green-800 rounded-lg font-semibold">
-                                        {Math.round(invoice.currentStock * 0.25)}
-                                      </div>
-                                    </div>
-                                  </>
-                                )}
-                                
-                                {selectedMetric === 'balance' && (
-                                  <>
-                                    <div className="text-center">
-                                      <div className="px-3 py-2 border border-gray-300 bg-gray-50 rounded-lg">
-                                        {invoice.currentStock}
-                                      </div>
-                                    </div>
-                                    <div className="text-center">
-                                      <div className="px-3 py-2 border border-purple-300 bg-purple-50 text-purple-800 rounded-lg font-semibold">
-                                        {invoice.currentStock}
-                                      </div>
-                                    </div>
-                                  </>
-                                )}
                               </div>
                             );
                           })}
                         </div>
+                      )}
+                    </div>
+                  )}
+
+                  {uploadedProofs.length === 0 && (
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                      <Camera className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                      <p className="text-gray-500 mb-2">No proofs uploaded yet</p>
+                      <p className="text-sm text-gray-400">Click "Click Pic" or "Upload Doc" to add proof with timestamp and location</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Verification Status */}
+                <div className="bg-white rounded-xl p-6 border border-gray-200">
+                  <h4 className="text-lg font-semibold text-gray-900 mb-4">Verification Status</h4>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="text-center p-3 bg-gray-50 rounded-lg">
+                      <div className={`w-8 h-8 mx-auto mb-2 rounded-full flex items-center justify-center ${
+                        uploadedProofs.some(p => p.type === 'photo') ? 'bg-green-100' : 'bg-red-100'
+                      }`}>
+                        <Camera className={`w-4 h-4 ${
+                          uploadedProofs.some(p => p.type === 'photo') ? 'text-green-600' : 'text-red-600'
+                        }`} />
                       </div>
-                    ))}
+                      <p className="text-sm font-medium">Photos</p>
+                      <p className={`text-xs ${
+                        uploadedProofs.some(p => p.type === 'photo') ? 'text-green-600' : 'text-red-600'
+                      }`}>
+                        {uploadedProofs.filter(p => p.type === 'photo').length > 0 ? 'Uploaded' : 'Pending'}
+                      </p>
+                    </div>
+                    
+                    <div className="text-center p-3 bg-gray-50 rounded-lg">
+                      <div className={`w-8 h-8 mx-auto mb-2 rounded-full flex items-center justify-center ${
+                        uploadedProofs.some(p => p.type === 'signature') ? 'bg-green-100' : 'bg-red-100'
+                      }`}>
+                        <FileText className={`w-4 h-4 ${
+                          uploadedProofs.some(p => p.type === 'signature') ? 'text-green-600' : 'text-red-600'
+                        }`} />
+                      </div>
+                      <p className="text-sm font-medium">Signature</p>
+                      <p className={`text-xs ${
+                        uploadedProofs.some(p => p.type === 'signature') ? 'text-green-600' : 'text-red-600'
+                      }`}>
+                        {uploadedProofs.some(p => p.type === 'signature') ? 'Captured' : 'Pending'}
+                      </p>
+                    </div>
+                    
+                    <div className="text-center p-3 bg-gray-50 rounded-lg">
+                      <div className={`w-8 h-8 mx-auto mb-2 rounded-full flex items-center justify-center ${
+                        latitude && longitude ? 'bg-green-100' : 'bg-red-100'
+                      }`}>
+                        <MapPin className={`w-4 h-4 ${
+                          latitude && longitude ? 'text-green-600' : 'text-red-600'
+                        }`} />
+                      </div>
+                      <p className="text-sm font-medium">Location</p>
+                      <p className={`text-xs ${
+                        latitude && longitude ? 'text-green-600' : 'text-red-600'
+                      }`}>
+                        {latitude && longitude ? 'Verified' : 'Pending'}
+                      </p>
+                    </div>
+                    
+                    <div className="text-center p-3 bg-gray-50 rounded-lg">
+                      <div className="w-8 h-8 mx-auto mb-2 bg-blue-100 rounded-full flex items-center justify-center">
+                        <Clock className="w-4 h-4 text-blue-600" />
+                      </div>
+                      <p className="text-sm font-medium">Timestamp</p>
+                      <p className="text-xs text-blue-600">Auto-captured</p>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
             
-            <div className="flex justify-end space-x-3 p-6 border-t">
-              <button
-                onClick={() => setShowDetailModal(false)}
-                className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
-              >
-                Close
-              </button>
+            {/* Save & Exit Button */}
+            <div className="flex justify-between items-center p-6 border-t bg-gray-50">
+              <div className="text-sm text-gray-600">
+                {uploadedProofs.length > 0 && (
+                  <span className="flex items-center">
+                    <CheckCircle className="w-4 h-4 text-green-600 mr-1" />
+                    {uploadedProofs.length} proof{uploadedProofs.length !== 1 ? 's' : ''} ready to save
+                  </span>
+                )}
+              </div>
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => setSelectedDistributor(null)}
+                  className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSaveAndExit}
+                  className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center"
+                >
+                  <Save className="w-4 h-4 mr-2" />
+                  Save & Exit ({uploadedProofs.length} proofs)
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-
-      {(activeTab === 'team' ? filteredDistributors : selfLiquidationData.personalDistributors).length === 0 && (
-        <div className="text-center py-12">
-          <Building className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-500">
-            No {activeTab === 'team' ? 'team' : 'personal'} distributors found
-          </p>
         </div>
       )}
     </div>
