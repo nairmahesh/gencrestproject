@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { X, Check, RotateCcw } from 'lucide-react';
+import { X, Check, RotateCcw, MapPin, Clock, CheckCircle } from 'lucide-react';
+import { useGeolocation } from '../hooks/useGeolocation';
 
 interface SignatureCaptureProps {
   isOpen: boolean;
@@ -17,6 +18,7 @@ export const SignatureCapture: React.FC<SignatureCaptureProps> = ({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [isEmpty, setIsEmpty] = useState(true);
+  const { latitude, longitude, error: locationError } = useGeolocation();
 
   useEffect(() => {
     if (isOpen && canvasRef.current) {
@@ -77,7 +79,22 @@ export const SignatureCapture: React.FC<SignatureCaptureProps> = ({
     const canvas = canvasRef.current;
     if (canvas && !isEmpty) {
       const dataURL = canvas.toDataURL();
-      onSave(dataURL);
+      
+      // Create signature with metadata
+      const signatureWithMetadata = {
+        signature: dataURL,
+        timestamp: new Date().toISOString(),
+        location: {
+          latitude: latitude || 0,
+          longitude: longitude || 0
+        },
+        metadata: {
+          capturedAt: new Date().toLocaleString('en-IN'),
+          deviceInfo: navigator.userAgent.substring(0, 50)
+        }
+      };
+      
+      onSave(JSON.stringify(signatureWithMetadata));
       onClose();
     }
   };
@@ -111,6 +128,32 @@ export const SignatureCapture: React.FC<SignatureCaptureProps> = ({
             />
           </div>
           
+          {/* Location & Time Info */}
+          <div className={`p-3 rounded-lg mb-4 ${
+            latitude && longitude 
+              ? 'bg-green-50 border border-green-200' 
+              : 'bg-red-50 border border-red-200'
+          }`}>
+            <div className="flex items-center space-x-2 mb-1">
+              <MapPin className={`w-4 h-4 ${latitude && longitude ? 'text-green-600' : 'text-red-600'}`} />
+              <span className={`text-sm font-medium ${latitude && longitude ? 'text-green-800' : 'text-red-800'}`}>
+                {latitude && longitude 
+                  ? `Location: ${latitude.toFixed(4)}, ${longitude.toFixed(4)}`
+                  : 'Location access required'
+                }
+              </span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Clock className={`w-4 h-4 ${latitude && longitude ? 'text-green-600' : 'text-red-600'}`} />
+              <span className={`text-sm ${latitude && longitude ? 'text-green-700' : 'text-red-700'}`}>
+                {new Date().toLocaleString('en-IN')}
+              </span>
+            </div>
+            {locationError && (
+              <p className="text-xs text-red-600 mt-1">{locationError}</p>
+            )}
+          </div>
+          
           <div className="flex gap-2">
             <button
               onClick={clearSignature}
@@ -121,11 +164,11 @@ export const SignatureCapture: React.FC<SignatureCaptureProps> = ({
             </button>
             <button
               onClick={saveSignature}
-              disabled={isEmpty}
+              disabled={isEmpty || !latitude || !longitude}
               className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Check className="w-4 h-4" />
-              Save
+              <CheckCircle className="w-4 h-4" />
+              Save with Location
             </button>
           </div>
         </div>

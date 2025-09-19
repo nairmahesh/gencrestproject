@@ -682,7 +682,10 @@ const MobileApp: React.FC = () => {
                 className="w-full bg-green-600 text-white py-3 rounded-lg font-medium flex items-center justify-center"
               >
                 <FileText className="w-4 h-4 mr-2" />
-                E-Signature
+                E-Signature 
+                {uploadedProofs.some(p => p.type === 'signature') && (
+                  <CheckCircle className="w-4 h-4 ml-2 text-green-200" />
+                )}
               </button>
               <button
                 onClick={handleDocumentUpload}
@@ -941,7 +944,7 @@ const MobileApp: React.FC = () => {
               disabled={isCapturing || (!latitude || !longitude)}
               className="flex-1 bg-green-600 text-white py-2 rounded-lg disabled:opacity-50"
             >
-              {isCapturing ? 'Saving...' : 'Save with Location'}
+              {isCapturing ? 'Saving...' : 'Save Signature'}
             </button>
           </div>
         </div>
