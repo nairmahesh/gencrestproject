@@ -755,7 +755,10 @@ const MobileApp: React.FC = () => {
                     
                     {/* Timestamp Verification Badge */}
                     <div className="mt-2 flex items-center justify-center">
-                      <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium flex items-center">
+                      <button 
+                        onClick={() => setSelectedModal(`balance-${distributor.id}`)}
+                        className="bg-green-600 text-white px-2 py-1 rounded text-xs flex items-center hover:bg-green-700"
+                      >
                         <CheckCircle className="w-3 h-3 mr-1" />
                         Verified with GPS & Time
                       </span>
@@ -1448,15 +1451,284 @@ const MobileApp: React.FC = () => {
       
       {/* Travel Reimbursement Modal */}
       {showTravelModal && renderTravelReimbursementModal()}
+
+      {/* View Modal - Mobile Version */}
+      {selectedModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2">
+          <div className="bg-white rounded-xl w-full max-w-sm max-h-[90vh] overflow-hidden">
+            {(() => {
+              const [type, distributorId] = selectedModal.split('-');
+              const distributor = distributors.find(d => d.id === distributorId);
+              
+              if (!distributor) return null;
+
+              const modalData = {
+                opening: { title: 'Opening Stock', subtitle: 'SKU-wise opening stock breakdown', volume: distributor.openingStock.volume, value: distributor.openingStock.value },
+                ytd: { title: 'YTD Net Sales', subtitle: 'SKU-wise sales performance', volume: distributor.ytdNetSales.volume, value: distributor.ytdNetSales.value },
+                liquidation: { title: 'Liquidation', subtitle: 'SKU-wise liquidation breakdown', volume: distributor.liquidation.volume, value: distributor.liquidation.value },
+                balance: { title: 'Balance Stock', subtitle: 'SKU-wise stock verification', volume: distributor.balanceStock.volume, value: distributor.balanceStock.value }
+              }[type];
       
+              if (!modalData) return null;
       {/* Verification Modal */}
+              return (
+                <>
+                  {/* Modal Header */}
+                  <div className="bg-blue-50 p-4 border-b border-blue-200">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900">{modalData.title} - {distributor.name}</h3>
+                        <p className="text-sm text-gray-600 mt-1">{modalData.subtitle}</p>
+                      </div>
+                      <button
+                        onClick={() => setSelectedModal(null)}
+                        className="p-2 hover:bg-blue-100 rounded-full transition-colors"
+                      >
+                        <X className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div className="p-4 overflow-y-auto max-h-[calc(90vh-200px)]">
+                    <div className="space-y-4">
+                      {/* Total Summary */}
+                      <div className="text-center bg-gray-50 rounded-xl p-4">
+                        <h4 className="text-lg font-semibold text-gray-900 mb-3">Total {modalData.title}</h4>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <div className="text-2xl font-bold text-gray-900">{modalData.volume}</div>
+                            <div className="text-xs text-gray-600">Total Volume (Kg/Litre)</div>
+                          </div>
+                          <div>
+                            <div className="text-2xl font-bold text-gray-900">₹{modalData.value}L</div>
+                            <div className="text-xs text-gray-600">Total Value</div>
+                          </div>
+                        </div>
+                      </div>
       {showVerifyModal && renderVerificationModal()}
+                      {/* SKU Breakdown */}
+                      <div>
+                        <h4 className="text-sm font-semibold text-gray-900 mb-3">Invoice-wise Breakdown</h4>
+                        
+                        {/* DAP 25kg */}
+                        <div className="mb-4">
+                          <div className="bg-blue-600 text-white px-3 py-1 rounded-lg text-sm font-medium mb-3 inline-block">
+                            DAP 25kg Bag
+                          </div>
+                          <div className="bg-gray-50 rounded-lg p-3">
+                            <div className="space-y-2">
+                              <div className="grid grid-cols-3 gap-2 text-xs font-medium text-gray-700">
+                                <div>Invoice Details</div>
+                                <div>Current Stock</div>
+                                <div>{type === 'balance' ? 'Physical Stock' : type === 'ytd' ? 'Sales Value' : 'Stock'}</div>
+                              </div>
+                              
+                              <div className="grid grid-cols-3 gap-2 items-center py-2 border-t border-gray-200">
+                                <div>
+                                  <p className="text-xs font-medium text-gray-900">INV-2024-001</p>
+                                  <p className="text-xs text-gray-600">1/15/2024</p>
+                                </div>
+                                <div className="text-center">
+                                  <div className="bg-orange-100 rounded p-2">
+                                    <div className="text-sm font-bold text-orange-800">105</div>
+                                  </div>
+                                </div>
+                                <div className="text-center">
+                                  {type === 'balance' ? (
+                                    <input 
+                                      type="number" 
+                                      defaultValue="105" 
+                                      className="w-full text-center text-sm font-bold text-gray-800 bg-gray-100 rounded p-2 border-none outline-none"
+                                    />
+                                  ) : type === 'ytd' ? (
+                                    <div className="bg-blue-100 rounded p-2">
+                                      <div className="text-sm font-bold text-blue-800">₹0.14L</div>
+                                    </div>
+                                  ) : (
+                                    <div className="bg-blue-100 rounded p-2">
+                                      <div className="text-sm font-bold text-blue-800">105</div>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
       
+                        {/* DAP 50kg */}
+                        <div className="mb-4">
+                          <div className="bg-green-600 text-white px-3 py-1 rounded-lg text-sm font-medium mb-3 inline-block">
+                            DAP 50kg Bag
+                          </div>
+                          <div className="bg-gray-50 rounded-lg p-3">
+                            <div className="grid grid-cols-3 gap-2 items-center py-2">
+                              <div>
+                                <p className="text-xs font-medium text-gray-900">INV-2024-001</p>
+                                <p className="text-xs text-gray-600">1/15/2024</p>
+                              </div>
+                              <div className="text-center">
+                                <div className="bg-orange-100 rounded p-2">
+                                  <div className="text-sm font-bold text-orange-800">105</div>
+                                </div>
+                              </div>
+                              <div className="text-center">
+                                {type === 'balance' ? (
+                                  <input 
+                                    type="number" 
+                                    defaultValue="105" 
+                                    className="w-full text-center text-sm font-bold text-gray-800 bg-gray-100 rounded p-2 border-none outline-none"
+                                  />
+                                ) : type === 'ytd' ? (
+                                  <div className="bg-blue-100 rounded p-2">
+                                    <div className="text-sm font-bold text-blue-800">₹0.14L</div>
+                                  </div>
+                                ) : (
+                                  <div className="bg-blue-100 rounded p-2">
+                                    <div className="text-sm font-bold text-blue-800">105</div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
       {/* E-Signature Modal */}
+                      {/* Proof Upload Section - Only for Balance Stock */}
+                      {type === 'balance' && (
+                        <div className="bg-white rounded-xl p-4 border border-gray-200">
+                          <div className="flex items-center justify-between mb-4">
+                            <h4 className="text-sm font-semibold text-gray-900">Upload Proof</h4>
+                            <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+                              {uploadedProofs.length} proofs
+                            </span>
+                          </div>
       {showSignatureModal && renderSignatureModal()}
+                          {/* Primary Actions - Mobile Layout */}
+                          <div className="grid grid-cols-2 gap-3 mb-4">
+                            <button 
+                              onClick={() => handleCameraCapture('photo')}
+                              disabled={isCapturing || !latitude || !longitude}
+                              className="bg-blue-600 text-white py-4 rounded-lg flex flex-col items-center disabled:opacity-50 hover:bg-blue-700 transition-colors"
+                            >
+                              <Camera className="w-6 h-6 mb-2" />
+                              <span className="text-sm font-medium">Click Pic</span>
+                            </button>
+                            
+                            <label className="bg-purple-600 text-white py-4 rounded-lg flex flex-col items-center cursor-pointer hover:bg-purple-700 transition-colors">
+                              <Upload className="w-6 h-6 mb-2" />
+                              <span className="text-sm font-medium">Upload Doc</span>
+                              <input
+                                type="file"
+                                multiple
+                                accept="image/*,video/*"
+                                onChange={(e) => e.target.files && handleFileUpload(e.target.files)}
+                                className="hidden"
+                              />
+                            </label>
+                          </div>
       
+                          {/* Secondary Actions */}
+                          <div className="grid grid-cols-2 gap-3 mb-4">
+                            <button 
+                              onClick={() => handleCameraCapture('video')}
+                              disabled={isCapturing || !latitude || !longitude}
+                              className="bg-indigo-600 text-white py-2 rounded-lg flex items-center justify-center disabled:opacity-50 hover:bg-indigo-700 transition-colors"
+                            >
+                              <Video className="w-4 h-4 mr-1" />
+                              <span className="text-sm font-medium">Video</span>
+                            </button>
+                            
+                            <button
+                              onClick={handleSignatureCapture}
+                              disabled={!latitude || !longitude}
+                              className="bg-green-600 text-white py-2 rounded-lg flex items-center justify-center disabled:opacity-50 hover:bg-green-700 transition-colors"
+                            >
+                              <FileText className="w-4 h-4 mr-1" />
+                              <span className="text-sm font-medium">Signature</span>
+                            </button>
+                          </div>
       {/* Document Upload Modal */}
+                          {/* Location Status */}
+                          <div className={`p-3 rounded-lg border mb-4 ${
+                            latitude && longitude 
+                              ? 'bg-green-50 border-green-200' 
+                              : 'bg-red-50 border-red-200'
+                          }`}>
+                            <div className="flex items-center justify-between text-xs">
+                              <div className="flex items-center space-x-1">
+                                <MapPin className={`w-3 h-3 ${latitude && longitude ? 'text-green-600' : 'text-red-600'}`} />
+                                <span className={`font-medium ${latitude && longitude ? 'text-green-800' : 'text-red-800'}`}>
+                                  {latitude && longitude ? 'Location Verified' : 'Location Required'}
+                                </span>
+                              </div>
+                              <div className="flex items-center space-x-1">
+                                <Clock className={`w-3 h-3 ${latitude && longitude ? 'text-green-600' : 'text-red-600'}`} />
+                                <span className={`${latitude && longitude ? 'text-green-700' : 'text-red-700'}`}>
+                                  {new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
       {showDocumentModal && renderDocumentModal()}
+                          {/* Uploaded Proofs */}
+                          {uploadedProofs.length > 0 && (
+                            <div className="border border-gray-200 rounded-lg p-3 mb-4">
+                              <h5 className="text-sm font-semibold text-gray-900 mb-3">Uploaded Proofs ({uploadedProofs.length})</h5>
+                              <div className="grid grid-cols-3 gap-2">
+                                {uploadedProofs.map((proof) => (
+                                  <div key={proof.id} className="relative">
+                                    <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
+                                      {proof.type === 'video' ? (
+                                        <div className="w-full h-full flex items-center justify-center bg-purple-100">
+                                          <Video className="w-6 h-6 text-purple-600" />
+                                        </div>
+                                      ) : proof.type === 'signature' ? (
+                                        <div className="w-full h-full flex items-center justify-center bg-green-100">
+                                          <FileText className="w-6 h-6 text-green-600" />
+                                        </div>
+                                      ) : (
+                                        <div className="w-full h-full flex items-center justify-center bg-blue-100">
+                                          <ImageIcon className="w-6 h-6 text-blue-600" />
+                                        </div>
+                                      )}
+                                    </div>
+                                    <div className="absolute top-0 right-0 w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+                                      <CheckCircle className="w-2 h-2 text-white" />
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* Save & Exit Button - Only for Balance Stock */}
+                  {type === 'balance' && (
+                    <div className="flex justify-between items-center p-4 border-t bg-gray-50">
+                      <button
+                        onClick={() => setSelectedModal(null)}
+                        className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={handleSaveAndExit}
+                        className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center text-sm"
+                      >
+                        <Save className="w-4 h-4 mr-1" />
+                        Save & Exit ({uploadedProofs.length})
+                      </button>
+                    </div>
+                  )}
+                </>
+              );
+            })()}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
