@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import TSMDashboard from '../components/TSMDashboard';
+import RBHDashboard from '../components/RBHDashboard';
+import RMMDashboard from '../components/RMMDashboard';
 import RoleBasedAccess from '../components/RoleBasedAccess';
 import { useLiquidationCalculation } from '../hooks/useLiquidationCalculation';
 import { 
@@ -86,6 +88,16 @@ const Dashboard: React.FC = () => {
   // Show TSM-specific dashboard if user is TSM
   if (user?.role === 'TSM') {
     return <TSMDashboard />;
+  }
+
+  // Show RBH-specific dashboard if user is RBH
+  if (user?.role === 'RBH') {
+    return <RBHDashboard />;
+  }
+
+  // Show RMM-specific dashboard if user is RMM
+  if (user?.role === 'RMM') {
+    return <RMMDashboard />;
   }
 
   // Sample product and SKU data

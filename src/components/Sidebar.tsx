@@ -23,7 +23,7 @@ interface SidebarProps {
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: Home },
-  { name: 'MDO Module', href: '/mdo-module', icon: Calendar },
+  { name: 'MDO Module', href: '/mdo-module', icon: Calendar, allowedRoles: ['MDO'] },
   { name: 'User Management', href: '/user-management', icon: Shield, allowedRoles: ['MD', 'CHRO', 'VP_SM', 'ZBH', 'MH'] },
   { name: 'Field Visits', href: '/field-visits', icon: MapPin },
   { name: 'Sales Orders', href: '/sales-orders', icon: ShoppingCart },
