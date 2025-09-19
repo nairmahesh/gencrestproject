@@ -767,6 +767,7 @@ const MobileApp: React.FC = () => {
                   </div>
                 );
               })}
+            </>
               {uploadedProofs.length > 3 && (
                 <p className="text-center text-xs text-gray-500">
                   +{uploadedProofs.length - 3} more proofs
