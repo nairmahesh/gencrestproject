@@ -343,6 +343,20 @@ const MobileApp: React.FC = () => {
     <div className="p-4 space-y-4">
       <h2 className="text-lg font-bold text-gray-900">Liquidation</h2>
       
+      {/* Team/Self Tabs - Only show for TSM and above */}
+      {['TSM', 'RBH', 'RMM', 'ZBH', 'MH', 'VP_SM', 'MD', 'CHRO', 'CFO'].includes('TSM') && (
+        <div className="bg-white rounded-lg p-1 shadow-sm mb-4">
+          <div className="flex space-x-1">
+            <button className="flex-1 py-2 px-3 rounded-md bg-purple-600 text-white text-sm font-medium">
+              Team
+            </button>
+            <button className="flex-1 py-2 px-3 rounded-md text-gray-600 text-sm font-medium">
+              Self
+            </button>
+          </div>
+        </div>
+      )}
+      
       <div className="grid grid-cols-2 gap-3 mb-4">
         <div className="bg-orange-50 rounded-lg p-3 text-center">
           <div className="text-lg font-bold text-orange-600">32,660</div>
