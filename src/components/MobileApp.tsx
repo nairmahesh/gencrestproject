@@ -34,7 +34,8 @@ import {
   Upload,
   Video,
   Image as ImageIcon,
-  Minus
+  Minus,
+  Save
 } from 'lucide-react';
 import { useLiquidationCalculation } from '../hooks/useLiquidationCalculation';
 import { useGeolocation } from '../hooks/useGeolocation';
@@ -55,6 +56,7 @@ interface ProofItem {
     resolution?: string;
   };
 }
+
 const MobileApp: React.FC = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [activeLiquidationTab, setActiveLiquidationTab] = useState<'team' | 'self'>('team');
@@ -69,9 +71,23 @@ const MobileApp: React.FC = () => {
   const [showTravelModal, setShowTravelModal] = useState(false);
   const [uploadedProofs, setUploadedProofs] = useState<ProofItem[]>([]);
   const [isCapturing, setIsCapturing] = useState(false);
+  const [selectedModal, setSelectedModal] = useState<string | null>(null);
 
   const { distributorMetrics } = useLiquidationCalculation();
   const { latitude, longitude, error: locationError } = useGeolocation();
+
+  // Sample distributor data
+  const distributors = [
+    {
+      id: '1',
+      name: 'Green Agro Store',
+      code: 'GAS001',
+      openingStock: { volume: '2,500', value: '3.2' },
+      ytdNetSales: { volume: '1,800', value: '2.4' },
+      liquidation: { volume: '700', value: '0.8' },
+      balanceStock: { volume: '700', value: '0.8' }
+    }
+  ];
 
   // Sample distributor detail data
   const getDistributorDetail = (id: string) => ({
@@ -110,6 +126,11 @@ const MobileApp: React.FC = () => {
 
   const handleDocumentUpload = () => {
     setShowDocumentModal(true);
+  };
+
+  const handleSaveAndExit = () => {
+    setSelectedModal(null);
+    alert('Stock verification saved successfully!');
   };
 
   const generateProofItem = (type: 'photo' | 'video' | 'signature', file?: File): ProofItem => {
@@ -168,6 +189,7 @@ const MobileApp: React.FC = () => {
       time: date.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })
     };
   };
+
   const criticalAlerts = [
     {
       id: '1',
@@ -756,22 +778,22 @@ const MobileApp: React.FC = () => {
                     {/* Timestamp Verification Badge */}
                     <div className="mt-2 flex items-center justify-center">
                       <button 
-                        onClick={() => setSelectedModal(`balance-${distributor.id}`)}
+                        onClick={() => setSelectedModal(`balance-${selectedDistributor.id}`)}
                         className="bg-green-600 text-white px-2 py-1 rounded text-xs flex items-center hover:bg-green-700"
                       >
                         <CheckCircle className="w-3 h-3 mr-1" />
                         Verified with GPS & Time
                       </button>
                     </div>
+                  </div>
                 );
               })}
             </div>
-              {uploadedProofs.length > 3 && (
-                <p className="text-center text-xs text-gray-500">
-                  +{uploadedProofs.length - 3} more proofs
-                </p>
-              )}
-            </div>
+            {uploadedProofs.length > 3 && (
+              <p className="text-center text-xs text-gray-500">
+                +{uploadedProofs.length - 3} more proofs
+              </p>
+            )}
           </div>
         )}
 
@@ -1470,7 +1492,7 @@ const MobileApp: React.FC = () => {
               }[type];
       
               if (!modalData) return null;
-      {/* Verification Modal */}
+
               return (
                 <>
                   {/* Modal Header */}
@@ -1505,7 +1527,7 @@ const MobileApp: React.FC = () => {
                           </div>
                         </div>
                       </div>
-      {showVerifyModal && renderVerificationModal()}
+
                       {/* SKU Breakdown */}
                       <div>
                         <h4 className="text-sm font-semibold text-gray-900 mb-3">Invoice-wise Breakdown</h4>
@@ -1592,7 +1614,7 @@ const MobileApp: React.FC = () => {
                           </div>
                         </div>
                       </div>
-      {/* E-Signature Modal */}
+
                       {/* Proof Upload Section - Only for Balance Stock */}
                       {type === 'balance' && (
                         <div className="bg-white rounded-xl p-4 border border-gray-200">
@@ -1602,7 +1624,7 @@ const MobileApp: React.FC = () => {
                               {uploadedProofs.length} proofs
                             </span>
                           </div>
-      {showSignatureModal && renderSignatureModal()}
+
                           {/* Primary Actions - Mobile Layout */}
                           <div className="grid grid-cols-2 gap-3 mb-4">
                             <button 
@@ -1647,7 +1669,7 @@ const MobileApp: React.FC = () => {
                               <span className="text-sm font-medium">Signature</span>
                             </button>
                           </div>
-      {/* Document Upload Modal */}
+
                           {/* Location Status */}
                           <div className={`p-3 rounded-lg border mb-4 ${
                             latitude && longitude 
@@ -1669,7 +1691,7 @@ const MobileApp: React.FC = () => {
                               </div>
                             </div>
                           </div>
-      {showDocumentModal && renderDocumentModal()}
+
                           {/* Uploaded Proofs */}
                           {uploadedProofs.length > 0 && (
                             <div className="border border-gray-200 rounded-lg p-3 mb-4">
@@ -1729,6 +1751,15 @@ const MobileApp: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Verification Modal */}
+      {showVerifyModal && renderVerificationModal()}
+
+      {/* E-Signature Modal */}
+      {showSignatureModal && renderSignatureModal()}
+
+      {/* Document Upload Modal */}
+      {showDocumentModal && renderDocumentModal()}
     </div>
   );
 };
