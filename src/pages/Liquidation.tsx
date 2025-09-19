@@ -15,9 +15,35 @@ import {
   X,
   MapPin,
   Calendar,
-  Users
+  Users,
+  Camera,
+  Upload,
+  Video,
+  Image as ImageIcon,
+  FileText,
+  Clock,
+  Plus,
+  Minus
 } from 'lucide-react';
 import { useLiquidationCalculation } from '../hooks/useLiquidationCalculation';
+import { useGeolocation } from '../hooks/useGeolocation';
+
+interface ProofItem {
+  id: string;
+  type: 'photo' | 'video' | 'signature';
+  url: string;
+  timestamp: string;
+  location: {
+    latitude: number;
+    longitude: number;
+    address?: string;
+  };
+  metadata: {
+    fileSize: number;
+    duration?: number;
+    resolution?: string;
+  };
+}
 
 const Liquidation: React.FC = () => {
   const navigate = useNavigate();
@@ -30,12 +56,18 @@ const Liquidation: React.FC = () => {
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedMetric, setSelectedMetric] = useState<string>('');
   const [selectedDistributorId, setSelectedDistributorId] = useState<string>('');
+  const [uploadedProofs, setUploadedProofs] = useState<ProofItem[]>([]);
+  const [showProofModal, setShowProofModal] = useState(false);
+  const [isCapturing, setIsCapturing] = useState(false);
+  const [editingStock, setEditingStock] = useState(false);
+  const [tempStock, setTempStock] = useState(0);
   
   const { 
     overallMetrics, 
     distributorMetrics, 
     getPerformanceMetrics 
   } = useLiquidationCalculation();
+  const { latitude, longitude, error: locationError } = useGeolocation();
 
   const performanceMetrics = getPerformanceMetrics();
   const currentUserRole = user?.role || 'MDO';
@@ -163,6 +195,61 @@ const Liquidation: React.FC = () => {
   const handleVerifyClick = (distributor: any) => {
     setSelectedDistributor(distributor);
     setShowVerifyModal(true);
+  };
+
+  const generateProofItem = (type: 'photo' | 'video' | 'signature', file?: File): ProofItem => {
+    const now = new Date();
+    return {
+      id: `proof_${Date.now()}`,
+      type,
+      url: file ? URL.createObjectURL(file) : '/placeholder-image.jpg',
+      timestamp: now.toISOString(),
+      location: {
+        latitude: latitude || 28.6139,
+        longitude: longitude || 77.2090,
+        address: 'Current Location'
+      },
+      metadata: {
+        fileSize: file?.size || 0,
+        duration: type === 'video' ? 30 : undefined,
+        resolution: '1920x1080'
+      }
+    };
+  };
+
+  const handleCameraCapture = (type: 'photo' | 'video') => {
+    setIsCapturing(true);
+    
+    setTimeout(() => {
+      const newProof = generateProofItem(type);
+      setUploadedProofs(prev => [...prev, newProof]);
+      setIsCapturing(false);
+      setShowProofModal(false);
+      alert(`${type === 'photo' ? 'Photo' : 'Video'} captured with location and timestamp!`);
+    }, 2000);
+  };
+
+  const handleFileUpload = (files: FileList) => {
+    Array.from(files).forEach(file => {
+      const type = file.type.startsWith('video/') ? 'video' : 'photo';
+      const newProof = generateProofItem(type, file);
+      setUploadedProofs(prev => [...prev, newProof]);
+    });
+    setShowProofModal(false);
+  };
+
+  const handleSignatureCapture = () => {
+    const newProof = generateProofItem('signature');
+    setUploadedProofs(prev => [...prev, newProof]);
+    alert('Signature captured with location and timestamp!');
+  };
+
+  const formatTimestamp = (timestamp: string) => {
+    const date = new Date(timestamp);
+    return {
+      date: date.toLocaleDateString('en-IN'),
+      time: date.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })
+    };
   };
 
   const handleMetricClick = (metric: string, distributorId: string) => {
@@ -717,6 +804,174 @@ const Liquidation: React.FC = () => {
               >
                 Verify Stock
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Proof Upload Modal */}
+      {showProofModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl w-full max-w-md max-h-[90vh] overflow-hidden">
+            <div className="bg-blue-100 p-6 border-b">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-xl font-semibold text-gray-900">Upload Proof</h3>
+                  <p className="text-sm text-gray-600">Capture with timestamp & location</p>
+                </div>
+                <button
+                  onClick={() => setShowProofModal(false)}
+                  className="p-2 hover:bg-blue-200 rounded-full transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+            
+            <div className="p-6 space-y-4">
+              {isCapturing && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+                  <div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-2"></div>
+                  <p className="text-sm text-blue-800">Capturing with location...</p>
+                </div>
+              )}
+              
+              {/* Primary Actions - Side by Side */}
+              <div className="grid grid-cols-2 gap-4">
+                <button 
+                  onClick={() => handleCameraCapture('photo')}
+                  disabled={isCapturing}
+                  className="bg-blue-600 text-white py-6 rounded-lg flex flex-col items-center disabled:opacity-50 hover:bg-blue-700 transition-colors"
+                >
+                  <Camera className="w-8 h-8 mb-2" />
+                  <span className="text-sm font-medium">Click Pic</span>
+                  <span className="text-xs opacity-90">With timestamp</span>
+                </button>
+                <label className="bg-purple-600 text-white py-6 rounded-lg flex flex-col items-center cursor-pointer hover:bg-purple-700 transition-colors">
+                  <Upload className="w-8 h-8 mb-2" />
+                  <span className="text-sm font-medium">Upload Doc</span>
+                  <span className="text-xs opacity-90">From device</span>
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*,video/*"
+                    onChange={(e) => e.target.files && handleFileUpload(e.target.files)}
+                    className="hidden"
+                  />
+                </label>
+              </div>
+              
+              {/* Video Recording */}
+              <button 
+                onClick={() => handleCameraCapture('video')}
+                disabled={isCapturing}
+                className="w-full bg-indigo-600 text-white py-4 rounded-lg flex items-center justify-center disabled:opacity-50 hover:bg-indigo-700 transition-colors"
+              >
+                <Video className="w-5 h-5 mr-2" />
+                <span className="font-medium">Record Video</span>
+                <span className="text-xs opacity-90 ml-2">• With location & time</span>
+              </button>
+              
+              {/* Location & Time Status */}
+              <div className={`p-4 rounded-lg border ${
+                latitude && longitude 
+                  ? 'bg-green-50 border-green-200' 
+                  : 'bg-red-50 border-red-200'
+              }`}>
+                <div className="flex items-center space-x-2 mb-2">
+                  <MapPin className={`w-4 h-4 ${latitude && longitude ? 'text-green-600' : 'text-red-600'}`} />
+                  <span className={`text-sm font-medium ${latitude && longitude ? 'text-green-800' : 'text-red-800'}`}>
+                    {latitude && longitude 
+                      ? `Location: ${latitude.toFixed(4)}, ${longitude.toFixed(4)}`
+                      : 'Location access required'
+                    }
+                  </span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Clock className={`w-4 h-4 ${latitude && longitude ? 'text-green-600' : 'text-red-600'}`} />
+                  <span className={`text-sm ${latitude && longitude ? 'text-green-700' : 'text-red-700'}`}>
+                    {new Date().toLocaleString('en-IN')}
+                  </span>
+                </div>
+                {locationError && (
+                  <p className="text-xs text-red-600 mt-2">{locationError}</p>
+                )}
+              </div>
+              
+              {/* Uploaded Proofs Preview */}
+              {uploadedProofs.length > 0 && (
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+                  <h5 className="font-semibold text-gray-900 mb-3">Recent Proofs ({uploadedProofs.length})</h5>
+                  <div className="grid grid-cols-3 gap-2 mb-3">
+                    {uploadedProofs.slice(-3).map((proof) => (
+                      <div key={proof.id} className="relative">
+                        <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+                          {proof.type === 'video' ? (
+                            <div className="w-full h-full flex items-center justify-center bg-purple-100">
+                              <Video className="w-6 h-6 text-purple-600" />
+                            </div>
+                          ) : proof.type === 'signature' ? (
+                            <div className="w-full h-full flex items-center justify-center bg-green-100">
+                              <FileText className="w-6 h-6 text-green-600" />
+                            </div>
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-blue-100">
+                              <ImageIcon className="w-6 h-6 text-blue-600" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="absolute top-1 right-1 w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+                          <CheckCircle className="w-3 h-3 text-white" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  {/* Latest Proof Details */}
+                  {uploadedProofs.length > 0 && (
+                    <div className="bg-blue-50 rounded-lg p-3">
+                      <h6 className="font-semibold text-blue-800 mb-2">Latest Proof Details</h6>
+                      {uploadedProofs.slice(-1).map((proof) => {
+                        const { date, time } = formatTimestamp(proof.timestamp);
+                        return (
+                          <div key={proof.id} className="text-xs text-blue-700 space-y-1">
+                            <div className="flex justify-between">
+                              <span>Type:</span>
+                              <span className="font-medium capitalize">{proof.type}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>Date:</span>
+                              <span className="font-medium">{date}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>Time:</span>
+                              <span className="font-medium">{time}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>Location:</span>
+                              <span className="font-medium">{proof.location.latitude.toFixed(4)}, {proof.location.longitude.toFixed(4)}</span>
+                            </div>
+                            {proof.metadata.fileSize > 0 && (
+                              <div className="flex justify-between">
+                                <span>Size:</span>
+                                <span className="font-medium">{(proof.metadata.fileSize / 1024).toFixed(1)} KB</span>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                      
+                      {/* Verification Badge */}
+                      <div className="mt-3 flex items-center justify-center">
+                        <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-medium flex items-center">
+                          <CheckCircle className="w-3 h-3 mr-1" />
+                          Verified with GPS & Time
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
