@@ -29,10 +29,32 @@ import {
   Search,
   Eye,
   Edit,
-  X
+  X,
+  Camera,
+  Upload,
+  Video,
+  Image as ImageIcon,
+  Minus
 } from 'lucide-react';
 import { useLiquidationCalculation } from '../hooks/useLiquidationCalculation';
+import { useGeolocation } from '../hooks/useGeolocation';
 
+interface ProofItem {
+  id: string;
+  type: 'photo' | 'video' | 'signature';
+  url: string;
+  timestamp: string;
+  location: {
+    latitude: number;
+    longitude: number;
+    address?: string;
+  };
+  metadata: {
+    fileSize: number;
+    duration?: number; // for videos
+    resolution?: string;
+  };
+}
 const MobileApp: React.FC = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [activeLiquidationTab, setActiveLiquidationTab] = useState<'team' | 'self'>('team');
@@ -45,8 +67,11 @@ const MobileApp: React.FC = () => {
   const [showCriticalAlerts, setShowCriticalAlerts] = useState(false);
   const [selectedAlertCategory, setSelectedAlertCategory] = useState('All');
   const [showTravelModal, setShowTravelModal] = useState(false);
+  const [uploadedProofs, setUploadedProofs] = useState<ProofItem[]>([]);
+  const [isCapturing, setIsCapturing] = useState(false);
 
   const { distributorMetrics } = useLiquidationCalculation();
+  const { latitude, longitude, error: locationError } = useGeolocation();
 
   // Sample distributor detail data
   const getDistributorDetail = (id: string) => ({
@@ -87,6 +112,62 @@ const MobileApp: React.FC = () => {
     setShowDocumentModal(true);
   };
 
+  const generateProofItem = (type: 'photo' | 'video' | 'signature', file?: File): ProofItem => {
+    const now = new Date();
+    return {
+      id: `proof_${Date.now()}`,
+      type,
+      url: file ? URL.createObjectURL(file) : '/placeholder-image.jpg',
+      timestamp: now.toISOString(),
+      location: {
+        latitude: latitude || 28.6139,
+        longitude: longitude || 77.2090,
+        address: 'Current Location'
+      },
+      metadata: {
+        fileSize: file?.size || 0,
+        duration: type === 'video' ? 30 : undefined,
+        resolution: '1920x1080'
+      }
+    };
+  };
+
+  const handleCameraCapture = (type: 'photo' | 'video') => {
+    setIsCapturing(true);
+    
+    // Simulate camera capture
+    setTimeout(() => {
+      const newProof = generateProofItem(type);
+      setUploadedProofs(prev => [...prev, newProof]);
+      setIsCapturing(false);
+      setShowDocumentModal(false);
+      alert(`${type === 'photo' ? 'Photo' : 'Video'} captured with location and timestamp!`);
+    }, 2000);
+  };
+
+  const handleFileUpload = (files: FileList) => {
+    Array.from(files).forEach(file => {
+      const type = file.type.startsWith('video/') ? 'video' : 'photo';
+      const newProof = generateProofItem(type, file);
+      setUploadedProofs(prev => [...prev, newProof]);
+    });
+    setShowDocumentModal(false);
+  };
+
+  const handleSignatureCapture = () => {
+    const newProof = generateProofItem('signature');
+    setUploadedProofs(prev => [...prev, newProof]);
+    setShowSignatureModal(false);
+    alert('Signature captured with location and timestamp!');
+  };
+
+  const formatTimestamp = (timestamp: string) => {
+    const date = new Date(timestamp);
+    return {
+      date: date.toLocaleDateString('en-IN'),
+      time: date.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })
+    };
+  };
   const criticalAlerts = [
     {
       id: '1',
@@ -605,11 +686,68 @@ const MobileApp: React.FC = () => {
               </button>
               <button
                 onClick={handleDocumentUpload}
-                className="w-full bg-orange-600 text-white py-3 rounded-lg font-medium flex items-center justify-center"
+                className="w-full bg-orange-600 text-white py-3 rounded-lg font-medium flex items-center justify-center relative"
               >
                 <Camera className="w-4 h-4 mr-2" />
                 Upload Document
+                {uploadedProofs.length > 0 && (
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 text-white rounded-full text-xs flex items-center justify-center">
+                    {uploadedProofs.length}
+                  </span>
+                )}
               </button>
+            </div>
+          </div>
+        )}
+
+        {/* Uploaded Proofs Section */}
+        {uploadedProofs.length > 0 && (
+          <div className="bg-white rounded-lg p-4 shadow-sm">
+            <h4 className="font-semibold text-gray-900 mb-3">Uploaded Proofs ({uploadedProofs.length})</h4>
+            <div className="space-y-3">
+              {uploadedProofs.slice(-3).map((proof) => {
+                const { date, time } = formatTimestamp(proof.timestamp);
+                return (
+                  <div key={proof.id} className="border border-gray-200 rounded-lg p-3">
+                    <div className="flex items-center space-x-3">
+                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                        proof.type === 'photo' ? 'bg-blue-100' :
+                        proof.type === 'video' ? 'bg-purple-100' :
+                        'bg-green-100'
+                      }`}>
+                        {proof.type === 'photo' && <ImageIcon className="w-5 h-5 text-blue-600" />}
+                        {proof.type === 'video' && <Video className="w-5 h-5 text-purple-600" />}
+                        {proof.type === 'signature' && <FileText className="w-5 h-5 text-green-600" />}
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-medium text-sm capitalize">{proof.type}</p>
+                        <div className="flex items-center space-x-2 text-xs text-gray-500">
+                          <span className="flex items-center">
+                            <Calendar className="w-3 h-3 mr-1" />
+                            {date}
+                          </span>
+                          <span className="flex items-center">
+                            <Clock className="w-3 h-3 mr-1" />
+                            {time}
+                          </span>
+                        </div>
+                        <div className="flex items-center text-xs text-gray-500 mt-1">
+                          <MapPin className="w-3 h-3 mr-1" />
+                          <span>{proof.location.latitude.toFixed(4)}, {proof.location.longitude.toFixed(4)}</span>
+                        </div>
+                      </div>
+                      <button className="text-blue-600 text-xs">
+                        View
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+              {uploadedProofs.length > 3 && (
+                <p className="text-center text-xs text-gray-500">
+                  +{uploadedProofs.length - 3} more proofs
+                </p>
+              )}
             </div>
           </div>
         )}
@@ -620,14 +758,24 @@ const MobileApp: React.FC = () => {
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600">Signature</span>
-              <span className={`text-sm font-medium ${detail.hasSignature ? 'text-green-600' : 'text-red-600'}`}>
-                {detail.hasSignature ? 'Completed' : 'Pending'}
+              <span className={`text-sm font-medium ${
+                uploadedProofs.some(p => p.type === 'signature') ? 'text-green-600' : 'text-red-600'
+              }`}>
+                {uploadedProofs.some(p => p.type === 'signature') ? 'Completed' : 'Pending'}
               </span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600">Documents</span>
-              <span className={`text-sm font-medium ${detail.hasDocuments ? 'text-green-600' : 'text-red-600'}`}>
-                {detail.hasDocuments ? 'Uploaded' : 'Pending'}
+              <span className={`text-sm font-medium ${
+                uploadedProofs.some(p => p.type === 'photo' || p.type === 'video') ? 'text-green-600' : 'text-red-600'
+              }`}>
+                {uploadedProofs.some(p => p.type === 'photo' || p.type === 'video') ? 'Uploaded' : 'Pending'}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-600">Location</span>
+              <span className={`text-sm font-medium ${latitude && longitude ? 'text-green-600' : 'text-red-600'}`}>
+                {latitude && longitude ? 'Verified' : 'Pending'}
               </span>
             </div>
             <div className="flex items-center justify-between">
@@ -732,6 +880,13 @@ const MobileApp: React.FC = () => {
         </div>
         
         <div className="p-4 space-y-4">
+          {isCapturing && (
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
+              <div className="animate-spin w-8 h-8 border-4 border-green-600 border-t-transparent rounded-full mx-auto mb-2"></div>
+              <p className="text-sm text-green-800">Capturing signature with location...</p>
+            </div>
+          )}
+          
           <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 h-40 flex items-center justify-center">
             <div className="text-center text-gray-500">
               <FileText className="w-8 h-8 mx-auto mb-2" />
@@ -740,18 +895,33 @@ const MobileApp: React.FC = () => {
             </div>
           </div>
           
+          {/* Location Info */}
+          <div className={`p-2 rounded-lg text-xs ${
+            latitude && longitude 
+              ? 'bg-green-50 text-green-700' 
+              : 'bg-red-50 text-red-700'
+          }`}>
+            <div className="flex items-center justify-center space-x-1">
+              <MapPin className="w-3 h-3" />
+              <span>
+                {latitude && longitude 
+                  ? `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`
+                  : 'Location not available'
+                }
+              </span>
+            </div>
+          </div>
+          
           <div className="flex space-x-2">
             <button className="flex-1 border border-gray-300 text-gray-700 py-2 rounded-lg">
               Clear
             </button>
             <button
-              onClick={() => {
-                setShowSignatureModal(false);
-                alert('Signature saved successfully!');
-              }}
-              className="flex-1 bg-green-600 text-white py-2 rounded-lg"
+              onClick={handleSignatureCapture}
+              disabled={isCapturing || (!latitude || !longitude)}
+              className="flex-1 bg-green-600 text-white py-2 rounded-lg disabled:opacity-50"
             >
-              Save
+              {isCapturing ? 'Saving...' : 'Save with Location'}
             </button>
           </div>
         </div>
@@ -776,31 +946,137 @@ const MobileApp: React.FC = () => {
         </div>
         
         <div className="p-4 space-y-4">
+          {isCapturing && (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+              <div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-2"></div>
+              <p className="text-sm text-blue-800">Capturing with location...</p>
+            </div>
+          )}
+          
           <div className="grid grid-cols-2 gap-3">
-            <button className="bg-blue-600 text-white py-3 rounded-lg flex flex-col items-center">
+            <button 
+              onClick={() => handleCameraCapture('photo')}
+              disabled={isCapturing}
+              className="bg-blue-600 text-white py-3 rounded-lg flex flex-col items-center disabled:opacity-50"
+            >
               <Camera className="w-6 h-6 mb-1" />
-              <span className="text-sm">Camera</span>
+              <span className="text-sm">Photo</span>
             </button>
-            <button className="bg-purple-600 text-white py-3 rounded-lg flex flex-col items-center">
-              <Upload className="w-6 h-6 mb-1" />
-              <span className="text-sm">Gallery</span>
+            <button 
+              onClick={() => handleCameraCapture('video')}
+              disabled={isCapturing}
+              className="bg-purple-600 text-white py-3 rounded-lg flex flex-col items-center disabled:opacity-50"
+            >
+              <Video className="w-6 h-6 mb-1" />
+              <span className="text-sm">Video</span>
             </button>
+          </div>
+          
+          <div className="text-center">
+            <label className="bg-gray-600 text-white py-2 px-4 rounded-lg flex items-center justify-center cursor-pointer hover:bg-gray-700">
+              <Upload className="w-4 h-4 mr-2" />
+              Upload from Gallery
+              <input
+                type="file"
+                multiple
+                accept="image/*,video/*"
+                onChange={(e) => e.target.files && handleFileUpload(e.target.files)}
+                className="hidden"
+              />
+            </label>
+          </div>
+          
+          {/* Location Status */}
+          <div className={`p-3 rounded-lg border ${
+            latitude && longitude 
+              ? 'bg-green-50 border-green-200' 
+              : 'bg-red-50 border-red-200'
+          }`}>
+            <div className="flex items-center space-x-2">
+              <MapPin className={`w-4 h-4 ${latitude && longitude ? 'text-green-600' : 'text-red-600'}`} />
+              <span className={`text-sm font-medium ${latitude && longitude ? 'text-green-800' : 'text-red-800'}`}>
+                {latitude && longitude 
+                  ? `Location: ${latitude.toFixed(4)}, ${longitude.toFixed(4)}`
+                  : 'Location access required'
+                }
+              </span>
+            </div>
+            {locationError && (
+              <p className="text-xs text-red-600 mt-1">{locationError}</p>
+            )}
           </div>
           
           <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-            <FileText className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-            <p className="text-sm text-gray-500">No documents uploaded</p>
+            {uploadedProofs.length > 0 ? (
+              <div>
+                <div className="grid grid-cols-3 gap-2 mb-3">
+                  {uploadedProofs.slice(-3).map((proof) => (
+                    <div key={proof.id} className="relative">
+                      <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+                        {proof.type === 'video' ? (
+                          <div className="w-full h-full flex items-center justify-center bg-purple-100">
+                            <Video className="w-6 h-6 text-purple-600" />
+                          </div>
+                        ) : proof.type === 'signature' ? (
+                          <div className="w-full h-full flex items-center justify-center bg-green-100">
+                            <FileText className="w-6 h-6 text-green-600" />
+                          </div>
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center bg-blue-100">
+                            <ImageIcon className="w-6 h-6 text-blue-600" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="absolute top-1 right-1 w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+                        <CheckCircle className="w-3 h-3 text-white" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-sm text-green-600 font-medium">{uploadedProofs.length} proofs uploaded</p>
+              </div>
+            ) : (
+              <div>
+                <FileText className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                <p className="text-sm text-gray-500">No documents uploaded</p>
+              </div>
+            )}
           </div>
           
-          <button
-            onClick={() => {
-              setShowDocumentModal(false);
-              alert('Documents uploaded successfully!');
-            }}
-            className="w-full bg-orange-600 text-white py-3 rounded-lg font-medium"
-          >
-            Upload Documents
-          </button>
+          {uploadedProofs.length > 0 && (
+            <div className="bg-blue-50 rounded-lg p-3">
+              <h5 className="font-semibold text-blue-800 mb-2">Latest Proof Details</h5>
+              {uploadedProofs.slice(-1).map((proof) => {
+                const { date, time } = formatTimestamp(proof.timestamp);
+                return (
+                  <div key={proof.id} className="text-xs text-blue-700 space-y-1">
+                    <div className="flex justify-between">
+                      <span>Type:</span>
+                      <span className="font-medium capitalize">{proof.type}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Date:</span>
+                      <span className="font-medium">{date}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Time:</span>
+                      <span className="font-medium">{time}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Location:</span>
+                      <span className="font-medium">{proof.location.latitude.toFixed(4)}, {proof.location.longitude.toFixed(4)}</span>
+                    </div>
+                    {proof.metadata.fileSize > 0 && (
+                      <div className="flex justify-between">
+                        <span>Size:</span>
+                        <span className="font-medium">{(proof.metadata.fileSize / 1024).toFixed(1)} KB</span>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
     </div>
