@@ -135,16 +135,16 @@ const MobileApp: React.FC = () => {
       {/* Stats Cards */}
       <div className="grid grid-cols-2 gap-3">
         <div className="bg-purple-500 rounded-lg p-4 text-white">
-          <h3 className="text-sm opacity-90 mb-1">YTD Achievement</h3>
-          <div className="text-2xl font-bold">85%</div>
-          <p className="text-xs opacity-80">1374/1620</p>
-          <p className="text-xs opacity-70">Planned vs. Done Activities</p>
+          <h3 className="text-sm opacity-90 mb-1">Team Members</h3>
+          <div className="text-2xl font-bold">4</div>
+          <p className="text-xs opacity-80">MDOs under TSM</p>
+          <p className="text-xs opacity-70">All active today</p>
         </div>
         <div className="bg-pink-500 rounded-lg p-4 text-white">
-          <h3 className="text-sm opacity-90 mb-1">Team Performance</h3>
-          <div className="text-2xl font-bold">87%</div>
-          <p className="text-xs opacity-80">Average Score</p>
-          <p className="text-xs opacity-70">4 MDOs under management</p>
+          <h3 className="text-sm opacity-90 mb-1">Activities Done</h3>
+          <div className="text-2xl font-bold">1374</div>
+          <p className="text-xs opacity-80">out of 1620 planned</p>
+          <p className="text-xs opacity-70">85% Achievement Rate</p>
         </div>
       </div>
 
