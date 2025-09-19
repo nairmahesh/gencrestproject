@@ -35,6 +35,7 @@ import { useLiquidationCalculation } from '../hooks/useLiquidationCalculation';
 
 const MobileApp: React.FC = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeLiquidationTab, setActiveLiquidationTab] = useState<'team' | 'self'>('team');
   const [showCriticalAlerts, setShowCriticalAlerts] = useState(false);
   const [selectedAlertCategory, setSelectedAlertCategory] = useState('All');
   const [showTravelModal, setShowTravelModal] = useState(false);
@@ -347,10 +348,24 @@ const MobileApp: React.FC = () => {
       {['TSM', 'RBH', 'RMM', 'ZBH', 'MH', 'VP_SM', 'MD', 'CHRO', 'CFO'].includes('TSM') && (
         <div className="bg-white rounded-lg p-1 shadow-sm mb-4">
           <div className="flex space-x-1">
-            <button className="flex-1 py-2 px-3 rounded-md bg-purple-600 text-white text-sm font-medium">
+            <button 
+              onClick={() => setActiveLiquidationTab('team')}
+              className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
+                activeLiquidationTab === 'team'
+                  ? 'bg-purple-600 text-white'
+                  : 'text-gray-600 hover:bg-gray-100'
+              }`}
+            >
               Team
             </button>
-            <button className="flex-1 py-2 px-3 rounded-md text-gray-600 text-sm font-medium">
+            <button 
+              onClick={() => setActiveLiquidationTab('self')}
+              className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
+                activeLiquidationTab === 'self'
+                  ? 'bg-purple-600 text-white'
+                  : 'text-gray-600 hover:bg-gray-100'
+              }`}
+            >
               Self
             </button>
           </div>
@@ -359,17 +374,38 @@ const MobileApp: React.FC = () => {
       
       <div className="grid grid-cols-2 gap-3 mb-4">
         <div className="bg-orange-50 rounded-lg p-3 text-center">
-          <div className="text-lg font-bold text-orange-600">32,660</div>
+          <div className="text-lg font-bold text-orange-600">
+            {activeLiquidationTab === 'team' ? '32,660' : '5,420'}
+          </div>
           <div className="text-xs text-orange-600">Opening Stock</div>
         </div>
         <div className="bg-green-50 rounded-lg p-3 text-center">
-          <div className="text-lg font-bold text-green-600">28%</div>
+          <div className="text-lg font-bold text-green-600">
+            {activeLiquidationTab === 'team' ? '28%' : '25%'}
+          </div>
           <div className="text-xs text-green-600">Liquidation Rate</div>
         </div>
       </div>
 
       <div className="space-y-3">
-        {distributorMetrics.slice(0, 3).map((distributor) => (
+        {(activeLiquidationTab === 'team' ? distributorMetrics : [
+          {
+            id: 'SELF_001',
+            distributorName: 'Personal Territory - Ram Kumar',
+            distributorCode: 'PT001',
+            metrics: {
+              liquidationPercentage: 25
+            }
+          },
+          {
+            id: 'SELF_002', 
+            distributorName: 'Personal Territory - Suresh Traders',
+            distributorCode: 'PT002',
+            metrics: {
+              liquidationPercentage: 23
+            }
+          }
+        ]).slice(0, 3).map((distributor) => (
           <div key={distributor.id} className="bg-white rounded-lg p-4 shadow-sm">
             <div className="flex items-center justify-between mb-2">
               <div>
