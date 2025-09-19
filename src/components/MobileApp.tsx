@@ -720,7 +720,11 @@ const MobileApp: React.FC = () => {
                         {proof.type === 'signature' && <FileText className="w-5 h-5 text-green-600" />}
                       </div>
                       <div className="flex-1">
-                        <p className="font-medium text-sm capitalize">{proof.type}</p>
+                        <p className="font-medium text-sm capitalize">
+                          {proof.type === 'photo' ? 'Photo Captured' : 
+                           proof.type === 'video' ? 'Video Recorded' : 
+                           'Signature Captured'}
+                        </p>
                         <div className="flex items-center space-x-2 text-xs text-gray-500">
                           <span className="flex items-center">
                             <Calendar className="w-3 h-3 mr-1" />
@@ -735,10 +739,26 @@ const MobileApp: React.FC = () => {
                           <MapPin className="w-3 h-3 mr-1" />
                           <span>{proof.location.latitude.toFixed(4)}, {proof.location.longitude.toFixed(4)}</span>
                         </div>
+                        {proof.metadata.fileSize > 0 && (
+                          <div className="text-xs text-gray-500 mt-1">
+                            Size: {(proof.metadata.fileSize / 1024).toFixed(1)} KB
+                            {proof.type === 'video' && proof.metadata.duration && (
+                              <span> • {proof.metadata.duration}s</span>
+                            )}
+                          </div>
+                        )}
                       </div>
                       <button className="text-blue-600 text-xs">
                         View
                       </button>
+                    </div>
+                    
+                    {/* Timestamp Verification Badge */}
+                    <div className="mt-2 flex items-center justify-center">
+                      <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium flex items-center">
+                        <CheckCircle className="w-3 h-3 mr-1" />
+                        Verified with GPS & Time
+                      </span>
                     </div>
                   </div>
                 );
@@ -957,25 +977,16 @@ const MobileApp: React.FC = () => {
             <button 
               onClick={() => handleCameraCapture('photo')}
               disabled={isCapturing}
-              className="bg-blue-600 text-white py-3 rounded-lg flex flex-col items-center disabled:opacity-50"
+              className="bg-blue-600 text-white py-4 rounded-lg flex flex-col items-center disabled:opacity-50 hover:bg-blue-700 transition-colors"
             >
-              <Camera className="w-6 h-6 mb-1" />
-              <span className="text-sm">Photo</span>
+              <Camera className="w-7 h-7 mb-2" />
+              <span className="text-sm font-medium">Click Pic</span>
+              <span className="text-xs opacity-90">With timestamp</span>
             </button>
-            <button 
-              onClick={() => handleCameraCapture('video')}
-              disabled={isCapturing}
-              className="bg-purple-600 text-white py-3 rounded-lg flex flex-col items-center disabled:opacity-50"
-            >
-              <Video className="w-6 h-6 mb-1" />
-              <span className="text-sm">Video</span>
-            </button>
-          </div>
-          
-          <div className="text-center">
-            <label className="bg-gray-600 text-white py-2 px-4 rounded-lg flex items-center justify-center cursor-pointer hover:bg-gray-700">
-              <Upload className="w-4 h-4 mr-2" />
-              Upload from Gallery
+            <label className="bg-purple-600 text-white py-4 rounded-lg flex flex-col items-center cursor-pointer hover:bg-purple-700 transition-colors">
+              <Upload className="w-7 h-7 mb-2" />
+              <span className="text-sm font-medium">Upload Doc</span>
+              <span className="text-xs opacity-90">From gallery</span>
               <input
                 type="file"
                 multiple
@@ -984,6 +995,19 @@ const MobileApp: React.FC = () => {
                 className="hidden"
               />
             </label>
+          </div>
+          
+          {/* Video Capture Option */}
+          <div className="text-center">
+            <button 
+              onClick={() => handleCameraCapture('video')}
+              disabled={isCapturing}
+              className="w-full bg-indigo-600 text-white py-3 rounded-lg flex items-center justify-center disabled:opacity-50 hover:bg-indigo-700 transition-colors"
+            >
+              <Video className="w-5 h-5 mr-2" />
+              <span className="font-medium">Record Video</span>
+              <span className="text-xs opacity-90 ml-2">• With location & time</span>
+            </button>
           </div>
           
           {/* Location Status */}
@@ -999,6 +1023,12 @@ const MobileApp: React.FC = () => {
                   ? `Location: ${latitude.toFixed(4)}, ${longitude.toFixed(4)}`
                   : 'Location access required'
                 }
+              </span>
+            </div>
+            <div className="flex items-center space-x-2 mt-1">
+              <Clock className={`w-3 h-3 ${latitude && longitude ? 'text-green-600' : 'text-red-600'}`} />
+              <span className={`text-xs ${latitude && longitude ? 'text-green-700' : 'text-red-700'}`}>
+                {new Date().toLocaleString('en-IN')}
               </span>
             </div>
             {locationError && (
