@@ -311,6 +311,7 @@ const Liquidation: React.FC = () => {
             </p>
           </div>
         </div>
+      </div>
 
       {/* Team/Self Tabs - Only show for TSM and above */}
       {showTabs && (
@@ -449,7 +450,6 @@ const Liquidation: React.FC = () => {
             </span>
             <span>Active: {activeTab === 'team' ? performanceMetrics.activeDistributors : selfLiquidationData.personalDistributors.filter(d => d.status === 'Active').length}</span>
             <span>High Priority: {activeTab === 'team' ? performanceMetrics.highPriorityDistributors : selfLiquidationData.personalDistributors.filter(d => d.priority === 'High').length}</span>
-          </div>
           </div>
         </div>
 
