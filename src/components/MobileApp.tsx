@@ -762,7 +762,7 @@ const MobileApp: React.FC = () => {
                         <CheckCircle className="w-3 h-3 mr-1" />
                         Verified with GPS & Time
                       </button>
-                      </span>
+                      </div>
                     </div>
                   </div>
                 );
