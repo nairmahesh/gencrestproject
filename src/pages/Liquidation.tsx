@@ -385,7 +385,10 @@ const Liquidation: React.FC = () => {
                     <div className="bg-purple-50 rounded-lg p-4 border-l-4 border-purple-500">
                       <div className="flex items-center justify-between mb-2">
                         <h4 className="text-sm font-semibold text-purple-700">Balance Stock</h4>
-                        <button className="bg-green-600 text-white px-2 py-1 rounded text-xs flex items-center">
+                        <button 
+                          onClick={() => setSelectedDistributor(distributor)}
+                          className="bg-green-600 text-white px-2 py-1 rounded text-xs flex items-center"
+                        >
                           <CheckCircle className="w-3 h-3 mr-1" />
                           Verify Stock
                         </button>
@@ -393,7 +396,7 @@ const Liquidation: React.FC = () => {
                       <div className="text-sm text-purple-600 mb-1">Volume</div>
                       <div className="text-2xl font-bold text-purple-800">{distributor.balanceStock.volume}</div>
                       <div className="text-sm text-purple-600 mt-2">Value</div>
-                      <div className="text-sm font-semibold text-purple-700">₹{distributor.balanceStock.value}L</div>
+                      <div className="text-sm text-purple-600 font-semibold">₹{distributor.balanceStock.value}L</div>
                     </div>
                   </div>
 
@@ -422,8 +425,6 @@ const Liquidation: React.FC = () => {
                         <Calendar className="w-4 h-4 mr-1" />
                         Updated: {distributor.lastUpdated}
                       </span>
-                    </div>
-                    <div className="flex items-center space-x-4">
                       <span className="flex items-center">
                         <User className="w-4 h-4 mr-1" />
                         Territory: {distributor.territory}
