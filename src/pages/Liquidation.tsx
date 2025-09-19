@@ -934,7 +934,6 @@ const Liquidation: React.FC = () => {
         </div>
       )}
     </div>
-    </div>
   );
 };
 
