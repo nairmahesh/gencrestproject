@@ -442,14 +442,15 @@ const Liquidation: React.FC = () => {
           </div>
           
           <div className="flex items-center justify-between mt-4 text-sm text-gray-600">
-            <span>Showing {filteredDistributors.length} of {distributorMetrics.length} distributors</span>
+            <span>
               Showing {activeTab === 'team' ? filteredDistributors.length : selfLiquidationData.personalDistributors.filter(d => 
                 d.distributorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 d.distributorCode.toLowerCase().includes(searchTerm.toLowerCase())
               ).length} of {activeTab === 'team' ? distributorMetrics.length : selfLiquidationData.personalDistributors.length} distributors
-              <span>Active: {activeTab === 'team' ? performanceMetrics.activeDistributors : selfLiquidationData.personalDistributors.filter(d => d.status === 'Active').length}</span>
-              <span>High Priority: {activeTab === 'team' ? performanceMetrics.highPriorityDistributors : selfLiquidationData.personalDistributors.filter(d => d.priority === 'High').length}</span>
-            </div>
+            </span>
+            <span>Active: {activeTab === 'team' ? performanceMetrics.activeDistributors : selfLiquidationData.personalDistributors.filter(d => d.status === 'Active').length}</span>
+            <span>High Priority: {activeTab === 'team' ? performanceMetrics.highPriorityDistributors : selfLiquidationData.personalDistributors.filter(d => d.priority === 'High').length}</span>
+          </div>
           </div>
         </div>
 
