@@ -311,7 +311,6 @@ const Liquidation: React.FC = () => {
             </p>
           </div>
         </div>
-      </div>
 
       {/* Team/Self Tabs - Only show for TSM and above */}
       {showTabs && (
@@ -934,6 +933,7 @@ const Liquidation: React.FC = () => {
           </p>
         </div>
       )}
+    </div>
     </div>
   );
 };
