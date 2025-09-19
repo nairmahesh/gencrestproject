@@ -55,7 +55,6 @@ const Liquidation: React.FC = () => {
   const [tempStock, setTempStock] = useState({ inv1: 105, inv2: 105 });
   const [uploadedProofs, setUploadedProofs] = useState<ProofItem[]>([]);
   const [isCapturing, setIsCapturing] = useState(false);
-  const [showProofSection, setShowProofSection] = useState(false);
 
   const { overallMetrics, distributorMetrics } = useLiquidationCalculation();
   const { latitude, longitude, error: locationError } = useGeolocation();
@@ -116,7 +115,6 @@ const Liquidation: React.FC = () => {
   const handleSaveAndExit = () => {
     setSelectedDistributor(null);
     setUploadedProofs([]);
-    setShowProofSection(false);
     setEditingStock(false);
     alert(`Liquidation data saved successfully with ${uploadedProofs.length} proofs!`);
   };
@@ -470,7 +468,7 @@ const Liquidation: React.FC = () => {
                   </div>
 
                   {/* Uploaded Proofs Gallery */}
-                  {uploadedProofs.length > 0 && (
+                  {uploadedProofs.length > 0 ? (
                     <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
                       <h5 className="font-semibold text-gray-900 mb-3">Uploaded Proofs ({uploadedProofs.length})</h5>
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
@@ -543,9 +541,7 @@ const Liquidation: React.FC = () => {
                         </div>
                       )}
                     </div>
-                  )}
-
-                  {uploadedProofs.length === 0 && (
+                  ) : (
                     <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
                       <Camera className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                       <p className="text-gray-500 mb-2">No proofs uploaded yet</p>
