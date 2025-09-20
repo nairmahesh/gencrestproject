@@ -1690,4 +1690,4 @@ const MobileApp: React.FC = () => {
                           </div>
                           <div className="bg-gray-50 rounded-lg p-3">
                             <div className="space-y-2">
-                               <div className="grid grid-cols-3 gap-2 text-xs font-medium text-gray-700">
+                              <div className="grid grid-cols-3 gap-2 text-xs font-medium text-gray-700">
