@@ -35,7 +35,8 @@ import {
   Video,
   Image as ImageIcon,
   Minus,
-  Save
+  Save,
+  ChevronDown
 } from 'lucide-react';
 import { useLiquidationCalculation } from '../hooks/useLiquidationCalculation';
 import { useGeolocation } from '../hooks/useGeolocation';
@@ -73,6 +74,29 @@ const MobileApp: React.FC = () => {
   const [uploadedProofs, setUploadedProofs] = useState<ProofItem[]>([]);
   const [isCapturing, setIsCapturing] = useState(false);
   const [selectedModal, setSelectedModal] = useState<string | null>(null);
+  const [showPlanModal, setShowPlanModal] = useState(false);
+
+  const currentPlan = {
+    id: 'PLAN-2024-01',
+    title: 'January 2024 Monthly Plan',
+    createdBy: 'Priya Sharma',
+    createdByRole: 'TSM',
+    createdDate: '2024-01-15',
+    approvedBy: 'Amit Patel',
+    approvedDate: '2024-01-16',
+    status: 'Approved',
+    period: 'January 2024',
+    activities: {
+      planned: 45,
+      completed: 38,
+      pending: 7
+    },
+    targets: {
+      visits: 35,
+      sales: 500000,
+      newCustomers: 8
+    }
+  };
 
   const { distributorMetrics } = useLiquidationCalculation();
   const { latitude, longitude, error: locationError } = useGeolocation();
@@ -279,6 +303,20 @@ const MobileApp: React.FC = () => {
               <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 text-white rounded-full text-xs flex items-center justify-center">3</span>
             </button>
           </div>
+        </div>
+      </div>
+
+      {/* Monthly Plan Status Line */}
+      <div 
+        className="bg-blue-50 border border-blue-200 rounded-lg p-3 cursor-pointer hover:bg-blue-100 transition-colors"
+        onClick={() => setShowPlanModal(true)}
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <Calendar className="w-4 h-4 text-blue-600" />
+            <span className="text-sm font-medium text-blue-900">Monthly Plan - Approved</span>
+          </div>
+          <ChevronDown className="w-4 h-4 text-blue-600" />
         </div>
       </div>
 
@@ -1475,6 +1513,118 @@ const MobileApp: React.FC = () => {
       {/* Travel Reimbursement Modal */}
       {showTravelModal && renderTravelReimbursementModal()}
 
+      {/* Monthly Plan Modal */}
+      {showPlanModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl w-full max-w-md max-h-[80vh] overflow-hidden">
+            <div className="flex items-center justify-between p-4 border-b bg-blue-50">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">Current Monthly Plan</h3>
+                <p className="text-sm text-blue-600">{currentPlan.title}</p>
+              </div>
+              <button
+                onClick={() => setShowPlanModal(false)}
+                className="p-2 hover:bg-blue-100 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-4 overflow-y-auto max-h-[calc(80vh-120px)]">
+              <div className="space-y-4">
+                {/* Plan Status */}
+                <div className="bg-green-50 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-green-800">Plan Status</span>
+                    <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
+                      {currentPlan.status}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3 text-xs text-green-700">
+                    <div>
+                      <span className="font-medium">Created by:</span>
+                      <div>{currentPlan.createdBy} ({currentPlan.createdByRole})</div>
+                    </div>
+                    <div>
+                      <span className="font-medium">Created on:</span>
+                      <div>{new Date(currentPlan.createdDate).toLocaleDateString()}</div>
+                    </div>
+                    <div>
+                      <span className="font-medium">Approved by:</span>
+                      <div>{currentPlan.approvedBy}</div>
+                    </div>
+                    <div>
+                      <span className="font-medium">Approved on:</span>
+                      <div>{new Date(currentPlan.approvedDate).toLocaleDateString()}</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Activities Progress */}
+                <div className="bg-white border border-gray-200 rounded-lg p-4">
+                  <h4 className="font-semibold text-gray-900 mb-3">Activities Progress</h4>
+                  <div className="grid grid-cols-3 gap-3 text-center">
+                    <div>
+                      <div className="text-lg font-bold text-blue-600">{currentPlan.activities.planned}</div>
+                      <div className="text-xs text-gray-600">Planned</div>
+                    </div>
+                    <div>
+                      <div className="text-lg font-bold text-green-600">{currentPlan.activities.completed}</div>
+                      <div className="text-xs text-gray-600">Completed</div>
+                    </div>
+                    <div>
+                      <div className="text-lg font-bold text-orange-600">{currentPlan.activities.pending}</div>
+                      <div className="text-xs text-gray-600">Pending</div>
+                    </div>
+                  </div>
+                  <div className="mt-3">
+                    <div className="flex justify-between text-xs text-gray-600 mb-1">
+                      <span>Progress</span>
+                      <span>{Math.round((currentPlan.activities.completed / currentPlan.activities.planned) * 100)}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div 
+                        className="bg-blue-600 h-2 rounded-full" 
+                        style={{ width: `${(currentPlan.activities.completed / currentPlan.activities.planned) * 100}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Monthly Targets */}
+                <div className="bg-white border border-gray-200 rounded-lg p-4">
+                  <h4 className="font-semibold text-gray-900 mb-3">Monthly Targets</h4>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Dealer Visits</span>
+                      <span className="font-semibold text-gray-900">{currentPlan.targets.visits}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Sales Target</span>
+                      <span className="font-semibold text-gray-900">₹{(currentPlan.targets.sales / 100000).toFixed(1)}L</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">New Customers</span>
+                      <span className="font-semibold text-gray-900">{currentPlan.targets.newCustomers}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Quick Actions */}
+                <div className="space-y-2">
+                  <button className="w-full bg-purple-600 text-white py-3 rounded-lg font-medium hover:bg-purple-700 transition-colors">
+                    View Full Plan Details
+                  </button>
+                  <button className="w-full border border-gray-300 text-gray-700 py-3 rounded-lg font-medium hover:bg-gray-50 transition-colors">
+                    Update Progress
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* View Modal - Mobile Version */}
       {selectedModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2">
@@ -1541,228 +1691,4 @@ const MobileApp: React.FC = () => {
                           <div className="bg-gray-50 rounded-lg p-3">
                             <div className="space-y-2">
                               <div className="grid grid-cols-3 gap-2 text-xs font-medium text-gray-700">
-                                <div>Invoice Details</div>
-                                <div>Current Stock</div>
-                                <div>{type === 'balance' ? 'Physical Stock' : type === 'ytd' ? 'Sales Value' : 'Stock'}</div>
-                              </div>
-                              
-                              <div className="grid grid-cols-3 gap-2 items-center py-2 border-t border-gray-200">
-                                <div>
-                                  <p className="text-xs font-medium text-gray-900">INV-2024-001</p>
-                                  <p className="text-xs text-gray-600">1/15/2024</p>
-                                </div>
-                                <div className="text-center">
-                                  <div className="bg-orange-100 rounded p-2">
-                                    <div className="text-sm font-bold text-orange-800">105</div>
-                                  </div>
-                                </div>
-                                <div className="text-center">
-                                  {type === 'balance' ? (
-                                    <input 
-                                      type="number" 
-                                      defaultValue="105" 
-                                      className="w-full text-center text-sm font-bold text-gray-800 bg-gray-100 rounded p-2 border-none outline-none"
-                                    />
-                                  ) : type === 'ytd' ? (
-                                    <div className="bg-blue-100 rounded p-2">
-                                      <div className="text-sm font-bold text-blue-800">₹0.14L</div>
-                                    </div>
-                                  ) : (
-                                    <div className="bg-blue-100 rounded p-2">
-                                      <div className="text-sm font-bold text-blue-800">105</div>
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-      
-                        {/* DAP 50kg */}
-                        <div className="mb-4">
-                          <div className="bg-green-600 text-white px-3 py-1 rounded-lg text-sm font-medium mb-3 inline-block">
-                            DAP 50kg Bag
-                          </div>
-                          <div className="bg-gray-50 rounded-lg p-3">
-                            <div className="grid grid-cols-3 gap-2 items-center py-2">
-                              <div>
-                                <p className="text-xs font-medium text-gray-900">INV-2024-001</p>
-                                <p className="text-xs text-gray-600">1/15/2024</p>
-                              </div>
-                              <div className="text-center">
-                                <div className="bg-orange-100 rounded p-2">
-                                  <div className="text-sm font-bold text-orange-800">105</div>
-                                </div>
-                              </div>
-                              <div className="text-center">
-                                {type === 'balance' ? (
-                                  <input 
-                                    type="number" 
-                                    defaultValue="105" 
-                                    className="w-full text-center text-sm font-bold text-gray-800 bg-gray-100 rounded p-2 border-none outline-none"
-                                  />
-                                ) : type === 'ytd' ? (
-                                  <div className="bg-blue-100 rounded p-2">
-                                    <div className="text-sm font-bold text-blue-800">₹0.14L</div>
-                                  </div>
-                                ) : (
-                                  <div className="bg-blue-100 rounded p-2">
-                                    <div className="text-sm font-bold text-blue-800">105</div>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Proof Upload Section - Only for Balance Stock */}
-                      {type === 'balance' && (
-                        <div className="bg-white rounded-xl p-4 border border-gray-200">
-                          <div className="flex items-center justify-between mb-4">
-                            <h4 className="text-sm font-semibold text-gray-900">Upload Proof</h4>
-                            <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
-                              {uploadedProofs.length} proofs
-                            </span>
-                          </div>
-
-                          {/* Primary Actions - Mobile Layout */}
-                          <div className="grid grid-cols-2 gap-3 mb-4">
-                            <button 
-                              onClick={() => handleCameraCapture('photo')}
-                              disabled={isCapturing || !latitude || !longitude}
-                              className="bg-blue-600 text-white py-4 rounded-lg flex flex-col items-center disabled:opacity-50 hover:bg-blue-700 transition-colors"
-                            >
-                              <Camera className="w-6 h-6 mb-2" />
-                              <span className="text-sm font-medium">Click Pic</span>
-                            </button>
-                            
-                            <label className="bg-purple-600 text-white py-4 rounded-lg flex flex-col items-center cursor-pointer hover:bg-purple-700 transition-colors">
-                              <Upload className="w-6 h-6 mb-2" />
-                              <span className="text-sm font-medium">Upload Doc</span>
-                              <input
-                                type="file"
-                                multiple
-                                accept="image/*,video/*"
-                                onChange={(e) => e.target.files && handleFileUpload(e.target.files)}
-                                className="hidden"
-                              />
-                            </label>
-                          </div>
-      
-                          {/* Secondary Actions */}
-                          <div className="grid grid-cols-2 gap-3 mb-4">
-                            <button 
-                              onClick={() => handleCameraCapture('video')}
-                              disabled={isCapturing || !latitude || !longitude}
-                              className="bg-indigo-600 text-white py-2 rounded-lg flex items-center justify-center disabled:opacity-50 hover:bg-indigo-700 transition-colors"
-                            >
-                              <Video className="w-4 h-4 mr-1" />
-                              <span className="text-sm font-medium">Video</span>
-                            </button>
-                            
-                            <button
-                              onClick={handleSignatureCapture}
-                              disabled={!latitude || !longitude}
-                              className="bg-green-600 text-white py-2 rounded-lg flex items-center justify-center disabled:opacity-50 hover:bg-green-700 transition-colors"
-                            >
-                              <FileText className="w-4 h-4 mr-1" />
-                              <span className="text-sm font-medium">Signature</span>
-                            </button>
-                          </div>
-
-                          {/* Location Status */}
-                          <div className={`p-3 rounded-lg border mb-4 ${
-                            latitude && longitude 
-                              ? 'bg-green-50 border-green-200' 
-                              : 'bg-red-50 border-red-200'
-                          }`}>
-                            <div className="flex items-center justify-between text-xs">
-                              <div className="flex items-center space-x-1">
-                                <MapPin className={`w-3 h-3 ${latitude && longitude ? 'text-green-600' : 'text-red-600'}`} />
-                                <span className={`font-medium ${latitude && longitude ? 'text-green-800' : 'text-red-800'}`}>
-                                  {latitude && longitude ? 'Location Verified' : 'Location Required'}
-                                </span>
-                              </div>
-                              <div className="flex items-center space-x-1">
-                                <Clock className={`w-3 h-3 ${latitude && longitude ? 'text-green-600' : 'text-red-600'}`} />
-                                <span className={`${latitude && longitude ? 'text-green-700' : 'text-red-700'}`}>
-                                  {new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Uploaded Proofs */}
-                          {uploadedProofs.length > 0 && (
-                            <div className="border border-gray-200 rounded-lg p-3 mb-4">
-                              <h5 className="text-sm font-semibold text-gray-900 mb-3">Uploaded Proofs ({uploadedProofs.length})</h5>
-                              <div className="grid grid-cols-3 gap-2">
-                                {uploadedProofs.map((proof) => (
-                                  <div key={proof.id} className="relative">
-                                    <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
-                                      {proof.type === 'video' ? (
-                                        <div className="w-full h-full flex items-center justify-center bg-purple-100">
-                                          <Video className="w-6 h-6 text-purple-600" />
-                                        </div>
-                                      ) : proof.type === 'signature' ? (
-                                        <div className="w-full h-full flex items-center justify-center bg-green-100">
-                                          <FileText className="w-6 h-6 text-green-600" />
-                                        </div>
-                                      ) : (
-                                        <div className="w-full h-full flex items-center justify-center bg-blue-100">
-                                          <ImageIcon className="w-6 h-6 text-blue-600" />
-                                        </div>
-                                      )}
-                                    </div>
-                                    <div className="absolute top-0 right-0 w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
-                                      <CheckCircle className="w-2 h-2 text-white" />
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  
-                  {/* Save & Exit Button - Only for Balance Stock */}
-                  {type === 'balance' && (
-                    <div className="flex justify-between items-center p-4 border-t bg-gray-50">
-                      <button
-                        onClick={() => setSelectedModal(null)}
-                        className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        onClick={handleSaveAndExit}
-                        className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center text-sm"
-                      >
-                        <Save className="w-4 h-4 mr-1" />
-                        Save & Exit ({uploadedProofs.length})
-                      </button>
-                    </div>
-                  )}
-                </>
-              );
-            })()}
-          </div>
-        </div>
-      )}
-
-      {/* Verification Modal */}
-      {showVerifyModal && renderVerificationModal()}
-
-      {/* E-Signature Modal */}
-      {showSignatureModal && renderSignatureModal()}
-
-      {/* Document Upload Modal */}
-      {showDocumentModal && renderDocumentModal()}
-    </div>
-  );
-};
-
-export default MobileApp;
+                                
