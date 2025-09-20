@@ -1690,4 +1690,65 @@ const MobileApp: React.FC = () => {
                           </div>
                           <div className="bg-gray-50 rounded-lg p-3">
                             <div className="space-y-2">
+                               <div className="grid grid-cols-3 gap-2 text-xs font-medium text-gray-700">
+                                <span>Invoice</span>
+                                <span>Volume</span>
+                                <span>Value</span>
+                              </div>
+                              <div className="grid grid-cols-3 gap-2 text-xs">
+                                <span>INV-001</span>
+                                <span>1,250 Kg</span>
+                                <span>₹1.6L</span>
+                              </div>
+                              <div className="grid grid-cols-3 gap-2 text-xs">
+                                <span>INV-002</span>
+                                <span>900 Kg</span>
+                                <span>₹1.2L</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* DAP 50kg */}
+                        <div className="mb-4">
+                          <div className="bg-green-600 text-white px-3 py-1 rounded-lg text-sm font-medium mb-3 inline-block">
+                            DAP 50kg Bag
+                          </div>
+                          <div className="bg-gray-50 rounded-lg p-3">
+                            <div className="space-y-2">
                               <div className="grid grid-cols-3 gap-2 text-xs font-medium text-gray-700">
+                                <span>Invoice</span>
+                                <span>Volume</span>
+                                <span>Value</span>
+                              </div>
+                              <div className="grid grid-cols-3 gap-2 text-xs">
+                                <span>INV-003</span>
+                                <span>350 Kg</span>
+                                <span>₹0.4L</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              );
+            })()}
+          </div>
+        </div>
+      )}
+
+      {/* Verification Modal */}
+      {showVerifyModal && renderVerificationModal()}
+
+      {/* Signature Modal */}
+      {showSignatureModal && renderSignatureModal()}
+
+      {/* Document Modal */}
+      {showDocumentModal && renderDocumentModal()}
+    </div>
+  );
+};
+
+export default MobileApp;
