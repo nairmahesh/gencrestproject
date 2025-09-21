@@ -46,6 +46,58 @@ interface WorkPlanData {
     completedPercentage: number;
   };
   activityCategories: ActivityCategory[];
+  dailyPlans: DailyPlan[];
+}
+
+interface DailyPlan {
+  id: string;
+  date: string;
+  dayOfWeek: string;
+  activities: DailyActivity[];
+  totalTargetNumber: number;
+  completedTargetNumber: number;
+  status: 'Scheduled' | 'In Progress' | 'Completed' | 'Cancelled';
+}
+
+interface DailyActivity {
+  id: string;
+  activityType: string;
+  activityCategory: 'Internal Meetings' | 'Farmer BTL Engagement' | 'Channel BTL Engagement';
+  village: string;
+  associatedDistributor: string;
+  distributorCode: string;
+  targetNumbers: {
+    participants?: number;
+    dealers?: number;
+    retailers?: number;
+    farmers?: number;
+    volume?: number;
+    value?: number;
+  };
+  actualNumbers?: {
+    participants?: number;
+    dealers?: number;
+    retailers?: number;
+    farmers?: number;
+    volume?: number;
+    value?: number;
+  };
+  startTime: string;
+  endTime: string;
+  estimatedDuration: number; // in minutes
+  actualDuration?: number;
+  status: 'Scheduled' | 'In Progress' | 'Completed' | 'Cancelled';
+  location: {
+    latitude?: number;
+    longitude?: number;
+    address: string;
+  };
+  notes?: string;
+  proof?: {
+    photos: string[];
+    videos: string[];
+    signatures: string[];
+  };
 }
 
 interface ActivityCategory {
@@ -126,6 +178,8 @@ const MDOModule: React.FC = () => {
   const [activeView, setActiveView] = useState<'overview' | 'schedule' | 'tasks'>('overview');
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('All');
+  const [selectedDate, setSelectedDate] = useState('2024-01-22');
+  const [showDayDetails, setShowDayDetails] = useState<string | null>(null);
   const [liveMeetings, setLiveMeetings] = useState([
     {
       id: 'LM001',
@@ -201,6 +255,167 @@ const MDOModule: React.FC = () => {
         totalDone: 2,
         activities: [
           { name: 'Trade Merchandise', planned: 3, done: 2, status: 'In Progress', lastUpdated: '2024-01-19' }
+        ]
+      }
+    ],
+    dailyPlans: [
+      {
+        id: 'DP001',
+        date: '2024-01-22',
+        dayOfWeek: 'Monday',
+        totalTargetNumber: 45,
+        completedTargetNumber: 35,
+        status: 'Scheduled',
+        activities: [
+          {
+            id: 'DA001',
+            activityType: 'Farmer Meets – Small',
+            activityCategory: 'Farmer BTL Engagement',
+            village: 'Green Valley',
+            associatedDistributor: 'SRI RAMA SEEDS AND PESTICIDES',
+            distributorCode: '1325',
+            targetNumbers: {
+              farmers: 25,
+              participants: 25,
+              volume: 500,
+              value: 50000
+            },
+            startTime: '10:00 AM',
+            endTime: '12:00 PM',
+            estimatedDuration: 120,
+            status: 'Scheduled',
+            location: {
+              address: 'Green Valley Community Center, Sector 12'
+            }
+          },
+          {
+            id: 'DA002',
+            activityType: 'Farm level demos',
+            activityCategory: 'Farmer BTL Engagement',
+            village: 'Sector 8',
+            associatedDistributor: 'Ram Kumar Distributors',
+            distributorCode: 'DLR001',
+            targetNumbers: {
+              farmers: 15,
+              participants: 15,
+              volume: 300,
+              value: 30000
+            },
+            startTime: '2:30 PM',
+            endTime: '4:30 PM',
+            estimatedDuration: 120,
+            status: 'Scheduled',
+            location: {
+              address: 'Ram Kumar Farm, Sector 8'
+            }
+          }
+        ]
+      },
+      {
+        id: 'DP002',
+        date: '2024-01-23',
+        dayOfWeek: 'Tuesday',
+        totalTargetNumber: 50,
+        completedTargetNumber: 50,
+        status: 'Completed',
+        activities: [
+          {
+            id: 'DA003',
+            activityType: 'Distributor Day Training Program (25 dealers max)',
+            activityCategory: 'Farmer BTL Engagement',
+            village: 'Market Area',
+            associatedDistributor: 'Green Agro Solutions',
+            distributorCode: 'GAS001',
+            targetNumbers: {
+              dealers: 25,
+              participants: 25,
+              volume: 1000,
+              value: 100000
+            },
+            actualNumbers: {
+              dealers: 28,
+              participants: 28,
+              volume: 1200,
+              value: 120000
+            },
+            startTime: '9:00 AM',
+            endTime: '5:00 PM',
+            estimatedDuration: 480,
+            actualDuration: 510,
+            status: 'Completed',
+            location: {
+              latitude: 28.6139,
+              longitude: 77.2090,
+              address: 'Green Agro Solutions Training Hall, Market Area'
+            },
+            notes: 'Exceeded target participation. Great response from dealers.',
+            proof: {
+              photos: ['training_session_1.jpg', 'group_photo.jpg'],
+              videos: ['demo_video.mp4'],
+              signatures: ['attendance_sheet.pdf']
+            }
+          }
+        ]
+      },
+      {
+        id: 'DP003',
+        date: '2024-01-24',
+        dayOfWeek: 'Wednesday',
+        totalTargetNumber: 30,
+        completedTargetNumber: 25,
+        status: 'In Progress',
+        activities: [
+          {
+            id: 'DA004',
+            activityType: 'Wall Paintings',
+            activityCategory: 'Farmer BTL Engagement',
+            village: 'Industrial Area',
+            associatedDistributor: 'SRI RAMA SEEDS AND PESTICIDES',
+            distributorCode: '1325',
+            targetNumbers: {
+              participants: 10,
+              volume: 200,
+              value: 15000
+            },
+            actualNumbers: {
+              participants: 8,
+              volume: 160,
+              value: 12000
+            },
+            startTime: '8:00 AM',
+            endTime: '11:00 AM',
+            estimatedDuration: 180,
+            actualDuration: 165,
+            status: 'Completed',
+            location: {
+              latitude: 28.4089,
+              longitude: 77.3178,
+              address: 'Industrial Area Main Road'
+            },
+            proof: {
+              photos: ['wall_painting_before.jpg', 'wall_painting_after.jpg'],
+              videos: [],
+              signatures: ['completion_certificate.pdf']
+            }
+          },
+          {
+            id: 'DA005',
+            activityType: 'Team Meetings',
+            activityCategory: 'Internal Meetings',
+            village: 'Regional Office',
+            associatedDistributor: 'N/A',
+            distributorCode: 'N/A',
+            targetNumbers: {
+              participants: 5
+            },
+            startTime: '2:00 PM',
+            endTime: '3:00 PM',
+            estimatedDuration: 60,
+            status: 'Scheduled',
+            location: {
+              address: 'Regional Office Conference Room'
+            }
+          }
         ]
       }
     ]
