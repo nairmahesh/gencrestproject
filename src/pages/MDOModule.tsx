@@ -622,6 +622,21 @@ const MDOModule: React.FC = () => {
           >
             Schedule & Tasks
           </button>
+          <button
+            onClick={() => setActiveTab('alerts')}
+            className={`flex-1 py-3 px-4 rounded-lg transition-colors font-medium ${
+              activeTab === 'alerts'
+                ? 'bg-purple-600 text-white'
+                : 'text-gray-600 hover:bg-gray-100'
+            }`}
+          >
+            ALERTS
+            {locationDeviations.filter(d => d.status === 'pending').length > 0 && (
+              <span className="ml-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+                {locationDeviations.filter(d => d.status === 'pending').length}
+              </span>
+            )}
+          </button>
         </div>
       </div>
 
@@ -690,6 +705,148 @@ const MDOModule: React.FC = () => {
                   <div className="bg-purple-600 h-2 rounded-full" style={{ width: '84%' }}></div>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'alerts' && (
+        <div className="space-y-6">
+          {/* Location Deviations */}
+          <div className="bg-white rounded-xl p-6 card-shadow">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                  <AlertTriangle className="w-5 h-5 text-red-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">Location Deviations</h3>
+                  <p className="text-sm text-gray-600">Activities performed outside assigned locations</p>
+                </div>
+              </div>
+              <span className="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium">
+                {locationDeviations.filter(d => d.status === 'pending').length} Pending Approval
+              </span>
+            </div>
+
+            <div className="space-y-4">
+              {locationDeviations.map((deviation) => (
+                <div key={deviation.id} className="border border-gray-200 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center space-x-3">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                        deviation.status === 'pending' ? 'bg-yellow-100' :
+                        deviation.status === 'approved' ? 'bg-green-100' : 'bg-red-100'
+                      }`}>
+                        <AlertTriangle className={`w-4 h-4 ${
+                          deviation.status === 'pending' ? 'text-yellow-600' :
+                          deviation.status === 'approved' ? 'text-green-600' : 'text-red-600'
+                        }`} />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-gray-900">
+                          {deviation.deviation.toFixed(1)}km deviation detected
+                        </h4>
+                        <p className="text-sm text-gray-600">{deviation.mdoName} ({deviation.mdoCode})</p>
+                      </div>
+                    </div>
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${getDeviationStatusColor(deviation.status)}`}>
+                      {deviation.status.charAt(0).toUpperCase() + deviation.status.slice(1)}
+                    </span>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div className="bg-red-50 rounded-lg p-3">
+                      <h5 className="font-semibold text-red-800 mb-2">Assigned Location</h5>
+                      <p className="text-sm text-red-700">{deviation.assignedLocation}</p>
+                    </div>
+                    <div className="bg-blue-50 rounded-lg p-3">
+                      <h5 className="font-semibold text-blue-800 mb-2">Actual Location</h5>
+                      <p className="text-sm text-blue-700">{deviation.actualLocation}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600 mb-4">
+                    <div>
+                      <p><strong>Date & Time:</strong> {deviation.date} at {deviation.time}</p>
+                      <p><strong>Deviation:</strong> {deviation.deviation.toFixed(1)} km</p>
+                    </div>
+                    <div>
+                      {deviation.approvedBy && (
+                        <>
+                          <p><strong>Approved by:</strong> {deviation.approvedBy}</p>
+                          <p><strong>Approved on:</strong> {deviation.approvedDate}</p>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="bg-gray-50 rounded-lg p-3 mb-4">
+                    <h5 className="font-semibold text-gray-900 mb-2">MDO Remarks</h5>
+                    <p className="text-sm text-gray-700">{deviation.remarks}</p>
+                    {deviation.approverComments && (
+                      <>
+                        <h5 className="font-semibold text-gray-900 mb-2 mt-3">Approver Comments</h5>
+                        <p className="text-sm text-green-700">{deviation.approverComments}</p>
+                      </>
+                    )}
+                  </div>
+
+                  {deviation.status === 'pending' && (
+                    <div className="flex space-x-3">
+                      <button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center">
+                        <CheckCircle className="w-4 h-4 mr-2" />
+                        Approve
+                      </button>
+                      <button className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center">
+                        <X className="w-4 h-4 mr-2" />
+                        Reject
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))}
+
+              {locationDeviations.length === 0 && (
+                <div className="text-center py-12">
+                  <CheckCircle className="w-12 h-12 text-green-400 mx-auto mb-4" />
+                  <p className="text-gray-500">No location deviations found</p>
+                  <p className="text-sm text-gray-400">All activities performed at assigned locations</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Other Alert Types */}
+          <div className="bg-white rounded-xl p-6 card-shadow">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
+                <Clock className="w-5 h-5 text-yellow-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">Time Deviations</h3>
+                <p className="text-sm text-gray-600">Activities started/ended outside scheduled time</p>
+              </div>
+            </div>
+            <div className="text-center py-8">
+              <CheckCircle className="w-8 h-8 text-green-400 mx-auto mb-2" />
+              <p className="text-gray-500">No time deviations</p>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl p-6 card-shadow">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
+                <Target className="w-5 h-5 text-orange-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">Target Deviations</h3>
+                <p className="text-sm text-gray-600">Activities with significant target vs actual variance</p>
+              </div>
+            </div>
+            <div className="text-center py-8">
+              <CheckCircle className="w-8 h-8 text-green-400 mx-auto mb-2" />
+              <p className="text-gray-500">No target deviations</p>
             </div>
           </div>
         </div>
@@ -983,50 +1140,6 @@ const MDOModule: React.FC = () => {
           )}
 
           {/* Day-wise Activity Plans */}
-          <div className="bg-white rounded-xl p-6 card-shadow">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold text-gray-900">Day-wise Activity Plans</h3>
-              <input
-                type="date"
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              />
-            </div>
-
-            <div className="space-y-4">
-              {getPlansForDate(selectedDate).map((plan) => (
-                <div key={plan.id} className="border border-gray-200 rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                        <Activity className="w-5 h-5 text-purple-600" />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold text-gray-900">{plan.activityType}</h4>
-                        <p className="text-sm text-gray-600">{plan.village} • {plan.associatedDistributor}</p>
-                      </div>
-                    </div>
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(plan.status)}`}>
-                      {plan.status}
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                    <div className="flex items-center text-sm text-gray-600">
-                      <Clock className="w-4 h-4 mr-2" />
-                      <span>{plan.startTime} - {plan.endTime} ({plan.duration} min)</span>
-                    </div>
-                    <div className="flex items-center text-sm text-gray-600">
-                      <MapPin className="w-4 h-4 mr-2" />
-                      <span>{plan.assignedLocation.address}</span>
-                    </div>
-                    <div className="flex items-center text-sm text-gray-600">
-                      <Building className="w-4 h-4 mr-2" />
-                      <span>{plan.distributorCode}</span>
-                    </div>
-                  </div>
-
                   {/* Target Numbers */}
                   <div className="bg-gray-50 rounded-lg p-4 mb-4">
                     <h5 className="font-semibold text-gray-900 mb-3">Target Numbers</h5>
