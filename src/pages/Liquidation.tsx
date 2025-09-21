@@ -402,7 +402,12 @@ const Liquidation: React.FC = () => {
                       <Building className="w-5 h-5 text-purple-600" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900">{distributor.name}</h3>
+                      <button
+                        onClick={() => navigate(`/distributor/${distributor.id}`)}
+                        className="text-lg font-semibold text-blue-600 hover:text-blue-800 transition-colors text-left"
+                      >
+                        {distributor.name}
+                      </button>
                       <div className="flex items-center space-x-4 text-sm text-gray-600">
                         <span>Code: {distributor.code}</span>
                         <span className="text-blue-600">{distributor.product}</span>
@@ -521,13 +526,6 @@ const Liquidation: React.FC = () => {
                       Territory: {distributor.territory}
                     </span>
                   </div>
-                  <button
-                    onClick={() => navigate(`/distributor/${distributor.id}`)}
-                    className="bg-blue-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700 transition-colors flex items-center text-sm"
-                  >
-                    <Building className="w-3 h-3 mr-1" />
-                    360° View
-                  </button>
                 </div>
 
                 {/* Remarks */}
