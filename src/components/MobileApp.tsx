@@ -98,8 +98,11 @@ const MobileApp: React.FC = () => {
       {/* Live Meetings Section */}
       <div className="bg-white rounded-xl p-4 border border-gray-200">
         <div className="flex items-center justify-between mb-3">
-          className="flex items-center justify-between mb-3 cursor-pointer hover:bg-gray-50 -mx-2 px-2 py-1 rounded-lg transition-colors"
+        <div 
+          className="flex items-center justify-between cursor-pointer hover:bg-gray-50 -mx-2 px-2 py-1 rounded-lg transition-colors"
           onClick={() => setLiveMeetingsExpanded(!liveMeetingsExpanded)}
+        >
+          <div className="flex items-center space-x-2">
             <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
             <span className="text-sm font-medium text-gray-900">Live Meetings</span>
           </div>
