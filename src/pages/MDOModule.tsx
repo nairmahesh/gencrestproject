@@ -145,6 +145,7 @@ const MDOModule: React.FC = () => {
   const [uploadedProofs, setUploadedProofs] = useState<any[]>([]);
   const [isCapturing, setIsCapturing] = useState(false);
   const [showLocationAlert, setShowLocationAlert] = useState(false);
+  const [showWorkPlan, setShowWorkPlan] = useState(false);
   const [locationDeviation, setLocationDeviation] = useState<number>(0);
   const [deviationRemarks, setDeviationRemarks] = useState('');
   const [showReportsModal, setShowReportsModal] = useState(false);
@@ -450,228 +451,244 @@ const MDOModule: React.FC = () => {
             address: 'Current Location',
             deviation: locationDeviation,
             isValid: locationDeviation <= 5
-          },
-          proof: {
-            photos: uploadedProofs.filter(p => p.type === 'photo').map(p => p.url),
-            videos: uploadedProofs.filter(p => p.type === 'video').map(p => p.url),
-            signatures: uploadedProofs.filter(p => p.type === 'signature').map(p => p.url),
-            timestamp: new Date().toISOString(),
-            capturedBy: user?.name || 'MDO'
-          }
-        };
-      }
-      return plan;
-    }));
-
-    // Reset visit state
-    setActiveVisit(null);
-    setSelectedActivity('');
-    setActivityOutcome('');
-    setVisitRemarks('');
-    setUploadedProofs([]);
-    setLocationDeviation(0);
-    
-    alert('Visit completed successfully!');
-  };
-
-  const getPlansForDate = (date: string) => {
-    return dailyPlans.filter(plan => plan.date === date);
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'Completed': return 'bg-green-100 text-green-800';
-      case 'In Progress': return 'bg-blue-100 text-blue-800';
-      case 'Not Started': return 'bg-gray-100 text-gray-800';
-      case 'Cancelled': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const getDeviationStatusColor = (status: string) => {
-    switch (status) {
-      case 'approved': return 'bg-green-100 text-green-800';
-      case 'rejected': return 'bg-red-100 text-red-800';
-      case 'pending': return 'bg-yellow-100 text-yellow-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const generateReport = (type: string) => {
-    setSelectedReport(type);
-    setShowReportsModal(true);
-  };
-
-  const getReportData = (type: string) => {
-    const completedActivities = dailyPlans.filter(p => p.status === 'Completed');
-    const totalPlanned = dailyPlans.length;
-    const totalCompleted = completedActivities.length;
-    
-    switch (type) {
-      case 'planned-vs-achieved':
-        return {
-          title: 'Planned vs Achieved Report',
-          data: {
-            totalPlanned,
-            totalCompleted,
-            completionRate: Math.round((totalCompleted / totalPlanned) * 100),
-            categoryBreakdown: Object.keys(activityCategories).map(category => ({
-              category,
-              planned: dailyPlans.filter(p => p.activityCategory === category).length,
-              completed: completedActivities.filter(p => p.activityCategory === category).length
-            }))
-          }
-        };
-      case 'ytd-totals':
-        return {
-          title: 'YTD Totals Report',
-          data: {
-            ytdPlanned: 240,
-            ytdCompleted: 216,
-            ytdCompletionRate: 90,
-            monthlyBreakdown: [
-              { month: 'Jan', planned: 45, completed: 38 },
-              { month: 'Feb', planned: 42, completed: 40 },
-              { month: 'Mar', planned: 48, completed: 45 }
-            ]
-          }
-        };
-      case 'region-wise':
-        return {
-          title: 'Region-wise Roll-up Report',
-          data: {
-            region: 'Delhi NCR',
-            totalMDOs: 3,
-            totalActivities: 135,
-            completedActivities: 121,
-            regionCompletion: 90,
-            territoryBreakdown: [
-              { territory: 'North Delhi', completion: 88 },
-              { territory: 'South Delhi', completion: 92 },
-              { territory: 'East Delhi', completion: 89 }
-            ]
-          }
-        };
-      default:
-        return null;
-    }
-  };
-
-  return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <button 
-            onClick={() => navigate('/')}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">MDO Work Plan</h1>
-            <p className="text-gray-600 mt-1">Advanced Work Plan (AWP) Assignment & Validation</p>
-          </div>
-        </div>
+      <div className="bg-white rounded-xl card-shadow">
         <button
-          onClick={() => generateReport('planned-vs-achieved')}
-          className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center"
+          onClick={() => setShowWorkPlan(!showWorkPlan)}
+          className="w-full p-6 flex items-center justify-between hover:bg-gray-50 transition-colors"
         >
-          <FileText className="w-4 h-4 mr-2" />
-          Generate Reports
+          <div className="flex items-center space-x-3">
+            <Calendar className="w-6 h-6 text-purple-600" />
+            <div className="text-left">
+              <h2 className="text-xl font-semibold text-gray-900">Work Plan Assignment</h2>
+              <p className="text-sm text-gray-600">Monthly activity plan created by TSM</p>
+            </div>
+          </div>
+          <div className="flex items-center space-x-3">
+            <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+              Created by TSM
+            </span>
+            <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform ${showWorkPlan ? 'rotate-180' : ''}`} />
+          </div>
         </button>
-      </div>
 
-      {/* Work Plan Assignment Info */}
-      <div className="bg-white rounded-xl p-6 card-shadow">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">Work Plan Assignment</h3>
-          <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
-            Created by TSM
-          </span>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-          <div className="bg-blue-50 rounded-lg p-4">
-            <div className="flex items-center space-x-2 mb-2">
-              <User className="w-4 h-4 text-blue-600" />
-              <span className="text-sm font-medium text-blue-800">Plan Creator</span>
-            </div>
-            <p className="font-semibold text-blue-900">Priya Sharma (TSM)</p>
-            <p className="text-xs text-blue-600">Territory Sales Manager</p>
-          </div>
-          
-          <div className="bg-green-50 rounded-lg p-4">
-            <div className="flex items-center space-x-2 mb-2">
-              <Calendar className="w-4 h-4 text-green-600" />
-              <span className="text-sm font-medium text-green-800">Plan Period</span>
-            </div>
-            <p className="font-semibold text-green-900">January 2024</p>
-            <p className="text-xs text-green-600">Monthly AWP</p>
-          </div>
-          
-          <div className="bg-purple-50 rounded-lg p-4">
-            <div className="flex items-center space-x-2 mb-2">
-              <CheckCircle className="w-4 h-4 text-purple-600" />
-              <span className="text-sm font-medium text-purple-800">Approval Status</span>
-            </div>
-            <p className="font-semibold text-purple-900">Approved</p>
-            <p className="text-xs text-purple-600">By RBH - Amit Patel</p>
-          </div>
-        </div>
+        {showWorkPlan && (
+          <div className="px-6 pb-6 border-t border-gray-200">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 mt-6">
+              <div className="bg-blue-50 rounded-xl p-4">
+                <div className="flex items-center space-x-2 mb-3">
+                  <User className="w-5 h-5 text-blue-600" />
+                  <h3 className="font-semibold text-blue-800">Plan Creator</h3>
+                </div>
+                <p className="text-lg font-bold text-blue-900">Priya Sharma (TSM)</p>
+                <p className="text-sm text-blue-600">Territory Sales Manager</p>
+              </div>
 
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-          <div className="flex items-center space-x-2 mb-2">
-            <AlertTriangle className="w-4 h-4 text-yellow-600" />
-            <span className="text-sm font-medium text-yellow-800">Note</span>
-          </div>
-          <p className="text-sm text-yellow-700">
-            In case TSM is absent, RMM creates the Advanced Work Plan (AWP) for MDO
-          </p>
-        </div>
-      </div>
+              <div className="bg-green-50 rounded-xl p-4">
+                <div className="flex items-center space-x-2 mb-3">
+                  <Calendar className="w-5 h-5 text-green-600" />
+                  <h3 className="font-semibold text-green-800">Plan Period</h3>
+                </div>
+                <p className="text-lg font-bold text-green-900">January 2024</p>
+                <p className="text-sm text-green-600">Monthly AWP</p>
+              </div>
 
-      {/* YTD & Monthly Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white rounded-xl p-6 card-shadow">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Total Activities YTD</h3>
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Planned:</span>
-              <span className="text-2xl font-bold text-gray-900">240</span>
+              <div className="bg-purple-50 rounded-xl p-4">
+                <div className="flex items-center space-x-2 mb-3">
+                  <CheckCircle className="w-5 h-5 text-purple-600" />
+                  <h3 className="font-semibold text-purple-800">Approval Status</h3>
+                </div>
+                <p className="text-lg font-bold text-purple-900">Approved</p>
+                <p className="text-sm text-purple-600">By RBH - Amit Patel</p>
+              </div>
             </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Done:</span>
-              <span className="text-2xl font-bold text-green-600">216</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-3">
-              <div className="bg-green-600 h-3 rounded-full" style={{ width: '90%' }}></div>
-            </div>
-            <div className="text-center text-sm text-gray-600">90% Completion Rate</div>
-          </div>
-        </div>
 
-        <div className="bg-white rounded-xl p-6 card-shadow">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Monthly Activity</h3>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="text-center p-3 bg-blue-50 rounded-lg">
-              <div className="text-xl font-bold text-blue-800">45</div>
-              <div className="text-sm text-blue-600">Planned</div>
-            </div>
-            <div className="text-center p-3 bg-green-50 rounded-lg">
-              <div className="text-xl font-bold text-green-800">38</div>
-              <div className="text-sm text-green-600">Done</div>
-            </div>
-            <div className="text-center p-3 bg-orange-50 rounded-lg">
-              <div className="text-xl font-bold text-orange-800">16%</div>
-              <div className="text-sm text-orange-600">Pending</div>
-            </div>
-            <div className="text-center p-3 bg-purple-50 rounded-lg">
-              <div className="text-xl font-bold text-purple-800">84%</div>
-              <div className="text-sm text-purple-600">Completed</div>
+            {/* Day-wise Activity Plans */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-gray-900">Day-wise Activity Plans</h3>
+                <div className="flex items-center space-x-2">
+                  <Calendar className="w-4 h-4 text-gray-600" />
+                  <input
+                    type="date"
+                    value={selectedDate}
+                    onChange={(e) => setSelectedDate(e.target.value)}
+                    className="px-3 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                  />
+                </div>
+              </div>
+
+              <div className="bg-gray-50 rounded-xl p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="text-lg font-semibold text-gray-900">
+                    {new Date(selectedDate).toLocaleDateString('en-IN', { 
+                      weekday: 'long', 
+                      year: 'numeric', 
+                      month: 'long', 
+                      day: 'numeric' 
+                    })}
+                  </h4>
+                  <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+                    {dayPlans[selectedDate]?.length || 0} Activities
+                  </span>
+                </div>
+
+                <div className="space-y-4">
+                  {dayPlans[selectedDate]?.map((activity) => (
+                    <div key={activity.id} className="bg-white rounded-lg p-4 border border-gray-200">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                            <Target className="w-5 h-5 text-purple-600" />
+                          </div>
+                          <div>
+                            <h5 className="font-semibold text-gray-900">{activity.activityType}</h5>
+                            <p className="text-sm text-gray-600">{activity.category}</p>
+                          </div>
+                        </div>
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          activity.status === 'Completed' ? 'bg-green-100 text-green-800' :
+                          activity.status === 'In Progress' ? 'bg-blue-100 text-blue-800' :
+                          'bg-gray-100 text-gray-800'
+                        }`}>
+                          {activity.status}
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <div className="flex items-center text-sm text-gray-600">
+                          <MapPin className="w-4 h-4 mr-2" />
+                          <div>
+                            <p className="font-medium">Village: {activity.village}</p>
+                            <p className="text-xs">Location</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center text-sm text-gray-600">
+                          <Building className="w-4 h-4 mr-2" />
+                          <div>
+                            <p className="font-medium">{activity.distributor}</p>
+                            <p className="text-xs">Associated Distributor</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center text-sm text-gray-600">
+                          <Clock className="w-4 h-4 mr-2" />
+                          <div>
+                            <p className="font-medium">{activity.time}</p>
+                            <p className="text-xs">Duration: {activity.duration} min</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Target Numbers */}
+                      <div className="bg-blue-50 rounded-lg p-4 mb-4">
+                        <h6 className="font-semibold text-blue-800 mb-3">Target Numbers</h6>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                          {activity.targetNumbers.participants && (
+                            <div className="text-center">
+                              <div className="text-lg font-bold text-blue-900">{activity.targetNumbers.participants}</div>
+                              <div className="text-xs text-blue-600">Participants</div>
+                            </div>
+                          )}
+                          {activity.targetNumbers.dealers && (
+                            <div className="text-center">
+                              <div className="text-lg font-bold text-blue-900">{activity.targetNumbers.dealers}</div>
+                              <div className="text-xs text-blue-600">Dealers</div>
+                            </div>
+                          )}
+                          {activity.targetNumbers.retailers && (
+                            <div className="text-center">
+                              <div className="text-lg font-bold text-blue-900">{activity.targetNumbers.retailers}</div>
+                              <div className="text-xs text-blue-600">Retailers</div>
+                            </div>
+                          )}
+                          {activity.targetNumbers.farmers && (
+                            <div className="text-center">
+                              <div className="text-lg font-bold text-blue-900">{activity.targetNumbers.farmers}</div>
+                              <div className="text-xs text-blue-600">Farmers</div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Actual Numbers (if completed) */}
+                      {activity.actualNumbers && (
+                        <div className="bg-green-50 rounded-lg p-4 mb-4">
+                          <h6 className="font-semibold text-green-800 mb-3">Actual Numbers Achieved</h6>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            {activity.actualNumbers.participants && (
+                              <div className="text-center">
+                                <div className="text-lg font-bold text-green-900">{activity.actualNumbers.participants}</div>
+                                <div className="text-xs text-green-600">Participants</div>
+                                <div className="text-xs text-gray-500">
+                                  ({Math.round((activity.actualNumbers.participants / (activity.targetNumbers.participants || 1)) * 100)}%)
+                                </div>
+                              </div>
+                            )}
+                            {activity.actualNumbers.dealers && (
+                              <div className="text-center">
+                                <div className="text-lg font-bold text-green-900">{activity.actualNumbers.dealers}</div>
+                                <div className="text-xs text-green-600">Dealers</div>
+                                <div className="text-xs text-gray-500">
+                                  ({Math.round((activity.actualNumbers.dealers / (activity.targetNumbers.dealers || 1)) * 100)}%)
+                                </div>
+                              </div>
+                            )}
+                            {activity.actualNumbers.retailers && (
+                              <div className="text-center">
+                                <div className="text-lg font-bold text-green-900">{activity.actualNumbers.retailers}</div>
+                                <div className="text-xs text-green-600">Retailers</div>
+                                <div className="text-xs text-gray-500">
+                                  ({Math.round((activity.actualNumbers.retailers / (activity.targetNumbers.retailers || 1)) * 100)}%)
+                                </div>
+                              </div>
+                            )}
+                            {activity.actualNumbers.farmers && (
+                              <div className="text-center">
+                                <div className="text-lg font-bold text-green-900">{activity.actualNumbers.farmers}</div>
+                                <div className="text-xs text-green-600">Farmers</div>
+                                <div className="text-xs text-gray-500">
+                                  ({Math.round((activity.actualNumbers.farmers / (activity.targetNumbers.farmers || 1)) * 100)}%)
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="flex space-x-3">
+                        {activity.status === 'Scheduled' && (
+                          <button
+                            onClick={() => startActivity(activity.id)}
+                            className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center"
+                          >
+                            <Play className="w-4 h-4 mr-2" />
+                            Start Activity
+                          </button>
+                        )}
+                        {activity.status === 'In Progress' && (
+                          <button
+                            onClick={() => completeActivity(activity.id)}
+                            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center"
+                          >
+                            <CheckCircle className="w-4 h-4 mr-2" />
+                            Complete Activity
+                          </button>
+                        )}
+                        <button className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+                          View Details
+                        </button>
+                      </div>
+                    </div>
+                  )) || (
+                    <div className="text-center py-8">
+                      <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                      <p className="text-gray-500">No activities planned for this date</p>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Location Deviations */}
