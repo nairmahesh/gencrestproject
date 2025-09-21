@@ -451,15 +451,139 @@ const MDOModule: React.FC = () => {
             address: 'Current Location',
             deviation: locationDeviation,
             isValid: locationDeviation <= 5
+          },
+          proof: {
+            photos: uploadedProofs.filter(p => p.type === 'photo').map(p => p.url),
+            videos: uploadedProofs.filter(p => p.type === 'video').map(p => p.url),
+            signatures: uploadedProofs.filter(p => p.type === 'signature').map(p => p.url),
+            timestamp: new Date().toISOString(),
+            capturedBy: user?.name || 'MDO'
           }
         };
-
-        setCurrentVisit(visitData);
-        setActiveVisit(null);
-        alert('Visit completed successfully!');
       }
       return plan;
     }));
+
+    alert('Visit completed successfully!');
+    setActiveVisit(null);
+    setSelectedActivity('');
+    setActivityOutcome('');
+    setVisitRemarks('');
+    setUploadedProofs([]);
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'Completed': return 'bg-green-100 text-green-800';
+      case 'In Progress': return 'bg-blue-100 text-blue-800';
+      case 'Not Started': return 'bg-gray-100 text-gray-800';
+      case 'Cancelled': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getDeviationStatusColor = (status: string) => {
+    switch (status) {
+      case 'approved': return 'bg-green-100 text-green-800';
+      case 'rejected': return 'bg-red-100 text-red-800';
+      case 'pending': return 'bg-yellow-100 text-yellow-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getPlansForDate = (date: string) => {
+    return dailyPlans.filter(plan => plan.date === date);
+  };
+
+  const generateReport = (reportType: string) => {
+    setSelectedReport(reportType);
+  };
+
+  const getReportData = (reportType: string) => {
+    switch (reportType) {
+      case 'planned-vs-achieved':
+        return {
+          title: 'Planned vs Achieved Report',
+          data: {
+            totalPlanned: 45,
+            totalCompleted: 38,
+            completionRate: 84,
+            categoryBreakdown: [
+              { category: 'Farmer BTL Engagement', planned: 30, completed: 26 },
+              { category: 'Channel BTL Engagement', planned: 10, completed: 8 },
+              { category: 'Internal Meetings', planned: 5, completed: 4 }
+            ]
+          }
+        };
+      case 'ytd-totals':
+        return {
+          title: 'Year-to-Date Totals',
+          data: {
+            ytdPlanned: 180,
+            ytdCompleted: 152,
+            ytdCompletionRate: 84
+          }
+        };
+      case 'region-wise':
+        return {
+          title: 'Region-wise Roll-ups',
+          data: {
+            regionCompletion: 86,
+            totalMDOs: 12
+          }
+        };
+      default:
+        return null;
+    }
+  };
+
+  const dayPlans: { [key: string]: any[] } = {
+    '2024-01-22': [
+      {
+        id: 'DP001',
+        activityType: 'Farmer Meets – Small',
+        category: 'Farmer BTL Engagement',
+        village: 'Green Valley',
+        distributor: 'SRI RAMA SEEDS',
+        time: '09:00 - 11:00',
+        duration: 120,
+        status: 'Completed',
+        targetNumbers: { participants: 25, farmers: 25 },
+        actualNumbers: { participants: 28, farmers: 28 }
+      },
+      {
+        id: 'DP002',
+        activityType: 'Farm level demos',
+        category: 'Farmer BTL Engagement',
+        village: 'Khera Village',
+        distributor: 'Ram Kumar Distributors',
+        time: '14:00 - 16:30',
+        duration: 150,
+        status: 'In Progress',
+        targetNumbers: { participants: 15, farmers: 15 }
+      }
+    ],
+    '2024-01-23': [
+      {
+        id: 'DP003',
+        activityType: 'Distributor Day Training Program',
+        category: 'Farmer BTL Engagement',
+        village: 'Industrial Area',
+        distributor: 'Green Agro Solutions',
+        time: '10:00 - 12:00',
+        duration: 120,
+        status: 'Scheduled',
+        targetNumbers: { participants: 25, dealers: 25 }
+      }
+    ]
+  };
+
+  const startActivity = (activityId: string) => {
+    alert(`Starting activity: ${activityId}`);
+  };
+
+  const completeActivity = (activityId: string) => {
+    alert(`Completing activity: ${activityId}`);
   };
 
   return (
@@ -482,15 +606,40 @@ const MDOModule: React.FC = () => {
         <div className="flex items-center space-x-3">
           <button
             onClick={() => setShowReportsModal(true)}
-            className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center"
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center"
           >
             <Eye className="w-4 h-4 mr-2" />
             View Reports
           </button>
+          <div className="text-right">
+            <p className="text-sm font-medium text-gray-900">{user?.name}</p>
+            <p className="text-xs text-gray-600">{user?.role} • {user?.territory}</p>
+          </div>
         </div>
       </div>
 
-      {/* Work Assignment Plan Section */}
+      {/* Location Status */}
+      <div className="bg-white rounded-xl p-4 card-shadow">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className={`w-3 h-3 rounded-full ${latitude && longitude ? 'bg-green-500' : 'bg-red-500'}`}></div>
+            <div>
+              <p className="font-medium text-gray-900">Location Status</p>
+              <p className="text-sm text-gray-600">
+                {latitude && longitude 
+                  ? `${latitude.toFixed(6)}, ${longitude.toFixed(6)}` 
+                  : locationError || 'Getting location...'}
+              </p>
+            </div>
+          </div>
+          <div className="text-right">
+            <p className="text-sm font-medium text-gray-900">{new Date().toLocaleDateString()}</p>
+            <p className="text-xs text-gray-600">{new Date().toLocaleTimeString()}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Work Plan Assignment */}
       <div className="bg-white rounded-xl card-shadow">
         <button
           onClick={() => setShowWorkPlan(!showWorkPlan)}
