@@ -1444,6 +1444,241 @@ const MobileApp: React.FC = () => {
         return renderDashboard();
     }
   };
+  // If user is MDO, show MDO-specific mobile interface
+  if (user?.role === 'MDO') {
+    return (
+      <div className="max-w-sm mx-auto bg-white min-h-screen flex flex-col">
+        {/* MDO Header */}
+        <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-lg font-bold">{user.name}</h1>
+              <p className="text-blue-100 text-sm">MDO - {user.territory}</p>
+            </div>
+            <div className="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+              <span className="text-white font-bold text-sm">
+                {user.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* MDO Quick Stats */}
+        <div className="p-4 bg-gray-50">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-white rounded-lg p-3 text-center">
+              <div className="text-xl font-bold text-blue-600">8</div>
+              <div className="text-xs text-gray-600">Today's Visits</div>
+            </div>
+            <div className="bg-white rounded-lg p-3 text-center">
+              <div className="text-xl font-bold text-green-600">3</div>
+              <div className="text-xs text-gray-600">Completed</div>
+            </div>
+          </div>
+        </div>
+
+        {/* MDO Main Content */}
+        <div className="flex-1 p-4 space-y-4">
+          {activeTab === 'home' && (
+            <div className="space-y-4">
+              {/* Today's Schedule */}
+              <div className="bg-white rounded-lg p-4 border">
+                <h3 className="font-semibold text-gray-900 mb-3">Today's Schedule</h3>
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-3 p-2 bg-green-50 rounded-lg">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <div className="flex-1">
+                      <p className="font-medium text-sm">Ram Kumar Farm</p>
+                      <p className="text-xs text-gray-600">10:00 AM - Product Demo</p>
+                    </div>
+                    <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Completed</span>
+                  </div>
+                  
+                  <div className="flex items-center space-x-3 p-2 bg-blue-50 rounded-lg">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                    <div className="flex-1">
+                      <p className="font-medium text-sm">Suresh Traders</p>
+                      <p className="text-xs text-gray-600">2:30 PM - Stock Review</p>
+                    </div>
+                    <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">In Progress</span>
+                  </div>
+                  
+                  <div className="flex items-center space-x-3 p-2 bg-gray-50 rounded-lg">
+                    <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                    <div className="flex-1">
+                      <p className="font-medium text-sm">Amit Agro Solutions</p>
+                      <p className="text-xs text-gray-600">4:00 PM - Payment Collection</p>
+                    </div>
+                    <span className="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded">Pending</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Quick Actions */}
+              <div className="bg-white rounded-lg p-4 border">
+                <h3 className="font-semibold text-gray-900 mb-3">Quick Actions</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <button className="bg-purple-500 text-white p-3 rounded-lg text-sm font-medium">
+                    Start Visit
+                  </button>
+                  <button className="bg-green-500 text-white p-3 rounded-lg text-sm font-medium">
+                    Take Photo
+                  </button>
+                  <button className="bg-blue-500 text-white p-3 rounded-lg text-sm font-medium">
+                    Create Order
+                  </button>
+                  <button className="bg-orange-500 text-white p-3 rounded-lg text-sm font-medium">
+                    Collection
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'tracker' && (
+            <div className="space-y-4">
+              <div className="bg-white rounded-lg p-4 border">
+                <h3 className="font-semibold text-gray-900 mb-3">Activity Tracker</h3>
+                <div className="space-y-3">
+                  <div className="bg-blue-50 rounded-lg p-3">
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-blue-800">38</div>
+                      <div className="text-xs text-blue-600">Activities Completed</div>
+                    </div>
+                  </div>
+                  <div className="bg-orange-50 rounded-lg p-3">
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-orange-800">45</div>
+                      <div className="text-xs text-orange-600">Monthly Target</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'tasks' && (
+            <div className="space-y-4">
+              <div className="bg-white rounded-lg p-4 border">
+                <h3 className="font-semibold text-gray-900 mb-3">My Tasks</h3>
+                <div className="space-y-2">
+                  <div className="p-2 bg-red-50 rounded border-l-4 border-red-500">
+                    <p className="text-sm font-medium">Visit SRI RAMA SEEDS</p>
+                    <p className="text-xs text-gray-600">Due: Today</p>
+                  </div>
+                  <div className="p-2 bg-yellow-50 rounded border-l-4 border-yellow-500">
+                    <p className="text-sm font-medium">Monthly Sales Report</p>
+                    <p className="text-xs text-gray-600">Due: Jan 25</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'liquidation' && (
+            <div className="space-y-4">
+              <div className="bg-white rounded-lg p-4 border">
+                <h3 className="font-semibold text-gray-900 mb-3">Stock Liquidation</h3>
+                <div className="space-y-3">
+                  <div className="bg-green-50 rounded-lg p-3">
+                    <div className="text-center">
+                      <div className="text-xl font-bold text-green-800">28%</div>
+                      <div className="text-xs text-green-600">Liquidation Rate</div>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span>SRI RAMA SEEDS</span>
+                      <span className="font-semibold text-green-600">71%</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span>Ram Kumar</span>
+                      <span className="font-semibold text-yellow-600">29%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'reports' && (
+            <div className="space-y-4">
+              <div className="bg-white rounded-lg p-4 border">
+                <h3 className="font-semibold text-gray-900 mb-3">Reports</h3>
+                <div className="space-y-2">
+                  <button className="w-full bg-purple-100 text-purple-700 p-3 rounded-lg text-sm font-medium text-left">
+                    Daily Activity Report
+                  </button>
+                  <button className="w-full bg-blue-100 text-blue-700 p-3 rounded-lg text-sm font-medium text-left">
+                    Weekly Performance
+                  </button>
+                  <button className="w-full bg-green-100 text-green-700 p-3 rounded-lg text-sm font-medium text-left">
+                    Monthly Summary
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* MDO Footer Navigation */}
+        <div className="bg-white border-t border-gray-200 p-2 mt-auto">
+          <div className="flex justify-around items-center">
+            <button
+              onClick={() => setActiveTab('home')}
+              className={`flex flex-col items-center p-2 rounded-lg transition-colors ${
+                activeTab === 'home' ? 'text-purple-600 bg-purple-50' : 'text-gray-600'
+              }`}
+            >
+              <Home className="w-5 h-5 mb-1" />
+              <span className="text-xs">Home</span>
+            </button>
+            
+            <button
+              onClick={() => setActiveTab('tracker')}
+              className={`flex flex-col items-center p-2 rounded-lg transition-colors ${
+                activeTab === 'tracker' ? 'text-purple-600 bg-purple-50' : 'text-gray-600'
+              }`}
+            >
+              <Activity className="w-5 h-5 mb-1" />
+              <span className="text-xs">Tracker</span>
+            </button>
+            
+            <button
+              onClick={() => setActiveTab('tasks')}
+              className={`flex flex-col items-center p-2 rounded-lg transition-colors ${
+                activeTab === 'tasks' ? 'text-purple-600 bg-purple-50' : 'text-gray-600'
+              }`}
+            >
+              <CheckSquare className="w-5 h-5 mb-1" />
+              <span className="text-xs">Tasks</span>
+            </button>
+            
+            <button
+              onClick={() => setActiveTab('liquidation')}
+              className={`flex flex-col items-center p-2 rounded-lg transition-colors ${
+                activeTab === 'liquidation' ? 'text-purple-600 bg-purple-50' : 'text-gray-600'
+              }`}
+            >
+              <Droplets className="w-5 h-5 mb-1" />
+              <span className="text-xs">Liquidation</span>
+            </button>
+            
+            <button
+              onClick={() => setActiveTab('reports')}
+              className={`flex flex-col items-center p-2 rounded-lg transition-colors ${
+                activeTab === 'reports' ? 'text-purple-600 bg-purple-50' : 'text-gray-600'
+              }`}
+            >
+              <FileText className="w-5 h-5 mb-1" />
+              <span className="text-xs">Reports</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
 
   return (
     <div className="max-w-sm mx-auto bg-gray-100 min-h-screen flex flex-col">
