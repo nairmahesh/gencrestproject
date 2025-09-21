@@ -97,7 +97,6 @@ const MobileApp: React.FC = () => {
 
       {/* Live Meetings Section */}
       <div className="bg-white rounded-xl p-4 border border-gray-200">
-        <div className="flex items-center justify-between mb-3">
         <div 
           className="flex items-center justify-between cursor-pointer hover:bg-gray-50 -mx-2 px-2 py-1 rounded-lg transition-colors"
           onClick={() => setLiveMeetingsExpanded(!liveMeetingsExpanded)}
@@ -114,7 +113,6 @@ const MobileApp: React.FC = () => {
               <ChevronDown className="w-4 h-4" />
             )}
           </div>
-        </div>
         </div>
         
         {/* Meeting Items - Conditionally Rendered */}
@@ -386,19 +384,6 @@ const MobileApp: React.FC = () => {
           <button className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center hover:bg-green-600 transition-colors">
             <span className="text-white text-xs font-bold">{notifications.approvals}</span>
           </button>
-        </div>
-      </div>
-
-      {/* Monthly Plan Status */}
-      <div className="p-4 bg-gray-50">
-        <div className="bg-white rounded-lg p-3 border border-gray-200">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <Calendar className="w-4 h-4 text-blue-600" />
-              <span className="text-sm font-medium text-gray-900">Monthly Plan - Approved</span>
-            </div>
-            <ChevronDown className="w-4 h-4 text-gray-400" />
-          </div>
         </div>
       </div>
 
