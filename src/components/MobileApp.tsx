@@ -1239,6 +1239,79 @@ const MobileApp: React.FC = () => {
           </div>
         </div>
       )}
+
+      {activeTab === 'alerts' && (
+        <div className="space-y-4">
+          {/* Location Deviations */}
+          <div className="bg-white rounded-xl p-4 card-shadow">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-2">
+                <AlertTriangle className="w-5 h-5 text-red-600" />
+                <h3 className="text-lg font-semibold text-gray-900">Location Deviations</h3>
+              </div>
+              <span className="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-medium">
+                2 Pending
+              </span>
+            </div>
+
+            <div className="space-y-3">
+              <div className="border border-red-200 rounded-lg p-3 bg-red-50">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="font-medium text-red-900">6.2km deviation</span>
+                  <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs">Pending</span>
+                </div>
+                <div className="text-sm text-red-700 space-y-1">
+                  <p><strong>Assigned:</strong> Green Valley, Sector 12</p>
+                  <p><strong>Actual:</strong> Sector 15 Community Hall</p>
+                  <p><strong>Date:</strong> Jan 20, 10:30 AM</p>
+                </div>
+                <div className="mt-2 p-2 bg-white rounded text-xs text-gray-700">
+                  <strong>Reason:</strong> Venue changed due to local festival, community hall was more accessible for farmers
+                </div>
+              </div>
+
+              <div className="border border-green-200 rounded-lg p-3 bg-green-50">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="font-medium text-green-900">8.5km deviation</span>
+                  <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">Approved</span>
+                </div>
+                <div className="text-sm text-green-700 space-y-1">
+                  <p><strong>Assigned:</strong> Village Khera</p>
+                  <p><strong>Actual:</strong> Highway Rest Stop</p>
+                  <p><strong>Date:</strong> Jan 19, 2:15 PM</p>
+                  <p><strong>Approved by:</strong> TSM - Priya Sharma</p>
+                </div>
+                <div className="mt-2 p-2 bg-white rounded text-xs text-gray-700">
+                  <strong>Reason:</strong> Emergency meeting with distributor due to urgent stock issue
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Other Alert Types */}
+          <div className="bg-white rounded-xl p-4 card-shadow">
+            <div className="flex items-center space-x-2 mb-4">
+              <Clock className="w-5 h-5 text-yellow-600" />
+              <h3 className="text-lg font-semibold text-gray-900">Time Deviations</h3>
+            </div>
+            <div className="text-center py-6">
+              <CheckCircle className="w-8 h-8 text-green-400 mx-auto mb-2" />
+              <p className="text-gray-500 text-sm">No time deviations</p>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl p-4 card-shadow">
+            <div className="flex items-center space-x-2 mb-4">
+              <Target className="w-5 h-5 text-orange-600" />
+              <h3 className="text-lg font-semibold text-gray-900">Target Alerts</h3>
+            </div>
+            <div className="text-center py-6">
+              <CheckCircle className="w-8 h-8 text-green-400 mx-auto mb-2" />
+              <p className="text-gray-500 text-sm">All targets on track</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
