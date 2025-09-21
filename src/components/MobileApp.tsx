@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useAuth } from '../contexts/AuthContext';
 import { 
   Home, 
   Users, 
@@ -59,6 +60,7 @@ interface ProofItem {
 }
 
 const MobileApp: React.FC = () => {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [liquidationView, setLiquidationView] = useState<'team' | 'self'>('team');
   const [activeLiquidationTab, setActiveLiquidationTab] = useState<'team' | 'self'>('team');
