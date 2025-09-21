@@ -83,7 +83,7 @@ const LiveMeetings: React.FC<LiveMeetingsProps> = ({ meetings, onEndMeeting, use
       </div>
 
       {isExpanded && (
-        <div className="mt-4 space-y-3">
+        <div className="mt-4 space-y-3 transition-all duration-200">
           {meetings.map((meeting) => (
             <div key={meeting.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between mb-3">
