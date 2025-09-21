@@ -479,7 +479,7 @@ const MobileApp: React.FC = () => {
                   <div>
                     <button
                       onClick={() => handleDistributorClick(distributor)}
-                      className="font-medium text-blue-600 hover:text-blue-800 transition-colors underline text-left"
+                      className="text-blue-600 font-semibold hover:text-blue-800 transition-colors text-left"
                     >
                       {distributor.name}
                     </button>
