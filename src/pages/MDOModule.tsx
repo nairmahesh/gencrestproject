@@ -711,6 +711,148 @@ const MDOModule: React.FC = () => {
         </div>
       )}
 
+      {activeTab === 'alerts' && (
+        <div className="space-y-6">
+          {/* Location Deviations */}
+          <div className="bg-white rounded-xl p-6 card-shadow">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                  <AlertTriangle className="w-5 h-5 text-red-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">Location Deviations</h3>
+                  <p className="text-sm text-gray-600">Activities performed outside assigned locations</p>
+                </div>
+              </div>
+              <span className="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium">
+                {locationDeviations.filter(d => d.status === 'pending').length} Pending Approval
+              </span>
+            </div>
+
+            <div className="space-y-4">
+              {locationDeviations.map((deviation) => (
+                <div key={deviation.id} className="border border-gray-200 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center space-x-3">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                        deviation.status === 'pending' ? 'bg-yellow-100' :
+                        deviation.status === 'approved' ? 'bg-green-100' : 'bg-red-100'
+                      }`}>
+                        <AlertTriangle className={`w-4 h-4 ${
+                          deviation.status === 'pending' ? 'text-yellow-600' :
+                          deviation.status === 'approved' ? 'text-green-600' : 'text-red-600'
+                        }`} />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-gray-900">
+                          {deviation.deviation.toFixed(1)}km deviation detected
+                        </h4>
+                        <p className="text-sm text-gray-600">{deviation.mdoName} ({deviation.mdoCode})</p>
+                      </div>
+                    </div>
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${getDeviationStatusColor(deviation.status)}`}>
+                      {deviation.status.charAt(0).toUpperCase() + deviation.status.slice(1)}
+                    </span>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div className="bg-red-50 rounded-lg p-3">
+                      <h5 className="font-semibold text-red-800 mb-2">Assigned Location</h5>
+                      <p className="text-sm text-red-700">{deviation.assignedLocation}</p>
+                    </div>
+                    <div className="bg-blue-50 rounded-lg p-3">
+                      <h5 className="font-semibold text-blue-800 mb-2">Actual Location</h5>
+                      <p className="text-sm text-blue-700">{deviation.actualLocation}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600 mb-4">
+                    <div>
+                      <p><strong>Date & Time:</strong> {deviation.date} at {deviation.time}</p>
+                      <p><strong>Deviation:</strong> {deviation.deviation.toFixed(1)} km</p>
+                    </div>
+                    <div>
+                      {deviation.approvedBy && (
+                        <>
+                          <p><strong>Approved by:</strong> {deviation.approvedBy}</p>
+                          <p><strong>Approved on:</strong> {deviation.approvedDate}</p>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="bg-gray-50 rounded-lg p-3 mb-4">
+                    <h5 className="font-semibold text-gray-900 mb-2">MDO Remarks</h5>
+                    <p className="text-sm text-gray-700">{deviation.remarks}</p>
+                    {deviation.approverComments && (
+                      <>
+                        <h5 className="font-semibold text-gray-900 mb-2 mt-3">Approver Comments</h5>
+                        <p className="text-sm text-green-700">{deviation.approverComments}</p>
+                      </>
+                    )}
+                  </div>
+
+                  {deviation.status === 'pending' && (
+                    <div className="flex space-x-3">
+                      <button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center">
+                        <CheckCircle className="w-4 h-4 mr-2" />
+                        Approve
+                      </button>
+                      <button className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center">
+                        <X className="w-4 h-4 mr-2" />
+                        Reject
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))}
+
+              {locationDeviations.length === 0 && (
+                <div className="text-center py-12">
+                  <CheckCircle className="w-12 h-12 text-green-400 mx-auto mb-4" />
+                  <p className="text-gray-500">No location deviations found</p>
+                  <p className="text-sm text-gray-400">All activities performed at assigned locations</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Other Alert Types */}
+          <div className="bg-white rounded-xl p-6 card-shadow">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
+                <Clock className="w-5 h-5 text-yellow-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">Time Deviations</h3>
+                <p className="text-sm text-gray-600">Activities started/ended outside scheduled time</p>
+              </div>
+            </div>
+            <div className="text-center py-8">
+              <CheckCircle className="w-8 h-8 text-green-400 mx-auto mb-2" />
+              <p className="text-gray-500">No time deviations</p>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl p-6 card-shadow">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
+                <Target className="w-5 h-5 text-orange-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">Target Deviations</h3>
+                <p className="text-sm text-gray-600">Activities with significant target vs actual variance</p>
+              </div>
+            </div>
+            <div className="text-center py-8">
+              <CheckCircle className="w-8 h-8 text-green-400 mx-auto mb-2" />
+              <p className="text-gray-500">No target deviations</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {activeTab === 'schedule' && (
         <div className="space-y-6">
           {/* Work Plan Assignment */}
@@ -999,222 +1141,277 @@ const MDOModule: React.FC = () => {
           )}
 
           {/* Day-wise Activity Plans */}
-          <div className="bg-white rounded-xl p-6 card-shadow">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold text-gray-900">Day-wise Activity Plans</h3>
-              <input
-                type="date"
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              />
-            </div>
-
-            <div className="space-y-4">
-              {getPlansForDate(selectedDate).map((plan) => (
-                <div key={plan.id} className="border border-gray-200 rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                        <Activity className="w-5 h-5 text-purple-600" />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold text-gray-900">{plan.activityType}</h4>
-                        <p className="text-sm text-gray-600">{plan.village} • {plan.associatedDistributor}</p>
-                      </div>
-                    </div>
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(plan.status)}`}>
-                      {plan.status}
-                    </span>
+          {getPlansForDate(selectedDate).map((plan) => (
+            <div key={plan.id} className="bg-white rounded-xl p-6 card-shadow">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                    <Target className="w-5 h-5 text-purple-600" />
                   </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                    <div className="flex items-center text-sm text-gray-600">
-                      <Clock className="w-4 h-4 mr-2" />
-                      <span>{plan.startTime} - {plan.endTime} ({plan.duration} min)</span>
-                    </div>
-                    <div className="flex items-center text-sm text-gray-600">
-                      <MapPin className="w-4 h-4 mr-2" />
-                      <span>{plan.assignedLocation.address}</span>
-                    </div>
-                    <div className="flex items-center text-sm text-gray-600">
-                      <Building className="w-4 h-4 mr-2" />
-                      <span>{plan.distributorCode}</span>
-                    </div>
-                  </div>
-
-                  {/* Target Numbers */}
-                  <div className="bg-gray-50 rounded-lg p-4 mb-4">
-                    <h5 className="font-semibold text-gray-900 mb-3">Target Numbers</h5>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                      {plan.targetNumbers.participants && (
-                        <div className="text-center">
-                          <div className="text-lg font-bold text-blue-800">{plan.targetNumbers.participants}</div>
-                          <div className="text-xs text-blue-600">Participants</div>
-                        </div>
-                      )}
-                      {plan.targetNumbers.farmers && (
-                        <div className="text-center">
-                          <div className="text-lg font-bold text-green-800">{plan.targetNumbers.farmers}</div>
-                          <div className="text-xs text-green-600">Farmers</div>
-                        </div>
-                      )}
-                      {plan.targetNumbers.dealers && (
-                        <div className="text-center">
-                          <div className="text-lg font-bold text-purple-800">{plan.targetNumbers.dealers}</div>
-                          <div className="text-xs text-purple-600">Dealers</div>
-                        </div>
-                      )}
-                      {plan.targetNumbers.volume && (
-                        <div className="text-center">
-                          <div className="text-lg font-bold text-orange-800">{plan.targetNumbers.volume}</div>
-                          <div className="text-xs text-orange-600">Volume</div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="flex space-x-3">
-                    {plan.status === 'Not Started' && (
-                      <button
-                        onClick={() => startActivity(plan.id)}
-                        className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center"
-                      >
-                        <Play className="w-4 h-4 mr-2" />
-                        Start Activity
-                      </button>
-                    )}
-                    {plan.status === 'In Progress' && (
-                      <button
-                        onClick={() => completeActivity(plan.id)}
-                        className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center"
-                      >
-                        <CheckCircle className="w-4 h-4 mr-2" />
-                        Complete Activity
-                      </button>
-                    )}
-                    <button className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">
-                      View Details
-                    </button>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">{plan.activityType}</h3>
+                    <p className="text-sm text-gray-600">{plan.activityCategory}</p>
                   </div>
                 </div>
-              ))}
+                <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(plan.status)}`}>
+                  {plan.status}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div className="flex items-center text-sm text-gray-600">
+                  <MapPin className="w-4 h-4 mr-2" />
+                  <div>
+                    <p className="font-medium">Village: {plan.village}</p>
+                    <p className="text-xs">Location</p>
+                  </div>
+                </div>
+                <div className="flex items-center text-sm text-gray-600">
+                  <Building className="w-4 h-4 mr-2" />
+                  <div>
+                    <p className="font-medium">{plan.associatedDistributor}</p>
+                    <p className="text-xs">Associated Distributor</p>
+                  </div>
+                </div>
+                <div className="flex items-center text-sm text-gray-600">
+                  <Clock className="w-4 h-4 mr-2" />
+                  <div>
+                    <p className="font-medium">{plan.startTime} - {plan.endTime}</p>
+                    <p className="text-xs">Duration: {plan.duration} min</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Target Numbers */}
+              <div className="bg-gray-50 rounded-lg p-4 mb-4">
+                <h5 className="font-semibold text-gray-900 mb-3">Target Numbers</h5>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {plan.targetNumbers.participants && (
+                    <div className="text-center">
+                      <div className="text-lg font-bold text-blue-800">{plan.targetNumbers.participants}</div>
+                      <div className="text-xs text-blue-600">Participants</div>
+                    </div>
+                  )}
+                  {plan.targetNumbers.farmers && (
+                    <div className="text-center">
+                      <div className="text-lg font-bold text-green-800">{plan.targetNumbers.farmers}</div>
+                      <div className="text-xs text-green-600">Farmers</div>
+                    </div>
+                  )}
+                  {plan.targetNumbers.dealers && (
+                    <div className="text-center">
+                      <div className="text-lg font-bold text-purple-800">{plan.targetNumbers.dealers}</div>
+                      <div className="text-xs text-purple-600">Dealers</div>
+                    </div>
+                  )}
+                  {plan.targetNumbers.volume && (
+                    <div className="text-center">
+                      <div className="text-lg font-bold text-orange-800">{plan.targetNumbers.volume}</div>
+                      <div className="text-xs text-orange-600">Volume (kg)</div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Actual Numbers (if completed) */}
+              {plan.actualNumbers && (
+                <div className="bg-green-50 rounded-lg p-4 mb-4">
+                  <h5 className="font-semibold text-green-800 mb-3">Actual Numbers Achieved</h5>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    {plan.actualNumbers.participants && (
+                      <div className="text-center">
+                        <div className="text-lg font-bold text-green-900">{plan.actualNumbers.participants}</div>
+                        <div className="text-xs text-green-600">Participants</div>
+                        <div className="text-xs text-gray-500">
+                          ({Math.round((plan.actualNumbers.participants / (plan.targetNumbers.participants || 1)) * 100)}%)
+                        </div>
+                      </div>
+                    )}
+                    {plan.actualNumbers.farmers && (
+                      <div className="text-center">
+                        <div className="text-lg font-bold text-green-900">{plan.actualNumbers.farmers}</div>
+                        <div className="text-xs text-green-600">Farmers</div>
+                        <div className="text-xs text-gray-500">
+                          ({Math.round((plan.actualNumbers.farmers / (plan.targetNumbers.farmers || 1)) * 100)}%)
+                        </div>
+                      </div>
+                    )}
+                    {plan.actualNumbers.dealers && (
+                      <div className="text-center">
+                        <div className="text-lg font-bold text-green-900">{plan.actualNumbers.dealers}</div>
+                        <div className="text-xs text-green-600">Dealers</div>
+                        <div className="text-xs text-gray-500">
+                          ({Math.round((plan.actualNumbers.dealers / (plan.targetNumbers.dealers || 1)) * 100)}%)
+                        </div>
+                      </div>
+                    )}
+                    {plan.actualNumbers.volume && (
+                      <div className="text-center">
+                        <div className="text-lg font-bold text-green-900">{plan.actualNumbers.volume}</div>
+                        <div className="text-xs text-green-600">Volume (kg)</div>
+                        <div className="text-xs text-gray-500">
+                          ({Math.round((plan.actualNumbers.volume / (plan.targetNumbers.volume || 1)) * 100)}%)
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              <div className="flex space-x-3">
+                {plan.status === 'Not Started' && (
+                  <button
+                    onClick={() => startActivity(plan.id)}
+                    className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center"
+                  >
+                    <Play className="w-4 h-4 mr-2" />
+                    Start Activity
+                  </button>
+                )}
+                {plan.status === 'In Progress' && (
+                  <button
+                    onClick={() => completeActivity(plan.id)}
+                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center"
+                  >
+                    <CheckCircle className="w-4 h-4 mr-2" />
+                    Complete Activity
+                  </button>
+                )}
+                <button className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+                  View Details
+                </button>
+              </div>
             </div>
-          </div>
+          ))}
         </div>
       )}
 
-      {activeTab === 'alerts' && (
-        <div className="space-y-6">
-          {/* Location Deviations Requiring Approval */}
-          <div className="bg-white rounded-xl p-6 card-shadow">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center space-x-3">
-                <AlertTriangle className="w-6 h-6 text-red-600" />
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900">Location Deviations</h3>
-                  <p className="text-sm text-gray-600">Activities with location deviations requiring approval</p>
-                </div>
+      {/* Reports Modal */}
+      {showReportsModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold text-gray-900">MDO Reports</h2>
+                <button
+                  onClick={() => setShowReportsModal(false)}
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
               </div>
-              <span className="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium">
-                {locationDeviations.filter(d => d.status === 'pending').length} Pending
-              </span>
             </div>
 
-            <div className="space-y-4">
-              {locationDeviations.map((deviation) => (
-                <div key={deviation.id} className="border border-gray-200 rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center space-x-3">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                        deviation.status === 'pending' ? 'bg-red-100' :
-                        deviation.status === 'approved' ? 'bg-green-100' : 'bg-gray-100'
-                      }`}>
-                        <AlertTriangle className={`w-5 h-5 ${
-                          deviation.status === 'pending' ? 'text-red-600' :
-                          deviation.status === 'approved' ? 'text-green-600' : 'text-gray-600'
-                        }`} />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold text-gray-900">
-                          {deviation.deviation.toFixed(1)}km Deviation
-                        </h4>
-                        <p className="text-sm text-gray-600">
-                          {deviation.mdoName} ({deviation.mdoCode})
-                        </p>
-                      </div>
-                    </div>
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${getDeviationStatusColor(deviation.status)}`}>
-                      {deviation.status.charAt(0).toUpperCase() + deviation.status.slice(1)}
-                    </span>
+            <div className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <button
+                  onClick={() => generateReport('planned-vs-achieved')}
+                  className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-left"
+                >
+                  <div className="flex items-center space-x-3 mb-2">
+                    <Target className="w-5 h-5 text-blue-600" />
+                    <h3 className="font-semibold text-gray-900">Planned vs Achieved</h3>
                   </div>
+                  <p className="text-sm text-gray-600">Compare planned activities with actual completion</p>
+                </button>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div className="space-y-2">
-                      <div className="flex items-center text-sm text-gray-600">
-                        <MapPin className="w-4 h-4 mr-2 text-blue-600" />
-                        <div>
-                          <p className="font-medium">Assigned Location</p>
-                          <p>{deviation.assignedLocation}</p>
+                <button
+                  onClick={() => generateReport('ytd-totals')}
+                  className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-left"
+                >
+                  <div className="flex items-center space-x-3 mb-2">
+                    <Calendar className="w-5 h-5 text-green-600" />
+                    <h3 className="font-semibold text-gray-900">YTD Totals</h3>
+                  </div>
+                  <p className="text-sm text-gray-600">Year-to-date activity summary</p>
+                </button>
+
+                <button
+                  onClick={() => generateReport('region-wise')}
+                  className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-left"
+                >
+                  <div className="flex items-center space-x-3 mb-2">
+                    <MapPin className="w-5 h-5 text-purple-600" />
+                    <h3 className="font-semibold text-gray-900">Region-wise Roll-ups</h3>
+                  </div>
+                  <p className="text-sm text-gray-600">Regional performance analysis</p>
+                </button>
+              </div>
+
+              {selectedReport && (
+                <div className="bg-gray-50 rounded-lg p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                    {getReportData(selectedReport)?.title}
+                  </h3>
+                  
+                  {selectedReport === 'planned-vs-achieved' && (
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="bg-white rounded-lg p-4">
+                          <div className="text-2xl font-bold text-orange-600">45</div>
+                          <div className="text-sm text-orange-600">Total Planned</div>
+                        </div>
+                        <div className="bg-white rounded-lg p-4">
+                          <div className="text-2xl font-bold text-green-600">38</div>
+                          <div className="text-sm text-green-600">Total Completed</div>
+                        </div>
+                        <div className="bg-white rounded-lg p-4">
+                          <div className="text-2xl font-bold text-blue-600">84%</div>
+                          <div className="text-sm text-blue-600">Completion Rate</div>
                         </div>
                       </div>
-                      <div className="flex items-center text-sm text-gray-600">
-                        <Navigation className="w-4 h-4 mr-2 text-red-600" />
-                        <div>
-                          <p className="font-medium">Actual Location</p>
-                          <p>{deviation.actualLocation}</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex items-center text-sm text-gray-600">
-                        <Calendar className="w-4 h-4 mr-2" />
-                        <div>
-                          <p className="font-medium">Date & Time</p>
-                          <p>{deviation.date} at {deviation.time}</p>
-                        </div>
-                      </div>
-                      {deviation.approvedBy && (
-                        <div className="flex items-center text-sm text-gray-600">
-                          <User className="w-4 h-4 mr-2" />
-                          <div>
-                            <p className="font-medium">Approved By</p>
-                            <p>{deviation.approvedBy}</p>
+                      
+                      <div className="bg-white rounded-lg p-4">
+                        <h4 className="font-semibold text-gray-900 mb-3">Category Breakdown</h4>
+                        <div className="space-y-2">
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-gray-600">Farmer BTL Engagement</span>
+                            <span className="text-sm font-medium">26/30 (87%)</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-gray-600">Channel BTL Engagement</span>
+                            <span className="text-sm font-medium">8/10 (80%)</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-gray-600">Internal Meetings</span>
+                            <span className="text-sm font-medium">4/5 (80%)</span>
                           </div>
                         </div>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="bg-gray-50 rounded-lg p-4 mb-4">
-                    <h5 className="font-semibold text-gray-900 mb-2">MDO Remarks</h5>
-                    <p className="text-sm text-gray-700">{deviation.remarks}</p>
-                  </div>
-
-                  {deviation.approverComments && (
-                    <div className="bg-green-50 rounded-lg p-4 mb-4">
-                      <h5 className="font-semibold text-green-800 mb-2">Approver Comments</h5>
-                      <p className="text-sm text-green-700">{deviation.approverComments}</p>
+                      </div>
                     </div>
                   )}
 
-                  {deviation.status === 'pending' && (
-                    <div className="flex space-x-3">
-                      <button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center">
-                        <CheckCircle className="w-4 h-4 mr-2" />
-                        Approve
-                      </button>
-                      <button className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center">
-                        <X className="w-4 h-4 mr-2" />
-                        Reject
-                      </button>
-                      <button className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">
-                        View Details
-                      </button>
+                  {selectedReport === 'ytd-totals' && (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="bg-white rounded-lg p-4">
+                        <div className="text-2xl font-bold text-orange-600">180</div>
+                        <div className="text-sm text-orange-600">YTD Planned</div>
+                      </div>
+                      <div className="bg-white rounded-lg p-4">
+                        <div className="text-2xl font-bold text-green-600">152</div>
+                        <div className="text-sm text-green-600">YTD Completed</div>
+                      </div>
+                      <div className="bg-white rounded-lg p-4">
+                        <div className="text-2xl font-bold text-blue-600">84%</div>
+                        <div className="text-sm text-blue-600">YTD Completion Rate</div>
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedReport === 'region-wise' && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="bg-white rounded-lg p-4">
+                        <div className="text-2xl font-bold text-purple-600">86%</div>
+                        <div className="text-sm text-purple-600">Region Completion Rate</div>
+                      </div>
+                      <div className="bg-white rounded-lg p-4">
+                        <div className="text-2xl font-bold text-blue-600">12</div>
+                        <div className="text-sm text-blue-600">Total MDOs</div>
+                      </div>
                     </div>
                   )}
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </div>
@@ -1222,186 +1419,48 @@ const MDOModule: React.FC = () => {
 
       {/* Location Alert Modal */}
       {showLocationAlert && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl p-6 max-w-md w-full">
-            <div className="flex items-center space-x-3 mb-4">
-              <AlertTriangle className="w-6 h-6 text-red-600" />
-              <h3 className="text-lg font-semibold text-gray-900">Location Deviation Alert</h3>
-            </div>
-            
-            <div className="mb-4">
-              <p className="text-gray-700 mb-2">
-                You are <strong>{locationDeviation.toFixed(1)}km</strong> away from the assigned location.
-              </p>
-              <p className="text-sm text-gray-600">
-                Deviations over 5km require approval from your supervisor.
-              </p>
-            </div>
-
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Reason for deviation *
-              </label>
-              <textarea
-                value={deviationRemarks}
-                onChange={(e) => setDeviationRemarks(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                rows={3}
-                placeholder="Please explain why you are at a different location..."
-              />
-            </div>
-
-            <div className="flex space-x-3">
-              <button
-                onClick={handleLocationApproval}
-                disabled={!deviationRemarks.trim()}
-                className="flex-1 bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Submit for Approval
-              </button>
-              <button
-                onClick={() => setShowLocationAlert(false)}
-                className="flex-1 border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Reports Modal */}
-      {showReportsModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-semibold text-gray-900">MDO Reports</h3>
-              <button
-                onClick={() => setShowReportsModal(false)}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              <button
-                onClick={() => generateReport('planned-vs-achieved')}
-                className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-left"
-              >
-                <div className="flex items-center space-x-3 mb-2">
-                  <Target className="w-5 h-5 text-blue-600" />
-                  <h4 className="font-semibold text-gray-900">Planned vs Achieved</h4>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl max-w-md w-full">
+            <div className="p-6">
+              <div className="flex items-center space-x-3 mb-4">
+                <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                  <AlertTriangle className="w-5 h-5 text-red-600" />
                 </div>
-                <p className="text-sm text-gray-600">Compare planned activities with actual completion</p>
-              </button>
-
-              <button
-                onClick={() => generateReport('ytd-totals')}
-                className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-left"
-              >
-                <div className="flex items-center space-x-3 mb-2">
-                  <Calendar className="w-5 h-5 text-green-600" />
-                  <h4 className="font-semibold text-gray-900">YTD Totals</h4>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">Location Deviation Detected</h3>
+                  <p className="text-sm text-gray-600">You are {locationDeviation.toFixed(1)}km away from assigned location</p>
                 </div>
-                <p className="text-sm text-gray-600">Year-to-date activity summary</p>
-              </button>
-
-              <button
-                onClick={() => generateReport('region-wise')}
-                className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-left"
-              >
-                <div className="flex items-center space-x-3 mb-2">
-                  <MapPin className="w-5 h-5 text-purple-600" />
-                  <h4 className="font-semibold text-gray-900">Region-wise Roll-ups</h4>
-                </div>
-                <p className="text-sm text-gray-600">Regional performance summary</p>
-              </button>
-            </div>
-
-            {selectedReport && (
-              <div className="border-t border-gray-200 pt-6">
-                {(() => {
-                  const reportData = getReportData(selectedReport);
-                  if (!reportData) return null;
-
-                  return (
-                    <div>
-                      <h4 className="text-lg font-semibold text-gray-900 mb-4">{reportData.title}</h4>
-                      
-                      {selectedReport === 'planned-vs-achieved' && (
-                        <div className="space-y-4">
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div className="bg-blue-50 rounded-lg p-4 text-center">
-                              <div className="text-2xl font-bold text-blue-800">{reportData.data.totalPlanned}</div>
-                              <div className="text-sm text-blue-600">Total Planned</div>
-                            </div>
-                            <div className="bg-green-50 rounded-lg p-4 text-center">
-                              <div className="text-2xl font-bold text-green-800">{reportData.data.totalCompleted}</div>
-                              <div className="text-sm text-green-600">Total Completed</div>
-                            </div>
-                            <div className="bg-purple-50 rounded-lg p-4 text-center">
-                              <div className="text-2xl font-bold text-purple-800">{reportData.data.completionRate}%</div>
-                              <div className="text-sm text-purple-600">Completion Rate</div>
-                            </div>
-                          </div>
-                          
-                          <div className="bg-gray-50 rounded-lg p-4">
-                            <h5 className="font-semibold text-gray-900 mb-3">Category Breakdown</h5>
-                            <div className="space-y-2">
-                              {reportData.data.categoryBreakdown.map((category: any, index: number) => (
-                                <div key={index} className="flex items-center justify-between">
-                                  <span className="text-sm text-gray-700">{category.category}</span>
-                                  <div className="flex items-center space-x-2">
-                                    <span className="text-sm text-gray-600">{category.completed}/{category.planned}</span>
-                                    <div className="w-20 bg-gray-200 rounded-full h-2">
-                                      <div 
-                                        className="bg-blue-600 h-2 rounded-full" 
-                                        style={{ width: `${(category.completed / category.planned) * 100}%` }}
-                                      ></div>
-                                    </div>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      {selectedReport === 'ytd-totals' && (
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                          <div className="bg-blue-50 rounded-lg p-4 text-center">
-                            <div className="text-2xl font-bold text-blue-800">{reportData.data.ytdPlanned}</div>
-                            <div className="text-sm text-blue-600">YTD Planned</div>
-                          </div>
-                          <div className="bg-green-50 rounded-lg p-4 text-center">
-                            <div className="text-2xl font-bold text-green-800">{reportData.data.ytdCompleted}</div>
-                            <div className="text-sm text-green-600">YTD Completed</div>
-                          </div>
-                          <div className="bg-purple-50 rounded-lg p-4 text-center">
-                            <div className="text-2xl font-bold text-purple-800">{reportData.data.ytdCompletionRate}%</div>
-                            <div className="text-sm text-purple-600">YTD Completion Rate</div>
-                          </div>
-                        </div>
-                      )}
-
-                      {selectedReport === 'region-wise' && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="bg-blue-50 rounded-lg p-4 text-center">
-                            <div className="text-2xl font-bold text-blue-800">{reportData.data.regionCompletion}%</div>
-                            <div className="text-sm text-blue-600">Region Completion Rate</div>
-                          </div>
-                          <div className="bg-green-50 rounded-lg p-4 text-center">
-                            <div className="text-2xl font-bold text-green-800">{reportData.data.totalMDOs}</div>
-                            <div className="text-sm text-green-600">Total MDOs</div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })()}
               </div>
-            )}
+
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Reason for deviation (required for approval)
+                </label>
+                <textarea
+                  value={deviationRemarks}
+                  onChange={(e) => setDeviationRemarks(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  rows={3}
+                  placeholder="Please explain why you need to perform this activity at a different location..."
+                />
+              </div>
+
+              <div className="flex space-x-3">
+                <button
+                  onClick={handleLocationApproval}
+                  disabled={!deviationRemarks.trim()}
+                  className="flex-1 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Submit for Approval
+                </button>
+                <button
+                  onClick={() => setShowLocationAlert(false)}
+                  className="flex-1 border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
