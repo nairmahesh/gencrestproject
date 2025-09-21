@@ -172,38 +172,6 @@ const MobileApp: React.FC = () => {
           </div>
         )}
       </div>
-
-      {/* Monthly Plan Section */}
-      <div className="bg-white rounded-xl p-4 border border-gray-200">
-        <div 
-          className="flex items-center justify-between cursor-pointer hover:bg-gray-50 -mx-2 px-2 py-1 rounded-lg transition-colors"
-          onClick={() => setMonthlyPlanExpanded(!monthlyPlanExpanded)}
-        >
-          <div className="flex items-center space-x-2">
-            <Calendar className="w-4 h-4 text-blue-600" />
-            <span className="text-sm font-medium text-gray-900">Monthly Plan - Approved</span>
-          </div>
-          {monthlyPlanExpanded ? (
-            <ChevronUp className="w-4 h-4 text-gray-400" />
-          ) : (
-            <ChevronDown className="w-4 h-4 text-gray-400" />
-          )}
-        </div>
-        
-        {monthlyPlanExpanded && (
-          <div className="mt-3 space-y-2">
-            <div className="bg-blue-50 rounded-lg p-3">
-              <h4 className="font-medium text-blue-800 mb-2">January 2024 Plan</h4>
-              <div className="text-sm text-blue-700 space-y-1">
-                <p>Created by: Priya Sharma (TSM)</p>
-                <p>Approved by: Amit Patel (RBH)</p>
-                <p>Activities: 45 planned, 38 completed</p>
-                <p>Progress: 84%</p>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
     </div>
   );
 
@@ -374,6 +342,38 @@ const MobileApp: React.FC = () => {
             <p className="text-xs opacity-90">{currentUserRole}</p>
             <p className="text-xs opacity-75">Delhi Region</p>
           </div>
+        </div>
+        
+        {/* Monthly Plan Section */}
+        <div className="bg-white bg-opacity-20 rounded-xl p-3 mb-4 border border-white border-opacity-30">
+          <div 
+            className="flex items-center justify-between cursor-pointer hover:bg-white hover:bg-opacity-10 -mx-1 px-1 py-1 rounded-lg transition-colors"
+            onClick={() => setMonthlyPlanExpanded(!monthlyPlanExpanded)}
+          >
+            <div className="flex items-center space-x-2">
+              <Calendar className="w-4 h-4 text-white" />
+              <span className="text-sm font-medium text-white">Monthly Plan - Approved</span>
+            </div>
+            {monthlyPlanExpanded ? (
+              <ChevronUp className="w-4 h-4 text-white" />
+            ) : (
+              <ChevronDown className="w-4 h-4 text-white" />
+            )}
+          </div>
+          
+          {monthlyPlanExpanded && (
+            <div className="mt-3 space-y-2">
+              <div className="bg-white bg-opacity-20 rounded-lg p-3">
+                <h4 className="font-medium text-white mb-2">January 2024 Plan</h4>
+                <div className="text-sm text-white opacity-90 space-y-1">
+                  <p>Created by: Priya Sharma (TSM)</p>
+                  <p>Approved by: Amit Patel (RBH)</p>
+                  <p>Activities: 45 planned, 38 completed</p>
+                  <p>Progress: 84%</p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
         
         {/* Notification Icons - Now Clickable */}
