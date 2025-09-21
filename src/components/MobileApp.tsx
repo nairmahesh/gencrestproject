@@ -44,13 +44,19 @@ const MobileApp: React.FC = () => {
   const [currentView, setCurrentView] = useState('dashboard');
   const [liveMeetingsExpanded, setLiveMeetingsExpanded] = useState(true);
   const [monthlyPlanExpanded, setMonthlyPlanExpanded] = useState(false);
+  const [show360View, setShow360View] = useState(false);
+  const [selected360Distributor, setSelected360Distributor] = useState<any>(null);
+  const [activeHistoryTab, setActiveHistoryTab] = useState('Timeline');
   const { overallMetrics } = useLiquidationCalculation();
   const { latitude, longitude } = useGeolocation();
 
   const currentUserRole = user?.role || 'MDO';
-  const [show360View, setShow360View] = useState(false);
-  const [selected360Distributor, setSelected360Distributor] = useState<any>(null);
-  const [activeHistoryTab, setActiveHistoryTab] = useState('Timeline');
+
+  // Handle distributor click to open 360° view
+  const handleDistributorClick = (distributor: any) => {
+    setSelected360Distributor(distributor);
+    setShow360View(true);
+  };
 
   // Notification data
   const notifications = {
@@ -358,8 +364,8 @@ const MobileApp: React.FC = () => {
                   </div>
                   <div>
                     <h4 
-                      className="font-medium text-gray-900 cursor-pointer hover:text-purple-600 transition-colors"
-                      onClick={() => alert(`Viewing 360° details for ${distributor.name}`)}
+                      className="font-medium text-gray-900 cursor-pointer hover:text-purple-600 transition-colors underline"
+                      onClick={() => handleDistributorClick(distributor)}
                     >
                       {distributor.name}
                     </h4>
@@ -794,7 +800,232 @@ const MobileApp: React.FC = () => {
       </div>
 
       {/* 360° View Modal */}
-      {render360View()}
+      {show360View && selected360Distributor && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-end">
+          <div className="bg-white w-full h-[90vh] rounded-t-2xl overflow-hidden">
+            {/* Modal Header */}
+            <div className="bg-gradient-to-r from-purple-600 to-blue-600 p-4 text-white">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-bold">{selected360Distributor.name}</h3>
+                  <p className="text-sm opacity-90">Code: {selected360Distributor.code}</p>
+                </div>
+                <button
+                  onClick={() => setShow360View(false)}
+                  className="p-2 hover:bg-white hover:bg-opacity-20 rounded-full transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto">
+              {/* Financial Overview */}
+              <div className="p-4 border-b border-gray-200">
+                <h4 className="font-semibold text-gray-900 mb-3">Financial Overview</h4>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-blue-50 rounded-lg p-3 text-center">
+                    <div className="text-lg font-bold text-blue-800">₹7.5L</div>
+                    <div className="text-xs text-blue-600">Credit Limit</div>
+                  </div>
+                  <div className="bg-green-50 rounded-lg p-3 text-center">
+                    <div className="text-lg font-bold text-green-800">₹3.0L</div>
+                    <div className="text-xs text-green-600">Total Purchases</div>
+                  </div>
+                  <div className="bg-purple-50 rounded-lg p-3 text-center">
+                    <div className="text-lg font-bold text-purple-800">₹7.0L</div>
+                    <div className="text-xs text-purple-600">Balance Credit</div>
+                  </div>
+                  <div className="bg-orange-50 rounded-lg p-3 text-center">
+                    <div className="text-lg font-bold text-orange-800">₹2.3L</div>
+                    <div className="text-xs text-orange-600">Total Payments</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Ageing Analysis */}
+              <div className="p-4 border-b border-gray-200">
+                <div className="flex items-center space-x-2 mb-3">
+                  <AlertTriangle className="w-4 h-4 text-red-600" />
+                  <h4 className="font-semibold text-gray-900">Ageing Analysis</h4>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="bg-green-50 rounded-lg p-3 text-center">
+                    <div className="text-lg font-bold text-green-800">₹0K</div>
+                    <div className="text-xs text-green-600">0-30 Days</div>
+                  </div>
+                  <div className="bg-yellow-50 rounded-lg p-3 text-center">
+                    <div className="text-lg font-bold text-yellow-800">₹0K</div>
+                    <div className="text-xs text-yellow-600">31-60 Days</div>
+                  </div>
+                  <div className="bg-orange-50 rounded-lg p-3 text-center">
+                    <div className="text-lg font-bold text-orange-800">₹0K</div>
+                    <div className="text-xs text-orange-600">61-90 Days</div>
+                  </div>
+                  <div className="bg-red-50 rounded-lg p-3 text-center">
+                    <div className="text-lg font-bold text-red-800">₹305K</div>
+                    <div className="text-xs text-red-600">91+ Days</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Performance Overview */}
+              <div className="p-4 border-b border-gray-200">
+                <h4 className="font-semibold text-gray-900 mb-3">Performance Overview</h4>
+                <div className="space-y-3">
+                  <div>
+                    <div className="flex justify-between text-sm text-gray-600 mb-1">
+                      <span>Liquidation Progress</span>
+                      <span className="font-semibold">{selected360Distributor.liquidationPercentage}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div 
+                        className="bg-gradient-to-r from-purple-500 to-blue-500 h-2 rounded-full" 
+                        style={{ width: `${selected360Distributor.liquidationPercentage}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-sm text-gray-600 mb-1">
+                      <span>Credit Utilization</span>
+                      <span className="font-semibold">6.7%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div className="bg-gradient-to-r from-green-500 to-teal-500 h-2 rounded-full" style={{ width: '6.7%' }}></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Activity History */}
+              <div className="p-4">
+                <h4 className="font-semibold text-gray-900 mb-3">360° Activity History</h4>
+                
+                {/* Activity Tabs */}
+                <div className="flex space-x-1 mb-4 bg-gray-100 rounded-lg p-1">
+                  {['Timeline', 'Visits', 'Orders', 'Payments', 'Advances', 'Liquidations'].map((tab) => (
+                    <button
+                      key={tab}
+                      onClick={() => setActiveHistoryTab(tab)}
+                      className={`flex-1 py-1 px-2 rounded-md text-xs font-medium transition-colors ${
+                        activeHistoryTab === tab
+                          ? 'bg-white text-purple-600 shadow-sm'
+                          : 'text-gray-600'
+                      }`}
+                    >
+                      {tab}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Activity Items */}
+                <div className="space-y-3">
+                  {[
+                    {
+                      id: 'ACT001',
+                      date: '01 Jul 2024',
+                      type: 'Visit',
+                      title: 'Visit: Product Demo',
+                      description: 'Status: scheduled',
+                      performedBy: 'Rajesh Kumar (MDO)',
+                      icon: MapPin,
+                      color: 'bg-blue-100 text-blue-600'
+                    },
+                    {
+                      id: 'ACT002',
+                      date: '30 Jun 2024',
+                      type: 'Payment',
+                      title: 'Payment Received',
+                      description: '₹80,000 - Invoice Payment',
+                      performedBy: 'Rajesh Kumar (MDO)',
+                      icon: DollarSign,
+                      color: 'bg-green-100 text-green-600'
+                    },
+                    {
+                      id: 'ACT003',
+                      date: '28 Jun 2024',
+                      type: 'Visit',
+                      title: 'Visit: Sales Call',
+                      description: 'Status: completed',
+                      performedBy: 'Rajesh Kumar (MDO)',
+                      icon: MapPin,
+                      color: 'bg-blue-100 text-blue-600'
+                    },
+                    {
+                      id: 'ACT004',
+                      date: '25 Jun 2024',
+                      type: 'Order',
+                      title: 'Order #SO-001 created',
+                      description: '₹85,000 • 25 Jun 2024',
+                      performedBy: 'System',
+                      details: {
+                        items: [
+                          { name: 'Urea Fertilizer 50kg', qty: 100, rate: 650, total: 65000 },
+                          { name: 'DAP Fertilizer 25kg', qty: 40, rate: 500, total: 20000 }
+                        ]
+                      },
+                      icon: ShoppingCart,
+                      color: 'bg-purple-100 text-purple-600'
+                    },
+                    {
+                      id: 'ACT005',
+                      date: '20 Jun 2024',
+                      type: 'Liquidation',
+                      title: 'Stock Liquidation Update',
+                      description: 'Updated liquidation progress to 7.5%',
+                      performedBy: 'Rajesh Kumar (MDO)',
+                      icon: Droplets,
+                      color: 'bg-teal-100 text-teal-600'
+                    },
+                    {
+                      id: 'ACT006',
+                      date: '15 Jun 2024',
+                      type: 'Advance',
+                      title: 'Advance Payment',
+                      description: '₹50,000 advance received',
+                      performedBy: 'Priya Sharma (TSM)',
+                      icon: CreditCard,
+                      color: 'bg-orange-100 text-orange-600'
+                    }
+                  ].filter(activity => {
+                    if (activeHistoryTab === 'Timeline') return true;
+                    return activity.type === activeHistoryTab.slice(0, -1); // Remove 's' from tab name
+                  }).map((activity) => (
+                    <div key={activity.id} className="border border-gray-200 rounded-lg p-3">
+                      <div className="flex items-center space-x-3 mb-2">
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${activity.color}`}>
+                          <activity.icon className="w-4 h-4" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between">
+                            <h5 className="font-medium text-gray-900 text-sm">{activity.title}</h5>
+                            <span className="text-xs text-gray-500">{activity.date}</span>
+                          </div>
+                          <p className="text-xs text-gray-600">{activity.description}</p>
+                          <p className="text-xs text-gray-500">By: {activity.performedBy}</p>
+                        </div>
+                      </div>
+                      
+                      {/* Order Details */}
+                      {activity.type === 'Order' && activity.details && (
+                        <div className="mt-2 pt-2 border-t border-gray-200">
+                          <p className="text-xs font-medium text-gray-900 mb-1">Items Purchased:</p>
+                          {activity.details.items.map((item: any, index: number) => (
+                            <div key={index} className="flex justify-between text-xs text-gray-600 mb-1">
+                              <span>{item.name}</span>
+                              <span>{item.qty} × ₹{item.rate} = ₹{item.total.toLocaleString()}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
