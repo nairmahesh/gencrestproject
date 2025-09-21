@@ -363,6 +363,12 @@ const MobileApp: React.FC = () => {
               <h2 className="font-bold">Sandeep</h2>
               <p className="text-sm opacity-90">Kumar</p>
             </div>
+            <button 
+              onClick={() => alert(`Viewing details for ${item.distributor}`)}
+              className="text-blue-600 text-xs hover:text-blue-800"
+            >
+              View Details →
+            </button>
           </div>
           <div className="text-right">
             <p className="text-xs opacity-90">{currentUserRole}</p>
