@@ -1078,7 +1078,7 @@ const MDOModule: React.FC = () => {
                 : 'text-gray-600 hover:bg-gray-100'
             }`}
           >
-            Schedule & Tasks
+            Daily Plans & Tasks
           </button>
         </div>
       </div>

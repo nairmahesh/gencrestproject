@@ -81,6 +81,34 @@ interface ActivityHistoryItem {
   paymentMode?: string;
 }
 
+interface PromotionActivity {
+  id: string;
+  date: string;
+  activityType: string;
+  activityCategory: 'Internal Meetings' | 'Farmer BTL Engagement' | 'Channel BTL Engagement';
+  village: string;
+  targetNumbers: {
+    participants?: number;
+    dealers?: number;
+    retailers?: number;
+    farmers?: number;
+    volume?: number;
+    value?: number;
+  };
+  actualNumbers?: {
+    participants?: number;
+    dealers?: number;
+    retailers?: number;
+    farmers?: number;
+    volume?: number;
+    value?: number;
+  };
+  time: string;
+  status: 'Scheduled' | 'In Progress' | 'Completed' | 'Cancelled';
+  mdoName: string;
+  mdoCode: string;
+}
+
 interface AgeingBucket {
   range: string;
   amount: number;
