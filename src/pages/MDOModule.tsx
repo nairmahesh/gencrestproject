@@ -133,7 +133,6 @@ interface LocationDeviation {
 const MDOModule: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState('Overview');
   const { latitude, longitude, error: locationError } = useGeolocation();
   
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
@@ -471,6 +470,7 @@ const MDOModule: React.FC = () => {
     setActivityOutcome('');
     setVisitRemarks('');
     setUploadedProofs([]);
+    setLocationDeviation(0);
   };
 
   const getStatusColor = (status: string) => {
@@ -494,6 +494,22 @@ const MDOModule: React.FC = () => {
 
   const getPlansForDate = (date: string) => {
     return dailyPlans.filter(plan => plan.date === date);
+  };
+
+  const startActivity = (activityId: string) => {
+    setDailyPlans(prev => prev.map(plan => 
+      plan.id === activityId 
+        ? { ...plan, status: 'In Progress' as const }
+        : plan
+    ));
+  };
+
+  const completeActivity = (activityId: string) => {
+    setDailyPlans(prev => prev.map(plan => 
+      plan.id === activityId 
+        ? { ...plan, status: 'Completed' as const }
+        : plan
+    ));
   };
 
   const generateReport = (reportType: string) => {
@@ -538,53 +554,20 @@ const MDOModule: React.FC = () => {
     }
   };
 
+  // Sample day plans data
   const dayPlans: { [key: string]: any[] } = {
-    '2024-01-22': [
-      {
-        id: 'DP001',
-        activityType: 'Farmer Meets – Small',
-        category: 'Farmer BTL Engagement',
-        village: 'Green Valley',
-        distributor: 'SRI RAMA SEEDS',
-        time: '09:00 - 11:00',
-        duration: 120,
-        status: 'Completed',
-        targetNumbers: { participants: 25, farmers: 25 },
-        actualNumbers: { participants: 28, farmers: 28 }
-      },
-      {
-        id: 'DP002',
-        activityType: 'Farm level demos',
-        category: 'Farmer BTL Engagement',
-        village: 'Khera Village',
-        distributor: 'Ram Kumar Distributors',
-        time: '14:00 - 16:30',
-        duration: 150,
-        status: 'In Progress',
-        targetNumbers: { participants: 15, farmers: 15 }
-      }
-    ],
-    '2024-01-23': [
-      {
-        id: 'DP003',
-        activityType: 'Distributor Day Training Program',
-        category: 'Farmer BTL Engagement',
-        village: 'Industrial Area',
-        distributor: 'Green Agro Solutions',
-        time: '10:00 - 12:00',
-        duration: 120,
-        status: 'Scheduled',
-        targetNumbers: { participants: 25, dealers: 25 }
-      }
-    ]
-  };
-
-  const startActivity = (activityId: string) => {
-    alert(`Starting activity: ${activityId}`);
-  };
-
-  const completeActivity = (activityId: string) => {
-    alert(`Completing activity: ${activityId}`);
+    [selectedDate]: getPlansForDate(selectedDate).map(plan => ({
+      id: plan.id,
+      activityType: plan.activityType,
+      category: plan.activityCategory,
+      village: plan.village,
+      distributor: plan.associatedDistributor,
+      time: `${plan.startTime} - ${plan.endTime}`,
+      duration: plan.duration,
+      status: plan.status,
+      targetNumbers: plan.targetNumbers,
+      actualNumbers: plan.actualNumbers
+    }))
   };
 
   return (
@@ -600,43 +583,18 @@ const MDOModule: React.FC = () => {
           </button>
           <div>
             <h1 className="text-2xl font-bold text-gray-900">MDO Module</h1>
-            <p className="text-sm text-gray-600">Market Development Officer Dashboard</p>
+            <p className="text-sm text-gray-600">Market Development Officer Activities</p>
           </div>
         </div>
         
         <div className="flex items-center space-x-3">
           <button
             onClick={() => setShowReportsModal(true)}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center"
+            className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center"
           >
             <Eye className="w-4 h-4 mr-2" />
             View Reports
           </button>
-          <div className="text-right">
-            <p className="text-sm font-medium text-gray-900">{user?.name}</p>
-            <p className="text-xs text-gray-600">{user?.role} • {user?.territory}</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Location Status */}
-      <div className="bg-white rounded-xl p-4 card-shadow">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className={`w-3 h-3 rounded-full ${latitude && longitude ? 'bg-green-500' : 'bg-red-500'}`}></div>
-            <div>
-              <p className="font-medium text-gray-900">Location Status</p>
-              <p className="text-sm text-gray-600">
-                {latitude && longitude 
-                  ? `${latitude.toFixed(6)}, ${longitude.toFixed(6)}` 
-                  : locationError || 'Getting location...'}
-              </p>
-            </div>
-          </div>
-          <div className="text-right">
-            <p className="text-sm font-medium text-gray-900">{new Date().toLocaleDateString()}</p>
-            <p className="text-xs text-gray-600">{new Date().toLocaleTimeString()}</p>
-          </div>
         </div>
       </div>
 
