@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { 
+import { Home, Users, ShoppingCart, Droplets, FileText, CheckSquare, Activity } from 'lucide-react';
   Home, 
   Users, 
   ShoppingCart, 
