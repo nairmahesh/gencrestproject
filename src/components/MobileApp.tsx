@@ -233,29 +233,334 @@ const MobileApp: React.FC = () => {
 
   const renderLiquidationContent = () => (
     <div className="flex-1 p-4 space-y-4">
+      {/* Summary Cards - Same as Web */}
+      <div className="grid grid-cols-2 gap-3">
+        <div className="bg-orange-50 rounded-lg p-3 border-l-4 border-orange-500">
+          <div className="text-center">
+            <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center mx-auto mb-2">
+              <Package className="w-4 h-4 text-white" />
+            </div>
+            <div className="text-lg font-bold text-gray-900">32,660</div>
+            <div className="text-xs text-gray-600 mb-1">Kg/Litre</div>
+            <div className="text-xs text-orange-600 font-semibold">₹190.00L</div>
+            <div className="text-xs text-orange-700 mt-1">Opening Stock</div>
+          </div>
+        </div>
+
+        <div className="bg-blue-50 rounded-lg p-3 border-l-4 border-blue-500">
+          <div className="text-center">
+            <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center mx-auto mb-2">
+              <TrendingUp className="w-4 h-4 text-white" />
+            </div>
+            <div className="text-lg font-bold text-gray-900">13,303</div>
+            <div className="text-xs text-gray-600 mb-1">Kg/Litre</div>
+            <div className="text-xs text-blue-600 font-semibold">₹43.70L</div>
+            <div className="text-xs text-blue-700 mt-1">YTD Net Sales</div>
+          </div>
+        </div>
+
+        <div className="bg-green-50 rounded-lg p-3 border-l-4 border-green-500">
+          <div className="text-center">
+            <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center mx-auto mb-2">
+              <Droplets className="w-4 h-4 text-white" />
+            </div>
+            <div className="text-lg font-bold text-gray-900">12,720</div>
+            <div className="text-xs text-gray-600 mb-1">Kg/Litre</div>
+            <div className="text-xs text-green-600 font-semibold">₹55.52L</div>
+            <div className="text-xs text-green-700 mt-1">Liquidation</div>
+          </div>
+        </div>
+
+        <div className="bg-purple-50 rounded-lg p-3 border-l-4 border-purple-500">
+          <div className="text-center">
+            <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center mx-auto mb-2">
+              <Target className="w-4 h-4 text-white" />
+            </div>
+            <div className="text-lg font-bold text-gray-900">33,243</div>
+            <div className="text-xs text-gray-600 mb-1">Kg/Litre</div>
+            <div className="text-xs text-purple-600 font-semibold">₹178.23L</div>
+            <div className="text-xs text-purple-700 mt-1">Balance Stock</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Distributor Entries */}
       <div className="bg-white rounded-xl p-4 border border-gray-200">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Liquidation Status</h3>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-gray-900">Distributor Entries</h3>
+          <span className="text-xs text-gray-500">3 distributors</span>
+        </div>
         <div className="space-y-3">
-          {liquidationData.map((item) => (
-            <div key={item.id} className="border border-gray-200 rounded-lg p-3">
+          {[
+            {
+              id: 'DIST001',
+              name: 'SRI RAMA SEEDS AND PESTICIDES',
+              code: '1325',
+              product: 'DAP (Di-Ammonium Phosphate)',
+              territory: 'North Delhi',
+              region: 'Delhi NCR',
+              zone: 'North Zone',
+              status: 'Active',
+              priority: 'High',
+              liquidationPercentage: 71,
+              openingStock: { volume: 210, value: 2.84 },
+              ytdNetSales: { volume: 84, value: 1.13 },
+              liquidation: { volume: 210, value: 2.84 },
+              balanceStock: { volume: 420, value: 5.67 },
+              lastUpdated: '9/18/2025',
+              remarks: 'Good progress on liquidation'
+            },
+            {
+              id: 'DIST002',
+              name: 'Ram Kumar Distributors',
+              code: 'DLR001',
+              product: 'DAP (Di-Ammonium Phosphate)',
+              territory: 'Green Valley',
+              region: 'Delhi NCR',
+              zone: 'North Zone',
+              status: 'Active',
+              priority: 'Medium',
+              liquidationPercentage: 29,
+              openingStock: { volume: 15000, value: 18.75 },
+              ytdNetSales: { volume: 6500, value: 8.13 },
+              liquidation: { volume: 6200, value: 7.75 },
+              balanceStock: { volume: 15300, value: 19.13 },
+              lastUpdated: '9/18/2025',
+              remarks: 'Needs improvement'
+            },
+            {
+              id: 'DIST003',
+              name: 'Green Agro Solutions',
+              code: 'GAS001',
+              product: 'DAP (Di-Ammonium Phosphate)',
+              territory: 'Sector 8',
+              region: 'Delhi NCR',
+              zone: 'North Zone',
+              status: 'Active',
+              priority: 'Medium',
+              liquidationPercentage: 26,
+              openingStock: { volume: 17620, value: 21.70 },
+              ytdNetSales: { volume: 6493, value: 6.57 },
+              liquidation: { volume: 6380, value: 7.22 },
+              balanceStock: { volume: 17733, value: 21.05 },
+              lastUpdated: '9/18/2025',
+              remarks: 'Regular follow-up needed'
+            }
+          ].map((distributor) => (
+            <div key={distributor.id} className="border border-gray-200 rounded-lg p-3">
               <div className="flex items-center justify-between mb-2">
-                <h4 className="font-medium text-gray-900">{item.distributor}</h4>
+                <div className="flex items-center space-x-2">
+                  <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <Building className="w-4 h-4 text-purple-600" />
+                  </div>
+                  <div>
+                    <h4 
+                      className="font-medium text-gray-900 cursor-pointer hover:text-purple-600 transition-colors"
+                      onClick={() => alert(`Viewing 360° details for ${distributor.name}`)}
+                    >
+                      {distributor.name}
+                    </h4>
+                    <p className="text-xs text-gray-600">Code: {distributor.code}</p>
+                  </div>
+                </div>
+                <div className="flex flex-col items-end space-y-1">
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    distributor.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                  }`}>
+                    {distributor.status}
+                  </span>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    distributor.priority === 'High' ? 'bg-red-100 text-red-800' :
+                    distributor.priority === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
+                    'bg-green-100 text-green-800'
+                  }`}>
+                    {distributor.priority}
+                  </span>
+                </div>
+              </div>
+              
+              {/* Product Info */}
+              <div className="mb-3">
+                <p className="text-xs text-blue-600 font-medium">{distributor.product}</p>
+                <p className="text-xs text-gray-500">{distributor.territory} • {distributor.region}</p>
+              </div>
+              
+              {/* Metrics Grid - Mobile Optimized */}
+              <div className="grid grid-cols-4 gap-2 mb-3">
+                <div className="bg-orange-50 rounded p-2 text-center border border-orange-200">
+                  <div className="text-xs text-orange-600 mb-1">Opening</div>
+                  <div className="text-sm font-bold text-orange-800">{distributor.openingStock.volume}</div>
+                  <div className="text-xs text-orange-600">₹{distributor.openingStock.value}L</div>
+                </div>
+                <div className="bg-blue-50 rounded p-2 text-center border border-blue-200">
+                  <div className="text-xs text-blue-600 mb-1">YTD Sales</div>
+                  <div className="text-sm font-bold text-blue-800">{distributor.ytdNetSales.volume}</div>
+                  <div className="text-xs text-blue-600">₹{distributor.ytdNetSales.value}L</div>
+                </div>
+                <div className="bg-green-50 rounded p-2 text-center border border-green-200">
+                  <div className="text-xs text-green-600 mb-1">Liquidation</div>
+                  <div className="text-sm font-bold text-green-800">{distributor.liquidation.volume}</div>
+                  <div className="text-xs text-green-600">₹{distributor.liquidation.value}L</div>
+                </div>
+                <div className="bg-purple-50 rounded p-2 text-center border border-purple-200">
+                  <div className="text-xs text-purple-600 mb-1">Balance</div>
+                  <div className="text-sm font-bold text-purple-800">{distributor.balanceStock.volume}</div>
+                  <div className="text-xs text-purple-600">₹{distributor.balanceStock.value}L</div>
+                </div>
+              </div>
+              
+              {/* Progress Bar */}
+              <div className="mb-3">
+                <div className="flex justify-between text-xs text-gray-600 mb-1">
+                  <span>% Liquidation</span>
+                  <span className="font-semibold">{distributor.liquidationPercentage}%</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div 
+                    className="bg-purple-600 h-2 rounded-full transition-all duration-500" 
+                    style={{ width: `${distributor.liquidationPercentage}%` }}
+                  ></div>
+                </div>
+              </div>
+              
+              {/* Action Buttons */}
+              <div className="flex space-x-2">
+                <button 
+                  onClick={() => alert(`Viewing details for ${distributor.name}`)}
+                  className="flex-1 bg-purple-100 text-purple-700 py-2 px-3 rounded-lg text-xs font-medium hover:bg-purple-200 transition-colors"
+                >
+                  View Details
+                </button>
+                <button 
+                  onClick={() => alert(`Verifying stock for ${distributor.name}`)}
+                  className="flex-1 bg-green-600 text-white py-2 px-3 rounded-lg text-xs font-medium hover:bg-green-700 transition-colors flex items-center justify-center"
+                >
+                  <CheckCircle className="w-3 h-3 mr-1" />
+                  Verify Stock
+                </button>
+              </div>
+              
+              {/* Footer Info */}
+              <div className="mt-3 pt-2 border-t border-gray-200 text-xs text-gray-500">
+                <div className="flex justify-between">
+                  <span>Updated: {distributor.lastUpdated}</span>
+                  <span className="flex items-center">
+                    <MapPin className="w-3 h-3 mr-1" />
+                    {distributor.zone}
+                  </span>
+                </div>
+                <p className="mt-1 text-gray-600">{distributor.remarks}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+        
+        {/* Quick Actions */}
+        <div className="bg-white rounded-xl p-4 border border-gray-200">
+          <h4 className="font-medium text-gray-900 mb-3">Quick Actions</h4>
+          <div className="grid grid-cols-2 gap-3">
+            <button 
+              onClick={() => alert('Opening camera for stock verification')}
+              className="bg-blue-600 text-white p-3 rounded-lg flex items-center justify-center hover:bg-blue-700 transition-colors"
+            >
+              <Camera className="w-4 h-4 mr-2" />
+              <span className="text-sm">Verify Stock</span>
+            </button>
+            <button 
+              onClick={() => alert('Opening signature capture')}
+              className="bg-green-600 text-white p-3 rounded-lg flex items-center justify-center hover:bg-green-700 transition-colors"
+            >
+              <FileText className="w-4 h-4 mr-2" />
+              <span className="text-sm">E-Signature</span>
+            </button>
+          </div>
+        </div>
+        
+        {/* Performance Summary */}
+        <div className="bg-white rounded-xl p-4 border border-gray-200">
+          <h4 className="font-medium text-gray-900 mb-3">Performance Summary</h4>
+          <div className="grid grid-cols-3 gap-3 text-center">
+            <div className="bg-green-50 rounded-lg p-3">
+              <div className="text-lg font-bold text-green-800">1</div>
+              <div className="text-xs text-green-600">High Performing</div>
+            </div>
+            <div className="bg-yellow-50 rounded-lg p-3">
+              <div className="text-lg font-bold text-yellow-800">2</div>
+              <div className="text-xs text-yellow-600">Needs Attention</div>
+            </div>
+            <div className="bg-blue-50 rounded-lg p-3">
+              <div className="text-lg font-bold text-blue-800">28%</div>
+              <div className="text-xs text-blue-600">Avg Liquidation</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderTasksContent = () => (
+    <div className="flex-1 p-4 space-y-4">
+      <div className="bg-white rounded-xl p-4 border border-gray-200">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Today's Tasks</h3>
+        <div className="space-y-3">
+          {[
+            { id: '1', title: 'Visit SRI RAMA SEEDS', time: '10:00 AM', status: 'Pending', priority: 'High' },
+            { id: '2', title: 'Stock verification at Ram Kumar', time: '2:30 PM', status: 'Scheduled', priority: 'Medium' },
+            { id: '3', title: 'Payment collection - Green Agro', time: '4:00 PM', status: 'Pending', priority: 'High' }
+          ].map((task) => (
+            <div key={task.id} className="border border-gray-200 rounded-lg p-3">
+              <div className="flex items-center justify-between mb-2">
+                <h4 className="font-medium text-gray-900">{task.title}</h4>
                 <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                  item.status === 'Good' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                  task.priority === 'High' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'
                 }`}>
-                  {item.status}
+                  {task.priority}
                 </span>
               </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Liquidation Progress</span>
-                <span className="font-semibold text-gray-900">{item.percentage}%</span>
+              <div className="flex justify-between text-sm text-gray-600">
+                <span className="flex items-center">
+                  <Clock className="w-3 h-3 mr-1" />
+                  {task.time}
+                </span>
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                  task.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-blue-100 text-blue-800'
+                }`}>
+                  {task.status}
+                </span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-                <div 
-                  className="bg-purple-600 h-2 rounded-full" 
-                  style={{ width: `${item.percentage}%` }}
-                ></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderReportsContent = () => (
+    <div className="flex-1 p-4 space-y-4">
+      <div className="bg-white rounded-xl p-4 border border-gray-200">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Reports</h3>
+        <div className="space-y-3">
+          {[
+            { id: '1', title: 'Daily Activity Report', date: '2024-01-20', status: 'Generated' },
+            { id: '2', title: 'Weekly Performance Report', date: '2024-01-19', status: 'Pending' },
+            { id: '3', title: 'Monthly Liquidation Report', date: '2024-01-18', status: 'Generated' }
+          ].map((report) => (
+            <div key={report.id} className="border border-gray-200 rounded-lg p-3">
+              <div className="flex items-center justify-between mb-2">
+                <h4 className="font-medium text-gray-900">{report.title}</h4>
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                  report.status === 'Generated' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                }`}>
+                  {report.status}
+                </span>
               </div>
+              <div className="flex justify-between text-sm text-gray-600">
+                <span>{new Date(report.date).toLocaleDateString()}</span>
+                <button 
+                  onClick={() => alert(`Downloading ${report.title}`)}
+                  className="text-blue-600 hover:text-blue-800 text-xs"
+                >
+                  Download
             </div>
           ))}
         </div>
@@ -309,6 +614,10 @@ const MobileApp: React.FC = () => {
         return renderOrdersContent();
       case 'liquidation':
         return renderLiquidationContent();
+      case 'tasks':
+        return renderTasksContent();
+      case 'reports':
+        return renderReportsContent();
       case 'more':
         return renderMoreContent();
       default:
@@ -464,13 +773,23 @@ const MobileApp: React.FC = () => {
           </button>
           
           <button
-            onClick={() => setActiveTab('more')}
+            onClick={() => setActiveTab('tasks')}
             className={`flex flex-col items-center p-2 rounded-lg transition-colors ${
-              activeTab === 'more' ? 'text-purple-600 bg-purple-50' : 'text-gray-600 hover:bg-gray-50'
+              activeTab === 'tasks' ? 'text-purple-600 bg-purple-50' : 'text-gray-600 hover:bg-gray-50'
+            }`}
+          >
+            <CheckSquare className="w-5 h-5 mb-1" />
+            <span className="text-xs">Tasks</span>
+          </button>
+          
+          <button
+            onClick={() => setActiveTab('reports')}
+            className={`flex flex-col items-center p-2 rounded-lg transition-colors ${
+              activeTab === 'reports' ? 'text-purple-600 bg-purple-50' : 'text-gray-600 hover:bg-gray-50'
             }`}
           >
             <FileText className="w-5 h-5 mb-1" />
-            <span className="text-xs">More</span>
+            <span className="text-xs">Reports</span>
           </button>
         </div>
       </div>
