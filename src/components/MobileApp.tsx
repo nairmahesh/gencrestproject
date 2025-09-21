@@ -54,6 +54,7 @@ const MobileApp: React.FC = () => {
 
   // Handle distributor click to open 360° view
   const handleDistributorClick = (distributor: any) => {
+    console.log('Distributor clicked:', distributor.name);
     setSelected360Distributor(distributor);
     setShow360View(true);
   };
@@ -364,7 +365,7 @@ const MobileApp: React.FC = () => {
                   </div>
                   <div>
                     <h4 
-                      className="font-medium text-gray-900 cursor-pointer hover:text-purple-600 transition-colors underline"
+                      className="font-medium text-gray-900 cursor-pointer hover:text-purple-600 transition-colors underline text-blue-600"
                       onClick={() => handleDistributorClick(distributor)}
                     >
                       {distributor.name}
@@ -801,7 +802,7 @@ const MobileApp: React.FC = () => {
 
       {/* 360° View Modal */}
       {show360View && selected360Distributor && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-end">
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-end">
           <div className="bg-white w-full h-[90vh] rounded-t-2xl overflow-hidden">
             {/* Modal Header */}
             <div className="bg-gradient-to-r from-purple-600 to-blue-600 p-4 text-white">
@@ -819,9 +820,9 @@ const MobileApp: React.FC = () => {
               </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
               {/* Financial Overview */}
-              <div className="p-4 border-b border-gray-200">
+              <div className="bg-white rounded-xl p-4 border border-gray-200">
                 <h4 className="font-semibold text-gray-900 mb-3">Financial Overview</h4>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="bg-blue-50 rounded-lg p-3 text-center">
@@ -844,7 +845,7 @@ const MobileApp: React.FC = () => {
               </div>
 
               {/* Ageing Analysis */}
-              <div className="p-4 border-b border-gray-200">
+              <div className="bg-white rounded-xl p-4 border border-gray-200">
                 <div className="flex items-center space-x-2 mb-3">
                   <AlertTriangle className="w-4 h-4 text-red-600" />
                   <h4 className="font-semibold text-gray-900">Ageing Analysis</h4>
@@ -870,18 +871,18 @@ const MobileApp: React.FC = () => {
               </div>
 
               {/* Performance Overview */}
-              <div className="p-4 border-b border-gray-200">
+              <div className="bg-white rounded-xl p-4 border border-gray-200">
                 <h4 className="font-semibold text-gray-900 mb-3">Performance Overview</h4>
                 <div className="space-y-3">
                   <div>
                     <div className="flex justify-between text-sm text-gray-600 mb-1">
                       <span>Liquidation Progress</span>
-                      <span className="font-semibold">{selected360Distributor.liquidationPercentage}%</span>
+                      <span className="font-semibold">7.5%</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
                       <div 
                         className="bg-gradient-to-r from-purple-500 to-blue-500 h-2 rounded-full" 
-                        style={{ width: `${selected360Distributor.liquidationPercentage}%` }}
+                        style={{ width: '7.5%' }}
                       ></div>
                     </div>
                   </div>
@@ -898,7 +899,7 @@ const MobileApp: React.FC = () => {
               </div>
 
               {/* Activity History */}
-              <div className="p-4">
+              <div className="bg-white rounded-xl p-4 border border-gray-200">
                 <h4 className="font-semibold text-gray-900 mb-3">360° Activity History</h4>
                 
                 {/* Activity Tabs */}
