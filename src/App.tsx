@@ -17,6 +17,7 @@ import MobileAppPage from './pages/MobileAppPage';
 import MDOModule from './pages/MDOModule';
 import UserManagement from './pages/UserManagement';
 import Approvals from './pages/Approvals';
+import DistributorDetails from './pages/DistributorDetails';
 
 function App() {
   const { isAuthenticated } = useAuth();
@@ -42,6 +43,7 @@ function App() {
         <Route path="/mdo-module" element={<MDOModule />} />
         <Route path="/user-management" element={<UserManagement />} />
         <Route path="/approvals" element={<Approvals />} />
+        <Route path="/distributor/:id" element={<DistributorDetails />} />
       </Routes>
     </Layout>
   );

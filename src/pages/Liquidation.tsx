@@ -359,6 +359,13 @@ const Liquidation: React.FC = () => {
                 <option>All Status</option>
                 <option>Active</option>
                 <option>Inactive</option>
+              <button
+                onClick={() => navigate(`/distributor/${distributor.id}`)}
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center"
+              >
+                <Building className="w-4 h-4 mr-2" />
+                360° View
+              </button>
               </select>
               <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
             </div>
