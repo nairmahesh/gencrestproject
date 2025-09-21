@@ -366,6 +366,13 @@ const Liquidation: React.FC = () => {
                 <Building className="w-4 h-4 mr-2" />
                 360° View
               </button>
+              <button
+                onClick={() => navigate(`/distributor/${distributor.id}`)}
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center"
+              >
+                <Building className="w-4 h-4 mr-2" />
+                360° View
+              </button>
               </select>
               <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
             </div>
@@ -514,6 +521,13 @@ const Liquidation: React.FC = () => {
                       Territory: {distributor.territory}
                     </span>
                   </div>
+                  <button
+                    onClick={() => navigate(`/distributor/${distributor.id}`)}
+                    className="bg-blue-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700 transition-colors flex items-center text-sm"
+                  >
+                    <Building className="w-3 h-3 mr-1" />
+                    360° View
+                  </button>
                 </div>
 
                 {/* Remarks */}
