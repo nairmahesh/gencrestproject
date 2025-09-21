@@ -133,6 +133,7 @@ interface LocationDeviation {
 const MDOModule: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState('Overview');
   const { latitude, longitude, error: locationError } = useGeolocation();
   
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
