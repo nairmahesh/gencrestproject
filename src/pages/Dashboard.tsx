@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import LiveMeetings from '../components/LiveMeetings';
 import TSMDashboard from '../components/TSMDashboard';
 import RBHDashboard from '../components/RBHDashboard';
 import RMMDashboard from '../components/RMMDashboard';
@@ -65,6 +66,34 @@ const Dashboard: React.FC = () => {
   const [selectedModule, setSelectedModule] = useState('All');
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedMetric, setSelectedMetric] = useState<string>('');
+  const [liveMeetings, setLiveMeetings] = useState([
+    {
+      id: 'LM001',
+      participantName: 'Rajesh Kumar',
+      participantRole: 'MDO',
+      location: 'Ram Kumar Farm',
+      address: 'Green Valley, Sector 12',
+      startTime: '10:45 AM',
+      duration: 25,
+      status: 'active' as const,
+      type: 'Visit' as const,
+      phone: '+91 98765 43210',
+      notes: 'Product demonstration in progress'
+    },
+    {
+      id: 'LM002',
+      participantName: 'Amit Singh',
+      participantRole: 'MDO',
+      location: 'Suresh Traders',
+      address: 'Market Area, Sector 8',
+      startTime: '11:20 AM',
+      duration: 15,
+      status: 'active' as const,
+      type: 'Demo' as const,
+      phone: '+91 87654 32109',
+      notes: 'Stock review and liquidation discussion'
+    }
+  ]);
   const { user, hasPermission } = useAuth();
   
   // Use dynamic liquidation calculation hook
@@ -614,6 +643,10 @@ const Dashboard: React.FC = () => {
     ? recentActivities 
     : recentActivities.filter(activity => activity.module === selectedModule);
 
+  const handleEndMeeting = (meetingId: string) => {
+    setLiveMeetings(prev => prev.filter(meeting => meeting.id !== meetingId));
+  };
+
   return (
     <div className="space-y-6">
       {/* Header Section */}
@@ -763,6 +796,13 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Live Meetings */}
+      <LiveMeetings 
+        meetings={liveMeetings}
+        onEndMeeting={handleEndMeeting}
+        userRole={user?.role || 'MDO'}
+      />
 
       {/* Module Cards - All Sections */}
       <div className="space-y-6">
