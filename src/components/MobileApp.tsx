@@ -51,6 +51,7 @@ const MobileApp: React.FC = () => {
   const [activeHistoryTab, setActiveHistoryTab] = useState('Timeline');
   const [selectedDistributor, setSelectedDistributor] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [showWorkPlan, setShowWorkPlan] = useState(false);
   const { overallMetrics } = useLiquidationCalculation();
   const { latitude, longitude } = useGeolocation();
 
@@ -803,31 +804,60 @@ const MobileApp: React.FC = () => {
         
         {/* Monthly Plan Section */}
         <div className="bg-white bg-opacity-20 rounded-xl p-3 mb-4 border border-white border-opacity-30">
-          <div 
-            className="flex items-center justify-between cursor-pointer hover:bg-white hover:bg-opacity-10 -mx-1 px-1 py-1 rounded-lg transition-colors"
-            onClick={() => setMonthlyPlanExpanded(!monthlyPlanExpanded)}
+          <button
+            onClick={() => setShowWorkPlan(!showWorkPlan)}
+            className="w-full flex items-center justify-between p-2 hover:bg-white hover:bg-opacity-10 transition-colors rounded-lg"
           >
-            <div className="flex items-center space-x-2">
-              <Calendar className="w-4 h-4 text-white" />
-              <span className="text-sm font-medium text-white">Monthly Plan - Approved</span>
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                <Calendar className="w-4 h-4 text-purple-600" />
+              </div>
+              <div className="text-left">
+                <h3 className="font-semibold text-white">Work Plan Assignment</h3>
+                <p className="text-xs text-white opacity-75">January 2024 Monthly Plan</p>
+              </div>
             </div>
-            {monthlyPlanExpanded ? (
-              <ChevronUp className="w-4 h-4 text-white" />
-            ) : (
-              <ChevronDown className="w-4 h-4 text-white" />
-            )}
-          </div>
+            <div className="flex items-center space-x-2">
+              <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+                Approved
+              </span>
+              <ChevronDown className={`w-4 h-4 text-white transition-transform ${showWorkPlan ? 'rotate-180' : ''}`} />
+            </div>
+          </button>
           
-          {monthlyPlanExpanded && (
-            <div className="mt-3 space-y-2">
-              <div className="bg-white bg-opacity-20 rounded-lg p-3">
-                <h4 className="font-medium text-white mb-2">January 2024 Plan</h4>
-                <div className="text-sm text-white opacity-90 space-y-1">
-                  <p>Created by: Priya Sharma (TSM)</p>
-                  <p>Approved by: Amit Patel (RBH)</p>
-                  <p>Activities: 45 planned, 38 completed</p>
-                  <p>Progress: 84%</p>
+          {showWorkPlan && (
+            <div className="mt-4 pt-4 border-t border-white border-opacity-30 space-y-3">
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <span className="text-white opacity-75">Created by:</span>
+                  <span className="font-medium ml-1 text-white">Priya Sharma (TSM)</span>
                 </div>
+                <div>
+                  <span className="text-white opacity-75">Approved by:</span>
+                  <span className="font-medium ml-1 text-white">Amit Patel</span>
+                </div>
+              </div>
+              
+              {/* Daily Activities */}
+              <div className="space-y-2">
+                <h4 className="font-medium text-white text-sm">This Week's Activities</h4>
+                {[
+                  { day: 'Monday', village: 'Green Valley', distributor: 'Ram Kumar', target: 5 },
+                  { day: 'Tuesday', village: 'Sector 12', distributor: 'Suresh Traders', target: 3 },
+                  { day: 'Wednesday', village: 'Industrial Area', distributor: 'Amit Agro', target: 4 }
+                ].map((activity, index) => (
+                  <div key={index} className="bg-white bg-opacity-20 rounded-lg p-3">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <p className="font-medium text-sm text-white">{activity.day}</p>
+                        <p className="text-xs text-white opacity-75">{activity.village} - {activity.distributor}</p>
+                      </div>
+                      <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">
+                        Target: {activity.target}
+                      </span>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           )}
