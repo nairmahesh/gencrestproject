@@ -44,6 +44,9 @@ const MobileApp: React.FC = () => {
   const [currentView, setCurrentView] = useState('dashboard');
   const [liveMeetingsExpanded, setLiveMeetingsExpanded] = useState(true);
   const [monthlyPlanExpanded, setMonthlyPlanExpanded] = useState(false);
+  const [show360View, setShow360View] = useState(false);
+  const [selected360Distributor, setSelected360Distributor] = useState<any>(null);
+  const [activeHistoryTab, setActiveHistoryTab] = useState('Timeline');
   const { overallMetrics } = useLiquidationCalculation();
   const { latitude, longitude } = useGeolocation();
 
