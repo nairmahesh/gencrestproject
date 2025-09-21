@@ -145,11 +145,11 @@ const MDOModule: React.FC = () => {
   const [uploadedProofs, setUploadedProofs] = useState<any[]>([]);
   const [isCapturing, setIsCapturing] = useState(false);
   const [showLocationAlert, setShowLocationAlert] = useState(false);
-  const [showWorkPlan, setShowWorkPlan] = useState(false);
   const [locationDeviation, setLocationDeviation] = useState<number>(0);
   const [deviationRemarks, setDeviationRemarks] = useState('');
   const [showReportsModal, setShowReportsModal] = useState(false);
   const [selectedReport, setSelectedReport] = useState('');
+  const [showWorkPlan, setShowWorkPlan] = useState(false);
 
   // Sample visit targets
   const visitTargets: VisitTarget[] = [
@@ -358,6 +358,34 @@ const MDOModule: React.FC = () => {
     }
   ]);
 
+  // Sample day plans
+  const dayPlans: { [key: string]: any[] } = {
+    [selectedDate]: [
+      {
+        id: 'DP001',
+        activityType: 'Farmer Meets – Small',
+        category: 'Farmer BTL Engagement',
+        village: 'Green Valley',
+        distributor: 'SRI RAMA SEEDS',
+        time: '09:00 - 11:00',
+        duration: 120,
+        status: 'Completed',
+        targetNumbers: {
+          participants: 25,
+          farmers: 25,
+          volume: 500,
+          value: 50000
+        },
+        actualNumbers: {
+          participants: 28,
+          farmers: 28,
+          volume: 560,
+          value: 56000
+        }
+      }
+    ]
+  };
+
   const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
     const R = 6371; // Earth's radius in km
     const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -392,6 +420,14 @@ const MDOModule: React.FC = () => {
     }
 
     setActiveVisit(targetId);
+  };
+
+  const startActivity = (activityId: string) => {
+    setActiveVisit(activityId);
+  };
+
+  const completeActivity = (activityId: string) => {
+    setActiveVisit(activityId);
   };
 
   const handleLocationApproval = () => {
@@ -470,46 +506,38 @@ const MDOModule: React.FC = () => {
     setActivityOutcome('');
     setVisitRemarks('');
     setUploadedProofs([]);
-    setLocationDeviation(0);
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Completed': return 'bg-green-100 text-green-800';
-      case 'In Progress': return 'bg-blue-100 text-blue-800';
-      case 'Not Started': return 'bg-gray-100 text-gray-800';
-      case 'Cancelled': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'Completed':
+        return 'bg-green-100 text-green-800';
+      case 'In Progress':
+        return 'bg-blue-100 text-blue-800';
+      case 'Not Started':
+        return 'bg-gray-100 text-gray-800';
+      case 'Cancelled':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
   const getDeviationStatusColor = (status: string) => {
     switch (status) {
-      case 'approved': return 'bg-green-100 text-green-800';
-      case 'rejected': return 'bg-red-100 text-red-800';
-      case 'pending': return 'bg-yellow-100 text-yellow-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'approved':
+        return 'bg-green-100 text-green-800';
+      case 'rejected':
+        return 'bg-red-100 text-red-800';
+      case 'pending':
+        return 'bg-yellow-100 text-yellow-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
   const getPlansForDate = (date: string) => {
     return dailyPlans.filter(plan => plan.date === date);
-  };
-
-  const startActivity = (activityId: string) => {
-    setDailyPlans(prev => prev.map(plan => 
-      plan.id === activityId 
-        ? { ...plan, status: 'In Progress' as const }
-        : plan
-    ));
-  };
-
-  const completeActivity = (activityId: string) => {
-    setDailyPlans(prev => prev.map(plan => 
-      plan.id === activityId 
-        ? { ...plan, status: 'Completed' as const }
-        : plan
-    ));
   };
 
   const generateReport = (reportType: string) => {
@@ -554,22 +582,6 @@ const MDOModule: React.FC = () => {
     }
   };
 
-  // Sample day plans data structure
-  const dayPlans: { [key: string]: any[] } = {
-    [selectedDate]: getPlansForDate(selectedDate).map(plan => ({
-      id: plan.id,
-      activityType: plan.activityType,
-      category: plan.activityCategory,
-      village: plan.village,
-      distributor: plan.associatedDistributor,
-      time: `${plan.startTime} - ${plan.endTime}`,
-      duration: plan.duration,
-      status: plan.status,
-      targetNumbers: plan.targetNumbers,
-      actualNumbers: plan.actualNumbers
-    }))
-  };
-
   return (
     <div className="min-h-screen bg-gray-50 p-4 space-y-6">
       {/* Header */}
@@ -583,7 +595,7 @@ const MDOModule: React.FC = () => {
           </button>
           <div>
             <h1 className="text-2xl font-bold text-gray-900">MDO Module</h1>
-            <p className="text-sm text-gray-600">Market Development Officer Activities</p>
+            <p className="text-sm text-gray-600">Market Development Officer Dashboard</p>
           </div>
         </div>
         
