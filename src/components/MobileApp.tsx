@@ -42,7 +42,8 @@ import {
   Shield,
   Crown,
   Save,
-  ChevronDown
+  ChevronDown,
+  Activity
 } from 'lucide-react';
 
 const MobileApp: React.FC = () => {
