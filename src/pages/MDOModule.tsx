@@ -451,6 +451,154 @@ const MDOModule: React.FC = () => {
             address: 'Current Location',
             deviation: locationDeviation,
             isValid: locationDeviation <= 5
+          },
+          proof: {
+            photos: uploadedProofs.filter(p => p.type === 'photo').map(p => p.url),
+            videos: uploadedProofs.filter(p => p.type === 'video').map(p => p.url),
+            signatures: uploadedProofs.filter(p => p.type === 'signature').map(p => p.url),
+            timestamp: new Date().toISOString(),
+            capturedBy: user?.name || 'MDO'
+          }
+        };
+      }
+      return plan;
+    }));
+
+    alert('Visit completed successfully!');
+    setActiveVisit(null);
+    setSelectedActivity('');
+    setActivityOutcome('');
+    setVisitRemarks('');
+    setUploadedProofs([]);
+    setLocationDeviation(0);
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'Completed': return 'bg-green-100 text-green-800';
+      case 'In Progress': return 'bg-blue-100 text-blue-800';
+      case 'Not Started': return 'bg-gray-100 text-gray-800';
+      case 'Cancelled': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getDeviationStatusColor = (status: string) => {
+    switch (status) {
+      case 'approved': return 'bg-green-100 text-green-800';
+      case 'rejected': return 'bg-red-100 text-red-800';
+      case 'pending': return 'bg-yellow-100 text-yellow-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getPlansForDate = (date: string) => {
+    return dailyPlans.filter(plan => plan.date === date);
+  };
+
+  const startActivity = (activityId: string) => {
+    setDailyPlans(prev => prev.map(plan => 
+      plan.id === activityId 
+        ? { ...plan, status: 'In Progress' as const }
+        : plan
+    ));
+  };
+
+  const completeActivity = (activityId: string) => {
+    setDailyPlans(prev => prev.map(plan => 
+      plan.id === activityId 
+        ? { ...plan, status: 'Completed' as const }
+        : plan
+    ));
+  };
+
+  const generateReport = (reportType: string) => {
+    setSelectedReport(reportType);
+  };
+
+  const getReportData = (reportType: string) => {
+    switch (reportType) {
+      case 'planned-vs-achieved':
+        return {
+          title: 'Planned vs Achieved Report',
+          data: {
+            totalPlanned: 45,
+            totalCompleted: 38,
+            completionRate: 84,
+            categoryBreakdown: [
+              { category: 'Farmer BTL Engagement', planned: 30, completed: 26 },
+              { category: 'Channel BTL Engagement', planned: 10, completed: 8 },
+              { category: 'Internal Meetings', planned: 5, completed: 4 }
+            ]
+          }
+        };
+      case 'ytd-totals':
+        return {
+          title: 'Year-to-Date Totals',
+          data: {
+            ytdPlanned: 180,
+            ytdCompleted: 152,
+            ytdCompletionRate: 84
+          }
+        };
+      case 'region-wise':
+        return {
+          title: 'Region-wise Roll-ups',
+          data: {
+            regionCompletion: 86,
+            totalMDOs: 12
+          }
+        };
+      default:
+        return null;
+    }
+  };
+
+  // Sample day plans data structure
+  const dayPlans: { [key: string]: any[] } = {
+    [selectedDate]: getPlansForDate(selectedDate).map(plan => ({
+      id: plan.id,
+      activityType: plan.activityType,
+      category: plan.activityCategory,
+      village: plan.village,
+      distributor: plan.associatedDistributor,
+      time: `${plan.startTime} - ${plan.endTime}`,
+      duration: plan.duration,
+      status: plan.status,
+      targetNumbers: plan.targetNumbers,
+      actualNumbers: plan.actualNumbers
+    }))
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 p-4 space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-4">
+          <button
+            onClick={() => navigate('/dashboard')}
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">MDO Module</h1>
+            <p className="text-sm text-gray-600">Market Development Officer Activities</p>
+          </div>
+        </div>
+        
+        <div className="flex items-center space-x-3">
+          <button
+            onClick={() => setShowReportsModal(true)}
+            className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center"
+          >
+            <Eye className="w-4 h-4 mr-2" />
+            View Reports
+          </button>
+        </div>
+      </div>
+
+      {/* Work Plan Assignment */}
       <div className="bg-white rounded-xl card-shadow">
         <button
           onClick={() => setShowWorkPlan(!showWorkPlan)}
