@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import LiveMeetings from '../components/LiveMeetings';
 import { 
   ArrowLeft, 
   Calendar, 
@@ -57,6 +58,21 @@ const MDOModule: React.FC = () => {
   const [activeView, setActiveView] = useState<'overview' | 'schedule' | 'tasks'>('overview');
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('All');
+  const [liveMeetings, setLiveMeetings] = useState([
+    {
+      id: 'LM001',
+      participantName: 'Ram Kumar',
+      participantRole: 'Distributor',
+      location: 'Ram Kumar Farm',
+      address: 'Green Valley, Sector 12',
+      startTime: '10:45 AM',
+      duration: 25,
+      status: 'active' as const,
+      type: 'Visit' as const,
+      phone: '+91 98765 43210',
+      notes: 'Product demonstration and stock verification'
+    }
+  ]);
   const { user } = useAuth();
 
   const currentUserRole = user?.role || 'MDO';
@@ -155,6 +171,10 @@ const MDOModule: React.FC = () => {
       notes: 'Collected ₹25,000 outstanding payment'
     }
   ];
+
+  const handleEndMeeting = (meetingId: string) => {
+    setLiveMeetings(prev => prev.filter(meeting => meeting.id !== meetingId));
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -290,6 +310,13 @@ const MDOModule: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Live Meetings */}
+      <LiveMeetings 
+        meetings={liveMeetings}
+        onEndMeeting={handleEndMeeting}
+        userRole="MDO"
+      />
 
       {/* Quick Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import LiveMeetings from './LiveMeetings';
 import { 
   Users, 
   Target, 
@@ -72,6 +73,21 @@ const RMMDashboard: React.FC = () => {
   const { user } = useAuth();
   const [selectedView, setSelectedView] = useState<'overview' | 'rbh-details' | 'marketing'>('overview');
   const [searchTerm, setSearchTerm] = useState('');
+  const [liveMeetings, setLiveMeetings] = useState([
+    {
+      id: 'LM001',
+      participantName: 'Amit Patel',
+      participantRole: 'RBH',
+      location: 'Regional Conference Room',
+      address: 'Delhi NCR Regional Office',
+      startTime: '11:00 AM',
+      duration: 60,
+      status: 'active' as const,
+      type: 'Meeting' as const,
+      phone: '+91 76543 21098',
+      notes: 'Quarterly business review with RBH team'
+    }
+  ]);
 
   // Sample RBH data under RMM
   const rbhStats: RBHUnderRMM[] = [
@@ -136,6 +152,10 @@ const RMMDashboard: React.FC = () => {
     totalExceptions: rbhStats.reduce((sum, rbh) => sum + rbh.exceptions, 0)
   };
 
+  const handleEndMeeting = (meetingId: string) => {
+    setLiveMeetings(prev => prev.filter(meeting => meeting.id !== meetingId));
+  };
+
   const renderOverview = () => (
     <div className="space-y-6">
       {/* Regional Marketing Summary */}
@@ -181,6 +201,13 @@ const RMMDashboard: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Live Meetings */}
+      <LiveMeetings 
+        meetings={liveMeetings}
+        onEndMeeting={handleEndMeeting}
+        userRole="RMM"
+      />
 
       {/* Key Metrics */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

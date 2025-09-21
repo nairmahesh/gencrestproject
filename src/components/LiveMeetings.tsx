@@ -60,7 +60,7 @@ const LiveMeetings: React.FC<LiveMeetingsProps> = ({ meetings, onEndMeeting, use
   return (
     <div className="bg-white rounded-xl p-6 card-shadow">
       <div 
-        className="flex items-center justify-between cursor-pointer"
+        className="flex items-center justify-between cursor-pointer hover:bg-gray-50 -m-2 p-2 rounded-lg transition-colors"
         onClick={() => setIsExpanded(!isExpanded)}
       >
         <div className="flex items-center space-x-3">
@@ -88,7 +88,7 @@ const LiveMeetings: React.FC<LiveMeetingsProps> = ({ meetings, onEndMeeting, use
             <div key={meeting.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center space-x-3">
-                  <div className={`w-3 h-3 rounded-full ${getStatusColor(meeting.status)}`}></div>
+                  <div className={`w-3 h-3 rounded-full ${getStatusColor(meeting.status)} animate-pulse`}></div>
                   <div>
                     <h4 className="font-semibold text-gray-900">{meeting.participantName}</h4>
                     <p className="text-sm text-gray-600">{meeting.participantRole}</p>
@@ -99,7 +99,10 @@ const LiveMeetings: React.FC<LiveMeetingsProps> = ({ meetings, onEndMeeting, use
                     {meeting.type}
                   </span>
                   <button
-                    onClick={() => onEndMeeting(meeting.id)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onEndMeeting(meeting.id);
+                    }}
                     className="p-1 hover:bg-red-100 rounded-full transition-colors"
                     title="End Meeting"
                   >
@@ -150,7 +153,10 @@ const LiveMeetings: React.FC<LiveMeetingsProps> = ({ meetings, onEndMeeting, use
                     </button>
                   )}
                   <button
-                    onClick={() => onEndMeeting(meeting.id)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onEndMeeting(meeting.id);
+                    }}
                     className="bg-red-100 text-red-700 px-3 py-1 rounded-lg text-sm hover:bg-red-200 transition-colors"
                   >
                     End Meeting

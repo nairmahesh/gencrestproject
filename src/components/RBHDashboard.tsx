@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import LiveMeetings from './LiveMeetings';
 import { 
   Users, 
   Target, 
@@ -69,6 +70,34 @@ const RBHDashboard: React.FC = () => {
   const [selectedView, setSelectedView] = useState<'overview' | 'tsm-details' | 'mdo-drill'>('overview');
   const [selectedTSM, setSelectedTSM] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [liveMeetings, setLiveMeetings] = useState([
+    {
+      id: 'LM001',
+      participantName: 'Priya Sharma',
+      participantRole: 'TSM',
+      location: 'Regional Office',
+      address: 'Delhi NCR Office',
+      startTime: '2:30 PM',
+      duration: 45,
+      status: 'active' as const,
+      type: 'Meeting' as const,
+      phone: '+91 87654 32109',
+      notes: 'Monthly review meeting with TSM team'
+    },
+    {
+      id: 'LM002',
+      participantName: 'Vikram Patel',
+      participantRole: 'TSM',
+      location: 'Gurgaon Office',
+      address: 'Gurgaon Territory Office',
+      startTime: '3:15 PM',
+      duration: 30,
+      status: 'active' as const,
+      type: 'Training' as const,
+      phone: '+91 76543 21098',
+      notes: 'Product training session'
+    }
+  ]);
 
   // Sample TSM data under RBH
   const tsmStats: TSMStats[] = [
@@ -183,6 +212,10 @@ const RBHDashboard: React.FC = () => {
     }
   ];
 
+  const handleEndMeeting = (meetingId: string) => {
+    setLiveMeetings(prev => prev.filter(meeting => meeting.id !== meetingId));
+  };
+
   // Aggregate regional stats
   const regionalAggregates = {
     totalTSMs: tsmStats.length,
@@ -247,6 +280,13 @@ const RBHDashboard: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Live Meetings */}
+      <LiveMeetings 
+        meetings={liveMeetings}
+        onEndMeeting={handleEndMeeting}
+        userRole="RBH"
+      />
 
       {/* Key Metrics */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
