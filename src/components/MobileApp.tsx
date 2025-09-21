@@ -115,6 +115,7 @@ const MobileApp: React.FC = () => {
             )}
           </div>
         </div>
+        </div>
         
         {/* Meeting Items - Conditionally Rendered */}
         {liveMeetingsExpanded && (
