@@ -49,6 +49,8 @@ const MobileApp: React.FC = () => {
   const [show360View, setShow360View] = useState(false);
   const [selected360Distributor, setSelected360Distributor] = useState<any>(null);
   const [activeHistoryTab, setActiveHistoryTab] = useState('Timeline');
+  const [selectedDistributor, setSelectedDistributor] = useState<string | null>(null);
+  const [showModal, setShowModal] = useState(false);
   const { overallMetrics } = useLiquidationCalculation();
   const { latitude, longitude } = useGeolocation();
 
@@ -555,7 +557,10 @@ const MobileApp: React.FC = () => {
                   360° View
                 </button>
                 <button 
-                  onClick={() => alert(`Verifying stock for ${distributor.name}`)}
+                  onClick={() => {
+                    setSelectedDistributor(distributor.id);
+                    setShowModal(true);
+                  }}
                   className="flex-1 bg-green-600 text-white py-2 px-3 rounded-lg text-xs font-medium hover:bg-green-700 transition-colors flex items-center justify-center"
                 >
                   <CheckCircle className="w-3 h-3 mr-1" />
