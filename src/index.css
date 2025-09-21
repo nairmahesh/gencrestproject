@@ -10,7 +10,6 @@
     @apply bg-background text-foreground;
   }
 }
-}
 
 @layer components {
   .gradient-bg {
