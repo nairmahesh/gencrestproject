@@ -215,7 +215,19 @@ const MDOModule: React.FC = () => {
       status: 'active' as const,
       type: 'Visit' as const,
       phone: '+91 98765 43210',
-      notes: 'Product demonstration and stock verification'
+      notes: 'Product demonstration and stock verification',
+      visitType: 'solo',
+      autoCapture: {
+        startTime: '10:45 AM',
+        location: {
+          latitude: 28.6139,
+          longitude: 77.2090
+        },
+        systemTimestamp: 'SYS_20240122_104500'
+      },
+      locationValidation: {
+        flagged: false
+      }
     }
   ]);
   const { user } = useAuth();
