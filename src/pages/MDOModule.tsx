@@ -145,11 +145,11 @@ const MDOModule: React.FC = () => {
   const [uploadedProofs, setUploadedProofs] = useState<any[]>([]);
   const [isCapturing, setIsCapturing] = useState(false);
   const [showLocationAlert, setShowLocationAlert] = useState(false);
+  const [showWorkPlan, setShowWorkPlan] = useState(false);
   const [locationDeviation, setLocationDeviation] = useState<number>(0);
   const [deviationRemarks, setDeviationRemarks] = useState('');
   const [showReportsModal, setShowReportsModal] = useState(false);
   const [selectedReport, setSelectedReport] = useState('');
-  const [showWorkPlan, setShowWorkPlan] = useState(false);
 
   // Sample visit targets
   const visitTargets: VisitTarget[] = [
@@ -358,34 +358,6 @@ const MDOModule: React.FC = () => {
     }
   ]);
 
-  // Sample day plans
-  const dayPlans: { [key: string]: any[] } = {
-    [selectedDate]: [
-      {
-        id: 'DP001',
-        activityType: 'Farmer Meets – Small',
-        category: 'Farmer BTL Engagement',
-        village: 'Green Valley',
-        distributor: 'SRI RAMA SEEDS',
-        time: '09:00 - 11:00',
-        duration: 120,
-        status: 'Completed',
-        targetNumbers: {
-          participants: 25,
-          farmers: 25,
-          volume: 500,
-          value: 50000
-        },
-        actualNumbers: {
-          participants: 28,
-          farmers: 28,
-          volume: 560,
-          value: 56000
-        }
-      }
-    ]
-  };
-
   const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
     const R = 6371; // Earth's radius in km
     const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -420,14 +392,6 @@ const MDOModule: React.FC = () => {
     }
 
     setActiveVisit(targetId);
-  };
-
-  const startActivity = (activityId: string) => {
-    setActiveVisit(activityId);
-  };
-
-  const completeActivity = (activityId: string) => {
-    setActiveVisit(activityId);
   };
 
   const handleLocationApproval = () => {
@@ -487,99 +451,15 @@ const MDOModule: React.FC = () => {
             address: 'Current Location',
             deviation: locationDeviation,
             isValid: locationDeviation <= 5
-          },
-          proof: {
-            photos: uploadedProofs.filter(p => p.type === 'photo').map(p => p.url),
-            videos: uploadedProofs.filter(p => p.type === 'video').map(p => p.url),
-            signatures: uploadedProofs.filter(p => p.type === 'signature').map(p => p.url),
-            timestamp: new Date().toISOString(),
-            capturedBy: user?.name || 'MDO'
           }
         };
+
+        setCurrentVisit(visitData);
+        setActiveVisit(null);
+        alert('Visit completed successfully!');
       }
       return plan;
     }));
-
-    alert('Visit completed successfully!');
-    setActiveVisit(null);
-    setSelectedActivity('');
-    setActivityOutcome('');
-    setVisitRemarks('');
-    setUploadedProofs([]);
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'Completed':
-        return 'bg-green-100 text-green-800';
-      case 'In Progress':
-        return 'bg-blue-100 text-blue-800';
-      case 'Not Started':
-        return 'bg-gray-100 text-gray-800';
-      case 'Cancelled':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const getDeviationStatusColor = (status: string) => {
-    switch (status) {
-      case 'approved':
-        return 'bg-green-100 text-green-800';
-      case 'rejected':
-        return 'bg-red-100 text-red-800';
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const getPlansForDate = (date: string) => {
-    return dailyPlans.filter(plan => plan.date === date);
-  };
-
-  const generateReport = (reportType: string) => {
-    setSelectedReport(reportType);
-  };
-
-  const getReportData = (reportType: string) => {
-    switch (reportType) {
-      case 'planned-vs-achieved':
-        return {
-          title: 'Planned vs Achieved Report',
-          data: {
-            totalPlanned: 45,
-            totalCompleted: 38,
-            completionRate: 84,
-            categoryBreakdown: [
-              { category: 'Farmer BTL Engagement', planned: 30, completed: 26 },
-              { category: 'Channel BTL Engagement', planned: 10, completed: 8 },
-              { category: 'Internal Meetings', planned: 5, completed: 4 }
-            ]
-          }
-        };
-      case 'ytd-totals':
-        return {
-          title: 'Year-to-Date Totals',
-          data: {
-            ytdPlanned: 180,
-            ytdCompleted: 152,
-            ytdCompletionRate: 84
-          }
-        };
-      case 'region-wise':
-        return {
-          title: 'Region-wise Roll-ups',
-          data: {
-            regionCompletion: 86,
-            totalMDOs: 12
-          }
-        };
-      default:
-        return null;
-    }
   };
 
   return (
@@ -610,7 +490,7 @@ const MDOModule: React.FC = () => {
         </div>
       </div>
 
-      {/* Work Plan Assignment */}
+      {/* Work Assignment Plan Section */}
       <div className="bg-white rounded-xl card-shadow">
         <button
           onClick={() => setShowWorkPlan(!showWorkPlan)}
