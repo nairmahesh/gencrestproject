@@ -378,17 +378,29 @@ const MobileApp: React.FC = () => {
         
         {/* Notification Icons - Now Clickable */}
         <div className="flex justify-end space-x-2">
-          <button className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center hover:bg-yellow-600 transition-colors">
-            <span className="text-white text-xs font-bold">{notifications.tasks}</span>
+          <button className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center hover:bg-yellow-600 transition-colors relative">
+            <CheckSquare className="w-4 h-4 text-white" />
+            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold">
+              {notifications.tasks}
+            </span>
           </button>
-          <button className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center hover:bg-red-600 transition-colors">
-            <span className="text-white text-xs font-bold">{notifications.alerts}</span>
+          <button className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center hover:bg-red-600 transition-colors relative">
+            <AlertTriangle className="w-4 h-4 text-white" />
+            <span className="absolute -top-1 -right-1 bg-yellow-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold">
+              {notifications.alerts}
+            </span>
           </button>
-          <button className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors">
-            <span className="text-white text-xs font-bold">{notifications.messages}</span>
+          <button className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors relative">
+            <Mail className="w-4 h-4 text-white" />
+            <span className="absolute -top-1 -right-1 bg-green-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold">
+              {notifications.messages}
+            </span>
           </button>
-          <button className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center hover:bg-green-600 transition-colors">
-            <span className="text-white text-xs font-bold">{notifications.approvals}</span>
+          <button className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center hover:bg-green-600 transition-colors relative">
+            <User className="w-4 h-4 text-white" />
+            <span className="absolute -top-1 -right-1 bg-purple-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold">
+              {notifications.approvals}
+            </span>
           </button>
         </div>
       </div>
