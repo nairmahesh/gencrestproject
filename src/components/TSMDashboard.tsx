@@ -393,9 +393,6 @@ const TSMDashboard: React.FC = () => {
     </div>
   );
 
-  const handleEndMeeting = (meetingId: string) => {
-    setLiveMeetings(prev => prev.filter(meeting => meeting.id !== meetingId));
-  };
 };
 
 export default TSMDashboard;
