@@ -1453,7 +1453,7 @@ const MobileApp: React.FC = () => {
       </div>
 
       {/* Bottom Navigation */}
-      <div className="bg-white border-t border-gray-200 px-4 py-2 mt-auto">
+      <div className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-sm bg-white border-t border-gray-200 px-4 py-2 z-40">
         <div className="flex justify-around">
           <button
             onClick={() => setActiveTab('dashboard')}
