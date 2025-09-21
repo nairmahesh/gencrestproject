@@ -52,12 +52,6 @@ const MobileApp: React.FC = () => {
 
   const currentUserRole = user?.role || 'MDO';
 
-  // Handle distributor click to open 360° view
-  const handleDistributorClick = (distributor: any) => {
-    console.log('Distributor clicked:', distributor.name);
-    setSelected360Distributor(distributor);
-    setShow360View(true);
-  };
 
   // Notification data
   const notifications = {
@@ -67,6 +61,12 @@ const MobileApp: React.FC = () => {
     approvals: 2
   };
 
+  // Handle distributor click to open 360° view
+  const handleDistributorClick = (distributor: any) => {
+    console.log('Distributor clicked:', distributor.name);
+    setSelected360Distributor(distributor);
+    setShow360View(true);
+  };
   // Sample data for different tabs
   const teamMembers = [
     { id: '1', name: 'Rajesh Kumar', role: 'MDO', status: 'Active', location: 'North Delhi' },
@@ -365,7 +365,7 @@ const MobileApp: React.FC = () => {
                   </div>
                   <div>
                     <h4 
-                      className="font-medium text-gray-900 cursor-pointer hover:text-purple-600 transition-colors underline text-blue-600"
+                      className="font-medium text-blue-600 cursor-pointer hover:text-blue-800 transition-colors underline"
                       onClick={() => handleDistributorClick(distributor)}
                     >
                       {distributor.name}
