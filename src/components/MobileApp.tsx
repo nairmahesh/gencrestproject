@@ -359,7 +359,7 @@ const MobileApp: React.FC = () => {
                   <div>
                     <h4 
                       className="font-medium text-gray-900 cursor-pointer hover:text-purple-600 transition-colors"
-                      onClick={() => alert(`Viewing 360° details for ${distributor.name}`)}
+                      onClick={() => handleDistributorClick(distributor)}
                     >
                       {distributor.name}
                     </h4>
