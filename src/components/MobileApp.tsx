@@ -44,19 +44,13 @@ const MobileApp: React.FC = () => {
   const [currentView, setCurrentView] = useState('dashboard');
   const [liveMeetingsExpanded, setLiveMeetingsExpanded] = useState(true);
   const [monthlyPlanExpanded, setMonthlyPlanExpanded] = useState(false);
-  const [show360View, setShow360View] = useState(false);
-  const [selected360Distributor, setSelected360Distributor] = useState<any>(null);
-  const [activeHistoryTab, setActiveHistoryTab] = useState('Timeline');
   const { overallMetrics } = useLiquidationCalculation();
   const { latitude, longitude } = useGeolocation();
 
   const currentUserRole = user?.role || 'MDO';
-
-  // Handle distributor click to open 360° view
-  const handleDistributorClick = (distributor: any) => {
-    setSelected360Distributor(distributor);
-    setShow360View(true);
-  };
+  const [show360View, setShow360View] = useState(false);
+  const [selected360Distributor, setSelected360Distributor] = useState<any>(null);
+  const [activeHistoryTab, setActiveHistoryTab] = useState('Timeline');
 
   // Notification data
   const notifications = {
@@ -365,7 +359,7 @@ const MobileApp: React.FC = () => {
                   <div>
                     <h4 
                       className="font-medium text-gray-900 cursor-pointer hover:text-purple-600 transition-colors"
-                      onClick={() => handleDistributorClick(distributor)}
+                      onClick={() => alert(`Viewing 360° details for ${distributor.name}`)}
                     >
                       {distributor.name}
                     </h4>
@@ -798,6 +792,9 @@ const MobileApp: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {/* 360° View Modal */}
+      {render360View()}
     </div>
   );
 };
