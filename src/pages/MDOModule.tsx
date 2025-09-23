@@ -129,6 +129,7 @@ interface LocationDeviation {
   approvedBy?: string;
   approvedDate?: string;
   approverComments?: string;
+}
   tsmRemarks?: string;
   tsmRemarksDate?: string;
   mdoResponse?: string;
@@ -139,7 +140,6 @@ interface LocationDeviation {
     message: string;
     timestamp: string;
   }[];
-}
 
 const MDOModule: React.FC = () => {
   const navigate = useNavigate();
@@ -350,23 +350,7 @@ const MDOModule: React.FC = () => {
       date: '2024-01-20',
       time: '10:30 AM',
       status: 'pending',
-      remarks: 'Venue changed due to local festival, community hall was more accessible for farmers',
-      tsmRemarks: 'Good explanation. Festival venue change is acceptable for better farmer accessibility.',
-      tsmRemarksDate: '2024-01-20T14:25:00Z',
-      conversationHistory: [
-        {
-          id: 'C001',
-          from: 'MDO',
-          message: 'Venue changed due to local festival, community hall was more accessible for farmers',
-          timestamp: '2024-01-20T10:45:00Z'
-        },
-        {
-          id: 'C002',
-          from: 'TSM',
-          message: 'Good explanation. Festival venue change is acceptable for better farmer accessibility.',
-          timestamp: '2024-01-20T14:25:00Z'
-        }
-      ]
+      remarks: 'Venue changed due to local festival, community hall was more accessible for farmers'
     },
     {
       id: 'LD002',
@@ -949,10 +933,21 @@ const MDOModule: React.FC = () => {
                   </div>
 
                   <div className="bg-gray-50 rounded-xl p-6">
+                                    deviation.status === 'Clarification Requested' ? 'bg-orange-100 text-orange-800' :
                     <div className="flex items-center justify-between mb-4">
                       <h4 className="text-lg font-semibold text-gray-900">
                         {new Date(selectedDate).toLocaleDateString('en-IN', { 
                           weekday: 'long', 
+                                  {deviation.approvedDate && (
+                                    <p className="text-xs text-gray-500 mt-1">
+                                      Approved: {new Date(deviation.approvedDate).toLocaleDateString()}
+                                    </p>
+                                  )}
+                                  {deviation.rejectedDate && (
+                                    <p className="text-xs text-gray-500 mt-1">
+                                      Rejected: {new Date(deviation.rejectedDate).toLocaleDateString()}
+                                    </p>
+                                  )}
                           year: 'numeric', 
                           month: 'long', 
                           day: 'numeric' 
@@ -972,6 +967,31 @@ const MDOModule: React.FC = () => {
                                 <Target className="w-5 h-5 text-purple-600" />
                               </div>
                               <div>
+                              {/* Conversation History */}
+                              {deviation.conversationHistory && deviation.conversationHistory.length > 0 && (
+                                <div className="bg-gray-50 rounded-lg p-4 mb-4">
+                                  <h5 className="font-medium text-gray-900 mb-3">Conversation History</h5>
+                                  <div className="space-y-3">
+                                    {deviation.conversationHistory.map((message) => (
+                                      <div key={message.id} className={`p-3 rounded-lg ${
+                                        message.from === 'MDO' ? 'bg-blue-50 border-l-4 border-blue-500' : 'bg-orange-50 border-l-4 border-orange-500'
+                                      }`}>
+                                        <div className="flex items-center justify-between mb-1">
+                                          <span className={`text-sm font-medium ${
+                                            message.from === 'MDO' ? 'text-blue-800' : 'text-orange-800'
+                                          }`}>
+                                            {message.from === 'MDO' ? 'Your Explanation' : 'TSM Remarks'}
+                                          </span>
+                                          <span className="text-xs text-gray-500">
+                                            {new Date(message.timestamp).toLocaleDateString()} {new Date(message.timestamp).toLocaleTimeString()}
+                                          </span>
+                                        </div>
+                                        <p className="text-sm text-gray-700">{message.message}</p>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
                                 <h5 className="font-semibold text-gray-900">{activity.activityType}</h5>
                                 <p className="text-sm text-gray-600">{activity.category}</p>
                               </div>
@@ -994,6 +1014,32 @@ const MDOModule: React.FC = () => {
                               <div>
                                 <p className="font-medium">{activity.distributor}</p>
                                 <p className="text-xs">Associated Distributor</p>
+                              {/* TSM Requested Clarification - MDO Response */}
+                              {deviation.status === 'Clarification Requested' && (
+                                <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                                  <h5 className="font-medium text-orange-800 mb-2">TSM Requested Clarification</h5>
+                                  <div className="bg-white rounded-lg p-3 mb-3 border border-orange-200">
+                                    <p className="text-sm text-orange-700 italic">"{deviation.tsmRemarks}"</p>
+                                    <p className="text-xs text-gray-500 mt-1">
+                                      Asked on: {deviation.tsmRemarksDate && new Date(deviation.tsmRemarksDate).toLocaleDateString()} {deviation.tsmRemarksDate && new Date(deviation.tsmRemarksDate).toLocaleTimeString()}
+                                    </p>
+                                  </div>
+                                  <textarea
+                                    value={newMdoResponse[deviation.id] || ''}
+                                    onChange={(e) => setNewMdoResponse(prev => ({ ...prev, [deviation.id]: e.target.value }))}
+                                    placeholder="Provide additional clarification..."
+                                    className="w-full px-3 py-2 border border-orange-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                                    rows={3}
+                                  />
+                                  <button
+                                    onClick={() => handleMdoResponse(deviation.id)}
+                                    disabled={!newMdoResponse[deviation.id]?.trim()}
+                                    className="mt-2 bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                  >
+                                    Send Response
+                                  </button>
+                                </div>
+                              )}
                               </div>
                             </div>
                             <div className="flex items-center text-sm text-gray-600">
@@ -1017,7 +1063,15 @@ const MDOModule: React.FC = () => {
                               )}
                               {activity.targetNumbers.dealers && (
                                 <div className="text-center">
+                                    <span className="text-xs text-green-600">
+                                      {deviation.approvedDate && new Date(deviation.approvedDate).toLocaleDateString()}
+                                    </span>
                                   <div className="text-lg font-bold text-blue-900">{activity.targetNumbers.dealers}</div>
+                                  {deviation.tsmRemarks && (
+                                    <div className="mt-2 p-2 bg-white rounded border border-green-200">
+                                      <p className="text-sm text-green-700 italic">"{deviation.tsmRemarks}"</p>
+                                    </div>
+                                  )}
                                   <div className="text-xs text-blue-600">Dealers</div>
                                 </div>
                               )}
@@ -1030,7 +1084,15 @@ const MDOModule: React.FC = () => {
                               {activity.targetNumbers.farmers && (
                                 <div className="text-center">
                                   <div className="text-lg font-bold text-blue-900">{activity.targetNumbers.farmers}</div>
+                                    <span className="text-xs text-red-600">
+                                      {deviation.rejectedDate && new Date(deviation.rejectedDate).toLocaleDateString()}
+                                    </span>
                                   <div className="text-xs text-blue-600">Farmers</div>
+                                  {deviation.tsmRemarks && (
+                                    <div className="mt-2 p-2 bg-white rounded border border-red-200">
+                                      <p className="text-sm text-red-700 italic">"{deviation.tsmRemarks}"</p>
+                                    </div>
+                                  )}
                                 </div>
                               )}
                             </div>
