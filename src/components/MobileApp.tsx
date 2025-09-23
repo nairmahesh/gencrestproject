@@ -1210,11 +1210,11 @@ const MobileApp: React.FC = () => {
                                       {deviation.approvedDate && new Date(deviation.approvedDate).toLocaleDateString()}
                                     </span>
                         {activity.amount && (
-                                  {deviation.tsmRemarks && (
+                                  deviation.tsmRemarks && (
                                     <div className="mt-2 p-2 bg-white rounded border border-green-200">
                                       <p className="text-xs text-green-700 italic">"{deviation.tsmRemarks}"</p>
                                     </div>
-                                  )}
+                                  )
                           <span className="text-sm font-semibold text-green-600">₹{activity.amount.toLocaleString()}</span>
                         )}
                       </div>
