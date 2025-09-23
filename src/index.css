@@ -1,57 +1,27 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
-}
+@theme {
+  --color-background: #f9fafb;
+  --color-foreground: #111827;
+  --color-border: #e5e7eb;
 
-@layer components {
-  .gradient-bg {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  }
-  
-  .card-shadow {
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  }
-  
-  .card-hover {
-    transition: all 0.2s ease-in-out;
-  }
-  
-  .card-hover:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  }
-  
-  .animate-slide-up {
-    animation: slideUp 0.3s ease-out;
-  }
-  
-  @keyframes slideUp {
-    from {
-      transform: translateY(100%);
-    }
-    to {
-      transform: translateY(0);
-    }
-  }
-  
-  .scrollbar-hide {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-  
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none;
-  }
-  
-  .pb-safe {
-    padding-bottom: env(safe-area-inset-bottom);
-  }
+  --color-primary-50: #f0f4ff;
+  --color-primary-100: #e0e7ff;
+  --color-primary-500: #667eea;
+  --color-primary-600: #5a67d8;
+  --color-primary-700: #4c51bf;
+
+  --color-secondary-500: #764ba2;
+  --color-secondary-600: #6b46c1;
+
+  --color-success-500: #10b981;
+  --color-success-600: #059669;
+
+  --color-warning-500: #f59e0b;
+  --color-warning-600: #d97706;
+
+  --color-error-500: #ef4444;
+  --color-error-600: #dc2626;
+
+  --font-sans: Inter, system-ui, sans-serif;
 }
