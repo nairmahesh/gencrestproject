@@ -727,7 +727,7 @@ const MDOModule: React.FC = () => {
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h3 className="text-lg font-semibold text-gray-900">Daily Schedule</h3>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-sm text-gray-600">
                   {new Date(selectedDate).toLocaleDateString("en-US", {
                     year: "numeric",
                     month: "long",
@@ -735,8 +735,7 @@ const MDOModule: React.FC = () => {
                   })}
                 </p>
               </div>
-
-              {/* Activities Count */}
+              
               <div>
                 <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
                   {dayPlans[selectedDate]?.length || 0} Activities
@@ -766,71 +765,25 @@ const MDOModule: React.FC = () => {
 
       {activeTab === 'alerts' && (
         <div className="space-y-6">
-          {/* Location Deviations */}
           <div className="bg-white rounded-xl p-6 card-shadow">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                  <AlertTriangle className="w-5 h-5 text-red-600" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900">Location Deviations</h3>
-                  <p className="text-sm text-gray-600">Pending approvals and status updates</p>
-                </div>
-              </div>
-            </div>
-
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Location Deviations</h3>
             <div className="space-y-4">
               {locationDeviations.map((deviation) => (
                 <div key={deviation.id} className="border border-gray-200 rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center justify-between mb-2">
                     <div>
                       <h4 className="font-semibold text-gray-900">Activity: {deviation.activityId}</h4>
-                      <p className="text-sm text-gray-600">{deviation.date} at {deviation.time}</p>
+                      <p className="text-sm text-gray-600">Deviation: {deviation.deviation}km</p>
                     </div>
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${getDeviationStatusColor(deviation.status)}`}>
-                      {deviation.status.charAt(0).toUpperCase() + deviation.status.slice(1)}
+                      {deviation.status}
                     </span>
                   </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
-                    <div>
-                      <p className="text-xs text-gray-500">Assigned Location</p>
-                      <p className="text-sm font-medium">{deviation.assignedLocation}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500">Actual Location</p>
-                      <p className="text-sm font-medium">{deviation.actualLocation}</p>
-                    </div>
-                  </div>
-                  
-                  <div className="mb-3">
-                    <p className="text-xs text-gray-500">Deviation Distance</p>
-                    <p className="text-sm font-medium text-red-600">{deviation.deviation.toFixed(1)} km</p>
-                  </div>
-                  
-                  <div className="mb-3">
-                    <p className="text-xs text-gray-500">Remarks</p>
-                    <p className="text-sm">{deviation.remarks}</p>
-                  </div>
-                  
+                  <p className="text-sm text-gray-700 mb-2">{deviation.remarks}</p>
                   {deviation.approvedBy && (
-                    <div className="mb-3">
-                      <p className="text-xs text-gray-500">Approved By</p>
-                      <p className="text-sm font-medium">{deviation.approvedBy}</p>
-                      {deviation.approvedDate && (
-                        <p className="text-xs text-gray-500 mt-1">
-                          Approved: {new Date(deviation.approvedDate).toLocaleDateString()}
-                        </p>
-                      )}
-                    </div>
-                  )}
-                  
-                  {deviation.approverComments && (
-                    <div>
-                      <p className="text-xs text-gray-500">Approver Comments</p>
-                      <p className="text-sm">{deviation.approverComments}</p>
-                    </div>
+                    <p className="text-xs text-gray-500">
+                      Approved by: {deviation.approvedBy}
+                    </p>
                   )}
                 </div>
               ))}
