@@ -130,6 +130,16 @@ interface LocationDeviation {
   approvedDate?: string;
   approverComments?: string;
 }
+  tsmRemarks?: string;
+  tsmRemarksDate?: string;
+  mdoResponse?: string;
+  mdoResponseDate?: string;
+  conversationHistory?: {
+    id: string;
+    from: 'MDO' | 'TSM';
+    message: string;
+    timestamp: string;
+  }[];
 
 const MDOModule: React.FC = () => {
   const navigate = useNavigate();
