@@ -641,6 +641,13 @@ const MDOModule: React.FC = () => {
                 : 'text-gray-600 hover:bg-gray-100'
             }`}
           >
+                        
+                        {deviation.rejectedDate && (
+                          <p className="text-xs text-gray-500 mt-1">
+                            Rejected:{" "}
+                            {new Date(deviation.rejectedDate).toLocaleDateString()}
+                          </p>
+                        )}
             ALERTS
             {locationDeviations.filter(d => d.status === 'pending').length > 0 && (
               <span className="ml-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
@@ -720,6 +727,44 @@ const MDOModule: React.FC = () => {
           </div>
         </div>
       )}
+        {activeTab === 'schedule' && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-xl p-6 card-shadow">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {new Date(selectedDate).toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })}
+                  </p>
+                </div>
+                <div>
+                  <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+                    {dayPlans[selectedDate]?.length || 0} Activities
+                  </span>
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                {dayPlans[selectedDate]?.map((activity) => (
+                  <div key={activity.id} className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="font-semibold text-gray-900">{activity.activityType}</h4>
+                        <p className="text-sm text-gray-600">{activity.village} - {activity.distributor}</p>
+                      </div>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(activity.status)}`}>
+                        {activity.status}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
 
       {activeTab === 'alerts' && (
         <div className="space-y-6">
