@@ -129,7 +129,6 @@ interface LocationDeviation {
   approvedBy?: string;
   approvedDate?: string;
   approverComments?: string;
-}
   tsmRemarks?: string;
   tsmRemarksDate?: string;
   mdoResponse?: string;
@@ -140,6 +139,7 @@ interface LocationDeviation {
     message: string;
     timestamp: string;
   }[];
+}
 
 const MDOModule: React.FC = () => {
   const navigate = useNavigate();
@@ -350,7 +350,23 @@ const MDOModule: React.FC = () => {
       date: '2024-01-20',
       time: '10:30 AM',
       status: 'pending',
-      remarks: 'Venue changed due to local festival, community hall was more accessible for farmers'
+      remarks: 'Venue changed due to local festival, community hall was more accessible for farmers',
+      tsmRemarks: 'Good explanation. Festival venue change is acceptable for better farmer accessibility.',
+      tsmRemarksDate: '2024-01-20T14:25:00Z',
+      conversationHistory: [
+        {
+          id: 'C001',
+          from: 'MDO',
+          message: 'Venue changed due to local festival, community hall was more accessible for farmers',
+          timestamp: '2024-01-20T10:45:00Z'
+        },
+        {
+          id: 'C002',
+          from: 'TSM',
+          message: 'Good explanation. Festival venue change is acceptable for better farmer accessibility.',
+          timestamp: '2024-01-20T14:25:00Z'
+        }
+      ]
     },
     {
       id: 'LD002',
