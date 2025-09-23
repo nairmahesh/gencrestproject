@@ -52,6 +52,7 @@ const MobileApp: React.FC = () => {
   const [selectedDistributor, setSelectedDistributor] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [showWorkPlan, setShowWorkPlan] = useState(false);
+  const [newMdoResponse, setNewMdoResponse] = useState<{[key: string]: string}>({});
   const { overallMetrics } = useLiquidationCalculation();
   const { latitude, longitude } = useGeolocation();
 
@@ -271,6 +272,12 @@ const MobileApp: React.FC = () => {
     console.log('Distributor clicked:', distributor.name);
     setSelected360Distributor(distributor);
     setShow360View(true);
+  };
+
+  // Handle MDO response
+  const handleMdoResponse = (deviationId: string) => {
+    // Implementation for handling MDO response
+    console.log('MDO response for deviation:', deviationId);
   };
 
   // Ageing buckets data
@@ -1150,54 +1157,6 @@ const MobileApp: React.FC = () => {
                           </div>
                           <p className="text-xs text-gray-600">{activity.description}</p>
                           <p className="text-xs text-gray-500">By: {activity.performedBy} ({activity.performedByRole})</p>
-                              {deviation.conversationHistory && deviation.conversationHistory.length > 0 && (
-                                <div className="bg-gray-50 rounded-lg p-3 mb-3">
-                                  <h6 className="font-medium text-gray-900 mb-2 text-sm">Conversation</h6>
-                                  <div className="space-y-2">
-                                    {deviation.conversationHistory.map((message) => (
-                                      <div key={message.id} className={`p-2 rounded text-xs ${
-                                        message.from === 'MDO' ? 'bg-blue-50 border-l-2 border-blue-500' : 'bg-orange-50 border-l-2 border-orange-500'
-                                      }`}>
-                                        <div className="flex justify-between mb-1">
-                                          <span className={`font-medium ${
-                                            message.from === 'MDO' ? 'text-blue-800' : 'text-orange-800'
-                                          }`}>
-                                            {message.from === 'MDO' ? 'You' : 'TSM'}
-                                          </span>
-                                          <span className="text-gray-500">
-                                            {new Date(message.timestamp).toLocaleDateString()}
-                                          </span>
-                                        </div>
-                                        <p className="text-gray-700">{message.message}</p>
-                                      </div>
-                                    ))}
-                                  </div>
-                                </div>
-                              )}
-
-                              {/* TSM Requested Clarification - Mobile */}
-                              {deviation.status === 'Clarification Requested' && (
-                                <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-3">
-                                  <h6 className="font-medium text-orange-800 mb-2 text-sm">TSM Requested Clarification</h6>
-                                  <div className="bg-white rounded p-2 mb-2 border border-orange-200">
-                                    <p className="text-xs text-orange-700 italic">"{deviation.tsmRemarks}"</p>
-                                  </div>
-                                  <textarea
-                                    value={newMdoResponse[deviation.id] || ''}
-                                    onChange={(e) => setNewMdoResponse(prev => ({ ...prev, [deviation.id]: e.target.value }))}
-                                    placeholder="Provide additional clarification..."
-                                    className="w-full px-2 py-1 border border-orange-300 rounded text-xs"
-                                    rows={2}
-                                  />
-                                  <button
-                                    onClick={() => handleMdoResponse(deviation.id)}
-                                    disabled={!newMdoResponse[deviation.id]?.trim()}
-                                    className="mt-2 bg-orange-600 text-white px-3 py-1 rounded text-xs hover:bg-orange-700 disabled:opacity-50"
-                                  >
-                                    Send Response
-                                  </button>
-                                </div>
-                              )}
                         </div>
                       </div>
                       
@@ -1206,15 +1165,7 @@ const MobileApp: React.FC = () => {
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(activity.status)}`}>
                           {activity.status}
                         </span>
-                                    <span className="text-xs text-green-600">
-                                      {deviation.approvedDate && new Date(deviation.approvedDate).toLocaleDateString()}
-                                    </span>
                         {activity.amount && (
-                                  deviation.tsmRemarks && (
-                                    <div className="mt-2 p-2 bg-white rounded border border-green-200">
-                                      <p className="text-xs text-green-700 italic">"{deviation.tsmRemarks}"</p>
-                                    </div>
-                                  )
                           <span className="text-sm font-semibold text-green-600">₹{activity.amount.toLocaleString()}</span>
                         )}
                       </div>
@@ -1224,16 +1175,7 @@ const MobileApp: React.FC = () => {
                         <div className="mt-2 pt-2 border-t border-gray-200">
                           <p className="text-xs font-medium text-gray-900 mb-1">Items Purchased:</p>
                           {activity.items.map((item: any, index: number) => (
-                                    <span className="text-xs text-red-600">
-                                      {deviation.rejectedDate && new Date(deviation.rejectedDate).toLocaleDateString()}
-                                    </span>
                             <div key={index} className="flex justify-between text-xs text-gray-600 mb-1">
-                                  {deviation.tsmRemarks && (
-                                    <div className="mt-2 p-2 bg-white rounded border border-red-200">
-                                      <p className="text-xs text-red-700 italic">"{deviation.tsmRemarks}"</p>
-                                    </div>
-                                  )}
-                        )}
                               <span>{item.name}</span>
                               <span>{item.qty} × ₹{item.rate} = ₹{item.total.toLocaleString()}</span>
                             </div>
