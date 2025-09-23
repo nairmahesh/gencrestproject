@@ -41,34 +41,6 @@ import {
 import { useLiquidationCalculation } from '../hooks/useLiquidationCalculation';
 import { useGeolocation } from '../hooks/useGeolocation';
 
-interface LocationDeviation {
-  id: string;
-  activityId: string;
-  activityName: string;
-  assignedLocation: string;
-  actualLocation: string;
-  deviation: number;
-  date: string;
-  time: string;
-  status: 'Pending' | 'Approved' | 'Rejected' | 'Clarification Requested';
-  remarks?: string;
-  submittedDate?: string;
-  approvedBy?: string;
-  approvedDate?: string;
-  rejectedBy?: string;
-  rejectedDate?: string;
-  tsmRemarks?: string;
-  tsmRemarksDate?: string;
-  mdoResponse?: string;
-  mdoResponseDate?: string;
-  conversationHistory?: {
-    id: string;
-    from: 'MDO' | 'TSM';
-    message: string;
-    timestamp: string;
-  }[];
-}
-
 const MobileApp: React.FC = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('home');
@@ -84,6 +56,68 @@ const MobileApp: React.FC = () => {
   const { latitude, longitude } = useGeolocation();
 
   const currentUserRole = user?.role || 'MDO';
+
+  const [locationDeviations, setLocationDeviations] = useState<LocationDeviation[]>([
+    {
+      id: 'LD001',
+      activityId: 'ACT001',
+      activityName: 'Farmer Meet - Large',
+      assignedLocation: 'Green Valley, Sector 12',
+      actualLocation: 'Sector 15 Community Hall',
+      deviation: 6.2,
+      date: '2024-01-20',
+      time: '10:30 AM',
+      status: 'Approved',
+      remarks: 'Venue changed due to local festival, community hall was more accessible for farmers',
+      submittedDate: '2024-01-20T10:45:00Z',
+      approvedBy: 'Priya Sharma (TSM)',
+      approvedDate: '2024-01-20T14:30:00Z',
+      tsmRemarks: 'Good explanation. Festival venue change is acceptable.',
+      conversationHistory: [
+        {
+          id: 'C001',
+          from: 'MDO',
+          message: 'Venue changed due to local festival, community hall was more accessible for farmers',
+          timestamp: '2024-01-20T10:45:00Z'
+        },
+        {
+          id: 'C002',
+          from: 'TSM',
+          message: 'Good explanation. Festival venue change is acceptable.',
+          timestamp: '2024-01-20T14:25:00Z'
+        }
+      ]
+    },
+    {
+      id: 'LD002',
+      activityId: 'ACT002',
+      activityName: 'Product Demo',
+      assignedLocation: 'Market Area, Sector 8',
+      actualLocation: 'Sector 9 Dealer Shop',
+      deviation: 4.8,
+      date: '2024-01-19',
+      time: '2:15 PM',
+      status: 'Clarification Requested',
+      remarks: 'Dealer requested demo at his shop for better product display',
+      submittedDate: '2024-01-19T14:30:00Z',
+      tsmRemarks: 'Why was the demo not conducted at the assigned market area?',
+      tsmRemarksDate: '2024-01-19T16:00:00Z',
+      conversationHistory: [
+        {
+          id: 'C003',
+          from: 'MDO',
+          message: 'Dealer requested demo at his shop for better product display',
+          timestamp: '2024-01-19T14:30:00Z'
+        },
+        {
+          id: 'C004',
+          from: 'TSM',
+          message: 'Why was the demo not conducted at the assigned market area?',
+          timestamp: '2024-01-19T16:00:00Z'
+        }
+      ]
+    }
+  ]);
 
   // Sample distributor data
   const distributors = [
