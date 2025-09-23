@@ -57,68 +57,6 @@ const MobileApp: React.FC = () => {
 
   const currentUserRole = user?.role || 'MDO';
 
-  const [locationDeviations, setLocationDeviations] = useState<LocationDeviation[]>([
-    {
-      id: 'LD001',
-      activityId: 'ACT001',
-      activityName: 'Farmer Meet - Large',
-      assignedLocation: 'Green Valley, Sector 12',
-      actualLocation: 'Sector 15 Community Hall',
-      deviation: 6.2,
-      date: '2024-01-20',
-      time: '10:30 AM',
-      status: 'Approved',
-      remarks: 'Venue changed due to local festival, community hall was more accessible for farmers',
-      submittedDate: '2024-01-20T10:45:00Z',
-      approvedBy: 'Priya Sharma (TSM)',
-      approvedDate: '2024-01-20T14:30:00Z',
-      tsmRemarks: 'Good explanation. Festival venue change is acceptable.',
-      conversationHistory: [
-        {
-          id: 'C001',
-          from: 'MDO',
-          message: 'Venue changed due to local festival, community hall was more accessible for farmers',
-          timestamp: '2024-01-20T10:45:00Z'
-        },
-        {
-          id: 'C002',
-          from: 'TSM',
-          message: 'Good explanation. Festival venue change is acceptable.',
-          timestamp: '2024-01-20T14:25:00Z'
-        }
-      ]
-    },
-    {
-      id: 'LD002',
-      activityId: 'ACT002',
-      activityName: 'Product Demo',
-      assignedLocation: 'Market Area, Sector 8',
-      actualLocation: 'Sector 9 Dealer Shop',
-      deviation: 4.8,
-      date: '2024-01-19',
-      time: '2:15 PM',
-      status: 'Clarification Requested',
-      remarks: 'Dealer requested demo at his shop for better product display',
-      submittedDate: '2024-01-19T14:30:00Z',
-      tsmRemarks: 'Why was the demo not conducted at the assigned market area?',
-      tsmRemarksDate: '2024-01-19T16:00:00Z',
-      conversationHistory: [
-        {
-          id: 'C003',
-          from: 'MDO',
-          message: 'Dealer requested demo at his shop for better product display',
-          timestamp: '2024-01-19T14:30:00Z'
-        },
-        {
-          id: 'C004',
-          from: 'TSM',
-          message: 'Why was the demo not conducted at the assigned market area?',
-          timestamp: '2024-01-19T16:00:00Z'
-        }
-      ]
-    }
-  ]);
-
   // Sample distributor data
   const distributors = [
     {
@@ -1212,6 +1150,54 @@ const MobileApp: React.FC = () => {
                           </div>
                           <p className="text-xs text-gray-600">{activity.description}</p>
                           <p className="text-xs text-gray-500">By: {activity.performedBy} ({activity.performedByRole})</p>
+                              {deviation.conversationHistory && deviation.conversationHistory.length > 0 && (
+                                <div className="bg-gray-50 rounded-lg p-3 mb-3">
+                                  <h6 className="font-medium text-gray-900 mb-2 text-sm">Conversation</h6>
+                                  <div className="space-y-2">
+                                    {deviation.conversationHistory.map((message) => (
+                                      <div key={message.id} className={`p-2 rounded text-xs ${
+                                        message.from === 'MDO' ? 'bg-blue-50 border-l-2 border-blue-500' : 'bg-orange-50 border-l-2 border-orange-500'
+                                      }`}>
+                                        <div className="flex justify-between mb-1">
+                                          <span className={`font-medium ${
+                                            message.from === 'MDO' ? 'text-blue-800' : 'text-orange-800'
+                                          }`}>
+                                            {message.from === 'MDO' ? 'You' : 'TSM'}
+                                          </span>
+                                          <span className="text-gray-500">
+                                            {new Date(message.timestamp).toLocaleDateString()}
+                                          </span>
+                                        </div>
+                                        <p className="text-gray-700">{message.message}</p>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* TSM Requested Clarification - Mobile */}
+                              {deviation.status === 'Clarification Requested' && (
+                                <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-3">
+                                  <h6 className="font-medium text-orange-800 mb-2 text-sm">TSM Requested Clarification</h6>
+                                  <div className="bg-white rounded p-2 mb-2 border border-orange-200">
+                                    <p className="text-xs text-orange-700 italic">"{deviation.tsmRemarks}"</p>
+                                  </div>
+                                  <textarea
+                                    value={newMdoResponse[deviation.id] || ''}
+                                    onChange={(e) => setNewMdoResponse(prev => ({ ...prev, [deviation.id]: e.target.value }))}
+                                    placeholder="Provide additional clarification..."
+                                    className="w-full px-2 py-1 border border-orange-300 rounded text-xs"
+                                    rows={2}
+                                  />
+                                  <button
+                                    onClick={() => handleMdoResponse(deviation.id)}
+                                    disabled={!newMdoResponse[deviation.id]?.trim()}
+                                    className="mt-2 bg-orange-600 text-white px-3 py-1 rounded text-xs hover:bg-orange-700 disabled:opacity-50"
+                                  >
+                                    Send Response
+                                  </button>
+                                </div>
+                              )}
                         </div>
                       </div>
                       
@@ -1220,7 +1206,15 @@ const MobileApp: React.FC = () => {
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(activity.status)}`}>
                           {activity.status}
                         </span>
+                                    <span className="text-xs text-green-600">
+                                      {deviation.approvedDate && new Date(deviation.approvedDate).toLocaleDateString()}
+                                    </span>
                         {activity.amount && (
+                                  {deviation.tsmRemarks && (
+                                    <div className="mt-2 p-2 bg-white rounded border border-green-200">
+                                      <p className="text-xs text-green-700 italic">"{deviation.tsmRemarks}"</p>
+                                    </div>
+                                  )}
                           <span className="text-sm font-semibold text-green-600">₹{activity.amount.toLocaleString()}</span>
                         )}
                       </div>
@@ -1230,7 +1224,15 @@ const MobileApp: React.FC = () => {
                         <div className="mt-2 pt-2 border-t border-gray-200">
                           <p className="text-xs font-medium text-gray-900 mb-1">Items Purchased:</p>
                           {activity.items.map((item: any, index: number) => (
+                                    <span className="text-xs text-red-600">
+                                      {deviation.rejectedDate && new Date(deviation.rejectedDate).toLocaleDateString()}
+                                    </span>
                             <div key={index} className="flex justify-between text-xs text-gray-600 mb-1">
+                                  {deviation.tsmRemarks && (
+                                    <div className="mt-2 p-2 bg-white rounded border border-red-200">
+                                      <p className="text-xs text-red-700 italic">"{deviation.tsmRemarks}"</p>
+                                    </div>
+                                  )}
                               <span>{item.name}</span>
                               <span>{item.qty} × ₹{item.rate} = ₹{item.total.toLocaleString()}</span>
                             </div>
