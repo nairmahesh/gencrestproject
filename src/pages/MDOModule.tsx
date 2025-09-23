@@ -938,7 +938,12 @@ const MDOModule: React.FC = () => {
                       <h4 className="text-lg font-semibold text-gray-900">
                         {new Date(selectedDate).toLocaleDateString('en-IN', { 
                           weekday: 'long', 
-                                  {deviation.approvedDate && (
+                           month: 'long',
+                           day: 'numeric'
+                         })}
+                        </div>
+                        
+                        {deviation.approvedDate && (
                                     <p className="text-xs text-gray-500 mt-1">
                                       Approved: {new Date(deviation.approvedDate).toLocaleDateString()}
                                     </p>
