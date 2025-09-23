@@ -945,12 +945,17 @@ const MDOModule: React.FC = () => {
                         </div>
                         
                         {deviation.approvedDate && (
-                                    <p className="text-xs text-gray-500 mt-1">
-                                      Approved: {new Date(deviation.approvedDate).toLocaleDateString()}
-                                    </p>
-                                  )}
-                                  {deviation.rejectedDate && (
-                                    <p className="text-xs text-gray-500 mt-1">
+                          <>
+                            <p className="text-xs text-gray-500 mt-1">
+                              Approved: {new Date(deviation.approvedDate).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric'
+                              })}
+                            </p>
+                          </>
+                        )}
+                      </div>
                                       Rejected: {new Date(deviation.rejectedDate).toLocaleDateString()}
                                     </p>
                                   )}
