@@ -941,6 +941,7 @@ const MDOModule: React.FC = () => {
                            month: 'long',
                            day: 'numeric'
                          })}
+                        </h4>
                         </div>
                         
                         {deviation.approvedDate && (
