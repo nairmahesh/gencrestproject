@@ -14,7 +14,7 @@ import {
   X,
   Smartphone,
   Shield,
-  UserCheck
+  UserCheck,
   ChevronDown,
   ChevronRight
 } from 'lucide-react';
