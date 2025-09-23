@@ -41,6 +41,34 @@ import {
 import { useLiquidationCalculation } from '../hooks/useLiquidationCalculation';
 import { useGeolocation } from '../hooks/useGeolocation';
 
+interface LocationDeviation {
+  id: string;
+  activityId: string;
+  activityName: string;
+  assignedLocation: string;
+  actualLocation: string;
+  deviation: number;
+  date: string;
+  time: string;
+  status: 'Pending' | 'Approved' | 'Rejected' | 'Clarification Requested';
+  remarks?: string;
+  submittedDate?: string;
+  approvedBy?: string;
+  approvedDate?: string;
+  rejectedBy?: string;
+  rejectedDate?: string;
+  tsmRemarks?: string;
+  tsmRemarksDate?: string;
+  mdoResponse?: string;
+  mdoResponseDate?: string;
+  conversationHistory?: {
+    id: string;
+    from: 'MDO' | 'TSM';
+    message: string;
+    timestamp: string;
+  }[];
+}
+
 const MobileApp: React.FC = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('home');
