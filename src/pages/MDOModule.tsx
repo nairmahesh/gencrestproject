@@ -950,13 +950,20 @@ const MDOModule: React.FC = () => {
                                 <p className="text-sm text-gray-600">{activity.category}</p>
                               </div>
                             </div>
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                              activity.status === 'Completed' ? 'bg-green-100 text-green-800' :
-                              activity.status === 'In Progress' ? 'bg-blue-100 text-blue-800' :
-                              'bg-gray-100 text-gray-800'
-                            }`}>
-                              {activity.status}
-                            </span>
+                            <div className="flex items-center space-x-2">
+                              <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                                deviation.status === 'Approved' ? 'bg-green-100 text-green-800' :
+                                deviation.status === 'Rejected' ? 'bg-red-100 text-red-800' :
+                                'bg-yellow-100 text-yellow-800'
+                              }`}>
+                                {deviation.status}
+                              </span>
+                              {deviation.status === 'Pending' && (
+                                <span className="text-xs text-orange-600 font-medium">
+                                  Yet to approve
+                                </span>
+                              )}
+                            </div>
                           </div>
 
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
@@ -1052,14 +1059,27 @@ const MDOModule: React.FC = () => {
                                     <div className="text-xs text-green-600">Farmers</div>
                                     <div className="text-xs text-gray-500">
                                       ({Math.round((activity.actualNumbers.farmers / (activity.targetNumbers.farmers || 1)) * 100)}%)
-                                    </div>
-                                  </div>
-                                )}
+                          {deviation.remarks && (
+                            <div className="mb-4">
+                              <h5 className="font-medium text-gray-900 mb-2">MDO Remarks</h5>
+                              <div className="bg-blue-50 p-3 rounded-lg">
+                                <p className="text-sm text-gray-700">{deviation.remarks}</p>
+                                <div className="flex items-center justify-between mt-2 pt-2 border-t border-blue-200">
+                                  <span className="text-xs text-blue-600">
+                                    Submitted: {new Date(deviation.date).toLocaleDateString()}
+                                  </span>
+                                  <span className={`text-xs font-medium ${
+                                    deviation.status === 'Approved' ? 'text-green-600' :
+                                    deviation.status === 'Rejected' ? 'text-red-600' :
+                                    'text-orange-600'
+                                  }`}>
+                                    Status: {deviation.status}
+                                  </span>
+                                </div>
                               </div>
                             </div>
                           )}
 
-                          <div className="flex space-x-3">
                             {activity.status === 'Scheduled' && (
                               <button
                                 onClick={() => startActivity(activity.id)}
@@ -1073,15 +1093,46 @@ const MDOModule: React.FC = () => {
                               <button
                                 onClick={() => completeActivity(activity.id)}
                                 className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center"
-                              >
-                                <CheckCircle className="w-4 h-4 mr-2" />
-                                Complete Activity
+                          {/* MDO can only view status, not approve/reject */}
+                          {deviation.status === 'Pending' && !deviation.remarks && (
+                            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                              <h5 className="font-medium text-yellow-800 mb-2">Add Explanation</h5>
+                              <textarea
+                                placeholder="Explain the reason for location deviation..."
+                                className="w-full px-3 py-2 border border-yellow-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent text-sm"
+                                rows={3}
+                              />
+                              <button className="mt-3 bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 transition-colors flex items-center">
+                                <FileText className="w-4 h-4 mr-2" />
+                                Submit Explanation
                               </button>
-                            )}
-                            <button className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">
-                              View Details
-                            </button>
-                          </div>
+                            </div>
+                          )}
+                          
+                          {deviation.status !== 'Pending' && (
+                            <div className={`p-3 rounded-lg ${
+                              deviation.status === 'Approved' ? 'bg-green-50 border border-green-200' :
+                              'bg-red-50 border border-red-200'
+                            }`}>
+                              <div className="flex items-center space-x-2">
+                                {deviation.status === 'Approved' ? (
+                                  <CheckCircle className="w-4 h-4 text-green-600" />
+                                ) : (
+                                  <XCircle className="w-4 h-4 text-red-600" />
+                                )}
+                                <span className={`text-sm font-medium ${
+                                  deviation.status === 'Approved' ? 'text-green-800' : 'text-red-800'
+                                }`}>
+                                  {deviation.status} by {deviation.approvedBy || 'TSM'}
+                                </span>
+                              </div>
+                              {deviation.approvalDate && (
+                                <p className="text-xs text-gray-600 mt-1">
+                                  on {new Date(deviation.approvalDate).toLocaleDateString()}
+                                </p>
+                              )}
+                            </div>
+                          )}
                         </div>
                       )) || (
                         <div className="text-center py-8">
