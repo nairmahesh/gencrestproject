@@ -32,20 +32,36 @@ const MDOModuleNav: React.FC = () => {
 
   return (
     <div>
-      <div
+      <NavLink
+        to="/mdo-module"
+        className={({ isActive }) =>
+          `flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+            isActive
+              ? 'bg-primary-50 text-primary-700 border-r-2 border-primary-500'
+              : 'text-gray-700 hover:bg-gray-100'
+          }`
+        }
         onClick={() => setIsExpanded(!isExpanded)}
-        className="flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg transition-colors text-gray-700 hover:bg-gray-100 cursor-pointer"
       >
         <div className="flex items-center">
           <Calendar className="mr-3 h-5 w-5" />
           MDO Module
         </div>
-        {isExpanded ? (
-          <ChevronDown className="h-4 w-4 text-gray-800" />
-        ) : (
-          <ChevronDown className="h-4 w-4 text-gray-800 transform rotate-180" />
-        )}
-      </div>
+        <div
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setIsExpanded(!isExpanded);
+          }}
+          className="p-1 hover:bg-gray-200 rounded"
+        >
+          {isExpanded ? (
+            <ChevronDown className="h-4 w-4 text-gray-800" />
+          ) : (
+            <ChevronRight className="h-4 w-4 text-gray-800" />
+          )}
+        </div>
+      </NavLink>
       
       {isExpanded && (
         <div className="ml-8 mt-2 space-y-1">
