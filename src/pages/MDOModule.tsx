@@ -739,45 +739,34 @@ const MDOModule: React.FC = () => {
               <>
                 {/* Selected Date Display */}
                 <div>
-                  <p className="text-xs text-gray-500 mt-1">
-                    {new Date(selectedDate).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
-                  </p>
-                </div>
-
-                {/* Activities Count */}
-                <div>
-                  <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
-                    {dayPlans[selectedDate]?.length || 0} Activities
-                  </span>
-                </div>
-              </>
-                  <div key={activity.id} className="border border-gray-200 rounded-lg p-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h4 className="font-semibold text-gray-900">{activity.activityType}</h4>
-                        <p className="text-sm text-gray-600">{activity.village} - {activity.distributor}</p>
-                      </div>
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(activity.status)}`}>
-                        {activity.status}
-                      </span>
-                    </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">Daily Schedule</h3>
+                    <p className="text-sm text-gray-600">
+                      {new Date(selectedDate).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
+                    </p>
                   </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
-      {activeTab === 'alerts' && (
-        <div className="space-y-6">
-          {/* Location Deviations */}
-          <div className="bg-white rounded-xl p-6 card-shadow">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                  <AlertTriangle className="w-5 h-5 text-red-600" />
-                </div>
+                  
+                  <div>
+                    <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+                      {dayPlans[selectedDate]?.length || 0} Activities
+                    </span>
+                 {/* Activities List */}
+                 <div className="space-y-4">
+                   {dayPlans[selectedDate]?.map((activity) => (
+                     <div key={activity.id} className="border border-gray-200 rounded-lg p-4">
+                       <div className="flex items-center justify-between">
+                         <div>
+                           <h4 className="font-semibold text-gray-900">{activity.activityType}</h4>
+                           <p className="text-sm text-gray-600">{activity.village} - {activity.distributor}</p>
+                         </div>
+                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(activity.status)}`}>
+                           {activity.status}
+                         </span>
+                       </div>
+                     </div>
+                   ))}
+                 </div>
