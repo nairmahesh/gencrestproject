@@ -641,6 +641,13 @@ const MDOModule: React.FC = () => {
                 : 'text-gray-600 hover:bg-gray-100'
             }`}
           >
+                        
+                        {deviation.rejectedDate && (
+                          <p className="text-xs text-gray-500 mt-1">
+                            Rejected:{" "}
+                            {new Date(deviation.rejectedDate).toLocaleDateString()}
+                          </p>
+                        )}
             ALERTS
             {locationDeviations.filter(d => d.status === 'pending').length > 0 && (
               <span className="ml-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
@@ -720,45 +727,50 @@ const MDOModule: React.FC = () => {
           </div>
         </div>
       )}
-
-      {activeTab === 'schedule' && (
-        <div className="space-y-6">
-          <div className="bg-white rounded-xl p-6 card-shadow">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <p className="text-xs text-gray-500 mt-1">
-                  {new Date(selectedDate).toLocaleDateString("en-US", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
-                </p>
-              </div>
-              <div>
-                <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
-                  {dayPlans[selectedDate]?.length || 0} Activities
-                </span>
-              </div>
-            </div>
-            
-            <div className="space-y-4">
-              {dayPlans[selectedDate]?.map((activity) => (
-                <div key={activity.id} className="border border-gray-200 rounded-lg p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="font-semibold text-gray-900">{activity.activityType}</h4>
-                      <p className="text-sm text-gray-600">{activity.village} - {activity.distributor}</p>
-                    </div>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(activity.status)}`}>
-                      {activity.status}
-                    </span>
-                  </div>
+        {activeTab === 'schedule' && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-xl p-6 card-shadow">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {new Date(selectedDate).toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "long",
+              <>
+                {/* Selected Date Display */}
+                <div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {new Date(selectedDate).toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })}
+                  </p>
                 </div>
-              ))}
+
+                {/* Activities Count */}
+                <div>
+                  <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+                    {dayPlans[selectedDate]?.length || 0} Activities
+                  </span>
+                </div>
+              </>
+                  <div key={activity.id} className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="font-semibold text-gray-900">{activity.activityType}</h4>
+                        <p className="text-sm text-gray-600">{activity.village} - {activity.distributor}</p>
+                      </div>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(activity.status)}`}>
+                        {activity.status}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
       {activeTab === 'alerts' && (
         <div className="space-y-6">
@@ -769,65 +781,3 @@ const MDOModule: React.FC = () => {
                 <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
                   <AlertTriangle className="w-5 h-5 text-red-600" />
                 </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900">Location Deviations</h3>
-                  <p className="text-sm text-gray-600">Pending approvals and status updates</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              {locationDeviations.map((deviation) => (
-                <div key={deviation.id} className="border border-gray-200 rounded-lg p-4">
-                  <div className="flex items-start justify-between mb-3">
-                    <div>
-                      <div className="flex items-center space-x-2 mb-1">
-                        <h4 className="font-semibold text-gray-900">{deviation.mdoName}</h4>
-                        <span className="text-sm text-gray-500">({deviation.mdoCode})</span>
-                      </div>
-                      <p className="text-sm text-gray-600 mb-1">
-                        <span className="font-medium">From:</span> {deviation.assignedLocation}
-                      </p>
-                      <p className="text-sm text-gray-600 mb-1">
-                        <span className="font-medium">To:</span> {deviation.actualLocation}
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        <span className="font-medium">Deviation:</span> {deviation.deviation}km
-                      </p>
-                    </div>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getDeviationStatusColor(deviation.status)}`}>
-                      {deviation.status.charAt(0).toUpperCase() + deviation.status.slice(1)}
-                    </span>
-                  </div>
-
-                  <div className="bg-gray-50 rounded-lg p-3 mb-3">
-                    <p className="text-sm text-gray-700">
-                      <span className="font-medium">Remarks:</span> {deviation.remarks}
-                    </p>
-                  </div>
-
-                  <div className="flex items-center justify-between text-xs text-gray-500">
-                    <span>{deviation.date} at {deviation.time}</span>
-                    {deviation.approvedBy && (
-                      <span>Approved by: {deviation.approvedBy}</span>
-                    )}
-                  </div>
-
-                  {deviation.approverComments && (
-                    <div className="mt-3 bg-green-50 rounded-lg p-3">
-                      <p className="text-sm text-green-700">
-                        <span className="font-medium">Approver Comments:</span> {deviation.approverComments}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
-
-export default MDOModule;
