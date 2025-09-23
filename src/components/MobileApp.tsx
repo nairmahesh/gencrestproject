@@ -1233,6 +1233,7 @@ const MobileApp: React.FC = () => {
                                       <p className="text-xs text-red-700 italic">"{deviation.tsmRemarks}"</p>
                                     </div>
                                   )}
+                        )}
                               <span>{item.name}</span>
                               <span>{item.qty} × ₹{item.rate} = ₹{item.total.toLocaleString()}</span>
                             </div>

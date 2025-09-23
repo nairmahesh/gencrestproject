@@ -129,11 +129,11 @@ interface LocationDeviation {
   approvedBy?: string;
   approvedDate?: string;
   approverComments?: string;
-}
   tsmRemarks?: string;
   tsmRemarksDate?: string;
   mdoResponse?: string;
   mdoResponseDate?: string;
+}
   conversationHistory?: {
     id: string;
     from: 'MDO' | 'TSM';
