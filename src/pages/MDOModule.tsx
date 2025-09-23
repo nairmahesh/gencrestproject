@@ -736,19 +736,25 @@ const MDOModule: React.FC = () => {
                     {new Date(selectedDate).toLocaleDateString("en-US", {
                       year: "numeric",
                       month: "long",
+              <>
+                {/* Selected Date Display */}
+                <div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {new Date(selectedDate).toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "long",
                       day: "numeric",
                     })}
                   </p>
                 </div>
+
+                {/* Activities Count */}
                 <div>
                   <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
                     {dayPlans[selectedDate]?.length || 0} Activities
                   </span>
                 </div>
-              </div>
-              
-              <div className="space-y-4">
-                {dayPlans[selectedDate]?.map((activity) => (
+              </>
                   <div key={activity.id} className="border border-gray-200 rounded-lg p-4">
                     <div className="flex items-center justify-between">
                       <div>
