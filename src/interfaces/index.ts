@@ -18,6 +18,7 @@ export interface AuthLoginResponse {
   ok: boolean;
   data: {
     accessToken: string;
+    refreshToken:string;
     user: UserResponse;
   };
 }
@@ -51,6 +52,7 @@ export interface UserResponse {
   name: string;
   email: string;
   role: UserRole;
+  zone?:string;
   region?: string;
   territory?: string;
   manager?: string;

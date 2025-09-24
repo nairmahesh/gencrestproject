@@ -3,7 +3,8 @@ import { useState } from 'react';
 import type { AuthLoginRequest } from '../interfaces';
 import { apiService } from '../services/apiService'; // Assuming you have this
 import { isAxiosError } from 'axios';
-
+import { useDispatch } from 'react-redux';
+import { login } from '../store/authSlice';
 type LoginStatus = 'idle' | 'loading' | 'error' | 'success';
 type ValidationErrors = Partial<Record<keyof AuthLoginRequest, string>>;
 
@@ -12,9 +13,9 @@ export const useLogin = () => {
   const [status, setStatus] = useState<LoginStatus>('idle');
   const [apiError, setApiError] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
+  const dispatch = useDispatch();
 
   const isLoading = status === 'loading';
-
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setLoginData(prev => ({ ...prev, [name]: value }));
@@ -51,6 +52,11 @@ export const useLogin = () => {
       const response = await apiService.login(loginData);
       // On success, you would typically set user context, store tokens, and redirect.
       console.log('Login successful:', response.data.user.name);
+      localStorage.setItem('accessToken', response.data.accessToken);
+      localStorage.setItem('refreshToken', response.data.refreshToken);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+      const userData = response.data.user
+      dispatch(login(userData));
       setStatus('success');
       // Example: window.location.href = '/dashboard';
     } catch (error) {
