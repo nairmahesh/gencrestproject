@@ -136,6 +136,14 @@ export interface LiquidationResponse {
   status: string;
 }
 
+export interface StockDifference {
+  sku: string;
+  name: string;
+  lastBalance: number;
+  currentStock: number;
+  difference: number;
+}
+
 
 // ---------------- ERP ----------------
 
