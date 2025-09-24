@@ -1,27 +1,39 @@
+/* src/index.css */
 @import "tailwindcss";
 
 @theme {
-  --color-background: #f9fafb;
-  --color-foreground: #111827;
-  --color-border: #e5e7eb;
+  --font-sans: "Inter", system-ui, sans-serif;
 
-  --color-primary-50: #f0f4ff;
-  --color-primary-100: #e0e7ff;
-  --color-primary-500: #667eea;
-  --color-primary-600: #5a67d8;
-  --color-primary-700: #4c51bf;
+  --color-background: oklch(98.81% 0.0106 253.34); /* Light background */
+  --color-foreground: oklch(29.22% 0.028 254.21); /* Light text */
+  --color-border: oklch(93.12% 0.015 253.79);
 
-  --color-secondary-500: #764ba2;
-  --color-secondary-600: #6b46c1;
+  --color-primary: oklch(61.96% 0.173 262.15);
+  --color-primary-foreground: oklch(98.81% 0.0106 253.34);
+  
+  --color-secondary: oklch(96.79% 0.013 253.64);
+  --color-secondary-foreground: oklch(39.9% 0.024 254.12);
+  
+  --color-danger: oklch(69.29% 0.222 25.12);
+  --color-danger-foreground: oklch(98.81% 0.0106 253.34);
+  
+  --color-dark-background: oklch(29.22% 0.028 254.21); /* Dark background */
+  --color-dark-foreground: oklch(98.81% 0.0106 253.34); /* Dark text */
+  --color-dark-border: oklch(34.23% 0.026 254.18);
+  --color-dark-primary: oklch(67.4% 0.198 261.21);
+  --color-dark-primary-foreground: oklch(39.9% 0.024 254.12);
+  --color-dark-secondary: oklch(34.23% 0.026 254.18);
+  --color-dark-secondary-foreground: oklch(98.81% 0.0106 253.34);
+  --color-dark-danger: oklch(47.93% 0.155 25.53);
+  --color-dark-danger-foreground: oklch(98.81% 0.0106 253.34);
+}
 
-  --color-success-500: #10b981;
-  --color-success-600: #059669;
+@layer base {
+  body {
+    @apply font-sans bg-background text-foreground;
+  }
 
-  --color-warning-500: #f59e0b;
-  --color-warning-600: #d97706;
-
-  --color-error-500: #ef4444;
-  --color-error-600: #dc2626;
-
-  --font-sans: Inter, system-ui, sans-serif;
+  .dark body {
+     @apply bg-dark-background text-dark-foreground;
+  }
 }

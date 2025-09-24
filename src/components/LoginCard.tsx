@@ -1,9 +1,10 @@
 // src/components/LoginCard.tsx
-import { Mail, KeyRound, LoaderCircle } from 'lucide-react';
+import { Mail, KeyRound } from 'lucide-react';
 import { useLogin } from '../hooks/useLogin';
 import ErrorAlert from './ErrorAlert';
 import InputField from './InputField';
 import Logo from './Logo';
+import { Button } from './ui/Button'; // <-- Import our new Button
 
 const LoginCard = () => {
   const {
@@ -16,7 +17,7 @@ const LoginCard = () => {
   } = useLogin();
 
   return (
-    <div className="max-w-md w-full bg-white border border-slate-300 shadow-lg rounded-lg p-6">
+    <div className="max-w-md w-full bg-white dark:bg-gray-800 border border-border shadow-lg rounded-lg p-6">
       <div className="flex justify-center mb-6">
         <Logo />
       </div>
@@ -50,20 +51,14 @@ const LoginCard = () => {
         {apiError && <ErrorAlert text={apiError} />}
 
         <div className="pt-2">
-          <button
+          {/* 👇 REPLACED THE OLD BUTTON WITH OUR NEW COMPONENT */}
+          <Button
             type="submit"
-            disabled={isLoading}
-            className="w-full flex justify-center items-center bg-primary-600 text-primary-50 font-semibold px-4 py-2 rounded-md transition-all duration-300 ease-in-out hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:bg-primary-500/50 cursor-pointer disabled:cursor-not-allowed"
+            className="w-full"
+            isLoading={isLoading}
           >
-            {isLoading ? (
-              <>
-                <LoaderCircle className="animate-spin mr-2" size={20} />
-                Authorizing...
-              </>
-            ) : (
-              'Authorize'
-            )}
-          </button>
+            {isLoading ? 'Authorizing...' : 'Authorize'}
+          </Button>
         </div>
       </form>
     </div>
