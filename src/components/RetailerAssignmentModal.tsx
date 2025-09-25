@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from './ui/Button';
-import { X } from 'lucide-react';
+import { Info, X } from 'lucide-react';
 import type { StockDifference } from '../interfaces';
 import { mockRetailers } from '../services/mockData';
 import AlertModal from './ui/AlertModal';
@@ -70,6 +70,12 @@ const RetailerAssignmentModal: React.FC<RetailerAssignmentModalProps> = ({ onClo
                             className="w-full rounded-md border p-2 text-center" />
                     </div>
                 ))}
+                 <div className="mt-4 flex items-start gap-3 rounded-lg bg-blue-500/10 p-3 text-blue-700">
+                    <Info className="h-5 w-5 mt-0.5 shrink-0"/>
+                    <p className="text-sm font-medium">
+                        Stock sent to a retailer is reassigned and not considered final liquidation[cite: 16]. You will be notified of the pending task to track liquidation from these retailers.
+                    </p>
+                </div>
             </div>
             <div className="flex justify-end gap-4 border-t bg-secondary/50 p-4">
                 <Button type="button" variant="secondary" onClick={onClose}>Cancel</Button>
