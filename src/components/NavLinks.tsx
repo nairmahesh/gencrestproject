@@ -1,4 +1,3 @@
-// src/components/NavLinks.tsx
 import { NavLink as RouterNavLink } from 'react-router-dom';
 import { navLinks } from '../config/navConfig';
 import type { UserRole } from '../interfaces';

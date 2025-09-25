@@ -2,12 +2,12 @@ import LoginCard from "../components/LoginCard"
 import AuthLayout from "../layouts/AuthLayout"
 import { useSelector } from "react-redux"
 import type { RootState } from "../store/store"
-import { useNavigate } from "react-router-dom"
+import { Navigate } from "react-router-dom"
 
 const AuthPage = () => {
- const navigate=useNavigate();
- const {loggedIn}=useSelector((state:RootState)=>state.auth);
- if(loggedIn) navigate('/dashboard');
+ const {loggedIn} = useSelector((state:RootState) => state.auth);
+ if(loggedIn) return <Navigate to="/dashboard" replace />;
+ 
  return (
   <AuthLayout>
    <LoginCard />
@@ -15,4 +15,4 @@ const AuthPage = () => {
  )
 }
 
-export default AuthPage
+export default AuthPage;

@@ -1,4 +1,3 @@
-// src/App.tsx
 import { Route, Routes } from "react-router-dom";
 import AuthPage from "./pages/AuthPage";
 import ProtectedRoute from "./components/ProtectedRoute";

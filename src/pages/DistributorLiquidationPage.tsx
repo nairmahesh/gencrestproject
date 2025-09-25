@@ -13,15 +13,16 @@ import ValidationStep from '../components/ValidationStep';
 import ClassificationStep from '../components/ClassificationStep';
 import { useLocation } from '../hooks/useLocation';
 import type { StockDifference } from '../interfaces';
-import ActivityTracker from '../components/ActivityTracker';
 import AlertModal from '../components/ui/AlertModal';
+import ActivityTracker from '../components/ActivityTracker';
 
-const ALLOWED_DEVIATION_METERS = 5000; // 5 KM
+const ALLOWED_DEVIATION_METERS = 50000; // 5 KM
 
 const DistributorLiquidationPage = () => {
   const { distributorId } = useParams<{ distributorId: string }>();
   const dispatch = useDispatch<AppDispatch>();
   const { selectedDistributor, status: dataStatus, error: dataError } = useSelector((state: RootState) => state.liquidation);
+  const user = useSelector((state: RootState) => state.auth.user);
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [stockDifferences, setStockDifferences] = useState<StockDifference[] | null>(null);
@@ -29,12 +30,13 @@ const DistributorLiquidationPage = () => {
   const [currentStep, setCurrentStep] = useState<'summary' | 'details' | 'classification' | 'validation'>('summary');
   
   const { status: locStatus, coordinates, error: locError, getLocation } = useLocation();
- const [alert, setAlert] = useState({ isOpen: false, title: '', message: '' });
+  const [alert, setAlert] = useState({ isOpen: false, title: '', message: '' });
+
   useEffect(() => {
-    if (distributorId && !selectedDistributor) {
+    if (distributorId) {
       dispatch(fetchDistributorSummary(distributorId));
     }
-  }, [dispatch, distributorId, selectedDistributor]);
+  }, [dispatch, distributorId]);
 
   const getDistanceInMeters = (coords1: {latitude: number, longitude: number}, coords2: {latitude: number, longitude: number}) => {
     const R = 6371e3; // metres
@@ -56,51 +58,42 @@ const DistributorLiquidationPage = () => {
       if (selectedDistributor?.location) {
         const distance = getDistanceInMeters(coordinates, selectedDistributor.location);
         if (distance > ALLOWED_DEVIATION_METERS) {
-          setAlert({ 
-            isOpen: true,
-            title: "Location Check Failed",
-            message: `You are approximately ${(distance / 1000).toFixed(2)}km away from the distributor. Stock entry is disabled.`
-          });
+          setAlert({ isOpen: true, title: "Location Check Failed", message: `You are approximately ${(distance / 1000).toFixed(2)}km away. Stock entry disabled.` });
         } else {
           setIsModalOpen(true);
         }
       }
     } else if (locStatus === 'error') {
-      setAlert({
-        isOpen: true,
-        title: "Location Error",
-        message: `Could not verify your location. Please enable location services. Error: ${locError?.message}`
-      });
+      setAlert({ isOpen: true, title: "Location Error", message: `Could not verify location. Please enable location services. Error: ${locError?.message}` });
     }
   }, [locStatus, coordinates, locError, selectedDistributor]);
   
   const handleStockSubmit = (calculatedDifferences: StockDifference[]) => {
-    setStockDifferences(calculatedDifferences.filter(d => d.difference > 0));
+    const differences = calculatedDifferences.filter(d => d.difference > 0);
+    if (differences.length === 0) {
+        setAlert({ isOpen: true, title: "No Stock Difference", message: "No stock reduction was recorded. The process will be finalized with a signature." });
+        setCurrentStep('validation');
+    } else {
+        setStockDifferences(differences);
+        setCurrentStep('details');
+    }
     setIsModalOpen(false);
-    setCurrentStep('details');
   };
   
-  const handleDetailsConfirmed = () => {
-    setCurrentStep('classification');
-  };
-  
+  const handleDetailsConfirmed = () => setCurrentStep('classification');
   const handleClassificationConfirmed = (allocations: any) => {
     setLiquidationAllocations(allocations);
     setCurrentStep('validation');
   };
 
-  const handleValidationComplete = (validationData: { mdoSignature: string; coSignerSignature: string | null; letterhead: File; }) => {
+  const handleValidationComplete = (validationData: { mdoSignature: string; coSignerSignature: string | null; letterheads: File[]; }) => {
     console.log({
       message: "Validation Complete! Submitting to backend...",
       ...validationData,
       allocations: liquidationAllocations,
-      letterheadName: validationData.letterhead.name,
+      letterheadNames: validationData.letterheads.map(f => f.name),
     });
-     setAlert({
-        isOpen: true,
-        title: "Success",
-        message: "Liquidation entry has been finalized and submitted successfully."
-    });
+    setAlert({ isOpen: true, title: "Success", message: "Liquidation entry has been finalized and submitted." });
     setCurrentStep('summary');
     setStockDifferences(null);
     setLiquidationAllocations(null);
@@ -141,20 +134,27 @@ const DistributorLiquidationPage = () => {
   return (
     <DashboardLayout>
       <AlertModal {...alert} onClose={() => setAlert({ ...alert, isOpen: false })} />
-      <div className="flex items-center mb-4">
+      <div className="flex items-center justify-between mb-4">
         <Link to="/liquidation" className="flex items-center text-sm hover:underline">
           <ChevronLeft className="h-4 w-4" /> Back to Summary
         </Link>
+        <div className="text-xs text-right text-secondary-foreground">
+            <p>Visit Time: {new Date().toLocaleString()}</p>
+            <p>User: {user?.name || 'MDO User'}</p>
+        </div>
       </div>
       <h1 className="text-2xl font-bold mb-4">{selectedDistributor?.name || 'Loading...'}</h1>
       
       {dataStatus === 'loading' && currentStep === 'summary' && <div className="flex justify-center items-center h-64"><LoaderCircle className="animate-spin h-8 w-8" /></div>}
       {dataStatus === 'failed' && <div className="text-danger">Error: {dataError}</div>}
 
-      {selectedDistributor && renderCurrentStep()}
- {selectedDistributor && (
-        <ActivityTracker />
+      {selectedDistributor && (
+        <>
+          {renderCurrentStep()}
+          <ActivityTracker />
+        </>
       )}
+
       {isModalOpen && distributorId && (
         <StockEntryModal 
           distributorId={distributorId} 

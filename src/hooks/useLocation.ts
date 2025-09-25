@@ -34,9 +34,14 @@ export const useLocation = () => {
       (err) => {
         setError({ code: err.code, message: err.message });
         setStatus('error');
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
       }
     );
   };
-console.log('coordinates',coordinates)
+
   return { status, coordinates, error, getLocation };
 };

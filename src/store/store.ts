@@ -1,12 +1,11 @@
-// src/store/store.ts
 import { configureStore } from '@reduxjs/toolkit';
 import { authReducer } from './authSlice';
-import { liquidationReducer } from './liquidationSlice'; // <-- Import
+import { liquidationReducer } from './liquidationSlice';
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
-    liquidation: liquidationReducer, // <-- Add reducer
+    liquidation: liquidationReducer,
   },
 });
 

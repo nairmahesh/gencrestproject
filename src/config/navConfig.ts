@@ -1,4 +1,3 @@
-// src/config/navConfig.ts
 import { LayoutDashboard, Droplets, User, Users, Shield } from 'lucide-react';
 import type { UserRole } from '../interfaces';
 

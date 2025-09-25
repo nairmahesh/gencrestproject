@@ -1,10 +1,9 @@
-// src/components/LoginCard.tsx
 import { Mail, KeyRound } from 'lucide-react';
 import { useLogin } from '../hooks/useLogin';
 import ErrorAlert from './ErrorAlert';
 import InputField from './InputField';
 import Logo from './Logo';
-import { Button } from './ui/Button'; // <-- Import our new Button
+import { Button } from './ui/Button';
 
 const LoginCard = () => {
   const {
@@ -17,7 +16,7 @@ const LoginCard = () => {
   } = useLogin();
 
   return (
-    <div className="max-w-md w-full bg-white dark:bg-gray-800 border border-border shadow-lg rounded-lg p-6">
+    <div className="max-w-md w-full bg-background border border-border shadow-lg rounded-lg p-6">
       <div className="flex justify-center mb-6">
         <Logo />
       </div>
@@ -51,7 +50,6 @@ const LoginCard = () => {
         {apiError && <ErrorAlert text={apiError} />}
 
         <div className="pt-2">
-          {/* 👇 REPLACED THE OLD BUTTON WITH OUR NEW COMPONENT */}
           <Button
             type="submit"
             className="w-full"

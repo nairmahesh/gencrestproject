@@ -1,7 +1,6 @@
-// src/hooks/useLogin.ts
 import { useState } from 'react';
 import type { AuthLoginRequest } from '../interfaces';
-import { apiService } from '../services/apiService'; // Assuming you have this
+import { apiService } from '../services/apiService';
 import { isAxiosError } from 'axios';
 import { useDispatch } from 'react-redux';
 import { login } from '../store/authSlice';
@@ -19,7 +18,6 @@ export const useLogin = () => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setLoginData(prev => ({ ...prev, [name]: value }));
-    // Clear validation error for the field being edited
     if (validationErrors[name as keyof AuthLoginRequest]) {
       setValidationErrors(prev => ({ ...prev, [name]: undefined }));
     }
@@ -43,22 +41,16 @@ export const useLogin = () => {
     e.preventDefault();
     setApiError(null);
 
-    if (!validate()) {
-      return;
-    }
+    if (!validate()) return;
 
     setStatus('loading');
     try {
       const response = await apiService.login(loginData);
-      // On success, you would typically set user context, store tokens, and redirect.
-      console.log('Login successful:', response.data.user.name);
       localStorage.setItem('accessToken', response.data.accessToken);
       localStorage.setItem('refreshToken', response.data.refreshToken);
       localStorage.setItem('user', JSON.stringify(response.data.user));
-      const userData = response.data.user
-      dispatch(login(userData));
+      dispatch(login(response.data.user));
       setStatus('success');
-      // Example: window.location.href = '/dashboard';
     } catch (error) {
       setStatus('error');
       if (isAxiosError(error) && error.response) {
@@ -69,13 +61,5 @@ export const useLogin = () => {
     }
   };
 
-  return {
-    loginData,
-    status,
-    isLoading,
-    apiError,
-    validationErrors,
-    handleInputChange,
-    handleSubmit,
-  };
+  return { loginData, status, isLoading, apiError, validationErrors, handleInputChange, handleSubmit };
 };

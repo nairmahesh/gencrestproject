@@ -1,9 +1,8 @@
-// src/components/Sider.tsx
 import { ChevronLeft } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import { Button } from './ui/Button';
 import NavLinks from './NavLinks';
-import { type RootState } from '../store/store';
+import type { RootState } from '../store/store';
 
 interface SiderProps {
   siderOpen: boolean;
@@ -12,7 +11,7 @@ interface SiderProps {
 
 const Sider = ({ siderOpen, setSiderOpen }: SiderProps) => {
   const user = useSelector((state: RootState) => state.auth.user);
-console.log('user::',user)
+
   return (
     <aside
       className={`relative flex h-dvh flex-col bg-background border-r border-border transition-all duration-300 ease-in-out ${
@@ -35,7 +34,7 @@ console.log('user::',user)
       </nav>
 
       <div className="border-t border-border p-4">
-        {/* User Profile info can be added here */}
+        {/* Future content can go here */}
       </div>
     </aside>
   );

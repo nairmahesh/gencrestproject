@@ -1,4 +1,4 @@
-// src/pages/DashboardPage.tsx
+import React from 'react';
 import DashboardLayout from '../layouts/DashboradLayout';
 
 const DashboardPage = () => {
@@ -8,10 +8,10 @@ const DashboardPage = () => {
         <div className="flex h-full items-center justify-center rounded-lg">
           <div className="text-center">
             <h2 className="text-2xl font-bold tracking-tight">
-              Welcome to the Dashboard
+              Welcome to the Gencrest Platform
             </h2>
             <p className="text-secondary-foreground">
-              Your content will be displayed here.
+              Select a module from the sidebar to get started.
             </p>
           </div>
         </div>

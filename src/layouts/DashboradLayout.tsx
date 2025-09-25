@@ -1,8 +1,7 @@
-// src/layouts/DashboradLayout.tsx
 import { useState } from "react";
 import type React from "react";
 import Sider from "../components/Sider";
-import Header from "../components/Header"; // <-- Import Header
+import Header from "../components/Header";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
