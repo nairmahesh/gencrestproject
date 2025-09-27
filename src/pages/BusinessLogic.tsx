@@ -660,7 +660,7 @@ const BusinessLogic: React.FC = () => {
               <div className="space-y-2 text-sm">
                 <div className="flex items-center">
                   <AlertTriangle className="w-4 h-4 text-red-600 mr-2" />
-                  <span>Liquidation ≤ Available Stock</span>
+                  <span>Liquidation {'\u2264'} Available Stock</span>
                 </div>
                 <div className="flex items-center">
                   <AlertTriangle className="w-4 h-4 text-red-600 mr-2" />
@@ -674,15 +674,15 @@ const BusinessLogic: React.FC = () => {
               <div className="space-y-2 text-sm">
                 <div className="flex items-center">
                   <AlertTriangle className="w-4 h-4 text-red-600 mr-2" />
-                  <span>Value Consistency (Volume > 0 → Value > 0)</span>
+                  <span>Value Consistency (Volume {'>'} 0 {'→'} Value {'>'} 0)</span>
                 </div>
                 <div className="flex items-center">
                   <AlertTriangle className="w-4 h-4 text-red-600 mr-2" />
-                  <span>Liquidation Rate ≤ 100%</span>
+                  <span>Liquidation Rate {'\u2264'} 100%</span>
                 </div>
                 <div className="flex items-center">
                   <AlertTriangle className="w-4 h-4 text-red-600 mr-2" />
-                  <span>Stock Variance ≤ 10% (Critical)</span>
+                  <span>Stock Variance {'\u2264'} 10% (Critical)</span>
                 </div>
               </div>
             </div>
@@ -695,11 +695,11 @@ const BusinessLogic: React.FC = () => {
               <div className="space-y-2 text-sm">
                 <div className="flex items-center">
                   <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
-                  <span>Order Value ≤ Available Credit</span>
+                  <span>Order Value {'\u2264'} Available Credit</span>
                 </div>
                 <div className="flex items-center">
                   <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
-                  <span>Payment ≤ Outstanding Amount</span>
+                  <span>Payment {'\u2264'} Outstanding Amount</span>
                 </div>
                 <div className="flex items-center">
                   <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
@@ -709,15 +709,15 @@ const BusinessLogic: React.FC = () => {
               <div className="space-y-2 text-sm">
                 <div className="flex items-center">
                   <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
-                  <span>Receipt Required (Cash >₹500)</span>
+                  <span>Receipt Required (Cash {'>'}{'\u20B9'}500)</span>
                 </div>
                 <div className="flex items-center">
                   <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
-                  <span>Credit Utilization Alerts (>80%)</span>
+                  <span>Credit Utilization Alerts ({'>'} 80%)</span>
                 </div>
                 <div className="flex items-center">
                   <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
-                  <span>Large Transaction Alerts (>₹1L)</span>
+                  <span>Large Transaction Alerts ({'>'}{'\u20B9'}1L)</span>
                 </div>
               </div>
             </div>
@@ -730,15 +730,15 @@ const BusinessLogic: React.FC = () => {
               <div className="space-y-2 text-sm">
                 <div className="flex items-center">
                   <MapPin className="w-4 h-4 text-blue-600 mr-2" />
-                  <span>Daily Distance ≤ 110km</span>
+                  <span>Daily Distance {'\u2264'} 110km</span>
                 </div>
                 <div className="flex items-center">
                   <Clock className="w-4 h-4 text-blue-600 mr-2" />
-                  <span>Working Hours ≥ 9 hours</span>
+                  <span>Working Hours {'\u2265'} 9 hours</span>
                 </div>
                 <div className="flex items-center">
                   <MapPin className="w-4 h-4 text-blue-600 mr-2" />
-                  <span>Location Deviation ≤ 5km</span>
+                  <span>Location Deviation {'\u2264'} 5km</span>
                 </div>
               </div>
               <div className="space-y-2 text-sm">
@@ -752,7 +752,7 @@ const BusinessLogic: React.FC = () => {
                 </div>
                 <div className="flex items-center">
                   <Clock className="w-4 h-4 text-blue-600 mr-2" />
-                  <span>Visit Duration ≥ 30 minutes</span>
+                  <span>Visit Duration {'\u2265'} 30 minutes</span>
                 </div>
               </div>
             </div>
