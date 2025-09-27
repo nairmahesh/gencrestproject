@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { BusinessValidator, BUSINESS_CONSTANTS, ValidationHelpers } from '../utils/businessValidation';
 import RoleBasedAccess from '../components/RoleBasedAccess';
 import { 
   ArrowLeft, 
@@ -25,7 +26,8 @@ import {
   CheckCircle,
   Info,
   Code,
-  Workflow
+  Workflow,
+  Clock
 } from 'lucide-react';
 
 interface BusinessRule {
@@ -46,7 +48,12 @@ const BusinessLogic: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedRule, setExpandedRule] = useState<string | null>(null);
-  const [selectedView, setSelectedView] = useState<'overview' | 'rules' | 'formulas' | 'workflows'>('overview');
+  const [selectedView, setSelectedView] = useState<'overview' | 'rules' | 'formulas' | 'workflows' | 'validations'>('overview');
+  const [testData, setTestData] = useState({
+    liquidation: { volume: 1000, value: 12.5 },
+    openingStock: { volume: 2000, value: 25.0 },
+    ytdNetSales: { volume: 500, value: 6.25 }
+  });
 
   const businessRules: BusinessRule[] = [
     {
@@ -150,6 +157,32 @@ const BusinessLogic: React.FC = () => {
       implementationStatus: 'Implemented'
     }
   ];
+  
+  // Test validation function
+  const testValidation = (validationType: string) => {
+    let result;
+    
+    switch (validationType) {
+      case 'liquidation':
+        result = BusinessValidator.validateLiquidation({
+          openingStock: testData.openingStock,
+          ytdNetSales: testData.ytdNetSales,
+          liquidation: testData.liquidation,
+          balanceStock: { volume: 0, value: 0 }
+        });
+        break;
+      case 'stock_movement':
+        result = BusinessValidator.validateStockMovement(1000, 1200, 'sale');
+        break;
+      case 'credit_limit':
+        result = BusinessValidator.validateCreditLimit(100000, 60000, 20000, 30000);
+        break;
+      default:
+        result = { isValid: true, errors: [], warnings: [] };
+    }
+    
+    alert(`Validation Result:\n\nValid: ${result.isValid}\n\nErrors:\n${result.errors.join('\n')}\n\nWarnings:\n${result.warnings.join('\n')}`);
+  };
 
   const categories = ['All', 'Stock Liquidation', 'User Management', 'Approvals', 'Field Visits', 'Performance', 'Financial', 'Travel', 'Planning'];
 
@@ -248,6 +281,34 @@ const BusinessLogic: React.FC = () => {
       <div className="bg-white rounded-xl p-6 card-shadow">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">🚨 Critical Business Rules</h3>
         <div className="space-y-4">
+          {/* Live Validation Testing */}
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+            <h4 className="font-semibold text-yellow-900 mb-3">🧪 Live Validation Testing</h4>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <button
+                onClick={() => testValidation('liquidation')}
+                className="bg-yellow-600 text-white px-3 py-2 rounded text-sm hover:bg-yellow-700"
+              >
+                Test Liquidation Rules
+              </button>
+              <button
+                onClick={() => testValidation('stock_movement')}
+                className="bg-red-600 text-white px-3 py-2 rounded text-sm hover:bg-red-700"
+              >
+                Test Stock Movement
+              </button>
+              <button
+                onClick={() => testValidation('credit_limit')}
+                className="bg-blue-600 text-white px-3 py-2 rounded text-sm hover:bg-blue-700"
+              >
+                Test Credit Validation
+              </button>
+            </div>
+            <p className="text-xs text-yellow-700 mt-2">
+              Click buttons to test validation rules with sample data
+            </p>
+          </div>
+          
           {businessRules.filter(r => r.importance === 'Critical').map(rule => (
             <div key={rule.id} className="border-l-4 border-red-500 bg-red-50 p-4 rounded-lg">
               <h4 className="font-semibold text-red-900 mb-2">{rule.title}</h4>
@@ -339,7 +400,7 @@ const BusinessLogic: React.FC = () => {
             >
               {expandedRule === rule.id ? (
                 <>
-                  <ChevronUp className="w-4 h-4 mr-1" />
+                  <ChevronDown className="w-4 h-4 mr-1" />
                   Hide Details
                 </>
               ) : (
@@ -401,6 +462,72 @@ const BusinessLogic: React.FC = () => {
           {/* Stock Liquidation Formulas */}
           <div className="border-l-4 border-purple-500 bg-purple-50 p-4 rounded-lg">
             <h4 className="font-semibold text-purple-900 mb-3">Stock Liquidation Formulas</h4>
+            
+            {/* Interactive Formula Testing */}
+            <div className="bg-white p-4 rounded-lg border mb-4">
+              <h5 className="font-medium text-gray-900 mb-3">🧮 Interactive Formula Calculator</h5>
+              <div className="grid grid-cols-3 gap-4 mb-3">
+                <div>
+                  <label className="block text-xs text-gray-600 mb-1">Opening Stock</label>
+                  <input
+                    type="number"
+                    value={testData.openingStock.volume}
+                    onChange={(e) => setTestData(prev => ({
+                      ...prev,
+                      openingStock: { ...prev.openingStock, volume: Number(e.target.value) }
+                    }))}
+                    className="w-full px-2 py-1 border rounded text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-600 mb-1">YTD Sales</label>
+                  <input
+                    type="number"
+                    value={testData.ytdNetSales.volume}
+                    onChange={(e) => setTestData(prev => ({
+                      ...prev,
+                      ytdNetSales: { ...prev.ytdNetSales, volume: Number(e.target.value) }
+                    }))}
+                    className="w-full px-2 py-1 border rounded text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-600 mb-1">Liquidation</label>
+                  <input
+                    type="number"
+                    value={testData.liquidation.volume}
+                    onChange={(e) => setTestData(prev => ({
+                      ...prev,
+                      liquidation: { ...prev.liquidation, volume: Number(e.target.value) }
+                    }))}
+                    className="w-full px-2 py-1 border rounded text-sm"
+                  />
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div className="bg-blue-50 p-3 rounded">
+                  <span className="text-blue-600 font-medium">Balance Stock:</span>
+                  <span className="ml-2 font-bold">
+                    {testData.openingStock.volume + testData.ytdNetSales.volume - testData.liquidation.volume}
+                  </span>
+                </div>
+                <div className="bg-green-50 p-3 rounded">
+                  <span className="text-green-600 font-medium">Liquidation %:</span>
+                  <span className="ml-2 font-bold">
+                    {((testData.liquidation.volume / (testData.openingStock.volume + testData.ytdNetSales.volume)) * 100).toFixed(1)}%
+                  </span>
+                </div>
+              </div>
+              
+              <button
+                onClick={() => testValidation('liquidation')}
+                className="mt-3 bg-purple-600 text-white px-4 py-2 rounded text-sm hover:bg-purple-700"
+              >
+                Validate These Values
+              </button>
+            </div>
+            
             <div className="space-y-3">
               <div className="bg-white p-3 rounded border">
                 <h5 className="font-medium text-gray-900 mb-1">Liquidation Percentage</h5>
@@ -519,6 +646,121 @@ const BusinessLogic: React.FC = () => {
       </div>
     </div>
   );
+  
+  const renderValidationRules = () => (
+    <div className="space-y-6">
+      <div className="bg-white rounded-xl p-6 card-shadow">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">🔍 Comprehensive Validation Rules</h3>
+        
+        <div className="space-y-6">
+          {/* Stock Validations */}
+          <div className="border-l-4 border-red-500 bg-red-50 p-4 rounded-lg">
+            <h4 className="font-semibold text-red-900 mb-3">Stock Management Validations</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center">
+                  <AlertTriangle className="w-4 h-4 text-red-600 mr-2" />
+                  <span>Liquidation ≤ Available Stock</span>
+                </div>
+                <div className="flex items-center">
+                  <AlertTriangle className="w-4 h-4 text-red-600 mr-2" />
+                  <span>No Negative Stock Values</span>
+                </div>
+                <div className="flex items-center">
+                  <AlertTriangle className="w-4 h-4 text-red-600 mr-2" />
+                  <span>Balance = Opening + YTD - Liquidation</span>
+                </div>
+              </div>
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center">
+                  <AlertTriangle className="w-4 h-4 text-red-600 mr-2" />
+                  <span>Value Consistency (Volume > 0 → Value > 0)</span>
+                </div>
+                <div className="flex items-center">
+                  <AlertTriangle className="w-4 h-4 text-red-600 mr-2" />
+                  <span>Liquidation Rate ≤ 100%</span>
+                </div>
+                <div className="flex items-center">
+                  <AlertTriangle className="w-4 h-4 text-red-600 mr-2" />
+                  <span>Stock Variance ≤ 10% (Critical)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Financial Validations */}
+          <div className="border-l-4 border-green-500 bg-green-50 p-4 rounded-lg">
+            <h4 className="font-semibold text-green-900 mb-3">Financial Validations</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center">
+                  <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
+                  <span>Order Value ≤ Available Credit</span>
+                </div>
+                <div className="flex items-center">
+                  <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
+                  <span>Payment ≤ Outstanding Amount</span>
+                </div>
+                <div className="flex items-center">
+                  <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
+                  <span>GST/PAN Format Validation</span>
+                </div>
+              </div>
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center">
+                  <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
+                  <span>Receipt Required (Cash >₹500)</span>
+                </div>
+                <div className="flex items-center">
+                  <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
+                  <span>Credit Utilization Alerts (>80%)</span>
+                </div>
+                <div className="flex items-center">
+                  <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
+                  <span>Large Transaction Alerts (>₹1L)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Travel & Location Validations */}
+          <div className="border-l-4 border-blue-500 bg-blue-50 p-4 rounded-lg">
+            <h4 className="font-semibold text-blue-900 mb-3">Travel & Location Validations</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center">
+                  <MapPin className="w-4 h-4 text-blue-600 mr-2" />
+                  <span>Daily Distance ≤ 110km</span>
+                </div>
+                <div className="flex items-center">
+                  <Clock className="w-4 h-4 text-blue-600 mr-2" />
+                  <span>Working Hours ≥ 9 hours</span>
+                </div>
+                <div className="flex items-center">
+                  <MapPin className="w-4 h-4 text-blue-600 mr-2" />
+                  <span>Location Deviation ≤ 5km</span>
+                </div>
+              </div>
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center">
+                  <DollarSign className="w-4 h-4 text-blue-600 mr-2" />
+                  <span>Car: ₹12/km, Bike: ₹5/km</span>
+                </div>
+                <div className="flex items-center">
+                  <Target className="w-4 h-4 text-blue-600 mr-2" />
+                  <span>GPS Coordinates (India Bounds)</span>
+                </div>
+                <div className="flex items-center">
+                  <Clock className="w-4 h-4 text-blue-600 mr-2" />
+                  <span>Visit Duration ≥ 30 minutes</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="space-y-6">
@@ -591,6 +833,17 @@ const BusinessLogic: React.FC = () => {
             <Workflow className="w-4 h-4 mr-2 inline" />
             Workflows
           </button>
+          <button
+            onClick={() => setSelectedView('validations')}
+            className={`flex-1 py-2 px-4 rounded-lg transition-colors font-medium ${
+              selectedView === 'validations'
+                ? 'bg-purple-600 text-white'
+                : 'text-gray-600 hover:bg-gray-100'
+            }`}
+          >
+            <AlertTriangle className="w-4 h-4 mr-2 inline" />
+            Validations
+          </button>
         </div>
       </div>
 
@@ -635,6 +888,7 @@ const BusinessLogic: React.FC = () => {
       {selectedView === 'rules' && renderRules()}
       {selectedView === 'formulas' && renderFormulas()}
       {selectedView === 'workflows' && renderWorkflows()}
+      {selectedView === 'validations' && renderValidationRules()}
 
       {/* No Results */}
       {selectedView === 'rules' && filteredRules.length === 0 && (
