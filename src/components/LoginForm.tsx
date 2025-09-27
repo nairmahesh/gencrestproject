@@ -135,7 +135,7 @@ const LoginForm: React.FC = () => {
             </div>
 
             <div className="mt-4 grid grid-cols-2 gap-2">
-              {roles.slice(0, 8).map((role) => (
+              {roles.slice(0, 6).map((role) => (
                 <button
                   key={role.code}
                   onClick={() => quickLogin(role.code)}
@@ -147,14 +147,14 @@ const LoginForm: React.FC = () => {
               ))}
             </div>
 
-            <div className="mt-3 grid grid-cols-2 gap-2">
-              {roles.slice(8).map((role) => (
+            <div className="mt-3 grid grid-cols-4 gap-2">
+              {roles.slice(6).map((role) => (
                 <button
                   key={role.code}
                   onClick={() => quickLogin(role.code)}
-                  className={`${role.color} text-white p-3 rounded-lg hover:opacity-90 transition-opacity text-center`}
+                  className={`${role.color} text-white p-2 rounded-lg hover:opacity-90 transition-opacity text-center`}
                 >
-                  <div className="font-semibold text-sm">{role.name}</div>
+                  <div className="font-semibold text-xs">{role.name}</div>
                   <div className="text-xs opacity-90">{role.code}/{role.code}</div>
                 </button>
               ))}
