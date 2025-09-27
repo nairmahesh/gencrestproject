@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { BusinessValidator, ValidationResult } from '../utils/businessValidation';
 
 interface LiquidationMetrics {
   openingStock: { volume: number; value: number };
@@ -170,6 +171,23 @@ export const useLiquidationCalculation = () => {
     liquidation: { volume: number; value: number }
   ): LiquidationMetrics => {
     
+    // VALIDATE BUSINESS RULES FIRST
+    const validationResult = BusinessValidator.validateLiquidation({
+      openingStock,
+      ytdNetSales,
+      liquidation,
+      balanceStock: { volume: 0, value: 0 } // Will be calculated
+    });
+    
+    if (!validationResult.isValid) {
+      console.error('Liquidation calculation validation failed:', validationResult.errors);
+      throw new Error(`Validation failed: ${validationResult.errors.join(', ')}`);
+    }
+    
+    if (validationResult.warnings.length > 0) {
+      console.warn('Liquidation calculation warnings:', validationResult.warnings);
+    }
+    
     // BUSINESS RULE 1: Balance Stock = Opening Stock + YTD Net Sales - Liquidation
     const balanceStockVolume = Math.max(0, openingStock.volume + ytdNetSales.volume - liquidation.volume);
     const balanceStockValue = Math.max(0, openingStock.value + ytdNetSales.value - liquidation.value);
@@ -220,6 +238,17 @@ export const useLiquidationCalculation = () => {
       liquidation: { volume: number; value: number };
     }>
   ) => {
+    // Validate updates before applying
+    if (updates.liquidation) {
+      const distributor = distributorMetrics.find(d => d.id === distributorId);
+      if (distributor) {
+        const totalAvailable = distributor.metrics.openingStock.volume + distributor.metrics.ytdNetSales.volume;
+        if (updates.liquidation.volume > totalAvailable) {
+          throw new Error(`Liquidation (${updates.liquidation.volume}) cannot exceed available stock (${totalAvailable})`);
+        }
+      }
+    }
+    
     setDistributorMetrics(prev => 
       prev.map(distributor => {
         if (distributor.id === distributorId) {
@@ -351,6 +380,15 @@ export const useLiquidationCalculation = () => {
     quantitySoldToFarmer: number,
     saleValue: number
   ) => {
+    // Validate farmer sale before recording
+    if (quantitySoldToFarmer <= 0) {
+      throw new Error('Farmer sale quantity must be positive');
+    }
+    
+    if (saleValue <= 0) {
+      throw new Error('Farmer sale value must be positive');
+    }
+    
     // Update distributor's liquidation count when retailer sells to farmer
     setDistributorMetrics(prev => 
       prev.map(distributor => {

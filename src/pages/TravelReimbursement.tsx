@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useBusinessValidation } from '../utils/businessValidation';
 import { Car, Plus, Calendar, MapPin, DollarSign, Clock, CheckCircle, AlertTriangle, ArrowLeft } from 'lucide-react';
 
 interface TravelClaim {
@@ -19,6 +20,7 @@ interface TravelClaim {
 
 const TravelReimbursement: React.FC = () => {
   const navigate = useNavigate();
+  const { validateAndAlert } = useBusinessValidation();
   const [claims] = useState<TravelClaim[]>([
     {
       id: '1',
@@ -104,6 +106,23 @@ const TravelReimbursement: React.FC = () => {
   const approvedAmount = claims.filter(c => c.status === 'Approved').reduce((sum, claim) => sum + claim.amount, 0);
   const pendingAmount = claims.filter(c => c.status === 'Submitted').reduce((sum, claim) => sum + claim.amount, 0);
 
+  const handleCreateClaim = () => {
+    // Example validation for new travel claim
+    const sampleClaimData = {
+      distance: 45,
+      mode: 'Car' as const,
+      amount: 540,
+      workingHours: 9
+    };
+    
+    const isValid = validateAndAlert('travel_expense', sampleClaimData);
+    
+    if (isValid) {
+      alert('Travel claim validation passed. Proceeding to create claim...');
+      // Navigate to claim creation form
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -120,7 +139,10 @@ const TravelReimbursement: React.FC = () => {
             <p className="text-gray-600 mt-1">Track and manage your travel expenses</p>
           </div>
         </div>
-        <button className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center">
+        <button 
+          onClick={handleCreateClaim}
+          className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center"
+        >
           <Plus className="w-4 h-4 mr-2" />
           Add Claim
         </button>

@@ -1,5 +1,42 @@
 # Gencrest Activity Tracker - Business Logic Documentation
 
+## 🚨 CRITICAL VALIDATION RULES
+
+### Stock Management Validations
+1. **Liquidation ≤ Available Stock**: `liquidation.volume ≤ (openingStock.volume + ytdNetSales.volume)`
+2. **No Negative Stock**: All stock values must be ≥ 0
+3. **Balance Stock Accuracy**: `balanceStock = openingStock + ytdNetSales - liquidation`
+4. **Value Consistency**: If volume > 0, then value must be > 0
+5. **Liquidation Rate Limits**: Liquidation % cannot exceed 100%
+
+### Financial Validations
+1. **Credit Limit Enforcement**: `orderValue ≤ (creditLimit - outstanding - pending)`
+2. **Payment ≤ Outstanding**: Payment amount cannot exceed outstanding balance
+3. **Negative Amount Prevention**: All financial values must be positive
+4. **Receipt Requirements**: Cash payments >₹500 need receipts
+5. **GST/PAN Validation**: Proper format validation for tax numbers
+
+### Travel & Location Validations
+1. **Distance Limits**: Daily travel ≤ 110km
+2. **Working Hours**: Minimum 9 hours field time
+3. **Location Deviation**: >5km from planned location needs approval
+4. **Rate Validation**: Travel expense rates (Car: ₹12/km, Bike: ₹5/km)
+5. **GPS Accuracy**: Location coordinates within India bounds
+
+### Visit Compliance Validations
+1. **Minimum Duration**: Visits must be ≥ 30 minutes
+2. **Check-in/out Sequence**: Check-out must be after check-in
+3. **Completion Rate**: Target 80%+ visit completion
+4. **Proof Requirements**: Photos/signatures for all visits
+5. **Objective Completion**: All planned objectives must be addressed
+
+### Performance Validations
+1. **Metric Ranges**: All performance metrics 0-100%
+2. **Weighted Calculation**: Visit(25%) + Sales(30%) + Liquidation(25%) + Satisfaction(20%)
+3. **Achievement Limits**: Cannot exceed 150% of target (data verification needed)
+4. **Minimum Performance**: <70% triggers improvement plan
+5. **Incentive Eligibility**: Performance thresholds for incentive calculation
+
 ## Table of Contents
 1. [User Authentication & Role-Based Access Control](#user-authentication--role-based-access-control)
 2. [Stock Liquidation Business Logic](#stock-liquidation-business-logic)
@@ -581,3 +618,36 @@ const calculatePerformance = (metrics: PerformanceData): number => {
 *Last Updated: January 2024*
 *Version: 1.0*
 *Document Owner: Development Team*
+
+---
+
+## 🔧 VALIDATION IMPLEMENTATION
+
+### Real-time Validation System
+```typescript
+// Example: Stock Liquidation Validation
+const validateLiquidation = (data: LiquidationData): ValidationResult => {
+  const errors: string[] = [];
+  const totalAvailable = data.openingStock.volume + data.ytdNetSales.volume;
+  
+  if (data.liquidation.volume > totalAvailable) {
+    errors.push(`Liquidation (${data.liquidation.volume}) cannot exceed available stock (${totalAvailable})`);
+  }
+  
+  return { isValid: errors.length === 0, errors, warnings: [] };
+};
+```
+
+### Validation Integration Points
+1. **Form Submissions**: Validate before saving data
+2. **API Calls**: Server-side validation for all operations
+3. **Real-time Updates**: Live validation during data entry
+4. **Batch Operations**: Validate bulk data operations
+5. **Import/Export**: Validate external data integration
+
+### Error Handling Strategy
+- **Blocking Errors**: Prevent operation completion
+- **Warning Messages**: Allow operation with user confirmation
+- **Info Messages**: Provide helpful guidance
+- **Audit Logging**: Record all validation failures
+- **User Feedback**: Clear, actionable error messages

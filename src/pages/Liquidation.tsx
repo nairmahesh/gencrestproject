@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useBusinessValidation } from '../utils/businessValidation';
 import { 
   Droplets, 
   Plus, 
@@ -48,6 +49,7 @@ interface ProofItem {
 
 const Liquidation: React.FC = () => {
   const navigate = useNavigate();
+  const { validateAndAlert } = useBusinessValidation();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('All Status');
   const [selectedModal, setSelectedModal] = useState<string | null>(null);
@@ -168,6 +170,18 @@ const Liquidation: React.FC = () => {
   };
 
   const handleSaveAndExit = () => {
+    // Validate before saving
+    const isValid = validateAndAlert('liquidation_update', {
+      openingStock: { volume: 32660, value: 190.00 },
+      ytdNetSales: { volume: 13303, value: 43.70 },
+      liquidation: { volume: 12720, value: 55.52 },
+      balanceStock: { volume: 33243, value: 178.23 }
+    });
+    
+    if (!isValid) {
+      return;
+    }
+    
     setSelectedModal(null);
     setUploadedProofs([]);
     alert(`Liquidation data saved successfully with ${uploadedProofs.length} proofs!`);

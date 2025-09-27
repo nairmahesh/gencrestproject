@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useBusinessValidation } from '../utils/businessValidation';
 import { 
   MapPin, 
   Calendar, 
@@ -64,6 +65,7 @@ interface Visit {
 
 const FieldVisits: React.FC = () => {
   const navigate = useNavigate();
+  const { validateAndAlert } = useBusinessValidation();
   const [visits, setVisits] = useState<Visit[]>([
     {
       id: '1',
@@ -188,6 +190,29 @@ const FieldVisits: React.FC = () => {
   };
 
   const startVisit = (visitId: string) => {
+    const visit = visits.find(v => v.id === visitId);
+    if (!visit || !visit.coordinates) return;
+    
+    // Validate location if GPS is available
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        const isValid = validateAndAlert('visit_location', {
+          plannedLat: visit.coordinates!.lat,
+          plannedLng: visit.coordinates!.lng,
+          actualLat: position.coords.latitude,
+          actualLng: position.coords.longitude
+        });
+        
+        if (isValid) {
+          proceedWithVisitStart(visitId);
+        }
+      });
+    } else {
+      proceedWithVisitStart(visitId);
+    }
+  };
+  
+  const proceedWithVisitStart = (visitId: string) => {
     const currentTime = new Date().toLocaleTimeString('en-IN', { 
       hour: '2-digit', 
       minute: '2-digit' 
@@ -201,10 +226,24 @@ const FieldVisits: React.FC = () => {
   };
 
   const endVisit = (visitId: string) => {
+    const visit = visits.find(v => v.id === visitId);
+    if (!visit || !visit.checkInTime) return;
+    
     const currentTime = new Date().toLocaleTimeString('en-IN', { 
       hour: '2-digit', 
       minute: '2-digit' 
     });
+    
+    // Validate working hours
+    const isValid = validateAndAlert('working_hours', {
+      checkInTime: visit.checkInTime,
+      checkOutTime: currentTime
+    });
+    
+    if (!isValid) {
+      const proceed = confirm('Visit duration validation failed. Do you want to proceed anyway?');
+      if (!proceed) return;
+    }
     
     setVisits(prev => prev.map(visit => {
       if (visit.id === visitId && visit.checkInTime) {

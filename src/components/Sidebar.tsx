@@ -16,7 +16,8 @@ import {
   Shield,
   UserCheck,
   ChevronDown,
-  ChevronRight
+  ChevronRight,
+  FileText
 } from 'lucide-react';
 
 interface SidebarProps {

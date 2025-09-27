@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useBusinessValidation } from '../utils/businessValidation';
 import { 
   ArrowLeft, 
   Package, 
@@ -61,6 +62,7 @@ interface RetailerLiquidationData {
 const RetailerLiquidation: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { validateAndAlert } = useBusinessValidation();
   
   // Sample data - in real app this would come from API
   const [liquidationData, setLiquidationData] = useState<RetailerLiquidationData>({
@@ -127,6 +129,17 @@ const RetailerLiquidation: React.FC = () => {
   const handleSaveStock = () => {
     const difference = originalStock - tempCurrentStock;
     
+    // Validate stock movement
+    const isValid = validateAndAlert('stock_movement', {
+      currentStock: originalStock,
+      quantity: difference,
+      type: 'sale'
+    });
+    
+    if (!isValid) {
+      return;
+    }
+    
     if (difference > 0) {
       // Stock was reduced - show modal
       setShowModal(true);
@@ -183,6 +196,18 @@ const RetailerLiquidation: React.FC = () => {
   const handleModalSave = () => {
     const totalAssigned = retailers.slice(0, retailerCount).reduce((sum, r) => sum + r.assignedQty, 0);
     const totalSold = retailers.slice(0, retailerCount).reduce((sum, r) => sum + r.soldQty, 0);
+    
+    // Validate retailer liquidation
+    const isValid = validateAndAlert('retailer_liquidation', {
+      assignedStock: liquidationData.assignedStock,
+      currentStock: tempCurrentStock,
+      soldToFarmers: transactionType === 'farmer' ? farmerQty : totalSold,
+      soldToRetailers: transactionType === 'retailer' ? totalAssigned - totalSold : 0
+    });
+    
+    if (!isValid) {
+      return;
+    }
     
     if (transactionType === 'retailer') {
       if (totalAssigned !== stockDifference) {

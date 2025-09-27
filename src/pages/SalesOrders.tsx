@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { useBusinessValidation } from '../utils/businessValidation';
 import { ShoppingCart, Plus, DollarSign, Package, CheckCircle, Clock, AlertTriangle, ArrowLeft } from 'lucide-react';
 
 interface OrderItem {
@@ -24,6 +26,8 @@ interface Order {
 
 const SalesOrders: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { validateAndAlert } = useBusinessValidation();
   const [orders] = useState<Order[]>([
     {
       id: '1',
@@ -106,6 +110,23 @@ const SalesOrders: React.FC = () => {
 
   const totalOrderValue = orders.reduce((sum, order) => sum + order.netAmount, 0);
 
+  const handleCreateOrder = () => {
+    // Example validation for new order
+    const sampleOrderData = {
+      orderValue: 50000,
+      customerType: 'Dealer' as const,
+      paymentTerms: 'Credit',
+      userRole: user?.role || 'MDO'
+    };
+    
+    const isValid = validateAndAlert('sales_order', sampleOrderData);
+    
+    if (isValid) {
+      alert('Order validation passed. Proceeding to create order...');
+      // Navigate to order creation form
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -122,7 +143,10 @@ const SalesOrders: React.FC = () => {
             <p className="text-gray-600 mt-1">Manage customer orders and deliveries</p>
           </div>
         </div>
-        <button className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center">
+        <button 
+          onClick={handleCreateOrder}
+          className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center"
+        >
           <Plus className="w-4 h-4 mr-2" />
           Create Order
         </button>
