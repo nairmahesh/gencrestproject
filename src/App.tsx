@@ -18,6 +18,7 @@ import MDOModule from './pages/MDOModule';
 import UserManagement from './pages/UserManagement';
 import Approvals from './pages/Approvals';
 import DistributorDetails from './pages/DistributorDetails';
+import BusinessLogic from './pages/BusinessLogic';
 
 function App() {
   const { isAuthenticated } = useAuth();
