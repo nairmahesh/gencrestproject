@@ -44,6 +44,7 @@ function App() {
         <Route path="/user-management" element={<UserManagement />} />
         <Route path="/approvals" element={<Approvals />} />
         <Route path="/distributor/:id" element={<DistributorDetails />} />
+        <Route path="/business-logic" element={<BusinessLogic />} />
       </Routes>
     </Layout>
   );

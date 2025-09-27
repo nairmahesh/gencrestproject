@@ -92,6 +92,7 @@ const navigation = [
   { name: 'Liquidation', href: '/liquidation', icon: Droplets },
   { name: 'Contacts', href: '/contacts', icon: Users },
   { name: 'Approvals', href: '/approvals', icon: UserCheck, allowedRoles: ['TSM', 'RBH', 'RMM', 'ZBH', 'MH', 'VP_SM'] },
+  { name: 'Business Logic', href: '/business-logic', icon: FileText, allowedRoles: ['MD', 'VP_SM', 'MH', 'ZBH', 'RMM', 'RBH', 'TSM'] },
   { name: 'Mobile App Design', href: '/mobile-design', icon: Smartphone, allowedRoles: ['MD', 'VP_SM', 'MH'] },
   { name: 'Mobile App', href: '/mobile', icon: Smartphone },
 ];
