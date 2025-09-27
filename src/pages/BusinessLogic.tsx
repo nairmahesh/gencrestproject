@@ -618,7 +618,7 @@ const BusinessLogic: React.FC = () => {
                 <span className="text-sm">Auto-approved</span>
               </div>
               <div className="flex items-center space-x-2">
-                <span className="w-16 text-sm font-medium">>5km:</span>
+                <span className="w-16 text-sm font-medium">&gt;5km:</span>
                 <span className="text-sm">TSM approval required with justification</span>
               </div>
             </div>
@@ -637,7 +637,7 @@ const BusinessLogic: React.FC = () => {
                 <span className="text-sm">TSM approval required</span>
               </div>
               <div className="flex items-center space-x-2">
-                <span className="w-16 text-sm font-medium">>10%:</span>
+                <span className="w-16 text-sm font-medium">&gt;10%:</span>
                 <span className="text-sm">RBH approval required</span>
               </div>
             </div>
